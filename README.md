@@ -13,4 +13,7 @@ Pasos que he realizado para el proyecto.
 ```3.``` Añadir dependencias de ```postgresql``` en el ```pom.xml```  
 ```4.``` Configurar la conexión a la base de datos en el ```application.properties```   
 
+# /Comandos
+
+ ```1.``` Levantar el proyecto: ```docker compose up --build ```
 

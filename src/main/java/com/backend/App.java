@@ -1,4 +1,4 @@
-package com.backend.GYMCrush_tfg;
+package com.backend;
 
 import org.springframework.boot.SpringApplication; // Importación necesaria
 import org.springframework.boot.autoconfigure.SpringBootApplication;
