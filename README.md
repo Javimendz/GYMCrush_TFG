@@ -27,7 +27,7 @@ Nota : MapStruct es una biblioteca de mapeo de objetos que simplifica la copia d
 
 # /Comandos
 
- ```0.``` Exportar extensiones VS Code ``` code --list-extensions > extensiones.txt```, reinstalar las extensiones ```cat extensiones.txt | xargs -L 1 code --install-extension```
+ ```0.``` Exportar extensiones VS Code ``` code --list-extensions > extensiones.txt```, reinstalar las extensiones ```Get-Content plugins.txt | ForEach-Object { code --install-extension $_ }```
 
  ```1.``` Iniciar todo el proyecto primera vez ```docker compose up --build ```. Descarga imagenes, etc.  
  ```2.``` Iniciar todo rapido ```docker compose up -d ```
