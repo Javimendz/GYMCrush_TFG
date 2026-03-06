@@ -39,6 +39,6 @@ public class Perfiles {
     private String foto;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuariold", referencedColumnName = "id", nullable = false, unique = true)
+    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false, unique = true)
     private Usuarios usuario;
 }
