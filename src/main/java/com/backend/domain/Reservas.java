@@ -27,9 +27,9 @@ public class Reservas {
     @Column(name = "estado", nullable = false, length = 25)
     private EnumEstado estado;
 
-    @ManyToOne(fetch = FetchType.LAZY) //usamos un lazy para que traiga muchos registros para un usuario
-    @JoinColumn(name="usuario_id", referencedColumnName = "id")
-    private Usuario usuario;
+    //@ManyToOne(fetch = FetchType.LAZY) //usamos un lazy para que traiga muchos registros para un usuario
+    //@JoinColumn(name="usuario_id", referencedColumnName = "id")
+    //private Usuario usuario;
     
     @ManyToOne(fetch = FetchType.LAZY) //usamos un lazy para que traiga muchos registros para un horario
     @JoinColumn(name="horario_id", referencedColumnName = "id")
