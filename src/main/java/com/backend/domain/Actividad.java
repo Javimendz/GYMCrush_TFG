@@ -1,8 +1,8 @@
+//Paquete
 package com.backend.domain;
-
+//Imports
 import jakarta.persistence.*; //Importo todo el paquete
 import lombok.*;
-
 
 @Entity // Indica que esta clase es una entidad JPA
 @Table(name = "actividades") // Nombre de la tabla en la base de datos
