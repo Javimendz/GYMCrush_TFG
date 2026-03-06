@@ -15,7 +15,7 @@ import lombok.*;
 @AllArgsConstructor // Lombok para generar un constructor con todos los argumentos
 @NoArgsConstructor // Lombok para generar un constructor sin argumentos
 @Builder // Lombok para generar un constructor con argumentos usando el patrón Builder
-public class Reservas {
+public class Reserva {
     
     
     @Id

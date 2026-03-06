@@ -1,10 +1,8 @@
 //Paquete
 package com.backend.domain;
 //Imports
-import java.time.LocalDate;
 import java.time.LocalTime;
 
-import com.backend.domain.enums.EnumEstado;
 
 import jakarta.persistence.*; //Importo todo el paquete
 import lombok.*;
