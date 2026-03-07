@@ -27,10 +27,10 @@ public class Salud {
     @Column(name = "nivel_actividad", length = 50)
     private String nivelActividad;
 
-    @Column(name = "comentario", columnDefinition = "TEXT")
+    @Column(name = "comentario")
     private String comentario;
 
-    @Column(name = "fecha_medicion", insertable = false, updatable = false)
+    @Column(name = "fecha_medicion")
     private LocalDateTime fechaMedicion; 
 
     

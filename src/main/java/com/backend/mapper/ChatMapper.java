@@ -1,7 +1,7 @@
+//Paquete
 package com.backend.mapper;
-
+//Imports
 import java.util.List;
-
 import org.mapstruct.Mapper;
 import com.backend.domain.Chat;
 import com.backend.dto.ChatResponseDto;
