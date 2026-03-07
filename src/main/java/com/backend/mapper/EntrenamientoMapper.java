@@ -2,7 +2,6 @@
 package com.backend.mapper;
 //Imports
 import org.mapstruct.Mapper;
-
 import com.backend.domain.Entrenamiento;
 import com.backend.dto.EntrenamientoResponseDto;
 
