@@ -2,18 +2,16 @@
 package com.backend.domain;
 //Imports
 import java.time.LocalDate;
-
 import com.backend.domain.enums.EnumGenero;
-
 import jakarta.persistence.*; // Importo todos los paquetes 
 import lombok.*; //Importo todos los paquetes
 // Indica que esta clase es una entidad JPA
 @Entity
-@Table(name = "perfiles") 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Table(name = "perfiles") // Nombre de la tabla en la base de datos
+@Data// Lombok para generar getters, setters, toString, equals, y hashCode
+@AllArgsConstructor // Lombok para generar un constructor con todos los argumentos
+@NoArgsConstructor // Lombok para generar un constructor sin argumentos
+@Builder// Lombok para generar un constructor con argumentos usando el patrón Builder
 public class Perfil {
 
     @Id
@@ -36,13 +34,14 @@ public class Perfil {
     private LocalDate fechaNacimiento;
 
     @Column(name = "genero", length = 50, nullable = false)
+    @Enumerated(EnumType.STRING) //Indicamos que es un enum de tipo string
     private EnumGenero genero;
 
     @Column(name = "foto", length = 255, nullable = true)
     private String foto;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false, unique = true)
+    @JoinColumn(name = "usuarioId", referencedColumnName = "id")
     @ToString.Exclude //Evita que exploten los logs de consola!!!!
     private Usuario usuario;
 }

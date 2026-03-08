@@ -48,25 +48,26 @@ public class Usuario {
     private LocalDateTime updatedAt;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Perfil perfil; // Relación 1:1 con Perfil [cite: 107]
+    @ToString.Exclude //Para evitar bucle infinito con Lombok
+    private Perfil perfil; // Relación 1:1 con Perfil 
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Reserva> reservas; // Un usuario realiza N reservas [cite: 114]
+    private List<Reserva> reservas; // Un usuario realiza N reservas
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Entrenamiento> entrenamientos; // Un usuario realiza N entrenamientos [cite: 108]
+    private List<Entrenamiento> entrenamientos; // Un usuario realiza N entrenamientos
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Salud> salud; // Un usuario registra N datos de salud [cite: 109]
+    private List<Salud> salud; // Un usuario registra N datos de salud
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<SugerenciaDieta> sugerenciasDieta; // Un usuario recibe N sugerencias [cite: 110]
+    private List<SugerenciaDieta> sugerenciasDieta; // Un usuario recibe N sugerencias
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Ticket> tickets; // Un usuario crea N tickets [cite: 113]
+    private List<Ticket> tickets; // Un usuario crea N tickets
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Chat> chat; // Un usuario conecta con el chat [cite: 112]
+    private List<Chat> chat; // Un usuario conecta con el chat
 
     @PrePersist
     protected void onCreate() {
