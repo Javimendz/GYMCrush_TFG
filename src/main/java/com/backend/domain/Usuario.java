@@ -32,4 +32,26 @@ public class Usuario {
     private String pais;
     @Column(name = "codigo_postal", nullable = false, length = 50)
     private String codigoPostal;
+
+      /*@OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Perfil perfil; // Relación 1:1 con Perfil [cite: 107]
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Reservas> reservas; // Un usuario realiza N reservas [cite: 114]
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Entrenamiento> entrenamientos; // Un usuario realiza N entrenamientos [cite: 108]
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Salud> registrosSalud; // Un usuario registra N datos de salud [cite: 109]
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<SugerenciaDieta> sugerenciasDieta; // Un usuario recibe N sugerencias [cite: 110]
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Ticket> tickets; // Un usuario crea N tickets [cite: 113]
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Chat> mensajesChat; // Un usuario conecta con el chat [cite: 112]
+    // */
 }
