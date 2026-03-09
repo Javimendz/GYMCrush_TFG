@@ -8,4 +8,7 @@ import com.backend.domain.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
+    //Metodo personlizado para buscar si existe un usuario con el correo dado, se debe implementar aqui
+    
+    Boolean existsByCorreo(String correo);
 }
