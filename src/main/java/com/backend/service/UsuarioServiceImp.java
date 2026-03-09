@@ -93,10 +93,10 @@ public class UsuarioServiceImp implements IUsuarioService {
 
         Usuario existente = this.findById(id); 
     
-    // 2. Mapeamos los cambios del DTO al objeto que ya está "vivo" en la DB
+    //  Mapeamos los cambios del DTO al objeto
         usuarioMapper.updateUsuarioFromDto(usuarioRequestDto, existente);
     
-    // 3. Guardamos los cambios
+    // Guardamos los cambios
     usuarioRepo.save(existente);
     }   
 }

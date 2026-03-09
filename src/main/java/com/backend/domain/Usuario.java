@@ -3,7 +3,9 @@ package com.backend.domain;
 
 //Imports
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.backend.domain.enums.EnumRol;
 
@@ -21,6 +23,9 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "username", nullable = false)
+    private String username;
 
     @Column(name = "nombre", nullable = false) 
     private String nombre;
@@ -50,9 +55,13 @@ public class Usuario {
     @Column(name = "codigo_postal", length = 20)
     private String codigoPostal;
     
-    @Enumerated(EnumType.STRING) // Indicamos que es un enum de tipo string
-    @Column(name = "rol", length = 15)
-    private EnumRol rol;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(  //Creamos una relacion N:M y creamos la tabla intermedia de la relacion con JoinTable
+        name="users_roles",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name= "role_id", referencedColumnName = "id") 
+    )
+    private Set<Role> roles = new HashSet<>();
 
     @Column(name = "qr_token", length = 255)
     private String qrToken;
