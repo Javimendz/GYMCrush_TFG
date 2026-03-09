@@ -22,12 +22,34 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "nombre", nullable = false) 
+    private String nombre;
+
+    @Column(name = "apellido", nullable = false) 
+    private String apellidos;
+
     @Column(name = "correo", unique = true, nullable = false, length = 150)
     private String correo;
 
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
+
+    @Column(name = "telefono", length = 20)
+    private String telefono;
+
+    @Column(name = "direccion", length = 255)
+    private String direccion;
+
+    @Column(name = "ciudad", length = 100)
+    private String ciudad;
+
+    @Column(name = "pais", length = 100)
+    private String pais;
+
+    @Column(name = "codigo_postal", length = 20)
+    private String codigoPostal;
+    
     @Enumerated(EnumType.STRING) // Indicamos que es un enum de tipo string
     @Column(name = "rol", length = 15)
     private EnumRol rol;
@@ -41,15 +63,15 @@ public class Usuario {
     @Column(name = "fecha_registro", nullable = true)
     private LocalDateTime fechaRegistro;
 
-    @Column(name = "createdAt", updatable = false, nullable = false)
+    @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude //Para evitar bucle infinito con Lombok
-    private Perfil perfil; // Relación 1:1 con Perfil 
+    @ToString.Exclude // Para evitar bucle infinito con Lombok
+    private Perfil perfil; // Relación 1:1 con Perfil
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Reserva> reservas; // Un usuario realiza N reservas
@@ -80,6 +102,4 @@ public class Usuario {
         this.updatedAt = LocalDateTime.now();
     }
 
-
-   
 }

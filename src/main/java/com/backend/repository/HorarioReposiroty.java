@@ -1,5 +1,5 @@
 //Imports
-package com.backend.repositories;
+package com.backend.repository;
 //Paquete de repositorio
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.backend.domain.Horario;

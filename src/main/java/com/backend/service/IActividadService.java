@@ -1,4 +1,4 @@
-package com.backend.services;
+package com.backend.service;
 
 public interface IActividadService {
     

@@ -7,10 +7,10 @@ public class UsuarioResponseDto {
     
 
     private Long id;
-    private String nombre;
-    private String apellido;
     private String correo;
-    private String password;
+    private String rol;
+    private String nombre;
+    private String apellidos;
     private String telefono;
     private String direccion;
     private String ciudad;

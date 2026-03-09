@@ -1,4 +1,4 @@
-package com.backend.services;
+package com.backend.service;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.backend.domain.Usuario;
-import com.backend.repositories.UsuarioRepository;
+import com.backend.repository.UsuarioRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,4 +50,12 @@ public class UsuarioServiceImp implements IUsuarioService {
         return usuarioRepo.findAll();
     }
 
+
+    @Override
+    public Usuario save(Usuario usuario) {
+
+        return usuarioRepo.save(usuario);
+    }
+
+    
 }

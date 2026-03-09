@@ -1,4 +1,4 @@
-package com.backend.services;
+package com.backend.service;
 
 import java.util.List;
 
@@ -17,4 +17,5 @@ public interface IUsuarioService {
 
     List<Usuario> getAllUsuarios();
 
+    Usuario save(Usuario usuario); // Guarda un Usuario en la base de datos
 }
