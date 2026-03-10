@@ -3,13 +3,17 @@ package com.backend.dto;
 //Imports
 import lombok.Data;
 import jakarta.validation.constraints.*; // Importante para validaciones
-import com.backend.domain.enums.EnumRol;
+import java.util.Set;
+import com.backend.domain.Role;
 
 @Data // Anotación de Lombok para generar automáticamente getters, setters, toString,
       // hashCode y equals
 public class UsuarioRequestDto {
 
     // Dto con validaciones para la entidad Usuario
+    @NotBlank(message = "El username no puede estar vacío")
+    @Size(min = 3, max = 50, message = "El username debe tener entre 3 y 50 caracteres")
+    private String username;
     @NotBlank(message = "El nombre no puede estar vacío")
     @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
     private String nombre;
@@ -34,6 +38,6 @@ public class UsuarioRequestDto {
     @Pattern(regexp = "^[0-9]{5}$", message = "El código postal debe tener 5 dígitos (ejemplo: 28001)")
     private String codigoPostal;
     @NotNull(message = "El rol es obligatorio (ADMIN o USUARIO)")
-    private EnumRol rol;
+    private Set<Role> rol;
 
 }

@@ -1,23 +1,20 @@
+//Paquete
 package com.backend.service;
-
+//Imports
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import com.backend.repository.UsuarioRepository;
 import com.backend.domain.Role;
 import com.backend.domain.Usuario;
 import lombok.RequiredArgsConstructor;
-
+//Servicio para la entidad UserDetail
 @Service
 @RequiredArgsConstructor
 public class UserDetailServiceImp implements UserDetailsService {

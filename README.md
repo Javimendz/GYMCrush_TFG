@@ -18,7 +18,7 @@ Pasos que he realizado para el proyecto.
 ```8.``` Añadir dependencia de ``` MapStruct ``` en el ```pom.xml```
 ```9.``` Generación del Esquema desde el Código". Usar entidades para crear la BBDD.  
 ```10.``` Crear arquitectura de carpetas con un patrón de diseño ```MVC```.
-```11.``` 
+```11.``` Añadir swagger para la documentacion
 
 Bcrypt para encriptar contraseñas: https://www.youtube.com/watch?v=9hMvY9nW3O0&t=25s
 Mvnrepository.com - MapStruct

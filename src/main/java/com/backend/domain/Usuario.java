@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.backend.domain.enums.EnumRol;
 
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
@@ -17,7 +16,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+
 public class Usuario {
 
     @Id

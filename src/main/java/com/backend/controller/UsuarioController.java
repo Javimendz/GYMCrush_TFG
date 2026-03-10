@@ -13,7 +13,8 @@
 
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
-    import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
     import org.springframework.web.bind.annotation.GetMapping;
     import org.springframework.web.bind.annotation.PathVariable;
 
@@ -26,6 +27,7 @@
         private final UsuarioMapper usuarioMapper;
 
         @GetMapping
+        @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
         public List<UsuarioResponseDto> getAllUsuarios() {
 
             List<Usuario> usuarios = usuarioService.getAllUsuarios();
@@ -33,6 +35,7 @@
         }
 
         @PostMapping("/crear")
+        @PreAuthorize("hasAnyRole('ADMIN')")
         public ResponseEntity<UsuarioResponseDto> createUsuario(@Valid @RequestBody UsuarioRequestDto usuarioDto) {
 
             Usuario usuarioToSave = usuarioMapper.toEntity(usuarioDto);

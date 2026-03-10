@@ -1,20 +1,18 @@
+//Paquete
 package com.backend.service;
-
+//Imports
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioRequestDto;
 import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.mapper.UsuarioMapper;
 import com.backend.repository.UsuarioRepository;
-
 import lombok.RequiredArgsConstructor;
-
+//Servicio para la entidad Usuario
 @RequiredArgsConstructor
 @Transactional // Anotacion para indicar que los metodos de esta clase son transaccionales, es
                // decir realizan mas de una operacion
@@ -31,30 +29,7 @@ public class UsuarioServiceImp implements IUsuarioService {
         return usuarioRepo.save(usuario);
     }
 
-    @Override
-    public Boolean existsByCorreo(String correo) {
-        return usuarioRepo.existsByCorreo(correo);
-    }
 
-    /*
-     * 
-     * @Override
-     * public Usuario updateUsuario(Long id, Usuario usuarioActualizado) {
-     * return usuarioRepo.findById(id).map(existente -> {
-     * 
-     * existente.setNombre(usuarioActualizado.getNombre());
-     * existente.setApellidos(usuarioActualizado.getApellidos());
-     * existente.setTelefono(usuarioActualizado.getTelefono());
-     * existente.setDireccion(usuarioActualizado.getDireccion());
-     * existente.setCiudad(usuarioActualizado.getCiudad());
-     * existente.setPais(usuarioActualizado.getPais());
-     * existente.setCodigoPostal(usuarioActualizado.getCodigoPostal());
-     * 
-     * return usuarioRepo.save(existente);
-     * }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-     * "Usuario no encontrado"));
-     * }
-     */
     // Logica para el QR de acceso
     @Override
     public Usuario generarTokenAcceso(Long id) {
