@@ -5,10 +5,11 @@ import java.util.Optional;
 //Imports
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.backend.domain.Usuario;
+
+import com.backend.domain.Role;
 //Interfaz de repositorio para la entidad Usuario
 @Repository
-public interface RoleRepository extends JpaRepository<Usuario, Long> {
+public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    Optional<Usuario> findByUsername(String username);
+    Optional<Role> findByName(String name);
 }
