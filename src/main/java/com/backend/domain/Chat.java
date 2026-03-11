@@ -28,7 +28,7 @@ public class Chat {
 
  
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false, unique = true)
+    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
     private Usuario usuario;
 }
