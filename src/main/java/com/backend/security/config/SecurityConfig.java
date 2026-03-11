@@ -39,7 +39,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll() // Permitir acceso a la autenticacion
-                                .requestMatchers(HttpMethod.GET, "/api/v1/usuario/**").permitAll() // Permitir acceso a la obtencion de usuarios
                                 .anyRequest().authenticated() // Requerir autenticacion para cualquier otra solicitud
                 );
                 http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

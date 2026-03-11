@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
@@ -54,12 +56,13 @@ public class Usuario {
     @Column(name = "codigo_postal", length = 20)
     private String codigoPostal;
     
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(  //Creamos una relacion N:M y creamos la tabla intermedia de la relacion con JoinTable
+      @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
         name="users_roles",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name= "role_id", referencedColumnName = "id") 
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name= "role_id")
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Role> roles = new HashSet<>();
 
     @Column(name = "qr_token", length = 255)

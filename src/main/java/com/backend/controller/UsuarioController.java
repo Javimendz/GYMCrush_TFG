@@ -13,10 +13,9 @@
 
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+    import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-    import org.springframework.web.bind.annotation.GetMapping;
-    import org.springframework.web.bind.annotation.PathVariable;
 
     @RestController() // Controlador REST para manejar solicitudes HTTP relacionadas con usuarios
     @RequestMapping("/api/v1/usuario") // Mapea todas las solicitudes HTTP a /api/v1/usuario
@@ -25,26 +24,30 @@ import org.springframework.web.bind.annotation.*;
 
         private final IUsuarioService usuarioService;
         private final UsuarioMapper usuarioMapper;
+        private final PasswordEncoder passwordEncoder;
 
         @GetMapping
         @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-        public List<UsuarioResponseDto> getAllUsuarios() {
+        public ResponseEntity<List<UsuarioResponseDto>> getAllUsuarios() {
 
             List<Usuario> usuarios = usuarioService.getAllUsuarios();
-            return usuarioMapper.toUsuarioResponseDtoList(usuarios);
+            List<UsuarioResponseDto> responseDtoList = usuarioMapper.toUsuarioResponseDtoList(usuarios);
+            return ResponseEntity.ok(responseDtoList);
         }
 
-        @PostMapping("/crear")
-        @PreAuthorize("hasAnyRole('ADMIN')")
+        @PostMapping
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<UsuarioResponseDto> createUsuario(@Valid @RequestBody UsuarioRequestDto usuarioDto) {
 
             Usuario usuarioToSave = usuarioMapper.toEntity(usuarioDto);
+            usuarioToSave.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
             Usuario savedUsuario = usuarioService.save(usuarioToSave);
             UsuarioResponseDto responseDto = usuarioMapper.toUsuarioResponseDto(savedUsuario);
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
         }
 
         @GetMapping("/{id}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
         public ResponseEntity<UsuarioResponseDto> getUsuarioById(@PathVariable Long id) {
             Usuario usuario = usuarioService.findById(id);
             UsuarioResponseDto responseDto = usuarioMapper.toUsuarioResponseDto(usuario);
@@ -52,15 +55,22 @@ import org.springframework.web.bind.annotation.*;
         }
 
         @PutMapping("/{id}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
         public ResponseEntity<UsuarioResponseDto> updateUsuario(@PathVariable Long id,
                 @Valid @RequestBody UsuarioRequestDto usuarioDto) {
             Usuario updatedUsuario = usuarioService.findById(id);
             usuarioMapper.updateUsuarioFromDto(usuarioDto, updatedUsuario);
+
+            if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isEmpty()) {
+                
+                updatedUsuario.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
+            }
             Usuario updateUsuario = usuarioService.save(updatedUsuario);
             return ResponseEntity.ok(usuarioMapper.toUsuarioResponseDto(updateUsuario));
         }
 
         @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
 
             usuarioService.deleteById(id);
