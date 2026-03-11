@@ -3,6 +3,7 @@ package com.backend.exceptions;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +50,16 @@ public class GlobalExceptionhandler {
         // O puedes usar el mensaje original de la causa raíz si no te importa exponerlo (no recomendado)
         errorDetails.put("message", ex.getRootCause() != null ? ex.getRootCause().getMessage() : "Error de integridad de datos.");
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    //Excepcion para acceso denegado
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, String> errorDetails = new HashMap<>();
+        errorDetails.put("error", "Acceso Denegado");
+        errorDetails.put("message", "No tienes permisos para realizar esta acción. Contacta con un administrador si necesitas acceso.");
+        
+        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

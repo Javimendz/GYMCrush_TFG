@@ -1,5 +1,9 @@
 package com.backend.dto;
 
+import java.util.Set;
+
+import com.backend.domain.Role;
+
 import lombok.*;
 
 @Data
@@ -8,7 +12,7 @@ public class UsuarioResponseDto {
 
     private Long id;
     private String correo;
-    private String rol;
+    private Set<Role> rol;
     private String nombre;
     private String apellidos;
     private String telefono;

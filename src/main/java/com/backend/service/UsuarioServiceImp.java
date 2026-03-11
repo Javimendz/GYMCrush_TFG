@@ -1,5 +1,6 @@
 //Paquete
 package com.backend.service;
+import java.time.LocalDateTime;
 //Imports
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -60,6 +61,11 @@ public class UsuarioServiceImp implements IUsuarioService {
         usuarioRepo.delete(usuarioToDelete);
 
     }
+    public boolean validarTokenQR(String token, Long userId) {
+    Usuario usuario = findById(userId);
+    return token.equals(usuario.getQrToken()) && 
+           LocalDateTime.now().isBefore(usuario.getTokenExpiraEn());
+}
 
     @Override
     public void update(UsuarioRequestDto usuarioRequestDto, Long id) {

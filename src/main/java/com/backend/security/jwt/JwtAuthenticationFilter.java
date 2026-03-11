@@ -6,15 +6,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
+import java.util.List;
 
 @Component // Componente para inyectar la clase en otras partes de la aplicacion
 @RequiredArgsConstructor // Constructor con los campos final lombok
@@ -24,32 +26,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService; // Inyeccion de dependencia de la clase UserDetailsService
 
     // Metodo para filtrar las solicitudes HTTP y agregar la autenticacion al contexto de seguridad
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+  @Override
+protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                FilterChain filterChain) throws ServletException, IOException {
 
-        String token = getJwtFromRequest(request); // Obtener el token JWT de la solicitud HTTP
+    String token = getJwtFromRequest(request);
 
-        if(StringUtils.hasText(token) && jwtGenerator.validateToken(token) // Validar el token JWT
-            && SecurityContextHolder.getContext().getAuthentication()==null // Verificar si no hay autenticacion en el contexto de seguridad
-        ){
-            String username = jwtGenerator.getUsernameFromJwt(token); // Obtener el nombre de usuario del token JWT
- 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username); // Cargar los detalles del usuario por nombre de usuario
+    // 1. Primero validamos: ¿Hay texto? ¿Es un token válido? ¿Ya estoy autenticado?
+    if (StringUtils.hasText(token) && jwtGenerator.validateToken(token) 
+        && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities() // Crear un objeto de autenticacion con los detalles del usuario y sus autoridades
-            );
-            // Establecer los detalles de autenticacion en el objeto de autenticacion
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken); // Establecer la autenticacion en el contexto de seguridad
-
+        // 🚩 MOVEMOS ESTO AQUÍ ADENTRO: Solo leemos si el token es válido
+        String username = jwtGenerator.getUsernameFromJwt(token);
+        List<String> roles = jwtGenerator.getRoleFromJwt(token);
+        
+        if (roles == null) {
+            roles = List.of(); 
         }
-        // Continuar con el siguiente filtro en la cadena
-        filterChain.doFilter(request, response);
 
+        // 2. Cargamos los detalles (puedes usar los roles del token o de la DB)
+        // Si usas loadUserByUsername, asegúrate de que el Service devuelva los roles con "ROLE_"
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+        // 3. Creamos la autenticación
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities()
+        );
+
+        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        
+        // 4. Establecemos la autenticación
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
+
+    // 5. ¡Súper importante! Siempre continuar la cadena de filtros
+    filterChain.doFilter(request, response);
+}
 
     // Metodo para obtener el token JWT de la solicitud HTTP
     private String getJwtFromRequest(HttpServletRequest request){

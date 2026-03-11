@@ -1,7 +1,6 @@
 //Paquete
 package com.backend.controller;
 import java.util.Collections;
-import java.util.List;
 
 //Imports
 import org.springframework.http.HttpStatus;
@@ -62,8 +61,8 @@ public class AuthController {
         }
         Usuario user = usuarioMapper.registerDtoToUser(registerDto);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-        Role role = roleRepository.findByName("USUARIO").orElseThrow(() -> new RuntimeException("Error, El rol de usuario no existe"));    
-        user.setRoles(Collections.singleton(role));
+        Role role = roleRepository.findByName("ROLE_USUARIO").orElseThrow(() -> new RuntimeException("Error, El rol de usuario no existe"));    
+        user.setRol(Collections.singleton(role));
         usuarioRepository.save(user);
         return new ResponseEntity<>("Usuario registrado con éxito...", HttpStatus.OK);  
     }

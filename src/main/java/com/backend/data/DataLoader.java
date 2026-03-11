@@ -27,18 +27,18 @@ public class DataLoader implements CommandLineRunner {
 
         //Se ejecta todo antes de hacer peticiones, asi creara los usuarios lo primero.
 
-        Role adminRole = roleRepository.findByName("ADMIN")
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                 .orElseGet(() -> {
                     Role newRole = new Role();
-                    newRole.setName("ADMIN");
+                    newRole.setName("ROLE_ADMIN");
                     return roleRepository.save(newRole);
 
                 });
 
-        Role usuarioRole = roleRepository.findByName("USUARIO")
+        Role usuarioRole = roleRepository.findByName("ROLE_USUARIO")
                 .orElseGet(() -> {
                     Role newRole = new Role();
-                    newRole.setName("USUARIO");
+                    newRole.setName("ROLE_USUARIO");
                     return roleRepository.save(newRole);
 
                 });
@@ -55,7 +55,7 @@ public class DataLoader implements CommandLineRunner {
             Set<Role> adminRoles = new HashSet<>();
             adminRoles.add(adminRole);
             adminRoles.add(usuarioRole);
-            admin.setRoles(adminRoles);
+            admin.setRol(adminRoles);
 
             usuarioRepository.save(admin);
             System.out.println("Usuario admin creado!!..");
@@ -73,7 +73,7 @@ public class DataLoader implements CommandLineRunner {
             Set<Role> usuarioRoles = new HashSet<>();
            
             usuarioRoles.add(usuarioRole);
-            usuario.setRoles(usuarioRoles);
+            usuario.setRol(usuarioRoles);
 
             usuarioRepository.save(usuario);
             System.out.println("Usuario creado!!..");

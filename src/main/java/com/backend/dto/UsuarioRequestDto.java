@@ -4,7 +4,6 @@ package com.backend.dto;
 import lombok.Data;
 import jakarta.validation.constraints.*; // Importante para validaciones
 import java.util.Set;
-import com.backend.domain.Role;
 
 @Data // Anotación de Lombok para generar automáticamente getters, setters, toString,
       // hashCode y equals
@@ -37,7 +36,6 @@ public class UsuarioRequestDto {
     private String pais;
     @Pattern(regexp = "^[0-9]{5}$", message = "El código postal debe tener 5 dígitos (ejemplo: 28001)")
     private String codigoPostal;
-    @NotNull(message = "El rol es obligatorio (ADMIN o USUARIO)")
-    private Set<Role> rol;
+    private Set<String> rol;
 
 }

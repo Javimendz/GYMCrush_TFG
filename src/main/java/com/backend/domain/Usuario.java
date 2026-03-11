@@ -63,7 +63,7 @@ public class Usuario {
         inverseJoinColumns = @JoinColumn(name= "role_id")
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> rol = new HashSet<>();
 
     @Column(name = "qr_token", length = 255)
     private String qrToken;
