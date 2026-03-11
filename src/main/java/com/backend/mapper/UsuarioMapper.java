@@ -3,7 +3,6 @@ package com.backend.mapper;
 //Imports
 import java.util.List;
 import org.mapstruct.Mapper;
-<<<<<<< HEAD
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
@@ -27,13 +26,4 @@ public interface UsuarioMapper {
     @Mapping(target = "id", ignore = true) //El id no deberia venir
     Usuario registerDtoToUser(RegisterDto registerDto);
 
-=======
-import com.backend.domain.Usuario;
-import com.backend.dto.UsuarioResponseDto;
-
-@Mapper(componentModel = "spring") // Indica que se usara Spring para inyectar las dependencias (Me genera todo el codigo x la cara D:)
-public interface UsuarioMapper {
-    
-    List<UsuarioResponseDto> toUsuarioResponseDtoList(List<Usuario> usuarios);
->>>>>>> f4570e441899ef30c12df4e8042f8e8f12d93eac
 }

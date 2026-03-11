@@ -2,7 +2,7 @@ package com.backend.dto;
 
 import java.time.LocalDateTime;
 
-import lombok.*;
+import lombok.Data;
 
 @Data
 public class EntrenamientoResponseDto {
