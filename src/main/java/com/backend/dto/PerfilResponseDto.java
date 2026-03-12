@@ -24,6 +24,12 @@ public class PerfilResponseDto {
     private EnumGenero genero;
     private String foto;
 
+    //Datos salud
+    private Double peso;
+    private Double estatura;
+    private String nivelActividad; 
+    private Double imc;
+
     //Campos del usuario
     private String username;
     private String correo;

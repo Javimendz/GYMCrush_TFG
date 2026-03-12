@@ -2,8 +2,11 @@
 package com.backend.security.dto;
 import java.util.Set;
 
+import com.backend.domain.enums.EnumGenero;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 //Imports
 import lombok.AllArgsConstructor;
@@ -28,6 +31,31 @@ public class RegisterDto{
     private String nombre;
     @NotBlank(message = "Los apellidos son obligatorios")
     private String apellidos;
+    @NotBlank(message = "El teléfono es obligatorio")
+    private String telefono;
+
+    @NotBlank(message = "El DNI es obligatorio")
+    private String dni;
+
+    @NotBlank(message = "La dirección es obligatoria")
+    private String direccion;
+
+    @NotBlank(message = "La ciudad es obligatoria")
+    private String ciudad;
+
+    @NotBlank(message = "El país es obligatorio")
+    private String pais;
+
+    @NotBlank(message = "El código postal es obligatorio")
+    private String codigoPostal;
+
+    @NotNull(message = "La fecha de nacimiento es obligatoria")
+    private java.time.LocalDate fechaNacimiento;
+
+    @NotNull(message = "El género es obligatorio")
+    private EnumGenero genero;
+
     @NotBlank(message = "El rol es obligatorio")
     private Set<String> rol;
+    
 }

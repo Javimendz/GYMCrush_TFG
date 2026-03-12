@@ -87,6 +87,7 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("Usuario creado!!..");
         }
 
+        // Perfil para usuario
         if (!perfilRepository.existsByDni("12345678A")) {
             // Crear perfil
             Perfil perfil = new Perfil();
@@ -94,6 +95,10 @@ public class DataLoader implements CommandLineRunner {
             perfil.setApellidos("de prueba");
             perfil.setTelefono("123456789");
             perfil.setDni("12345678A");
+            perfil.setDireccion("Calle Falsa 123");
+            perfil.setCiudad("Madrid");
+            perfil.setPais("España");
+            perfil.setCodigoPostal("28001");
             perfil.setFechaNacimiento(LocalDate.of(1999, 5, 15));
             perfil.setGenero(EnumGenero.Hombre);
             perfil.setUsuario(usuarioRepository.findByUsername("usuario").get());
@@ -101,6 +106,8 @@ public class DataLoader implements CommandLineRunner {
             perfilRepository.save(perfil);
             System.out.println("Perfil creado!!..");
         }
+
+        // Perfil para admin
         if (!perfilRepository.existsByDni("00000000A")) {
             Usuario adminUser = usuarioRepository.findByUsername("admin")
                     .orElseThrow(() -> new RuntimeException("Error: Usuario admin no encontrado"));
@@ -108,6 +115,10 @@ public class DataLoader implements CommandLineRunner {
             Perfil perfilAdmin = Perfil.builder()
                     .nombre("Admin")
                     .apellidos("Sistema GymCrush")
+                    .direccion("Calle Falsa 123")
+                    .ciudad("Madrid")
+                    .pais("España")
+                    .codigoPostal("28001")
                     .telefono("000000000") // Debe ser unico
                     .dni("00000000A") // Debe ser unico
                     .fechaNacimiento(LocalDate.of(1985, 1, 1))

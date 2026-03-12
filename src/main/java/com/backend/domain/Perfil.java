@@ -34,6 +34,15 @@ public class Perfil {
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
+    @Column(name= "direccion", nullable = false)
+    private String direccion;
+    @Column(name="ciudad", nullable= false)
+    private String ciudad;
+    @Column(name="pais", nullable=false)
+    private String pais;
+    @Column(name="codigo_postal", nullable=false)
+    private String codigoPostal;
+
     @Column(columnDefinition = "TEXT") // Para descripciones largas
     private String bio;
 

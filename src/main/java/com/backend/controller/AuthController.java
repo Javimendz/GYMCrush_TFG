@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.domain.Usuario;
+import com.backend.dto.UsuarioResponseDto;
 import com.backend.mapper.UsuarioMapper;
 import com.backend.repository.RoleRepository;
 import com.backend.repository.UsuarioRepository;
@@ -25,69 +26,75 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 //Clase para manejar la autenticacion de usuarios
-@RestController //Controlador para manejar las peticiones de autenticacion
-@RequiredArgsConstructor //Inyeccion de dependencias
-@RequestMapping("/api/v1/auth") //Ruta base para las peticiones de autenticacion
+@RestController // Controlador para manejar las peticiones de autenticacion
+@RequiredArgsConstructor // Inyeccion de dependencias
+@RequestMapping("/api/v1/auth") // Ruta base para las peticiones de autenticacion
 public class AuthController {
-    
-    private final AuthenticationManager authenticationManager; //Administrador de autenticacion
-    private final JwtGenerator jwtGenerator; //Generador de tokens JWT
-    private final UsuarioRepository usuarioRepository; //Repositorio de usuarios
-    private final RoleRepository roleRepository; //Repositorio de roles
-    private final PasswordEncoder passwordEncoder; //Codificador de contraseñas
+
+    private final AuthenticationManager authenticationManager; // Administrador de autenticacion
+    private final JwtGenerator jwtGenerator; // Generador de tokens JWT
+    private final UsuarioRepository usuarioRepository; // Repositorio de usuarios
+    private final RoleRepository roleRepository; // Repositorio de roles
+    private final PasswordEncoder passwordEncoder; // Codificador de contraseñas
     private final UsuarioMapper usuarioMapper;
-    @PostMapping("/login")//Peticion para autenticar a un usuario
+
+    @PostMapping("/login") // Peticion para autenticar a un usuario
     public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
-        //autenticar con spring security
+        // autenticar con spring security
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
-        //Almacen temporal para guardar token
+        // Almacen temporal para guardar token
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        //generar token
+        // generar token
         String jwt = jwtGenerator.generateToken(authentication);
-                
-        //Extraer datos para el dto
+
+        // Extraer datos para el dto
         String username = authentication.getName();
-        //Buscamos el usuario en la bd
+        // Buscamos el usuario en la bd
         Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Error crítico: Usuario autenticado no encontrado en DB"));        
-        //Convertimos el set<Role> a set<String> con los nombres de los roles
+                .orElseThrow(() -> new RuntimeException("Error crítico: Usuario autenticado no encontrado en DB"));
+        // Convertimos el set<Role> a set<String> con los nombres de los roles
         List<String> rolesNames = usuario.getRol().stream()
-                .map(role->role.getName())
+                .map(role -> role.getName())
                 .toList();
-    
-        //Construyo respuesta para el builder
+
+        // Construyo respuesta para el builder
         JwtAuthResponseDto response = JwtAuthResponseDto.builder()
-                .id(usuario.getId())        
+                .id(usuario.getId())
                 .username(usuario.getUsername())
-                //.nombre(usuario.getNombre())
+                .nombre(usuario.getPerfil().getNombre())
                 .roles(rolesNames)
                 .accessToken(jwt)
-                .tokenType ("Bearer")
+                .tokenType("Bearer")
                 .build();
 
-                return new ResponseEntity<>(response, HttpStatus.OK);  
-    
-    }
-    
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterDto registerDto){
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
-        if(usuarioRepository.existsByUsername(registerDto.getUsername())){
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody RegisterDto registerDto) {
+
+        if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
 
             return new ResponseEntity<>("Nombre de usuario, ya existe...", HttpStatus.BAD_REQUEST);
         }
 
-         if(usuarioRepository.existsByCorreo(registerDto.getCorreo())){
+        if (usuarioRepository.existsByCorreo(registerDto.getCorreo())) {
 
             return new ResponseEntity<>("Email de usuario, ya existe...", HttpStatus.BAD_REQUEST);
         }
         Usuario user = usuarioMapper.registerDtoToUser(registerDto);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-        usuarioRepository.save(user);
-        return new ResponseEntity<>("Usuario registrado con éxito...", HttpStatus.OK);  
-    }
- }
-    
 
+        if (user.getPerfil() != null) {
+            user.getPerfil().setUsuario(user);
+        }
+
+        Usuario savedUser = usuarioRepository.save(user);
+        UsuarioResponseDto response = usuarioMapper.toUsuarioResponseDto(savedUser);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+}
