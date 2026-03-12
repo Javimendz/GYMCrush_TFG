@@ -22,4 +22,6 @@ public interface IUsuarioService {
 
     void update(UsuarioRequestDto usuarioRequestDto, Long id);
 
+    boolean validarTokenQR(String token, Long userId);
+
 }

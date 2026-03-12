@@ -61,8 +61,6 @@ public class AuthController {
         }
         Usuario user = usuarioMapper.registerDtoToUser(registerDto);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-        Role role = roleRepository.findByName("ROLE_USUARIO").orElseThrow(() -> new RuntimeException("Error, El rol de usuario no existe"));    
-        user.setRol(Collections.singleton(role));
         usuarioRepository.save(user);
         return new ResponseEntity<>("Usuario registrado con éxito...", HttpStatus.OK);  
     }
