@@ -61,9 +61,9 @@ public class AuthController {
         JwtAuthResponseDto response = JwtAuthResponseDto.builder()
                 .id(usuario.getId())        
                 .username(usuario.getUsername())
-                .nombre(usuario.getNombre())
+                //.nombre(usuario.getNombre())
                 .roles(rolesNames)
-          .accessToken(jwt)
+                .accessToken(jwt)
                 .tokenType ("Bearer")
                 .build();
 

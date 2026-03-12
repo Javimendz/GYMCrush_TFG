@@ -29,11 +29,11 @@ public class Usuario {
     @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "nombre", nullable = false)
-    private String nombre;
+    //@Column(name = "nombre", nullable = false)
+    //private String nombre;
 
-    @Column(name = "apellido", nullable = false)
-    private String apellidos;
+    //@Column(name = "apellidos", nullable = false)
+    //private String apellidos;
 
     @Column(name = "correo", unique = true, nullable = false, length = 150)
     private String correo;
@@ -44,17 +44,17 @@ public class Usuario {
     @Column(name = "telefono", length = 20)
     private String telefono;
 
-    @Column(name = "direccion", length = 255)
-    private String direccion;
+    //@Column(name = "direccion", length = 255)
+    //private String direccion;
 
-    @Column(name = "ciudad", length = 100)
-    private String ciudad;
+    //@Column(name = "ciudad", length = 100)
+    //private String ciudad;
 
-    @Column(name = "pais", length = 100)
-    private String pais;
+    //@Column(name = "pais", length = 100)
+    //private String pais;
 
-    @Column(name = "codigo_postal", length = 20)
-    private String codigoPostal;
+    //@Column(name = "codigo_postal", length = 20)
+    //private String codigoPostal;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))

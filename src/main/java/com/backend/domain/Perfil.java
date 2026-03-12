@@ -34,6 +34,9 @@ public class Perfil {
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
+    @Column(columnDefinition = "TEXT") // Para descripciones largas
+    private String bio;
+
     @Column(name = "genero", length = 50, nullable = false)
     @Enumerated(EnumType.STRING) //Indicamos que es un enum de tipo string
     private EnumGenero genero;

@@ -13,12 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonPropertyOrder({ "id", "nombre", "username", "roles", "accessToken", "tokenType" }) 
+@JsonPropertyOrder({ "id", "username", "roles", "accessToken", "tokenType" }) 
 public class JwtAuthResponseDto {
     
     private Long id;
     private String username;
-    private String nombre;
     private List<String> roles;
     private String accessToken;
     private String tokenType;
