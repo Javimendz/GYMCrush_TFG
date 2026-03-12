@@ -1,6 +1,5 @@
 //Paquete
 package com.backend.controller;
-import java.util.Collections;
 
 //Imports
 import org.springframework.http.HttpStatus;
@@ -12,14 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.domain.Role;
 import com.backend.domain.Usuario;
-import com.backend.dto.JwtAuthResponseDto;
-import com.backend.dto.LoginDto;
-import com.backend.dto.RegisterDto;
 import com.backend.mapper.UsuarioMapper;
 import com.backend.repository.RoleRepository;
 import com.backend.repository.UsuarioRepository;
+import com.backend.security.dto.JwtAuthResponseDto;
+import com.backend.security.dto.LoginDto;
+import com.backend.security.dto.RegisterDto;
 import com.backend.security.jwt.JwtGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
