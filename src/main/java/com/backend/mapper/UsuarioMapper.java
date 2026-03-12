@@ -16,6 +16,7 @@ import com.backend.domain.Role;
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioRequestDto;
 import com.backend.dto.UsuarioResponseDto;
+import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.repository.RoleRepository;
 import com.backend.security.dto.RegisterDto;
 
@@ -38,11 +39,11 @@ public abstract class UsuarioMapper {
         if (roleNames == null || roleNames.isEmpty()) {
             return roleRepository.findByName("ROLE_USUARIO")
                     .map(Collections::singleton)
-                    .orElseThrow(() -> new RuntimeException("Error: Rol por defecto no encontrado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Error: Rol por defecto no encontrado"));
         }
         return roleNames.stream()
                 .map(roleName -> roleRepository.findByName(roleName)
-                        .orElseThrow(() -> new RuntimeException("Role no encontrado")))
+                        .orElseThrow(() -> new ResourceNotFoundException("Role no encontrado")))
                 .collect(Collectors.toSet());
     }
     @Mapping(target = "rol", source = "dto.rol", qualifiedByName = "mapRoleNamesToRoles")

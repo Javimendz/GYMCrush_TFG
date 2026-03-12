@@ -1,6 +1,8 @@
 //Paquete
 package com.backend.controller;
 
+import java.util.List;
+
 //Imports
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +39,36 @@ public class AuthController {
     private final UsuarioMapper usuarioMapper;
     @PostMapping("/login")//Peticion para autenticar a un usuario
     public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
+        //autenticar con spring security
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
         //Almacen temporal para guardar token
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        //generar token
         String jwt = jwtGenerator.generateToken(authentication);
-                return new ResponseEntity<>(new JwtAuthResponseDto(jwt), HttpStatus.OK);  
+                
+        //Extraer datos para el dto
+        String username = authentication.getName();
+        //Buscamos el usuario en la bd
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Error crítico: Usuario autenticado no encontrado en DB"));        
+        //Convertimos el set<Role> a set<String> con los nombres de los roles
+        List<String> rolesNames = usuario.getRol().stream()
+                .map(role->role.getName())
+                .toList();
+    
+        //Construyo respuesta para el builder
+        JwtAuthResponseDto response = JwtAuthResponseDto.builder()
+                .id(usuario.getId())        
+                .username(usuario.getUsername())
+                .nombre(usuario.getNombre())
+                .roles(rolesNames)
+          .accessToken(jwt)
+                .tokenType ("Bearer")
+                .build();
+
+                return new ResponseEntity<>(response, HttpStatus.OK);  
+    
     }
     
     @PostMapping("/register")

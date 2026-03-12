@@ -1,5 +1,5 @@
 //Paquete
-package com.backend.dto;
+package com.backend.security.dto;
 import java.util.Set;
 
 import jakarta.validation.constraints.Email;

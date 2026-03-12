@@ -13,12 +13,13 @@ import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "usuarios")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-
 public class Usuario {
 
     @Id
@@ -28,10 +29,10 @@ public class Usuario {
     @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "nombre", nullable = false) 
+    @Column(name = "nombre", nullable = false)
     private String nombre;
 
-    @Column(name = "apellido", nullable = false) 
+    @Column(name = "apellido", nullable = false)
     private String apellidos;
 
     @Column(name = "correo", unique = true, nullable = false, length = 150)
@@ -39,7 +40,6 @@ public class Usuario {
 
     @Column(name = "password", nullable = false, length = 255)
     private String password;
-
 
     @Column(name = "telefono", length = 20)
     private String telefono;
@@ -55,13 +55,9 @@ public class Usuario {
 
     @Column(name = "codigo_postal", length = 20)
     private String codigoPostal;
-    
-      @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name="users_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name= "role_id")
-    )
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Role> rol = new HashSet<>();
 
@@ -113,4 +109,13 @@ public class Usuario {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void addRole(Role role) {
+        this.rol.add(role);
+        role.getUsuarios().add(this);
+    }
+
+    public void removeRole(Role role) {
+        this.rol.remove(role);
+        role.getUsuarios().remove(this);
+    }
 }

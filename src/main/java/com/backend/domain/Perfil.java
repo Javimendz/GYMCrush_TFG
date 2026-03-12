@@ -8,7 +8,8 @@ import lombok.*; //Importo todos los paquetes
 // Indica que esta clase es una entidad JPA
 @Entity
 @Table(name = "perfiles") // Nombre de la tabla en la base de datos
-@Data// Lombok para generar getters, setters, toString, equals, y hashCode
+@Getter 
+@Setter
 @AllArgsConstructor // Lombok para generar un constructor con todos los argumentos
 @NoArgsConstructor // Lombok para generar un constructor sin argumentos
 @Builder// Lombok para generar un constructor con argumentos usando el patrón Builder
@@ -41,7 +42,21 @@ public class Perfil {
     private String foto;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuarioId", referencedColumnName = "id")
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     @ToString.Exclude //Evita que exploten los logs de consola!!!!
+    @EqualsAndHashCode.Exclude // Evita errores de hashcode
     private Usuario usuario;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Perfil perfil)) return false;
+        return getId() != null && getId().equals(perfil.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 }
