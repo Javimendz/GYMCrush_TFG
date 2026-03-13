@@ -1,4 +1,4 @@
-package com.backend.Controller;
+package com.backend.controller;
 
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioRequestDto;

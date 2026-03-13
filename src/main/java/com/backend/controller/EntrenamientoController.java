@@ -1,4 +1,4 @@
-package com.backend.Controller;
+package com.backend.controller;
 
 import com.backend.dto.EntrenamientoResponseDto;
 import com.backend.service.IEntrenamientoService;

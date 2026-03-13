@@ -1,5 +1,5 @@
 //Paquete
-package com.backend.Controller;
+package com.backend.controller;
 import java.util.Collections;
 import java.util.List;
 
