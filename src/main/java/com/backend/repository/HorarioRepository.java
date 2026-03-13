@@ -6,6 +6,6 @@ import com.backend.domain.Horario;
 import org.springframework.stereotype.Repository;
 //Interfaz de repositorio para la entidad Horario
 @Repository
-public interface HorarioReposiroty extends JpaRepository<Horario, Long> {  
+public interface HorarioRepository extends JpaRepository<Horario, Long> {  
     
 }
