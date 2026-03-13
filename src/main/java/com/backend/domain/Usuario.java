@@ -55,7 +55,7 @@ public class Usuario {
 
     //@Column(name = "codigo_postal", length = 20)
     //private String codigoPostal;
-
+    @Builder.Default
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)

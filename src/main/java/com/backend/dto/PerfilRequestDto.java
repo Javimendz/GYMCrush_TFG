@@ -36,8 +36,21 @@ public class PerfilRequestDto {
     @Past(message = "La fecha de nacimiento debe ser una fecha pasada")
     private LocalDate fechaNacimiento;
 
+    @NotBlank(message = "La dirección es obligatoria")
+    private String direccion;
+
+    @NotBlank(message = "La ciudad es obligatoria")
+    private String ciudad;
+
+    @NotBlank(message = "El país es obligatorio")
+    private String pais;
+
+    @NotBlank(message = "El código postal es obligatorio")
+    private String codigoPostal;
+
     @NotNull(message = "El género es obligatorio")
     private EnumGenero genero;
 
+    private String bio; 
     private String foto; // Opcional
 }
