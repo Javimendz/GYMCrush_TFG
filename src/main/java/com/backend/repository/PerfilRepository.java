@@ -6,7 +6,7 @@ import com.backend.domain.Perfil;
 import java.util.Optional;
 
 @Repository
-public interface PerfilRespository extends JpaRepository<Perfil, Long> {
-    // Busca el perfil usando la FK usuariold definida en el PDF 
+public interface PerfilRepository extends JpaRepository<Perfil, Long> {
+    // Crucial: busca el perfil vinculado al usuario que está logueado
     Optional<Perfil> findByUsuarioId(Long usuarioId);
 }

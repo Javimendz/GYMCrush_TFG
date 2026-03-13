@@ -3,45 +3,42 @@ package com.backend.service;
 import com.backend.domain.Perfil;
 import com.backend.dto.PerfilResponseDto;
 import com.backend.mapper.PerfilMapper;
-import com.backend.repository.PerfilRespository;
+import com.backend.repository.PerfilRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor // Inyecta las dependencias automáticamente (Repo y Mapper)
+@RequiredArgsConstructor
 public class PerfilServiceImp implements IPerfilService {
 
-    private final PerfilRespository perfilRepository;
+    private final PerfilRepository perfilRepository;
     private final PerfilMapper perfilMapper;
 
     @Override
     public PerfilResponseDto obtenerPerfilPorUsuario(Long usuarioId) {
-        Perfil perfil = perfilRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Perfil no encontrado"));
+        //Buscamos por el ID del usuario, no del perfil
+        Perfil perfil = perfilRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Perfil no encontrado para el usuario ID: " + usuarioId));
         return perfilMapper.perfilToPerfilDTO(perfil);
     }
 
     @Override
-    public PerfilResponseDto actualizarPerfil(Long id, PerfilResponseDto updateDto) {
-    // 1. Buscamos el perfil actual por el ID del usuario
-    Perfil perfil = perfilRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("No existe el perfil para este usuario"));
+    @Transactional
+    public PerfilResponseDto actualizarPerfil(Long usuarioId, PerfilResponseDto updateDto) {
+        //Buscamos por el ID del usuario para saber qué perfil editar
+        Perfil perfil = perfilRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new RuntimeException("No existe el perfil para este usuario"));
 
-    // 2. Mapeo manual de datos (Actualizamos el objeto de la BD con lo que viene del DTO)
-    perfil.setNombre(updateDto.getNombre());
-    perfil.setApellidos(updateDto.getApellidos());
-    perfil.setTelefono(updateDto.getTelefono());
-    perfil.setDni(updateDto.getDni());
-    perfil.setFechaNacimiento(updateDto.getFechaNacimiento());
-    perfil.setGenero(updateDto.getGenero());
-    perfil.setFoto(updateDto.getFoto());
+        // Actualizamos los campos
+        perfil.setNombre(updateDto.getNombre());
+        perfil.setApellidos(updateDto.getApellidos());
+        perfil.setTelefono(updateDto.getTelefono());
+        perfil.setDni(updateDto.getDni());
+        perfil.setFechaNacimiento(updateDto.getFechaNacimiento());
+        perfil.setGenero(updateDto.getGenero());
+        perfil.setFoto(updateDto.getFoto());
 
-    // 3. Guardamos en la base de datos
-    Perfil perfilGuardado = perfilRepository.save(perfil);
-
-    // 4. Devolvemos el resultado convertido a ResponseDTO
-    return perfilMapper.perfilToPerfilDTO(perfilGuardado);
-}
-
-    
+        return perfilMapper.perfilToPerfilDTO(perfilRepository.save(perfil));
+    }
 }
