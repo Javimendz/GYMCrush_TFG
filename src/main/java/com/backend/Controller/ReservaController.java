@@ -15,7 +15,7 @@ public class ReservaController {
 
     private final IReservaService reservaService;
 
-    @PostMapping("/usuario/{uId}/horario/{hId}")
+    @PostMapping("/usuario/{uId}/horario/{hId}") //Crear una nueva reserva
     public ResponseEntity<?> reservar(@PathVariable Long uId, @PathVariable Long hId) {
         try {
             return ResponseEntity.ok(reservaService.crearReserva(uId, hId));
@@ -24,7 +24,7 @@ public class ReservaController {
         }
     }
 
-    @GetMapping("/usuario/{id}")
+    @GetMapping("/usuario/{id}") //Consultar mis reservas
     public ResponseEntity<List<ReservaResponseDto>> listarMisReservas(@PathVariable Long id) {
         return ResponseEntity.ok(reservaService.obtenerReservasUsuario(id));
     }

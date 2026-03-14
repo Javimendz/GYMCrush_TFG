@@ -29,7 +29,7 @@ public class ReservaServiceImp implements IReservaService {
             throw new RuntimeException("Ya tienes una reserva para esta clase hoy.");
         }
 
-        // 2. Validar aforo
+        // 2. Validar aforo real
         if (!hayCupoDisponible(horarioId)) {
             throw new RuntimeException("Clase completa. No quedan cupos disponibles.");
         }
@@ -43,6 +43,7 @@ public class ReservaServiceImp implements IReservaService {
                 .usuario(usuario)
                 .horario(horario)
                 .estado(EnumEstado.CONFIRMADA)
+                .confirmado(false) // Por defecto false hasta que escanee el QR
                 .build();
 
         return mapToDto(reservaRepository.save(nuevaReserva));
@@ -50,10 +51,20 @@ public class ReservaServiceImp implements IReservaService {
 
     @Override
     public List<ReservaResponseDto> obtenerReservasUsuario(Long usuarioId) {
-        return reservaRepository.findByUsuarioId(usuarioId).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
+    return reservaRepository.findByUsuarioIdAndEstadoNot(usuarioId, EnumEstado.CANCELADA)
+            .stream()
+            .map(reserva -> {
+                ReservaResponseDto dto = new ReservaResponseDto();
+                dto.setId(reserva.getId());
+                dto.setFecha(reserva.getFecha());
+                dto.setEstado(reserva.getEstado());
+                // IMPORTANTE: Aquí sacamos el nombre de la clase desde la relación con Horario
+                //dto.setActividadNombre(reserva.getHorario().getActividad().getNombre());
+                //dto.setHoraInicio(reserva.getHorario().getHoraInicio());
+                return dto;
+            })
+            .collect(Collectors.toList());
+}
 
     @Override
     @Transactional
@@ -61,14 +72,29 @@ public class ReservaServiceImp implements IReservaService {
         Reserva reserva = reservaRepository.findById(reservaId)
                 .orElseThrow(() -> new RuntimeException("La reserva no existe"));
         reserva.setEstado(EnumEstado.CANCELADA);
+        // Al ser @Transactional y cambiar el estado, el aforo se libera automáticamente
         reservaRepository.save(reserva);
     }
 
     @Override
     public boolean hayCupoDisponible(Long horarioId) {
-        long inscritos = reservaRepository.countByHorarioIdAndFecha(horarioId, LocalDate.now());
+        // CORRECCIÓN: Contamos solo CONFIRMADAS y ASISTIDAS (los que ocupan sitio)
+        List<EnumEstado> estadosActivos = List.of(EnumEstado.CONFIRMADA, EnumEstado.ASISTIDA);
+        long inscritos = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(), estadosActivos);
         return inscritos < CUPO_MAXIMO;
     }
+
+    // NUEVO: Método para el QR (Pág 17 de la Memoria)
+    /*@Override
+    @Transactional
+    public void confirmarAsistencia(Long reservaId) {
+        Reserva reserva = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+        
+        reserva.setEstado(EnumEstado.ASISTIDA);
+        reserva.setConfirmado(true);
+        reservaRepository.save(reserva);
+    }*/
 
     private ReservaResponseDto mapToDto(Reserva reserva) {
         ReservaResponseDto dto = new ReservaResponseDto();

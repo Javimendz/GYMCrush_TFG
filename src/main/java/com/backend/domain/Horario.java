@@ -32,4 +32,6 @@ public class Horario {
     @ManyToOne(fetch = FetchType.LAZY)   //usamos un lazy para que traiga muchos registros para una actividad
     @JoinColumn(name="actividad_id", referencedColumnName = "id")
     private Actividad actividad;
+
+    
 }
