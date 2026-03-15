@@ -40,7 +40,8 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll() // Permitir acceso a la autenticacion
                                 .requestMatchers(HttpMethod.GET, "/api/v1/usuario/**").permitAll() // Permitir acceso a la obtencion de usuarios
-                                .requestMatchers("/api/v1/reservas/**").permitAll() // Permitir acceso a la obtencion de reservas
+                                .requestMatchers("/api/v1/reservas/**").permitAll()
+                                .requestMatchers("/api/v1/actividades/**").permitAll() // Permitir acceso a la obtencion de reservas
                                 .anyRequest().authenticated() // Requerir autenticacion para cualquier otra solicitud
                 );
                 http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
