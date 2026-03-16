@@ -14,8 +14,8 @@ import lombok.*; //Importo todos los paquetes
 @NoArgsConstructor
 @Builder
 public class Dieta {
-
-    @Id
+    
+   @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

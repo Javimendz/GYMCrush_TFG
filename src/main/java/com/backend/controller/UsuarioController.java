@@ -1,13 +1,18 @@
-    package com.backend.controller;
+package com.backend.controller;
 
+import com.backend.domain.Perfil;
 import com.backend.domain.Role;
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioRequestDto;
 import com.backend.dto.UsuarioResponseDto;
 import com.backend.mapper.UsuarioMapper;
+import com.backend.repository.PerfilRepository;
 import com.backend.repository.RoleRepository;
 import com.backend.service.IUsuarioService;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -30,8 +35,12 @@ public class UsuarioController {
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final PerfilRepository perfilRepository;
 
-        @GetMapping
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @GetMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
     public ResponseEntity<List<UsuarioResponseDto>> getAllUsuarios() {
 
@@ -42,35 +51,44 @@ public class UsuarioController {
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Transactional
     public ResponseEntity<UsuarioResponseDto> createUsuario(@Valid @RequestBody UsuarioRequestDto usuarioDto) {
 
         Usuario usuarioToSave = usuarioMapper.toEntity(usuarioDto);
-        
+
+        // Roles
         Set<Role> rolesReales = new HashSet<>();
-
-    if (usuarioDto.getRol() != null && !usuarioDto.getRol().isEmpty()) {
-        // Buscamos cada nombre de rol que viene en el JSON
-        for (String nombreRol : usuarioDto.getRol()) {
-            Role roleBd = roleRepository.findByName(nombreRol)
-                .orElseThrow(() -> new RuntimeException("Error: El rol " + nombreRol + " no existe en la DB"));
-            rolesReales.add(roleBd);
+        if (usuarioDto.getRol() != null && !usuarioDto.getRol().isEmpty()) {
+            for (String nombreRol : usuarioDto.getRol()) {
+                Role roleBd = roleRepository.findByName(nombreRol)
+                        .orElseThrow(() -> new RuntimeException("Error: El rol " + nombreRol + " no existe en la DB"));
+                rolesReales.add(roleBd);
+            }
+        } else {
+            Role defaultRole = roleRepository.findByName("ROLE_USUARIO")
+                    .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_USUARIO no encontrado en la DB"));
+            rolesReales.add(defaultRole);
         }
-    } else {
-        // 3. Si no viene nada, asignamos ROLE_USUARIO por defecto
-        Role defaultRole = roleRepository.findByName("ROLE_USUARIO")
-            .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_USUARIO no encontrado en la DB"));
-        rolesReales.add(defaultRole);
-    }
+        usuarioToSave.setRol(rolesReales);
+        usuarioToSave.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
 
-    // 4. SOBREESCRIBIMOS los roles transientes del mapper con los roles persistidos de la DB
-    usuarioToSave.setRol(rolesReales);
-    
-    // 5. Encriptamos y guardamos
-    usuarioToSave.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
-    Usuario savedUsuario = usuarioService.save(usuarioToSave);
-    
-    UsuarioResponseDto responseDto = usuarioMapper.toUsuarioResponseDto(savedUsuario);
-    return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        Perfil perfil = usuarioToSave.getPerfil();
+        usuarioToSave.setPerfil(null);
+
+        Usuario savedUsuario = usuarioService.save(usuarioToSave);
+        entityManager.flush();
+        entityManager.clear();
+
+        savedUsuario = usuarioService.findById(savedUsuario.getId());
+
+        if (perfil != null) {
+            perfil.setUsuario(savedUsuario);
+            Perfil savedPerfil = perfilRepository.save(perfil);
+            savedUsuario.setPerfil(savedPerfil);
+        }
+
+        UsuarioResponseDto responseDto = usuarioMapper.toUsuarioResponseDto(savedUsuario);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -89,19 +107,18 @@ public class UsuarioController {
         usuarioMapper.updateUsuarioFromDto(usuarioDto, updatedUsuario);
 
         if (usuarioDto.getRol() != null && !usuarioDto.getRol().isEmpty()) {
-        Set<Role> rolesReales = new HashSet<>();
-        for (String nombreRol : usuarioDto.getRol()) {
-            Role roleBd = roleRepository.findByName(nombreRol)
-                .orElseThrow(() -> new RuntimeException("Error: El rol " + nombreRol + " no existe"));
-            rolesReales.add(roleBd);
+            Set<Role> rolesReales = new HashSet<>();
+            for (String nombreRol : usuarioDto.getRol()) {
+                Role roleBd = roleRepository.findByName(nombreRol)
+                        .orElseThrow(() -> new RuntimeException("Error: El rol " + nombreRol + " no existe"));
+                rolesReales.add(roleBd);
+            }
+            // Sustituimos los roles del mapper por los reales con ID
+            updatedUsuario.setRol(rolesReales);
         }
-        // Sustituimos los roles del mapper por los reales con ID
-        updatedUsuario.setRol(rolesReales);
-    }
-
 
         if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isEmpty()) {
-            
+
             updatedUsuario.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
         }
         Usuario updateUsuario = usuarioService.save(updatedUsuario);
@@ -114,6 +131,6 @@ public class UsuarioController {
 
         usuarioService.deleteById(id);
         return ResponseEntity.noContent().build(); // El estandar pide devolver un 204 noContent para informar al
-                                                // cliente
+                                                   // cliente
     }
 }

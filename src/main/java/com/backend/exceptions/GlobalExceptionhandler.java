@@ -5,79 +5,81 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.backend.security.dto.ApiResponseDto;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice 
 public class GlobalExceptionhandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex){
-        Map<String, String> errors = new HashMap<>();
+    public ResponseEntity<ApiResponseDto<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> validationErrors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> 
+            validationErrors.put(error.getField(), error.getDefaultMessage())
+        );
 
-        ex.getBindingResult().getFieldErrors().forEach(error->{
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
+        ApiResponseDto<Map<String, String>> response = ApiResponseDto.<Map<String, String>>builder()
+                .mensaje("Errores de validación en los datos enviados")
+                .success(false)
+                .datos(validationErrors) 
+                .build();
 
-        Map<String, Object> body = new HashMap<>();
-
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Bad request" );
-        body.put("message", "Errores validación" );
-        body.put("errors", errors );
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    // Recurso no encontrado (404)
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex){
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpStatus.NOT_FOUND.value());
-        body.put("error", "Not Found");
-        body.put("message", ex.getMessage());
+    public ResponseEntity<ApiResponseDto<Void>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
+                .mensaje(ex.getMessage())
+                .success(false)
+                .datos(null)
+                .build();
 
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    //  Conflictos de datos (409)
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, String>> handleDataIntegrityViolationSimple(DataIntegrityViolationException ex) {
-        Map<String, String> errorDetails = new HashMap<>();
-        errorDetails.put("error", "Conflicto de Datos");
-        errorDetails.put("message", "La operación no se pudo completar debido a un conflicto de datos. Asegúrate de que los valores sean únicos y las referencias existan.");
-        // O puedes usar el mensaje original de la causa raíz si no te importa exponerlo (no recomendado)
-        errorDetails.put("message", ex.getRootCause() != null ? ex.getRootCause().getMessage() : "Error de integridad de datos.");
-        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
-    }
-
-    //Excepcion para acceso denegado
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
-        Map<String, String> errorDetails = new HashMap<>();
-        errorDetails.put("error", "Acceso Denegado");
-        errorDetails.put("message", "No tienes permisos para realizar esta acción. Contacta con un administrador si necesitas acceso.");
+    public ResponseEntity<ApiResponseDto<Void>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String detail = ex.getRootCause() != null ? ex.getRootCause().getMessage() : "Conflicto de integridad de datos";
         
-        return new ResponseEntity<>(errorDetails, HttpStatus.FORBIDDEN);
+        ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
+                .mensaje("Error de base de datos: " + detail)
+                .success(false)
+                .datos(null)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
+    // Acceso denegado (403)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponseDto<Void>> handleAccessDeniedException(AccessDeniedException ex) {
+        ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
+                .mensaje("No tienes permisos suficientes para realizar esta acción.")
+                .success(false)
+                .datos(null)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    //  Errores generales (500)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneralException(Exception ex) {
-        System.err.println("Ocurrió un error inesperado: " + ex.getMessage());
-        ex.printStackTrace(); // En producción, se loguea, no se imprime a consola
+    public ResponseEntity<ApiResponseDto<Void>> handleGeneralException(Exception ex) {
+        ex.printStackTrace(); // Log para el desarrollador
 
-        Map<String, String> errorDetails = new HashMap<>();
-        errorDetails.put("error", "Error Interno del Servidor");
-        errorDetails.put("message", "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.");
+        ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
+                .mensaje("Ocurrió un error inesperado en el sistema.")
+                .success(false)
+                .datos(null)
+                .build();
 
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-
-
-
-
-
-
 }

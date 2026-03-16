@@ -76,10 +76,12 @@ public class Usuario {
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+@OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude // Para evitar bucle infinito con Lombok
     private Perfil perfil; // Relación 1:1 con Perfil
 
+
+    
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Reserva> reservas; // Un usuario realiza N reservas
 
@@ -118,4 +120,6 @@ public class Usuario {
         this.rol.remove(role);
         role.getUsuarios().remove(this);
     }
+
+   
 }

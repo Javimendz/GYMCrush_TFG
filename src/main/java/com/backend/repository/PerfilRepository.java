@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.backend.domain.Perfil;
+import com.backend.domain.Usuario;
 import com.backend.domain.enums.EnumGenero;
 
 @Repository
@@ -31,6 +33,8 @@ public interface PerfilRepository extends JpaRepository<Perfil, Long> {
     // Contar perfiles por genero
     long countByGenero(EnumGenero genero);
 
+        Perfil findByUsuario(Usuario usuario);
+
     // Selecciono quien cumple años hoy, comparando que la fecha de nacimiento es
     // igual a la actual
     @Query("SELECT p FROM Perfil p WHERE MONTH(p.fechaNacimiento) = :mes")
@@ -40,4 +44,8 @@ public interface PerfilRepository extends JpaRepository<Perfil, Long> {
     boolean existsByDni(String dni);
 
     boolean existsByTelefono(String telefono);
+
+    @Modifying
+    @Query("DELETE FROM Perfil p WHERE p.usuario.id = :usuarioId")
+    void deleteByUsuarioId(@Param("usuarioId") Long usuarioId);
 }

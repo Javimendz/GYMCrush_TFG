@@ -13,10 +13,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.domain.Perfil;
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioResponseDto;
 import com.backend.mapper.UsuarioMapper;
-import com.backend.repository.RoleRepository;
+import com.backend.repository.PerfilRepository;
 import com.backend.repository.UsuarioRepository;
 import com.backend.security.dto.JwtAuthResponseDto;
 import com.backend.security.dto.LoginDto;
@@ -36,10 +37,9 @@ public class AuthController {
     private final AuthenticationManager authenticationManager; // Administrador de autenticacion
     private final JwtGenerator jwtGenerator; // Generador de tokens JWT
     private final UsuarioRepository usuarioRepository; // Repositorio de usuarios
-    private final RoleRepository roleRepository; // Repositorio de roles
     private final PasswordEncoder passwordEncoder; // Codificador de contraseñas
     private final UsuarioMapper usuarioMapper;
-
+    private final PerfilRepository perfilRepository;
     @PostMapping("/login") // Peticion para autenticar a un usuario
     public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
         // autenticar con spring security
@@ -74,26 +74,37 @@ public class AuthController {
 
     }
 
-    @PostMapping("/register")
+   @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterDto registerDto) {
-
+ 
         if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
-
             return new ResponseEntity<>("Nombre de usuario, ya existe...", HttpStatus.BAD_REQUEST);
         }
-
+ 
         if (usuarioRepository.existsByCorreo(registerDto.getCorreo())) {
-
             return new ResponseEntity<>("Email de usuario, ya existe...", HttpStatus.BAD_REQUEST);
         }
+ 
+        
         Usuario user = usuarioMapper.registerDtoToUser(registerDto);
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-
-        if (user.getPerfil() != null) {
-            user.getPerfil().setUsuario(user);
-        }
-
+ 
+        
+        Perfil perfil = user.getPerfil();
+        user.setPerfil(null);
+ 
+        //  Guardamos el Usuario
         Usuario savedUser = usuarioRepository.save(user);
+ 
+        // Vinculamos el Perfil al Usuario ya persistido 
+        
+        if (perfil != null) {
+            perfil.setUsuario(savedUser);
+            Perfil savedPerfil = perfilRepository.save(perfil);
+            savedUser.setPerfil(savedPerfil);
+        }
+ 
+        // Construimos la respuesta con el usuario completo
         UsuarioResponseDto response = usuarioMapper.toUsuarioResponseDto(savedUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

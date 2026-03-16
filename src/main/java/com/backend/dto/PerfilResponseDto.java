@@ -23,6 +23,11 @@ public class PerfilResponseDto {
     private LocalDate fechaNacimiento;
     private EnumGenero genero;
     private String foto;
+    private String direccion;
+    private String ciudad;
+    private String pais;
+    private String codigoPostal;
+    private String bio;
 
     //Datos salud
     private Double peso;

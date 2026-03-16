@@ -2,6 +2,10 @@
 package com.backend.domain;
 //Imports
 import java.time.LocalDate;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.backend.domain.enums.EnumGenero;
 import jakarta.persistence.*; // Importo todos los paquetes 
 import lombok.*; //Importo todos los paquetes
@@ -53,10 +57,11 @@ public class Perfil {
     @Column(name = "foto", length = 255, nullable = true)
     private String foto;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
-    @ToString.Exclude //Evita que exploten los logs de consola!!!!
-    @EqualsAndHashCode.Exclude // Evita errores de hashcode
+   @OneToOne(fetch = FetchType.LAZY, optional = false) 
+    @JoinColumn(name = "usuario_id", nullable = false, unique = true)
+    @OnDelete(action = OnDeleteAction.CASCADE) 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Usuario usuario;
 
     @Override
