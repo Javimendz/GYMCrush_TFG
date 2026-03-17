@@ -17,5 +17,6 @@ public interface IReservaService {
     boolean hayCupoDisponible(Long horarioId);//En pantalla Actividades
 
     // 5. LO QUE FALTA: Confirmar Asistencia (El "Check-in" del QR)
-    //void confirmarAsistencia(Long reservaId);
+    void confirmarAsistencia(Long reservaId);
+    
 }
