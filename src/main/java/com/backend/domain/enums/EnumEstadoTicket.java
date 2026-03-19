@@ -1,6 +1,6 @@
 package com.backend.domain.enums;
 
-public enum EnumTicketEstado {
+public enum EnumEstadoTicket {
     
     ABIERTO,
     CERRADO,

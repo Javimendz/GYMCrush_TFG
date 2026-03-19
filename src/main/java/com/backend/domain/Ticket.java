@@ -2,7 +2,7 @@
 package com.backend.domain;
 //Imports
 import java.time.LocalDateTime;
-import com.backend.domain.enums.EnumTicketEstado;
+import com.backend.domain.enums.EnumEstadoTicket;
 import jakarta.persistence.*; //Importar todos los paquetes
 import lombok.*; //Importar todos los paquetes de Lombok
 
@@ -26,7 +26,7 @@ public class Ticket {
 
     @Column(name = "estado", length = 50, nullable = false)
     @Enumerated(EnumType.STRING) //Indicamos que es un enum de tipo string
-    private EnumTicketEstado estado;
+    private EnumEstadoTicket estado;
 
     @Column(name = "fecha_resolucion", nullable = true)
     private LocalDateTime fechaResolucion;
@@ -45,7 +45,7 @@ public class Ticket {
     public void onCreate() {
         this.fechaCreacion = LocalDateTime.now();
         if(this.estado == null) {
-            this.estado = EnumTicketEstado.ABIERTO; //Estado por defecto
+            this.estado = EnumEstadoTicket.ABIERTO; //Estado por defecto
         }
     }
 }

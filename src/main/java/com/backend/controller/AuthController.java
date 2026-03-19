@@ -40,7 +40,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder; // Codificador de contraseñas
     private final UsuarioMapper usuarioMapper;
     private final PerfilRepository perfilRepository;
-    @PostMapping("/login") // Peticion para autenticar a un usuario
+    @PostMapping("/login") // endpoint para autenticar a un usuario
     public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
         // autenticar con spring security
         Authentication authentication = authenticationManager.authenticate(
