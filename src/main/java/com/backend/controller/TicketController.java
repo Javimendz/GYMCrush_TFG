@@ -34,7 +34,7 @@ public class TicketController {
 
     //Endpoint para crear ticket
     @PostMapping("/usuario/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_USUARIO, 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     public ResponseEntity<ApiResponseDto<TicketResponseDto>> crear(
         @PathVariable Long usuarioId,
         @Valid @RequestBody TicketRequestDto dto
@@ -53,7 +53,7 @@ public class TicketController {
 
     //Para el usuario ver su historial de tickets
     @GetMapping("/usuario/{usuarioId}")
-    @PreAuthorize("hasAnyRole('ROLE_USUARIO,  'ROLE_ADMIN)")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verMisTickets(
         @PathVariable Long usuarioIdLong
     ){
