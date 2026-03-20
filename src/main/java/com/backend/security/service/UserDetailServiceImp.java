@@ -31,9 +31,8 @@ public class UserDetailServiceImp implements UserDetailsService {
         Usuario usuario = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
-        
         List<SimpleGrantedAuthority> authorities = usuario.getRol().stream()
-                .map(rol -> new SimpleGrantedAuthority(rol.getName())) 
+                .map(rol -> new SimpleGrantedAuthority(rol.getName()))
                 .collect(Collectors.toList());
 
         return new User(usuario.getUsername(), usuario.getPassword(), authorities);
