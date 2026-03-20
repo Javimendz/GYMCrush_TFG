@@ -50,7 +50,6 @@ public class SaludServiceImp implements ISaludService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + usuarioId));
 
         List<Salud> historial = saludRepository.findByUsuarioOrderByFechaMedicionDesc(usuario);
-
         return saludMapper.toDtoList(historial);
 
     }

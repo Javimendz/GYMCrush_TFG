@@ -3,7 +3,6 @@ package com.backend.service;
 //Imorts
 import java.util.List;
 
-import com.backend.domain.Perfil;
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioRequestDto;
 //Interfaz para el servicio de la entidad Usuario
