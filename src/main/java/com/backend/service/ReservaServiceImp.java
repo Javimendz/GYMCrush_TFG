@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,17 @@ public class ReservaServiceImp implements IReservaService {
         Reserva reserva = reservaRepository.findById(reservaId)
                 .orElseThrow(() -> new RuntimeException("La reserva no existe"));
         
+        LocalTime horaClase = reserva.getHorario().getHoraInicio();
+        LocalTime ahora = LocalTime.now();
+        LocalDate fechaClase = reserva.getFecha();
+        LocalDate hoy = LocalDate.now();
+        if(fechaClase.isEqual(hoy)) {
+            if (ahora.isAfter(horaClase.minusHours(1))) {
+                throw new RuntimeException("No se puede cancelar la reserva con menos de 2 horas de antelación");
+            } else if (fechaClase.isBefore(hoy)) {
+                throw new RuntimeException("No se puede cancelar la reserva de una clase pasada");
+            }
+        }
         reserva.setEstado(EnumEstado.CANCELADA);
         reservaRepository.save(reserva);
     }
