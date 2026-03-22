@@ -37,7 +37,7 @@ public class HorarioController {
 
     //  Solo el ADMIN puede crear horarios
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+   
     public ResponseEntity<HorarioResponseDto> crear(@Valid @RequestBody HorarioRequestDto dto) {
         return new ResponseEntity<>(horarioService.crear(dto), HttpStatus.CREATED);
     }

@@ -54,7 +54,6 @@ public class ReservaServiceImp implements IReservaService {
                 .fecha(LocalDate.now())
                 .estado(EnumEstado.CONFIRMADA)
                 .build();
-
         return mapToDto(reservaRepository.save(nuevaReserva));
     }
 
@@ -105,10 +104,14 @@ public class ReservaServiceImp implements IReservaService {
         return ReservaResponseDto.builder()
                 .id(reserva.getId())
                 .fecha(reserva.getFecha())
+                .username(reserva.getUsuario() != null ? reserva.getUsuario().getUsername() : "Anónimo")
                 .estado(reserva.getEstado().name()) // O reserva.getEstado().name()
-                .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)
+                .diaSemana(reserva.getHorario() != null ? reserva.getHorario().getDiaSemana() : null)
+                .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)               
                 .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
                                  ? reserva.getHorario().getActividad().getNombre() : "Sin nombre")
-                .build();
+                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
+                             ? reserva.getHorario().getActividad().getNombre() : "Sin Actividad")
+            .build();
     }
 }
