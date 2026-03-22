@@ -1,7 +1,8 @@
 package com.backend.dto;
 
 import java.time.LocalDate;
-
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import lombok.*;
 
@@ -20,5 +21,5 @@ public class ReservaResponseDto {
       // CAMPOS NUEVOS PARA ANDROID
     private String nombreActividad;
     private String diaSemana;
-    private String horaInicio;
+    private LocalTime horaInicio;
 }

@@ -33,7 +33,7 @@ public class TicketController {
     private final ITicketService ticketService;
 
     //Endpoint para crear ticket
-    @PostMapping("/usuario/{id}")
+    @PostMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     public ResponseEntity<ApiResponseDto<TicketResponseDto>> crear(
         @PathVariable Long usuarioId,
@@ -55,10 +55,10 @@ public class TicketController {
     @GetMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verMisTickets(
-        @PathVariable Long usuarioIdLong
+        @PathVariable Long usuarioId
     ){
 
-        List<TicketResponseDto> lista = ticketService.obtenerPorUsuario(usuarioIdLong);
+        List<TicketResponseDto> lista = ticketService.obtenerPorUsuario(usuarioId);
 
         return ResponseEntity.ok(ApiResponseDto.<List<TicketResponseDto>>builder()
                 .mensaje("Hisotrial de tickets recuperado")

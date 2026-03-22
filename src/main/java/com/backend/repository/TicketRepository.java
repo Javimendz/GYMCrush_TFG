@@ -12,9 +12,8 @@ import com.backend.domain.enums.EnumEstadoTicket;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     // Metodo para encontrar por usuario ordenado por fecha de creacion descendente
-    List<Ticket> findByUsuarioOrderByFechaCreacionDesc(Long usuarioId);
-
+    List<Ticket> findByUsuarioIdOrderByFechaCreacionDesc(Long usuarioId);
     // Metodo para encontrar por estado del ticket
-    List<Ticket> findByeEstado(EnumEstadoTicket estado);
+    List<Ticket> findByEstado(EnumEstadoTicket estado);
 
 }

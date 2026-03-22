@@ -107,7 +107,7 @@ public class ReservaServiceImp implements IReservaService {
                 .fecha(reserva.getFecha())
                 .estado(reserva.getEstado().name()) // O reserva.getEstado().name()
                 .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)
-                .actividadNombre(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
+                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
                                  ? reserva.getHorario().getActividad().getNombre() : "Sin nombre")
                 .build();
     }

@@ -77,6 +77,7 @@ public class Usuario {
     private LocalDateTime updatedAt;
 
 @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+@OnDelete(action = OnDeleteAction.CASCADE)
     @ToString.Exclude // Para evitar bucle infinito con Lombok
     private Perfil perfil; // Relación 1:1 con Perfil
 

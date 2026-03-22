@@ -10,13 +10,13 @@ import com.backend.domain.enums.EnumEstadoTicket;
 import com.backend.dto.TicketRequestDto;
 import com.backend.dto.TicketResponseDto;
 import com.backend.exceptions.ResourceNotFoundException;
+import com.backend.mapper.TicketMapper;
 import com.backend.repository.TicketRepository;
 import com.backend.repository.UsuarioRepository;
 import com.backend.domain.Ticket;
 import com.backend.domain.Usuario;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Service
 @Data
@@ -25,6 +25,7 @@ public class TicketServiceImp implements ITicketService {
 
     private final TicketRepository ticketRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TicketMapper ticketMapper;
 
     @Override
     public TicketResponseDto crearTicket(TicketRequestDto dto, Long usuarioId) {
@@ -39,16 +40,16 @@ public class TicketServiceImp implements ITicketService {
                 .estado(EnumEstadoTicket.ABIERTO)
                 .build();
 
-        return mapToDto(ticketRepository.save(ticket));
+                return ticketMapper.toDto(ticketRepository.save(ticket));
 
     }
 
     @Override
     public List<TicketResponseDto> obtenerPorUsuario(Long usuarioId) {
 
-        return ticketRepository.findByUsuarioOrderByFechaCreacionDesc(usuarioId)
+        return ticketRepository.findByUsuarioIdOrderByFechaCreacionDesc(usuarioId)
                 .stream()
-                .map(this::mapToDto)
+                .map(ticketMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -57,7 +58,7 @@ public class TicketServiceImp implements ITicketService {
 
         return ticketRepository.findAll()
                 .stream()
-                .map(this::mapToDto)
+                .map(ticketMapper::toDto)
                 .collect(Collectors.toList());
     }
 

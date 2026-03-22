@@ -10,23 +10,23 @@ import com.backend.dto.TicketResponseDto;
 @Mapper(componentModel = "spring")
 public interface TicketMapper {
 
-
-    //De entidad a dto, para mostrar datos al usuario y el admin
-    @Mapping(target = "usuarioId", source= "usuario.id")
-    @Mapping(target= "usuarioEmail", source="usuario.correo")
-    @Mapping(target= "nombreCompletoUsuario", 
-            expression = "java(ticket.getUsuario().getNombre() + \"\" + ticket.getUsuario().getApellidos())")
+@Mapping(target = "usuarioId", source = "usuario.id") 
+    @Mapping(target = "usuarioEmail", source = "usuario.correo")
+    @Mapping(target = "username", source = "usuario.username")
+    @Mapping(target = "nombreCompletoUsuario", source = "ticket")
     TicketResponseDto toDto(Ticket ticket);
-    
-    // de requestDto a Entidad, para cuando el usuario crea un ticket
-    //ignoro los campos que el sistema genera automaticamente
-    @Mapping(target="id", ignore=true)
-    @Mapping(target="estado", ignore=true)
-    @Mapping(target="fechaCreacion", ignore=true)
-    @Mapping(target="fechaResolucion", ignore=true)
-    @Mapping(target="usuario", ignore=true)
-    Ticket toEntity(TicketResponseDto dto);
 
-    //Mapeo de listas, resulta util para el historial y el panel de admin
-    List<TicketResponseDto> toDtoList(List<Ticket> tickets);
+    // Este método une el nombre y apellidos navegando Ticket -> Usuario -> Perfil
+    default String mapNombreCompleto(Ticket ticket) {
+        if (ticket.getUsuario() == null || ticket.getUsuario().getPerfil() == null) {
+            return "Sin perfil configurado";
+        }
+        
+        String nombre = ticket.getUsuario().getPerfil().getNombre();
+        String apellidos = ticket.getUsuario().getPerfil().getApellidos();
+        
+        // Evitamos que devuelva "null null" si los campos están vacíos
+        String resultado = (nombre != null ? nombre : "") + " " + (apellidos != null ? apellidos : "");
+        return resultado.trim().isEmpty() ? "Nombre no definido" : resultado.trim();
+    }
 }

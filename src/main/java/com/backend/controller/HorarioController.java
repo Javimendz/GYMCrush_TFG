@@ -35,14 +35,14 @@ public class HorarioController {
         return ResponseEntity.ok(horarioService.obtenerPorId(id));
     }
 
-    // 🛡️ Solo el ADMIN puede crear horarios
+    //  Solo el ADMIN puede crear horarios
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<HorarioResponseDto> crear(@Valid @RequestBody HorarioRequestDto dto) {
         return new ResponseEntity<>(horarioService.crear(dto), HttpStatus.CREATED);
     }
 
-    // 🛡️ Solo el ADMIN puede actualizar horarios
+    // Solo el ADMIN puede actualizar horarios
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<HorarioResponseDto> actualizar(
