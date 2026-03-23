@@ -39,8 +39,7 @@ public class UsuarioServiceImp implements IUsuarioService {
     @Override
     public Usuario generarTokenAcceso(Long id) {
         Usuario usuario = usuarioRepo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
         usuario.setQrToken(java.util.UUID.randomUUID().toString());
         usuario.setTokenExpiraEn(java.time.LocalDateTime.now().plusSeconds(30));
 

@@ -25,33 +25,26 @@ public class PerfilServiceImp implements IPerfilService {
     private final SaludRepository saludRepository;
     private final PerfilMapper perfilMapper;
 
-    @Override
-    @Transactional(readOnly = true)
-    //puede causar problema de consultas N+1 (una consulta para todos los perfiles y luego una consulta extra por cada perfil para su salud
-    public List<PerfilResponseDto> findAll() {
-
-        //Creo una lista de perfiles
-       List<Perfil> perfiles = perfilRepository.findAll();
-
-    //  Uso el mapper para convertir toda la lista a DTOs
-    List<PerfilResponseDto> dtos = perfilMapper.toDtoList(perfiles);
-
-    //  Para cada DTO, busco su salud actual y la inyecto
-    dtos.forEach(dto -> {
-        // Busco el perfil para obtener el usuario
-        Perfil p = perfiles.stream().filter(per -> per.getId().equals(dto.getId())).findFirst().get();
+   @Override
+@Transactional(readOnly = true)
+public List<PerfilResponseDto> findAll() {
+    List<Perfil> perfiles = perfilRepository.findAll();
+    
+    return perfiles.stream().map(perfil -> {
+        //  Convertimos a DTO
+        PerfilResponseDto dto = perfilMapper.toDto(perfil);
         
-        saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(p.getUsuario())
+        // Enriquecemos con salud 
+        saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
             .ifPresent(salud -> {
                 dto.setPeso(salud.getPeso());
                 dto.setEstatura(salud.getEstatura());
                 dto.setImc(salud.getImc());
                 dto.setNivelActividad(salud.getNivelActividad());
             });
-    });
-
-    return dtos;
-    }
+        return dto;
+    }).toList();
+}
 
     @Override
     @Transactional

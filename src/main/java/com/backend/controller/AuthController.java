@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.domain.Perfil;
+import com.backend.domain.Role;
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioResponseDto;
 import com.backend.mapper.UsuarioMapper;
@@ -40,72 +41,61 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder; // Codificador de contraseñas
     private final UsuarioMapper usuarioMapper;
     private final PerfilRepository perfilRepository;
-    @PostMapping("/login") // endpoint para autenticar a un usuario
+
+    @PostMapping("/login")
     public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
-        // autenticar con spring security
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
-        // Almacen temporal para guardar token
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        // generar token
         String jwt = jwtGenerator.generateToken(authentication);
 
-        // Extraer datos para el dto
-        String username = authentication.getName();
-        // Buscamos el usuario en la bd
-        Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Error crítico: Usuario autenticado no encontrado en DB"));
-        // Convertimos el set<Role> a set<String> con los nombres de los roles
+        Usuario usuario = usuarioRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado"));
+
+        String nombreAMostrar = (usuario.getPerfil() != null) ? usuario.getPerfil().getNombre() : "Usuario sin Perfil";
+
         List<String> rolesNames = usuario.getRol().stream()
-                .map(role -> role.getName())
+                .map(Role::getName)
                 .toList();
 
-        // Construyo respuesta para el builder
         JwtAuthResponseDto response = JwtAuthResponseDto.builder()
                 .id(usuario.getId())
                 .username(usuario.getUsername())
-                .nombre(usuario.getPerfil().getNombre())
+                .nombre(nombreAMostrar) 
                 .roles(rolesNames)
                 .accessToken(jwt)
                 .tokenType("Bearer")
                 .build();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-
+        return ResponseEntity.ok(response);
     }
 
-   @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterDto registerDto) {
- 
-        if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
-            return new ResponseEntity<>("Nombre de usuario, ya existe...", HttpStatus.BAD_REQUEST);
-        }
- 
-        if (usuarioRepository.existsByCorreo(registerDto.getCorreo())) {
-            return new ResponseEntity<>("Email de usuario, ya existe...", HttpStatus.BAD_REQUEST);
-        }
- 
-        
-        Usuario user = usuarioMapper.registerDtoToUser(registerDto);
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
- 
-        
-        Perfil perfil = user.getPerfil();
-        user.setPerfil(null);
- 
-        //  Guardamos el Usuario
-        Usuario savedUser = usuarioRepository.save(user);
- 
-        // Vinculamos el Perfil al Usuario ya persistido 
-        
-        if (perfil != null) {
-            perfil.setUsuario(savedUser);
-            Perfil savedPerfil = perfilRepository.save(perfil);
-            savedUser.setPerfil(savedPerfil);
-        }
- 
-        // Construimos la respuesta con el usuario completo
-        UsuarioResponseDto response = usuarioMapper.toUsuarioResponseDto(savedUser);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    @PostMapping("/register")
+public ResponseEntity<?> registerUser(@RequestBody RegisterDto registerDto) {
+    if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
+        return new ResponseEntity<>("Nombre de usuario ya existe", HttpStatus.BAD_REQUEST);
     }
+
+    // Mapeamos el DTO a la Entidad
+    Usuario user = usuarioMapper.registerDtoToUser(registerDto);
+    user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+    //  Vinculamos el perfil antes de guardar
+    if (user.getPerfil() != null) {
+        user.getPerfil().setUsuario(user);
+    } else {
+        
+        Perfil nuevoPerfil = new Perfil();
+        nuevoPerfil.setNombre(user.getUsername());
+        nuevoPerfil.setUsuario(user);
+        user.setPerfil(nuevoPerfil);
+    }
+
+    // Guardamos solo una vez. El Cascade guarda el perfil automáticamente.
+    Usuario savedUser = usuarioRepository.save(user);
+
+    UsuarioResponseDto response = usuarioMapper.toUsuarioResponseDto(savedUser);
+    return new ResponseEntity<>(response, HttpStatus.CREATED);
+}
 }

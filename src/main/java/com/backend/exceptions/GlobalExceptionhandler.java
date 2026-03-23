@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -31,6 +32,17 @@ public class GlobalExceptionhandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    // Manejo de credenciales inválidas (401)
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponseDto<Void>> handleBadCredentialsException(BadCredentialsException ex) {
+        ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
+                .mensaje("Usuario o contraseña incorrectos.") // Mensaje genérico por seguridad
+                .success(false)
+                .datos(null)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+    }
     // Recurso no encontrado (404)
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleResourceNotFoundException(ResourceNotFoundException ex) {

@@ -76,9 +76,9 @@ public class Usuario {
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-@OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-@OnDelete(action = OnDeleteAction.CASCADE)
-    @ToString.Exclude // Para evitar bucle infinito con Lombok
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // Cambiamos a EAGER para el Login
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ToString.Exclude// Para evitar bucle infinito con Lombok
     private Perfil perfil; // Relación 1:1 con Perfil
 
 
