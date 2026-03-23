@@ -2,6 +2,9 @@
 package com.backend.domain;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 //Imports
 import jakarta.persistence.*; //Importo todo el paquete
 import lombok.*;
@@ -11,7 +14,9 @@ import lombok.*;
 @Data // Lombok para generar getters, setters, toString, equals, y hashCode
 @AllArgsConstructor // Lombok para generar un constructor con todos los argumentos
 @NoArgsConstructor // Lombok para generar un constructor sin argumentos
+@RequestMapping("/api/v1/actividades")
 @Builder // Lombok para generar un constructor con argumentos usando el patrón Builder
+@CrossOrigin(origins = "*") // Permite que Android se conecte sin bloqueos de CORS
 public class Actividad {
      
     @Id
