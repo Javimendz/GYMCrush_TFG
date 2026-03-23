@@ -30,7 +30,7 @@ public class SaludController {
 
     // Endpoint para crear registro
     @PostMapping("/usuario/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<SaludResponseDto> crearRegistro(@PathVariable Long id,
             @Valid @RequestBody SaludRequestDto dto) {
 
@@ -39,7 +39,7 @@ public class SaludController {
 
     // Endpoint para obtener progreso actual
     @GetMapping("/usuario/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<SaludResponseDto> getActual(@PathVariable Long id) {
 
         return ResponseEntity.ok(saludService.obtenerProgresoActual(id));
@@ -47,7 +47,7 @@ public class SaludController {
 
     // Endpoint para obtener historial
     @GetMapping("/usuario/{id}/historial")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     //  Cambio el tipo de retorno aquí para que acepte el ApiResponseDto
     public ResponseEntity<ApiResponseDto<List<SaludResponseDto>>> getHistorial(@PathVariable Long id) {
 
@@ -65,7 +65,7 @@ public class SaludController {
 
     // Endpoint para eliminar registro
     @DeleteMapping("/usuario/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable Long id) {
        saludService.eliminarRegistro(id);
 

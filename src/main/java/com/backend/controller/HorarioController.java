@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.*;
 
 import com.backend.dto.HorarioRequestDto; // Nuevo DTO de entrada
 import com.backend.dto.HorarioResponseDto;
+import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.IHorarioService;
 
 @RestController
 @RequestMapping("/api/v1/horarios")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "${app.cors.origins}")
 public class HorarioController {
 
     private final IHorarioService horarioService;
@@ -53,8 +53,15 @@ public class HorarioController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable Long id) {
         horarioService.eliminar(id);
-        return ResponseEntity.noContent().build();
+
+        ApiResponseDto<Void> respuesta = ApiResponseDto.<Void>builder()
+            .mensaje("El horario ha sido eliminado correctamente")
+            .success(true)
+            .datos(null)
+            .build();
+
+        return ResponseEntity.ok(respuesta);
     }
 }

@@ -22,8 +22,8 @@ public class Webconfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**") // Solo protegemos la API
-                        .allowedOrigins(allowedOrigins) // Orígenes desde .env
+                registry.addMapping("/**")// Solo protegemos la API
+                        .allowedOriginPatterns(allowedOrigins)// Orígenes desde .env
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*") // Permite cualquier cabecera (incluido Authorization)
                         .allowCredentials(true) //  OBLIGATORIO si usas cookies o Auth de navegador

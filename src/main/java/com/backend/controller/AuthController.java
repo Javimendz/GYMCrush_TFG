@@ -14,17 +14,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.domain.Perfil;
-import com.backend.domain.Role;
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioResponseDto;
 import com.backend.mapper.UsuarioMapper;
-import com.backend.repository.PerfilRepository;
 import com.backend.repository.UsuarioRepository;
+import com.backend.security.dto.ApiResponseDto;
 import com.backend.security.dto.JwtAuthResponseDto;
 import com.backend.security.dto.LoginDto;
 import com.backend.security.dto.RegisterDto;
 import com.backend.security.jwt.JwtGenerator;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,35 +42,39 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository; // Repositorio de usuarios
     private final PasswordEncoder passwordEncoder; // Codificador de contraseñas
     private final UsuarioMapper usuarioMapper;
-    private final PerfilRepository perfilRepository;
 
-    @PostMapping("/login")
-    public ResponseEntity<JwtAuthResponseDto> authenticateUser(@RequestBody LoginDto loginDto) {
+   @PostMapping("/login")
+    public ResponseEntity<ApiResponseDto<JwtAuthResponseDto>> login(@Valid @RequestBody LoginDto loginDto) {
+        // 1. Autenticar credenciales
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        
+        // 2. Generar JWT
         String jwt = jwtGenerator.generateToken(authentication);
 
-        Usuario usuario = usuarioRepository.findByUsername(authentication.getName())
+        // 3. Obtener datos extra del usuario para la App
+        Usuario usuario = usuarioRepository.findByUsername(loginDto.getUsername())
                 .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado"));
 
-        String nombreAMostrar = (usuario.getPerfil() != null) ? usuario.getPerfil().getNombre() : "Usuario sin Perfil";
+        String nombreAMostrar = (usuario.getPerfil() != null) ? usuario.getPerfil().getNombre() : usuario.getUsername();
+        List<String> roles = usuario.getRol().stream().map(r -> r.getName()).toList();
 
-        List<String> rolesNames = usuario.getRol().stream()
-                .map(Role::getName)
-                .toList();
-
-        JwtAuthResponseDto response = JwtAuthResponseDto.builder()
+        JwtAuthResponseDto data = JwtAuthResponseDto.builder()
                 .id(usuario.getId())
                 .username(usuario.getUsername())
-                .nombre(nombreAMostrar) 
-                .roles(rolesNames)
+                .nombre(nombreAMostrar)
+                .roles(roles)
                 .accessToken(jwt)
                 .tokenType("Bearer")
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponseDto.<JwtAuthResponseDto>builder()
+                .mensaje("¡Bienvenido de nuevo!")
+                .datos(data)
+                .success(true)
+                .build());
     }
 
     @PostMapping("/register")

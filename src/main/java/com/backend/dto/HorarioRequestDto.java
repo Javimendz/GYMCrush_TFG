@@ -19,6 +19,9 @@ public class HorarioRequestDto {
     @NotNull(message = "El aforo máximo es obligatorio")
     private Integer aforoMax;
 
+    @NotBlank(message = "La sala es obligatoria")
+    private String sala;
+
     @NotNull(message = "El ID de la actividad es obligatorio")
     private Long actividadId; // Solo enviamos el ID
 }

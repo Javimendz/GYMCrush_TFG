@@ -16,7 +16,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/actividades")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Permite que Android se conecte sin bloqueos de CORS
+// Permite que Android se conecte sin bloqueos de CORS
 public class ActividadController {
 
     private final IActividadService actividadService;
