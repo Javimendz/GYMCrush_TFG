@@ -34,7 +34,7 @@ public class TicketController {
 
     //Endpoint para crear ticket
     @PostMapping("/usuario/{usuarioId}")
-    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     public ResponseEntity<ApiResponseDto<TicketResponseDto>> crear(
         @PathVariable Long usuarioId,
         @Valid @RequestBody TicketRequestDto dto
@@ -53,7 +53,7 @@ public class TicketController {
 
     //Para el usuario ver su historial de tickets
     @GetMapping("/usuario/{usuarioId}")
-    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verMisTickets(
         @PathVariable Long usuarioId
     ){
@@ -71,7 +71,7 @@ public class TicketController {
 
     //Admin puede ver todos los tickets
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verTodos() {
         
         List<TicketResponseDto> todos = ticketService.obtenerTodos();
@@ -85,7 +85,7 @@ public class TicketController {
 
     //para que el admin resuelva el estado del ticket
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDto<TicketResponseDto>> resolverTicket(
         @PathVariable Long id,
         @RequestParam EnumEstadoTicket nuevoEstado

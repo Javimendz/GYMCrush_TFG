@@ -15,7 +15,7 @@ import com.backend.service.IHorarioService;
 @RestController
 @RequestMapping("/api/v1/horarios")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "${app.cors.origins}")
 public class HorarioController {
 
     private final IHorarioService horarioService;
@@ -37,14 +37,14 @@ public class HorarioController {
 
     //  Solo el ADMIN puede crear horarios
     @PostMapping
-   
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HorarioResponseDto> crear(@Valid @RequestBody HorarioRequestDto dto) {
         return new ResponseEntity<>(horarioService.crear(dto), HttpStatus.CREATED);
     }
 
     // Solo el ADMIN puede actualizar horarios
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HorarioResponseDto> actualizar(
             @PathVariable Long id, 
             @Valid @RequestBody HorarioRequestDto dto) {
@@ -52,7 +52,7 @@ public class HorarioController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         horarioService.eliminar(id);
         return ResponseEntity.noContent().build();

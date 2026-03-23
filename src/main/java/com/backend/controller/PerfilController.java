@@ -36,7 +36,7 @@ public class PerfilController {
 
     
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<PerfilResponseDto> findAll() {
         // 1. Traemos las entidades Perfil
         List<Perfil> perfiles = perfilRepository.findAll();
@@ -59,7 +59,7 @@ public class PerfilController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> getPerfilById(@PathVariable Long id) {
 
         //  Busco el perfil 
@@ -78,7 +78,7 @@ public class PerfilController {
 
     // Actualizar perfil
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> updatePerfil(
             @PathVariable Long id,
             @Valid @RequestBody PerfilRequestDto dto) {

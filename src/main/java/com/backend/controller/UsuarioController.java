@@ -41,7 +41,7 @@ public class UsuarioController {
     private EntityManager entityManager;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<List<UsuarioResponseDto>> getAllUsuarios() {
 
         List<Usuario> usuarios = usuarioService.getAllUsuarios();
@@ -50,7 +50,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/crear")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ResponseEntity<UsuarioResponseDto> createUsuario(@Valid @RequestBody UsuarioRequestDto usuarioDto) {
 
@@ -92,7 +92,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<UsuarioResponseDto> getUsuarioById(@PathVariable Long id) {
         Usuario usuario = usuarioService.findById(id);
         UsuarioResponseDto responseDto = usuarioMapper.toUsuarioResponseDto(usuario);
