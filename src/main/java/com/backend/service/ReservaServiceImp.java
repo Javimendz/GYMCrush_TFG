@@ -100,7 +100,7 @@ public class ReservaServiceImp implements IReservaService {
     }
 
     private ReservaResponseDto mapToDto(Reserva reserva) {
-        // Mapeo manual optimizado para tu App de Android
+        // Mapeo manual optimizado para la App de Android
         return ReservaResponseDto.builder()
                 .id(reserva.getId())
                 .fecha(reserva.getFecha())
