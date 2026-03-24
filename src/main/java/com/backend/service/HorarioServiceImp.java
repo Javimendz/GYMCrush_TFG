@@ -97,6 +97,7 @@ public class HorarioServiceImp implements IHorarioService {
         // Actualización de atributos básicos
         existente.setDiaSemana(dto.getDiaSemana());
         existente.setHoraInicio(dto.getHoraInicio());
+        existente.setSala(dto.getSala());
         existente.setHoraFin(dto.getHoraFin());
         existente.setAforoMax(dto.getAforoMax());
 

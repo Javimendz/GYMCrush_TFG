@@ -13,14 +13,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/reservas")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class ReservaController {
 
     private final IReservaService reservaService;
 
     // RESERVAR: Cualquier usuario puede apuntarse a un horario
     @PostMapping("/usuario/{uId}/horario/{hId}")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<ApiResponseDto<ReservaResponseDto>> reservar(
             @PathVariable Long uId, 
             @PathVariable Long hId) {
@@ -36,7 +35,7 @@ public class ReservaController {
 
     //  MIS RESERVAS: El usuario consulta su historial
     @GetMapping("/usuario/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> listarMisReservas(@PathVariable Long id) {
         
         List<ReservaResponseDto> misReservas = reservaService.obtenerReservasUsuario(id);
@@ -50,7 +49,7 @@ public class ReservaController {
 
     //  CANCELAR: Permite liberar el hueco en la clase
     @PatchMapping("/{id}/cancelar")
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<ApiResponseDto<Void>> cancelar(@PathVariable Long id) {
         
         reservaService.cancelarReserva(id);

@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.*;
 
 import com.backend.dto.HorarioRequestDto; // Nuevo DTO de entrada
 import com.backend.dto.HorarioResponseDto;
+import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.IHorarioService;
 
 @RestController
 @RequestMapping("/api/v1/horarios")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class HorarioController {
 
     private final IHorarioService horarioService;
@@ -37,14 +37,14 @@ public class HorarioController {
 
     //  Solo el ADMIN puede crear horarios
     @PostMapping
-   
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HorarioResponseDto> crear(@Valid @RequestBody HorarioRequestDto dto) {
         return new ResponseEntity<>(horarioService.crear(dto), HttpStatus.CREATED);
     }
 
     // Solo el ADMIN puede actualizar horarios
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HorarioResponseDto> actualizar(
             @PathVariable Long id, 
             @Valid @RequestBody HorarioRequestDto dto) {
@@ -52,9 +52,16 @@ public class HorarioController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable Long id) {
         horarioService.eliminar(id);
-        return ResponseEntity.noContent().build();
+
+        ApiResponseDto<Void> respuesta = ApiResponseDto.<Void>builder()
+            .mensaje("El horario ha sido eliminado correctamente")
+            .success(true)
+            .datos(null)
+            .build();
+
+        return ResponseEntity.ok(respuesta);
     }
 }

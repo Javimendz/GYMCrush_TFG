@@ -4,11 +4,9 @@ package com.backend.service;
 import java.time.LocalDateTime;
 //Imports
 import java.util.List;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioRequestDto;
@@ -39,8 +37,7 @@ public class UsuarioServiceImp implements IUsuarioService {
     @Override
     public Usuario generarTokenAcceso(Long id) {
         Usuario usuario = usuarioRepo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
         usuario.setQrToken(java.util.UUID.randomUUID().toString());
         usuario.setTokenExpiraEn(java.time.LocalDateTime.now().plusSeconds(30));
 
@@ -58,11 +55,12 @@ public class UsuarioServiceImp implements IUsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
     }
 
-@Override
-public void deleteById(Long id) {
-    Usuario usuario = this.findById(id);
-    usuarioRepo.delete(usuario);
-}
+    @Override
+    public void deleteById(Long id) {
+        Usuario usuario = this.findById(id);
+        usuarioRepo.delete(usuario);
+    }
+
     public boolean validarTokenQR(String token, Long userId) {
         Usuario usuario = findById(userId);
         if (usuario.getQrToken() == null || usuario.getTokenExpiraEn() == null) {

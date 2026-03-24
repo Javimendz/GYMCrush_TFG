@@ -28,7 +28,8 @@ public class Horario {
     private LocalTime horaFin;
     @Column(name = "aforo_max", nullable = false)
     private Integer aforoMax;
-    
+    @Column(name = "sala", nullable = false, length = 20)
+    private String sala;
     @ManyToOne(fetch = FetchType.LAZY)   //usamos un lazy para que traiga muchos registros para una actividad
     @JoinColumn(name="actividad_id", referencedColumnName = "id")
     private Actividad actividad;

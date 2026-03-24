@@ -24,7 +24,6 @@ public interface TicketMapper {
         String nombre = ticket.getUsuario().getPerfil().getNombre();
         String apellidos = ticket.getUsuario().getPerfil().getApellidos();
         
-        // Evitamos que devuelva "null null" si los campos están vacíos
         String resultado = (nombre != null ? nombre : "") + " " + (apellidos != null ? apellidos : "");
         return resultado.trim().isEmpty() ? "Nombre no definido" : resultado.trim();
     }

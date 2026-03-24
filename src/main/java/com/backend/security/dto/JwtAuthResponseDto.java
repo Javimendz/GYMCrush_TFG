@@ -19,7 +19,8 @@ public class JwtAuthResponseDto {
     private Long id;
     private List<String> roles;
     private String accessToken;
-    private String tokenType;
+    @Builder.Default //Para no setearlo a mano
+    private String tokenType = "Bearer";
     private String username;
     private String nombre;
     
