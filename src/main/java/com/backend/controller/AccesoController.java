@@ -1,5 +1,7 @@
 package com.backend.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -10,14 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.dto.AccesoRequestDto;
+import com.backend.dto.AccesoResponseDto;
 import com.backend.security.dto.ApiResponseDto;
 import com.backend.security.jwt.JwtGenerator;
 import com.backend.service.IAccesoService;
 
 import lombok.RequiredArgsConstructor;
 
-
-    
 @RestController
 @RequestMapping("/api/v1/accesos")
 @RequiredArgsConstructor
@@ -26,13 +27,13 @@ public class AccesoController {
     private final IAccesoService accesoService;
     private final JwtGenerator jwtGenerator;
 
-    //  El usuario genera su QR en el móvil
+    // El usuario genera su QR en el móvil
     @GetMapping("/generar-qr")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<ApiResponseDto<String>> obtenerToken(Authentication auth) {
-        //obtenemos el token
+        // obtenemos el token
         String tokenQr = jwtGenerator.generateQrToken(auth.getName(), null);
-        
+
         return ResponseEntity.ok(ApiResponseDto.<String>builder()
                 .mensaje("Token QR generado. Válido por 30 segundos.")
                 .datos(tokenQr)
@@ -40,7 +41,7 @@ public class AccesoController {
                 .build());
     }
 
-   @PostMapping("/validar-entrada")
+    @PostMapping("/validar-entrada")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDto<Void>> validarEntrada(@RequestBody AccesoRequestDto dto) {
         accesoService.registrarEntrada(dto.getToken());
@@ -59,5 +60,30 @@ public class AccesoController {
                 .success(true)
                 .build());
     }
-}
 
+    @GetMapping("/aforo")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<ApiResponseDto<Long>> consultarAforo() {
+
+        long personasDentro = accesoService.obtenerAforoActual();
+
+        return ResponseEntity.ok(ApiResponseDto.<Long>builder()
+                .mensaje("Aforo actual recuperado")
+                .datos(personasDentro)
+                .success(true)
+                .build());
+
+    }
+
+    @GetMapping("/historial")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<ApiResponseDto<List<AccesoResponseDto>>> verHistorial(Authentication auth) {
+        List<AccesoResponseDto> historial = accesoService.obtenerHistorialUsuario(auth.getName());
+
+        return ResponseEntity.ok(ApiResponseDto.<List<AccesoResponseDto>>builder()
+                .mensaje("Historial de accesos recuperado correctamente")
+                .datos(historial)
+                .success(true)
+                .build());
+    }
+}

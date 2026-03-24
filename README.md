@@ -217,12 +217,37 @@ Organización de los videos por grupos musculares o tipos de entrenamiento.
 
 
 
+## **CONTROL DE ACCESO (QR DINÁMICO)**
+
+Gestión de entradas y salidas mediante tokens temporales para control de aforo y seguridad.
+
+## **API Endpoints**
+
+| Método | Endpoint | Descripción | Requerimientos / Auth |
+|---|---|---|---|
+| GET | `/api/v1/accesos/generar-qr` | Solicita un token JWT con TTL de 30s para generar el código QR. | Token (USER/ADMIN) |
+| POST | `/api/v1/accesos/validar-entrada` | Valida el QR escaneado y registra el inicio de la sesión de entrenamiento. | Token (ADMIN) + AccesoRequestDto |
+| POST | `/api/v1/accesos/validar-salida` | Valida el QR y cierra la sesión activa registrando la hora de salida. | Token (ADMIN) + AccesoRequestDto |
+| GET | `/api/v1/accesos/historial` | Lista todas las sesiones (entrada/salida) del usuario autenticado. | Token (USER/ADMIN) |
+| GET | `/api/v1/accesos/aforo` | Devuelve el número de usuarios con sesión activa (sin hora de salida). | Token (USER/ADMIN) |
+
+
+
+
+
+
+
 Ciclo de vida del token QR:
 
-  Metodo generateQrToken() en JwtGenerator.java -> genera el token (con expiracion de 30 segundos) -> Se guarda en Entidad como QRToken unico correspondiente a usuario.
-  Servicio AccesoQRService -> valida el token y redirige al usuario
-  Valida token en el servicio -> si es valido, redirige al usuario
-  Si el token es invalido, redirige al usuario a la pagina de error
+
+  El usuario solicita su acceso, el método generateQrToken() crea un JWT 30s de vida, firmado con su ID. Al ser sin estado, el token no se guarda en la BD, lo que hace el proceso ultra rápido.
+
+  La App convierte ese jwt en un código QR, el escáner del gimnasio lee el texto y lo envía mediante un POST al endpoint de Validación del servidor.
+
+  El servicio, verifica la firma y la expiración del token. Si es válido, crea una fila en la tabla accesos con el usuario y la hora actual, para llevar el historial y control de usuarios.
+
+  El backend responde con un JSON. Según la respuesta, la App muestra exito o fracaso.
+
 
 
 #  
@@ -529,8 +554,140 @@ GET http://localhost:8080/api/v1/categorias-tutorial
     "cantidadVideos": 12
   }
 ]
+```
+
+
+### Generación de Token QR (Móvil)
+
+**Método:** GET
+
+**Endpoint:** `/api/v1/accesos/generar-qr`
+
+**Descripción:** Genera un JWT efímero (30 segundos) que contiene la identidad del socio para ser mostrado como código QR.
+
+#### Request
+```
+GET - http://localhost:8080/api/v1/accesos/generar-qr
+
+```
+Authorization: Bearer <TOKEN_DE_SESIÓN_USUARIO>
+
+
+### Validación de Acceso (Escáner/Torno)
+
+**Método:** POST
+
+**Endpoint:** `/api/v1/accesos/validar-entrada`
+
+**Descripción:** El dispositivo escáner envía el contenido del QR leído para verificar su validez y registrar la entrada en la base de datos.
+
+#### Request
+```
+POST - http://localhost:8080/api/v1/accesos/validar-entrada
+
+```
+Content-Type: application/json
+
+Authorization: Bearer <TOKEN_ADMIN_ESCÁNER>
+
+#### Response (JSON)
+
+```json
+{
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbl9neW0iLCJ1c2VySWQiOjEsInB1cnBvc2UiOiJRUl9BQ0NFU1MiLCJpYXQiOjE3MTExMDU2MDAsImV4cCI6MTcxMTEwNTYzMH0..."
+}
+ ```
+
+
+
+
+
+## CONTROL DE ACCESO (QR DINÁMICO)
+
+Gestión de entradas y salidas mediante tokens temporales para control de aforo y seguridad.
 
 ---
+
+### Registro de Salida (Escáner / Torno)
+
+- **Método:** `POST`
+- **Endpoint:** `/api/v1/accesos/validar-salida`
+- **Descripción:** El dispositivo escáner envía el QR leído al finalizar el entrenamiento para cerrar la sesión activa del socio.
+- **Headers:**
+  - `Content-Type: application/json`
+  - `Authorization: Bearer <TOKEN_ADMIN_ESCÁNER>`
+
+**Ejemplo de cuerpo (JSON):**
+
+```json
+{
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbl9neW0iLCJ1c2VySWQiOjEsInB1cnBvc2UiOiJRUl9BQ0NFU1MiLCJpYXQiOjE3MTExMDU2MDAsImV4cCI6MTcxMTEwNTYzMH0..."
+}
+```
+
+---
+
+### Consulta de Historial (Socio / Admin)
+
+- **Método:** `GET`
+- **Endpoint:** `/api/v1/accesos/historial`
+- **Descripción:** Obtiene la lista cronológica de todas las sesiones de entrenamiento (entradas y salidas) del usuario autenticado.
+- **Headers:**
+  - `Authorization: Bearer <TOKEN_DE_SESIÓN_USUARIO>`
+
+**Rquest:**
+
+`GET http://localhost:8080/api/v1/accesos/historial`
+
+**Rquest (body):**
+
+```json
+{
+  "mensaje": "Historial recuperado",
+  "success": true,
+  "datos": [
+    {
+      "id": 10,
+      "username": "usuario_gym",
+      "fechaHoraEntrada": "2026-03-24T18:00:00",
+      "fechaHoraSalida": "2026-03-24T19:30:00",
+      "tipo": "SALIDA"
+    },
+    {
+      "id": 11,
+      "username": "usuario_gym",
+      "fechaHoraEntrada": "2026-03-25T10:15:00",
+      "fechaHoraSalida": null,
+      "tipo": "ENTRADA"
+    }
+  ]
+}
+```
+
+---
+
+### Consulta de Aforo en Tiempo Real
+
+- **Método:** `GET`
+- **Endpoint:** `/api/v1/accesos/aforo`
+- **Descripción:** Calcula y devuelve el número total de socios que se encuentran actualmente dentro de las instalaciones (sesiones sin marcar salida).
+- **Headers:**
+  - `Authorization: Bearer <TOKEN_DE_SESIÓN_USUARIO>`
+
+**Rquest:**
+
+`GET http://localhost:8080/api/v1/accesos/aforo`
+
+**Rquest (body):**
+
+```json
+{
+  "mensaje": "Aforo en tiempo real",
+  "success": true,
+  "datos": 42
+}
+```
+
 
 
 ## **Códigos de Respuesta**
@@ -546,5 +703,6 @@ GET http://localhost:8080/api/v1/categorias-tutorial
 | 500 | Internal Server Error |
 
 ---
+
 
 **API optimizada para integración con app móvil Android**

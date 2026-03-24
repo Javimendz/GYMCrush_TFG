@@ -73,4 +73,11 @@ public class AccesoServiceImp  implements IAccesoService{
         // conversión para el mapper
         return accesoMapper.toDtoList(listaEntidades);
     }
+
+    @Override
+    public long obtenerAforoActual(){
+
+        return accesoRepository.countByFechaHoraSalidaIsNull();
+
+    }
 }

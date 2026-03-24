@@ -9,4 +9,5 @@ public interface IAccesoService {
     void registrarEntrada(String token);
     void registrarSalida(String token);
     List<AccesoResponseDto> obtenerHistorialUsuario(String username);
+    long obtenerAforoActual();
 }
