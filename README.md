@@ -188,6 +188,18 @@ Información detallada del deportista, vinculada automáticamente con sus últim
 
 ---
 
+# TUTORIALES Y TÉCNICAS (TRAINING GUIDES)
+
+Base de conocimientos con videos y guías paso a paso para los ejercicios.
+
+## API Endpoints
+
+| Método | Endpoint | Descripción | Requerimientos / Auth |
+|--------|----------|-------------|----------------------|
+| GET | `/api/v1/tutoriales` | Listado de todos los videos de entrenamiento | Token (USER/ADMIN) |
+| GET | `/api/v1/tutoriales/categoria/{id}` | Filtrar videos (ej: Pecho, Espalda, Cardio) | Token (USER/ADMIN) |
+| POST | `/api/v1/tutoriales` | Subir nuevo video y guía técnica | Token (ADMIN) + TutorialRequestDto |
+| GET | `/api/v1/tutoriales/categorias` | Listar categorías de entrenamiento | Token (USER/ADMIN) |
 
 
 #  
@@ -405,8 +417,97 @@ Authorization: Bearer {token}
 }
 ```
 
----
 
+## Crear Nuevo Tutorial
+
+**Método:** POST  
+**Endpoint:** `/api/v1/tutoriales`  
+**Descripción:** Añade un nuevo video tutorial al catálogo (Solo ADMIN).
+
+### Request
+
+```http
+POST http://localhost:8080/api/v1/tutoriales
+```
+
+**Body (JSON):**
+```json
+{
+  "titulo": "Técnica Perfecta: Sentadilla Búlgara",
+  "descripcion": "En este video explicamos cómo posicionar los pies y mantener la espalda recta para maximizar el trabajo de cuádriceps y glúteo.",
+  "urlVideo": "https://youtube.com/watch?v=ejemplo123",
+  "duracionMin": 5,
+  "categoriaId": 2
+}
+```
+
+## Crear Categoría de Tutorial
+
+**Método:** POST  
+**Endpoint:** `/api/v1/tutoriales/categorias`  
+**Descripción:** Organizar los videos por grupos musculares o tipos de entreno.
+
+### Request
+
+```http
+POST http://localhost:8080/api/v1/tutoriales/categorias
+```
+
+**Body (JSON):**
+```json
+{
+  "nombre": "Tren Inferior",
+  "descripcion": "Tutoriales enfocados en piernas, glúteos y pantorrillas."
+}
+```
+
+## Categorías de Tutoriales
+
+### Crear Categoría
+
+**Método:** POST  
+**Endpoint:** `/api/v1/categorias-tutorial`  
+**Descripción:** Crea una nueva categoría para organizar los vídeos (Solo ADMIN).
+
+#### Request
+
+```http
+POST http://localhost:8080/api/v1/categorias-tutorial
+```
+
+**Body (JSON):**
+```json
+{
+  "nombre": "Entrenamiento Funcional",
+  "descripcion": "Vídeos sobre ejercicios de movilidad y fuerza coordinada."
+}
+```
+
+### Listar Categorías
+
+**Método:** GET  
+**Endpoint:** `/api/v1/categorias-tutorial`  
+**Descripción:** Obtiene todas las categorías con el contador de vídeos incluidos.
+
+#### Request
+
+```http
+GET http://localhost:8080/api/v1/categorias-tutorial
+```
+
+#### Response (JSON)
+
+```json
+[
+  {
+    "id": 1,
+    "nombre": "Fuerza",
+    "descripcion": "Ejercicios con pesas",
+    "cantidadVideos": 12
+  }
+]
+
+---
 
 
 ## **Códigos de Respuesta**
