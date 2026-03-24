@@ -99,4 +99,33 @@ public class JwtGenerator {
         }
         return false;
     }
+
+    //Metodo para generar el token jwt para el qr temporal
+    public String generateQrToken(String username, Long userId){
+        //Fecha actual
+        Date currentDate = new Date();
+
+        //Tiempo de expiracion corto
+        Long qrExpiration = 30000L;
+        //Fecha de expiracion
+        Date expireDate = new Date(currentDate.getTime() + qrExpiration);
+        //Construir el token
+        return Jwts.builder()
+                .subject(username)
+                .claim("userId", userId)
+                .claim("purpose", "QR_ACCESS")
+                .issuedAt(currentDate)
+                .expiration(expireDate)
+                .signWith(getSigningKey(), Jwts.SIG.HS512)
+                .compact();
+    }
+
+    public String getUsernameFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
 }

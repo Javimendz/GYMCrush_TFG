@@ -188,11 +188,11 @@ Información detallada del deportista, vinculada automáticamente con sus últim
 
 ---
 
-# TUTORIALES Y TÉCNICAS (TRAINING GUIDES)
+## **TUTORIALES Y TÉCNICAS (TRAINING GUIDES)**
 
 Base de conocimientos con videos y guías paso a paso para los ejercicios.
 
-## API Endpoints
+## **API Endpoints**
 
 | Método | Endpoint | Descripción | Requerimientos / Auth |
 |--------|----------|-------------|----------------------|
@@ -200,6 +200,29 @@ Base de conocimientos con videos y guías paso a paso para los ejercicios.
 | GET | `/api/v1/tutoriales/categoria/{id}` | Filtrar videos (ej: Pecho, Espalda, Cardio) | Token (USER/ADMIN) |
 | POST | `/api/v1/tutoriales` | Subir nuevo video y guía técnica | Token (ADMIN) + TutorialRequestDto |
 | GET | `/api/v1/tutoriales/categorias` | Listar categorías de entrenamiento | Token (USER/ADMIN) |
+
+
+
+
+## **CATEGORÍAS DE TUTORIALES**
+
+Organización de los videos por grupos musculares o tipos de entrenamiento.
+
+## **API Endpoints**
+
+| Método | Endpoint | Descripción | Requerimientos / Auth |
+|--------|----------|-------------|----------------------|
+| GET | `/api/v1/categorias-tutorial` | Listar todas las categorías con contador de vídeos | Token (USER/ADMIN) |
+| POST | `/api/v1/categorias-tutorial` | Crear nueva categoría para organizar vídeos | Token (ADMIN) + CategoriaTutorialRequestDto |
+
+
+
+Ciclo de vida del token QR:
+
+  Metodo generateQrToken() en JwtGenerator.java -> genera el token (con expiracion de 30 segundos) -> Se guarda en Entidad como QRToken unico correspondiente a usuario.
+  Servicio AccesoQRService -> valida el token y redirige al usuario
+  Valida token en el servicio -> si es valido, redirige al usuario
+  Si el token es invalido, redirige al usuario a la pagina de error
 
 
 #  
