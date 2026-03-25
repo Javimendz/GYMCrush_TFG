@@ -22,7 +22,9 @@ Pasos que hemos realizado para el proyecto.
 ```2.``` Añadir dependencia de ```postgresql``` en el ```pom.xml```  
 ```3.``` Añadir dependencia de ```spring-boot-starter-web``` en el ```pom.xml```   
 ```4.``` Añadir dependencia de ```spring-boot-starter-validation``` en el ```pom.xml``` Validaciones  
-```5.``` Añadir dependencia de ```spring-boot-starter-data-jpa``` en el ```pom.xml``` Para seguridad  
+```5.``` Añadir dependencia de ```spring-boot-starter-data-jpa``` en el ```pom.xml``` Para seguridad 
+```6.``` Añadir dependencia de ```spring-boot-starter-websockets``` en el ```pom.xml``` Para websockets 
+
 ```6.``` Configurar la conexión a la base de datos en el ```application.properties``` con variables de entorno.  
 ```7.``` Añadir dependencia de ``` MapStruct ``` en el ```pom.xml```  
 ```8.``` Generación del Esquema desde el Código". Usar entidades para crear la BBDD, la sincronizacion y el mapeo de codigo.    
@@ -232,9 +234,16 @@ Gestión de entradas y salidas mediante tokens temporales para control de aforo 
 | GET | `/api/v1/accesos/aforo` | Devuelve el número de usuarios con sesión activa (sin hora de salida). | Token (USER/ADMIN) |
 
 
+Material usado para websockets: (1)[https://www.youtube.com/watch?v=KAm6I_iLXOI]
+
+websockets en postman: (1)[https://www.youtube.com/watch?v=aSPHr6dbMmo] 
+Tutorial para websockets y testeo:(2)[https://pasksoftware.com/spring-boot-websocket/]
+extension:  Simple Web Socket Client (1)[https://chromewebstore.google.com/detail/simple-websocket-client/pfdhoblngboilpfeibdedpjgfnlcodoo] para probar los websockets con stomp
 
 
 
+
+Tutoriales utilizados para la implementación del jwt: (1)[https://www.youtube.com/watch?v=KYNR5js2cXE], (2)[https://www.youtube.com/watch?v=ZzpDyIJizjo]
 
 
 Ciclo de vida del token QR:

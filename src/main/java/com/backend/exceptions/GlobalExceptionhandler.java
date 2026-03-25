@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.backend.security.dto.ApiResponseDto;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice 

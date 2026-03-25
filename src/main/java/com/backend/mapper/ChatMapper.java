@@ -1,12 +1,21 @@
-//Paquete
 package com.backend.mapper;
-//Imports
-import java.util.List;
-import org.mapstruct.Mapper;
-import com.backend.domain.Chat;
+
+import org.springframework.stereotype.Component;
+import com.backend.domain.MensajeChat;
 import com.backend.dto.ChatResponseDto;
 
-@Mapper(componentModel = "spring")
-public interface ChatMapper {
-    List<ChatResponseDto> chatToChatResponseDtoList(List<Chat> chats);
+@Component
+public class ChatMapper {
+
+    public ChatResponseDto toDto(MensajeChat entidad) {
+        if (entidad == null) return null;
+
+        return ChatResponseDto.builder()
+                .id(entidad.getId())
+                .contenido(entidad.getContenido())
+                .emisor(entidad.getEmisor())
+                .fechaEnvio(entidad.getFechaEnvio())
+                .tipo(entidad.getTipo())
+                .build();
+    }
 }

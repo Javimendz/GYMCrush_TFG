@@ -40,6 +40,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll() // Permitir acceso a la autenticacion
+                                .requestMatchers("/chats/**").permitAll()
+                                .requestMatchers("/chats-sockjs/**").permitAll()
                                 .anyRequest().authenticated() // Requerir autenticacion para cualquier otra solicitud
                 );
                 http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
