@@ -35,7 +35,7 @@ public class Ticket {
     private LocalDateTime fechaCreacion; 
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuarioId", referencedColumnName = "id")
     @ToString.Exclude
     private Usuario usuario;

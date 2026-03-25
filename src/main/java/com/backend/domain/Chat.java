@@ -27,7 +27,7 @@ public class Chat {
     private Boolean leido; 
 
  
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false, unique = true)
     @ToString.Exclude
     private Usuario usuario;

@@ -30,7 +30,7 @@ public class Entrenamiento {
     @Column(name = "intensidad",length = 150)
     private String intensidad;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false, unique = true)
     @ToString.Exclude //Evita que exploten los logs de consola!!!!
     private Usuario usuario;

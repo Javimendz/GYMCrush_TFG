@@ -40,8 +40,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll() // Permitir acceso a la autenticacion
-                                .requestMatchers("/chats/**").permitAll()
-                                .requestMatchers("/chats-sockjs/**").permitAll()
+                                .requestMatchers("/chats/**").permitAll()  //Permitir sala chat
+                                .requestMatchers("/chats-sockjs/**").permitAll() //Permitir sala chat
+                                .requestMatchers("/swagger-ui/**").permitAll() //Permitir acceso a swagger
+                                .requestMatchers("/v3/api-docs/**").permitAll() //Permitir acceso a swagger
+                                .requestMatchers("/v3/api-docs.yaml").permitAll() //Permitir acceso a swagger
+
                                 .anyRequest().authenticated() // Requerir autenticacion para cualquier otra solicitud
                 );
                 http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController // Controlador para manejar las peticiones de autenticacion
 @RequiredArgsConstructor // Inyeccion de dependencias
 @RequestMapping("/api/v1/auth") // Ruta base para las peticiones de autenticacion
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Auth", description = "Operaciones relacionadas con la autenticacion de usuarios")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager; // Administrador de autenticacion
@@ -44,17 +45,22 @@ public class AuthController {
     private final UsuarioMapper usuarioMapper;
 
    @PostMapping("/login")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Iniciar sesión", description = "Autentica al usuario y devuelve un token JWT")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Inicio de sesión exitoso")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para iniciar sesión") 
     public ResponseEntity<ApiResponseDto<JwtAuthResponseDto>> login(@Valid @RequestBody LoginDto loginDto) {
-        // 1. Autenticar credenciales
+        //  Autenticar credenciales
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
-        // 2. Generar JWT
+        // Generar JWT
         String jwt = jwtGenerator.generateToken(authentication);
 
-        // 3. Obtener datos extra del usuario para la App
+        // Obtener datos extra del usuario para la App
         Usuario usuario = usuarioRepository.findByUsername(loginDto.getUsername())
                 .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado"));
 
@@ -78,6 +84,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Registro de usuario", description = "Registra un nuevo usuario en el sistema")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario registrado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Nombre de usuario ya existe")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para registrarse") 
 public ResponseEntity<?> registerUser(@RequestBody RegisterDto registerDto) {
     if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
         return new ResponseEntity<>("Nombre de usuario ya existe", HttpStatus.BAD_REQUEST);

@@ -13,10 +13,9 @@ import com.backend.mapper.PerfilMapper;
 import com.backend.repository.PerfilRepository;
 import com.backend.repository.SaludRepository;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-@Data
+
 @RequiredArgsConstructor
 @Service
 public class PerfilServiceImp implements IPerfilService {

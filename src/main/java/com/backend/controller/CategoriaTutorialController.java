@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/categorias-tutorial")
 @RequiredArgsConstructor
+@io.swagger.v3.oas.annotations.tags.Tag(name = "CategoriaTutorial", description = "Operaciones relacionadas con las categorías de tutoriales")
 public class CategoriaTutorialController {
 
     private final ICategoriaTutorialService categoriaService;
@@ -24,6 +25,10 @@ public class CategoriaTutorialController {
     // LISTAR TODAS LAS CATEGORÍAS
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Listar todas las categorías de tutoriales", description = "Recupera una lista de todas las categorías de tutoriales disponibles")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado de categorías recuperado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para listar categorías de tutoriales") 
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<List<CategoriaTutorialResponseDto>>> listarTodas() {
         List<CategoriaTutorialResponseDto> data = categoriaService.listarTodas();
         
@@ -37,6 +42,11 @@ public class CategoriaTutorialController {
     // OBTENER DETALLE DE UNA CATEGORÍA POR ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Obtener categoría por ID", description = "Recupera los detalles de una categoría de tutorial por su ID")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Detalles de la categoría recuperados con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para obtener detalles de categorías de tutoriales") 
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Categoría no encontrada")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<CategoriaTutorialResponseDto>> obtenerPorId(@PathVariable Long id) {
         CategoriaTutorialResponseDto data = categoriaService.buscarPorId(id);
         
@@ -50,6 +60,11 @@ public class CategoriaTutorialController {
     // CREAR NUEVA CATEGORÍA (Solo ADMIN)
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Crear nueva categoría", description = "Crea una nueva categoría de tutorial")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Categoría creada con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida. Verifique los datos proporcionados")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para crear categorías de tutoriales") 
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<CategoriaTutorialResponseDto>> crear(@Valid @RequestBody CategoriaTutorialRequestDto dto) {
         CategoriaTutorialResponseDto nueva = categoriaService.crear(dto);
         
@@ -64,6 +79,11 @@ public class CategoriaTutorialController {
     // Nota: El Service debe manejar si hay tutoriales asociados antes de borrar
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Eliminar categoría", description = "Elimina una categoría de tutorial por su ID")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Categoría eliminada con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para eliminar categorías de tutoriales") 
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Categoría no encontrada")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable Long id) {
         categoriaService.eliminar(id);
         

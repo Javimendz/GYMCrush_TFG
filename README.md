@@ -24,12 +24,12 @@ Pasos que hemos realizado para el proyecto.
 ```4.``` Añadir dependencia de ```spring-boot-starter-validation``` en el ```pom.xml``` Validaciones  
 ```5.``` Añadir dependencia de ```spring-boot-starter-data-jpa``` en el ```pom.xml``` Para seguridad 
 ```6.``` Añadir dependencia de ```spring-boot-starter-websockets``` en el ```pom.xml``` Para websockets 
-
-```6.``` Configurar la conexión a la base de datos en el ```application.properties``` con variables de entorno.  
-```7.``` Añadir dependencia de ``` MapStruct ``` en el ```pom.xml```  
-```8.``` Generación del Esquema desde el Código". Usar entidades para crear la BBDD, la sincronizacion y el mapeo de codigo.    
-```9.``` Crear arquitectura de carpetas con un patrón de diseño ```MVC```.  
-```10.``` Añadir swagger para la documentacion  
+```7.``` Añadir dependencia de ```springdoc-openapi-starter-webmvc-ui``` en el ```pom.xml``` Para swagger
+```8.``` Configurar la conexión a la base de datos en el ```application.properties``` con variables de entorno.  
+```9.``` Añadir dependencia de ``` MapStruct ``` en el ```pom.xml```  
+```10.``` Generación del Esquema desde el Código". Usar entidades para crear la BBDD, la sincronizacion y el mapeo de codigo.    
+```11.``` Crear arquitectura de carpetas con un patrón de diseño ```MVC```.  
+```12.``` Añadir swagger para la documentacion  
 
 Gran parte del proyecto ha sido realizado con la ayuda de este curso: https://cursos.devtalles.com/courses/spring-boot
 ```
@@ -37,6 +37,9 @@ Bcrypt para encriptar contraseñas: https://www.youtube.com/watch?v=9hMvY9nW3O0&
 Mvnrepository.com - MapStruct  
 Nota : MapStruct es una biblioteca de mapeo de objetos que simplifica la copia de datos entre objetos de diferentes tipos. Lo utilizamos para mapear entre objetos de entidad y objetos de transferencia de datos (DTO).  
 ```
+
+ ## DOCUMENTACION API RESTFUL SWAGGER `: http://localhost:8080/swagger-ui/index.html `
+
 # /Comandos
 
  ```0.``` Exportar extensiones VS Code ``` code --list-extensions > extensiones.txt```, reinstalar las extensiones ```Get-Content plugins.txt | ForEach-Object { code --install-extension $_ }```

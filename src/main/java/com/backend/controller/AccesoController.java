@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/accesos")
 @RequiredArgsConstructor
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Acceso", description = "Operaciones relacionadas con el acceso al sistema")
 public class AccesoController {
 
     private final IAccesoService accesoService;
@@ -30,6 +31,8 @@ public class AccesoController {
     // El usuario genera su QR en el móvil
     @GetMapping("/generar-qr")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Obtener token QR", description = "Genera un token QR válido por 30 segundos")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Token QR generado con éxito")
     public ResponseEntity<ApiResponseDto<String>> obtenerToken(Authentication auth) {
         // obtenemos el token
         String tokenQr = jwtGenerator.generateQrToken(auth.getName(), null);
@@ -43,6 +46,9 @@ public class AccesoController {
 
     @PostMapping("/validar-entrada")
     @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Validar entrada", description = "Registra la entrada de un usuario por su token QR")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Token QR del usuario para registrar la entrada")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Entrada registrada con éxito")
     public ResponseEntity<ApiResponseDto<Void>> validarEntrada(@RequestBody AccesoRequestDto dto) {
         accesoService.registrarEntrada(dto.getToken());
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
@@ -53,6 +59,9 @@ public class AccesoController {
 
     @PostMapping("/validar-salida")
     @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Validar salida", description = "Registra la salida de un usuario por su token QR")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Token QR del usuario para registrar la salida")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Salida registrada con éxito")
     public ResponseEntity<ApiResponseDto<Void>> validarSalida(@RequestBody AccesoRequestDto dto) {
         accesoService.registrarSalida(dto.getToken());
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
@@ -63,6 +72,8 @@ public class AccesoController {
 
     @GetMapping("/aforo")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Consultar aforo", description = "Obtiene el número actual de personas dentro del establecimiento")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Aforo actual recuperado con éxito")
     public ResponseEntity<ApiResponseDto<Long>> consultarAforo() {
 
         long personasDentro = accesoService.obtenerAforoActual();
@@ -77,6 +88,11 @@ public class AccesoController {
 
     @GetMapping("/historial")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Ver historial de accesos", description = "Obtiene el historial de accesos del usuario autenticado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Historial de accesos recuperado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró historial para el usuario")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para ver el historial")
     public ResponseEntity<ApiResponseDto<List<AccesoResponseDto>>> verHistorial(Authentication auth) {
         List<AccesoResponseDto> historial = accesoService.obtenerHistorialUsuario(auth.getName());
 

@@ -32,12 +32,12 @@ public class SugerenciaDieta {
     @Column(name = "fecha_generacion", nullable = false, updatable = false)
     private LocalDateTime fechaGeneracion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuarioId", referencedColumnName = "id")
     @ToString.Exclude // Para evitar la recursión infinita en el toString
     private Usuario usuario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "dieta_id", referencedColumnName = "id")
     @ToString.Exclude // Para evitar la recursión infinita en el toString
     private Dieta dieta;

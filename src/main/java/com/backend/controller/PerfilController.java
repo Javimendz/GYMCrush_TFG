@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/perfil")
 @RequiredArgsConstructor
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Perfil", description = "Operaciones relacionadas con los perfiles de usuarios")
 public class PerfilController {
 
     private final IPerfilService perfilService;
@@ -37,6 +38,9 @@ public class PerfilController {
     
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Listar perfiles", description = "Recupera una lista de todos los perfiles de usuarios")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de perfiles recuperada con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public List<PerfilResponseDto> findAll() {
         // 1. Traemos las entidades Perfil
         List<Perfil> perfiles = perfilRepository.findAll();
@@ -60,6 +64,10 @@ public class PerfilController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Recuperar perfil por ID", description = "Recupera los detalles de un perfil de usuario por su ID")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Perfil recuperado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> getPerfilById(@PathVariable Long id) {
 
         //  Busco el perfil 
@@ -79,6 +87,10 @@ public class PerfilController {
     // Actualizar perfil
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar perfil", description = "Actualiza los datos de un perfil de usuario por su ID")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Perfil actualizado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> updatePerfil(
             @PathVariable Long id,
             @Valid @RequestBody PerfilRequestDto dto) {

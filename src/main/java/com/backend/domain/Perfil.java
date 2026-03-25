@@ -57,7 +57,7 @@ public class Perfil {
     @Column(name = "foto", length = 255, nullable = true)
     private String foto;
 
-   @OneToOne(fetch = FetchType.LAZY, optional = false) 
+   @OneToOne(fetch = FetchType.EAGER, optional = false) 
     @JoinColumn(name = "usuario_id", nullable = false, unique = true)
     @OnDelete(action = OnDeleteAction.CASCADE) 
     @ToString.Exclude

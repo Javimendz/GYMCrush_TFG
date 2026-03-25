@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController // Controlador REST para manejar solicitudes HTTP relacionadas con usuarios
 @RequestMapping("/api/v1/usuario") // Mapea todas las solicitudes HTTP a /api/v1/usuario
 @RequiredArgsConstructor
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Usuario", description = "Operaciones relacionadas con los usuarios")
 public class UsuarioController {
 
     private final IUsuarioService usuarioService;
@@ -42,6 +43,9 @@ public class UsuarioController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Listar todos los usuarios", description = "Permite a un administrador o usuario listar todos los usuarios registrados")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado de usuarios recuperado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
     public ResponseEntity<List<UsuarioResponseDto>> getAllUsuarios() {
 
         List<Usuario> usuarios = usuarioService.getAllUsuarios();
@@ -51,6 +55,10 @@ public class UsuarioController {
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Crear un nuevo usuario", description = "Permite al administrador crear un nuevo usuario")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario creado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
     @Transactional
     public ResponseEntity<UsuarioResponseDto> createUsuario(@Valid @RequestBody UsuarioRequestDto usuarioDto) {
 
@@ -93,6 +101,10 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Obtener usuario por ID", description = "Permite a un administrador o usuario obtener un usuario por su ID")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario recuperado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
     public ResponseEntity<UsuarioResponseDto> getUsuarioById(@PathVariable Long id) {
         Usuario usuario = usuarioService.findById(id);
         UsuarioResponseDto responseDto = usuarioMapper.toUsuarioResponseDto(usuario);
@@ -101,6 +113,11 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar usuario por ID", description = "Permite a un administrador o usuario actualizar un usuario por su ID")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario actualizado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
     public ResponseEntity<UsuarioResponseDto> updateUsuario(@PathVariable Long id,
             @Valid @RequestBody UsuarioRequestDto usuarioDto) {
         Usuario updatedUsuario = usuarioService.findById(id);
@@ -127,6 +144,10 @@ public class UsuarioController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Eliminar usuario por ID", description = "Permite al administrador eliminar un usuario por su ID")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Usuario eliminado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
     public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
 
         usuarioService.deleteById(id);

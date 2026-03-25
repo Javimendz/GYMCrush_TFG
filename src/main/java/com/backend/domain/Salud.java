@@ -35,7 +35,7 @@ public class Salud {
 
     private Double imc;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false)
     @ToString.Exclude // Para evitar la recursión infinita en el toString
     private Usuario usuario;

@@ -38,7 +38,7 @@ public class Actividad {
     @Column(name = "precio", nullable = false)
     private Integer precio; //Para el precio de la actividad
 
-    @OneToMany(mappedBy = "actividad", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "actividad", fetch = FetchType.EAGER)
     @ToString.Exclude // Importante para evitar errores de recursividad
     private List<Horario> horarios;
 }

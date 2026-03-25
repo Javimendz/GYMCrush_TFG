@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("api/v1/tickets")
 @RequiredArgsConstructor
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Ticket", description = "Operaciones relacionadas con los tickets de soporte")
 public class TicketController {
     
 
@@ -33,6 +34,10 @@ public class TicketController {
     //Endpoint para crear ticket
     @PostMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Crear ticket", description = "Permite a un usuario crear un nuevo ticket de soporte")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ticket creado exitosamente")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<TicketResponseDto>> crear(
         @PathVariable Long usuarioId,
         @Valid @RequestBody TicketRequestDto dto
@@ -52,6 +57,10 @@ public class TicketController {
     //Para el usuario ver su historial de tickets
     @GetMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Ver mis tickets", description = "Permite a un usuario ver su historial de tickets de soporte")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Historial de tickets recuperado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró historial para el usuario")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verMisTickets(
         @PathVariable Long usuarioId
     ){
@@ -70,6 +79,9 @@ public class TicketController {
     //Admin puede ver todos los tickets
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Ver todos los tickets", description = "Permite al administrador ver todos los tickets de soporte")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Todos los tickets recuperados con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verTodos() {
         
         List<TicketResponseDto> todos = ticketService.obtenerTodos();
@@ -84,6 +96,10 @@ public class TicketController {
     //para que el admin resuelva el estado del ticket
     @PatchMapping("/{id}/estado")
     @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Resolver ticket", description = "Permite al administrador resolver un ticket de soporte")       
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ticket resuelto exitosamente")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<TicketResponseDto>> resolverTicket(
         @PathVariable Long id,
         @RequestParam EnumEstadoTicket nuevoEstado

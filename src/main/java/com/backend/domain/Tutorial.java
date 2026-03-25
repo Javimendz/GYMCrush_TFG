@@ -35,7 +35,7 @@ public class Tutorial {
     
     private Integer duracionMin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
     private CategoriaTutorial categoria;
 }
