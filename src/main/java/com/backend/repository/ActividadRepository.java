@@ -25,5 +25,5 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long> {
     List<Actividad> findActividadesDisponiblesPorDia(@Param("dia") String dia);
 
     //  Buscar por lugar
-    List<Actividad> findByLugarIgnoreCase(String lugar);
+    List<Actividad> findBySalaIgnoreCase(String sala);
 }

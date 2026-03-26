@@ -79,7 +79,7 @@ public class ActividadResponseDto {
      * </p>
      */
     @Schema(description = "Lugar donde se realizará la actividad", example = "Sala A")
-    private String lugar;
+    private String sala;
 
     /**
      * Precio de la actividad en la moneda local.
