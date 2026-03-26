@@ -22,11 +22,28 @@ import com.backend.service.IPerfilService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-
+/**
+ * Controlador REST para gestionar los perfiles de usuarios.
+ * <p>
+ * Este controlador proporciona endpoints para:
+ * <ul>
+ *   <li>Listar todos los perfiles (ADMIN)</li>
+ *   <li>Obtener perfil por ID</li>
+ *   <li>Actualizar perfil de usuario</li>
+ * </ul>
+ * Los perfiles incluyen información personal y datos de salud asociados.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
 @RestController
 @RequestMapping("/api/v1/perfil")
 @RequiredArgsConstructor
+@Slf4j
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Perfil", description = "Operaciones relacionadas con los perfiles de usuarios")
 public class PerfilController {
 
@@ -35,21 +52,27 @@ public class PerfilController {
     private final PerfilRepository perfilRepository;
     private final SaludRepository saludRepository;
 
-    
+    /**
+     * Lista todos los perfiles de usuarios con datos de salud enriquecidos.
+     * <p>
+     * Solo los usuarios con rol ADMIN pueden listar todos los perfiles.
+     * Los perfiles se enriquecen con datos de salud del usuario si están disponibles.
+     * </p>
+     *
+     * @return lista de perfiles de usuarios
+     */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar perfiles", description = "Recupera una lista de todos los perfiles de usuarios")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de perfiles recuperada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public List<PerfilResponseDto> findAll() {
-        // 1. Traemos las entidades Perfil
+        log.info("Listando todos los perfiles");
         List<Perfil> perfiles = perfilRepository.findAll();
+        log.debug("Total de perfiles encontrados: {}", perfiles.size());
 
-        // Uso el stream
         return perfiles.stream().map(perfil -> {
-            // Convierto a DTO con los campos de salud
             PerfilResponseDto dto = perfilMapper.toDto(perfil);
-
             saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
                     .ifPresent(salud -> {
                         dto.setPeso(salud.getPeso());
@@ -57,11 +80,16 @@ public class PerfilController {
                         dto.setImc(salud.getImc());
                         dto.setNivelActividad(salud.getNivelActividad());
                     });
-
             return dto;
         }).toList();
     }
 
+    /**
+     * Obtiene los detalles de un perfil específico por su ID.
+     *
+     * @param id el ID del perfil a buscar
+     * @return ResponseEntity con los datos del perfil encontrado
+     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Recuperar perfil por ID", description = "Recupera los detalles de un perfil de usuario por su ID")
@@ -69,22 +97,29 @@ public class PerfilController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> getPerfilById(@PathVariable Long id) {
-
-        //  Busco el perfil 
+        log.info("Obteniendo perfil por ID: {}", id);
         PerfilResponseDto perfil = perfilService.findById(id);
-
-        // Creo el envoltorio 
+        log.debug("Perfil encontrado: {} - {}", perfil.getId(), perfil.getNombre());
+        
         ApiResponseDto<PerfilResponseDto> respuesta = ApiResponseDto.<PerfilResponseDto>builder()
                 .mensaje("Perfil recuperado con éxito") 
                 .datos(perfil) 
                 .success(true)
                 .build();
 
-        // respuesta
         return ResponseEntity.ok(respuesta);
     }
 
-    // Actualizar perfil
+    /**
+     * Actualiza los datos de un perfil de usuario.
+     * <p>
+     * Permite a usuarios ADMIN o USUARIO actualizar la información del perfil.
+     * </p>
+     *
+     * @param id el ID del perfil a actualizar
+     * @param dto los nuevos datos del perfil
+     * @return ResponseEntity con el perfil actualizado
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar perfil", description = "Actualiza los datos de un perfil de usuario por su ID")

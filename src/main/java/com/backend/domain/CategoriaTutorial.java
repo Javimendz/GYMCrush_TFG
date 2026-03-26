@@ -1,22 +1,20 @@
 package com.backend.domain;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import java.util.List;
+import lombok.*;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-
+/**
+ * Entidad que representa una categoría de tutoriales educativos.
+ * <p>
+ * Organiza los tutoriales del gimnasio en categorías temáticas
+ * para facilitar la navegación y búsqueda de contenido.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
 @Entity
 @Table(name = "categoria_tutorial")
 @Data
@@ -24,15 +22,40 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CategoriaTutorial {
+    /**
+     * Identificador único de la categoría.
+     * <p>
+     * Generado automáticamente por la base de datos.
+     * </p>
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    /**
+     * Nombre de la categoría.
+     * <p>
+     * Obligatorio y único, identifica la categoría temática.
+     * </p>
+     */
     @Column(nullable = false, unique = true)
     private String nombre;
     
+    /**
+     * Descripción detallada de la categoría.
+     * <p>
+     * Opcional, proporciona contexto sobre el tipo de tutoriales.
+     * </p>
+     */
     private String descripcion;
 
+    /**
+     * Lista de tutoriales asociados a esta categoría.
+     * <p>
+     * Relación uno-a-muchos con cascada completa para
+     * gestionar el ciclo de vida de los tutoriales.
+     * </p>
+     */
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
     private List<Tutorial> tutoriales;
 }

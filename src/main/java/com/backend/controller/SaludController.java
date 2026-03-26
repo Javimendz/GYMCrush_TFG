@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.backend.dto.SaludRequestDto;
 import com.backend.dto.SaludResponseDto;
@@ -21,15 +22,42 @@ import com.backend.service.ISaludService;
 
 import jakarta.validation.Valid;
 
+/**
+ * Controlador REST para gestionar el progreso de salud de los usuarios.
+ * <p>
+ * Este controlador proporciona endpoints para:
+ * <ul>
+ *   <li>Registrar progreso de salud (peso, estatura, IMC, etc.)</li>
+ *   <li>Obtener el progreso más reciente de un usuario</li>
+ *   <li>Consultar el historial completo de progreso de salud</li>
+ *   <li>Eliminar registros de progreso</li>
+ * </ul>
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
 @RestController
 @RequestMapping("/api/v1/salud")
 @RequiredArgsConstructor
+@Slf4j
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Salud", description = "Operaciones relacionadas con la salud de los usuarios")
 public class SaludController {
 
     private final ISaludService saludService;
 
-    // Endpoint para crear registro
+    /**
+     * Registra un nuevo progreso de salud para un usuario.
+     * <p>
+     * Permite a usuarios ADMIN o USUARIO registrar métricas de salud como peso,
+     * estatura, IMC y nivel de actividad física.
+     * </p>
+     *
+     * @param id el ID del usuario
+     * @param dto los datos de salud a registrar
+     * @return ResponseEntity con el registro de salud creado
+     */
     @PostMapping("/usuario/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Registrar progreso de salud", description = "Permite a un usuario registrar su progreso de salud")
@@ -38,32 +66,44 @@ public class SaludController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<SaludResponseDto> crearRegistro(@PathVariable Long id,
             @Valid @RequestBody SaludRequestDto dto) {
-
-        return ResponseEntity.ok(saludService.registrarProgreso(dto, id));
+        log.info("Registrando progreso de salud para usuario ID: {}", id);
+        SaludResponseDto resultado = saludService.registrarProgreso(dto, id);
+        log.info("Progreso de salud registrado exitosamente con ID: {}", resultado.getId());
+        return ResponseEntity.ok(resultado);
     }
 
-    // Endpoint para obtener progreso actual
+    /**
+     * Obtiene el registro de progreso de salud más reciente de un usuario.
+     *
+     * @param id el ID del usuario
+     * @return ResponseEntity con el último registro de salud del usuario
+     */
     @GetMapping("/usuario/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Obtener progreso actual", description = "Permite a un usuario obtener su progreso de salud más reciente")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Progreso actual recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró progreso para el usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<SaludResponseDto> getActual(@PathVariable Long id) {
-
-        return ResponseEntity.ok(saludService.obtenerProgresoActual(id));
+    public ResponseEntity<SaludResponseDto> obtenerProgresoActual(@PathVariable Long id) {
+        log.info("Obteniendo progreso actual para usuario ID: {}", id);
+        SaludResponseDto progreso = saludService.obtenerProgresoActual(id);
+        log.debug("Progreso encontrado para usuario {}: IMC={}, Peso={}", id, progreso.getImc(), progreso.getPeso());
+        return ResponseEntity.ok(progreso);
     }
 
-    // Endpoint para obtener historial
+    /**
+     * Obtiene el historial completo de progreso de salud de un usuario.
+     *
+     * @param id el ID del usuario
+     * @return ResponseEntity con la lista completa de registros de salud
+     */
     @GetMapping("/usuario/{id}/historial")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Obtener historial de salud", description = "Permite a un usuario obtener su historial de progreso de salud")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Historial recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró historial para el usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    //  Cambio el tipo de retorno aquí para que acepte el ApiResponseDto
     public ResponseEntity<ApiResponseDto<List<SaludResponseDto>>> getHistorial(@PathVariable Long id) {
-
         List<SaludResponseDto> historial = saludService.obtenerHistorialPorUsuario(id);
 
         ApiResponseDto<List<SaludResponseDto>> respuesta = ApiResponseDto.<List<SaludResponseDto>>builder()
@@ -72,11 +112,15 @@ public class SaludController {
                 .success(true)
                 .build();
 
-        // devolvemos la respuesta completa
         return ResponseEntity.ok(respuesta);
     }
 
-    // Endpoint para eliminar registro
+    /**
+     * Elimina el registro de progreso de salud más reciente de un usuario.
+     *
+     * @param id el ID del usuario cuyo último registro de salud será eliminado
+     * @return ResponseEntity con confirmación de eliminación
+     */
     @DeleteMapping("/usuario/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Eliminar progreso de salud", description = "Permite a un usuario eliminar su progreso de salud más reciente")
@@ -86,14 +130,12 @@ public class SaludController {
     public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable Long id) {
        saludService.eliminarRegistro(id);
 
-    //   respuesta de éxito
     ApiResponseDto<Void> respuesta = ApiResponseDto.<Void>builder()
             .mensaje("Registro de salud eliminado correctamente")
-            .datos(null) // Tras borrar, no hay datos que enviar
+            .datos(null)
             .success(true)
             .build();
 
-    // .ok() para que el JSON con el mensaje llegue
     return ResponseEntity.ok(respuesta);
     }
 }

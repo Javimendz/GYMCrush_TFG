@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.backend.domain.Actividad;
 import com.backend.domain.Horario;
@@ -18,11 +19,12 @@ import com.backend.exceptions.ResourceNotFoundException;
  * Implementación de la lógica de negocio para la gestión de horarios del gimnasio.
  * Esta clase coordina la asignación de actividades a franjas horarias específicas,
  * asegurando la integridad referencial y el control de aforo.
- * * @author Tu Nombre/TFG
+ * * @author JavierMendez/TFG
  * @version 1.0
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class HorarioServiceImp implements IHorarioService {
 
     private final HorarioRepository horarioRepository;
@@ -36,7 +38,10 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional(readOnly = true)
     public List<HorarioResponseDto> listarTodos() {
-        return horarioMapper.toResponseDtoList(horarioRepository.findAll());
+        log.info("Listando todos los horarios");
+        List<HorarioResponseDto> horarios = horarioMapper.toResponseDtoList(horarioRepository.findAll());
+        log.debug("Total de horarios encontrados: {}", horarios.size());
+        return horarios;
     }
 
     /**
@@ -48,8 +53,10 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional(readOnly = true)
     public HorarioResponseDto obtenerPorId(Long id) {
+        log.info("Buscando horario por ID: {}", id);
         Horario horario = horarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado con ID: " + id));
+        log.debug("Horario encontrado: {} - {}", horario.getDiaSemana(), horario.getHoraInicio());
         return horarioMapper.toResponseDto(horario);
     }
 
@@ -63,14 +70,18 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional
     public HorarioResponseDto crear(HorarioRequestDto dto) {
+        log.info("Creando nuevo horario para actividad ID: {}", dto.getActividadId());
         // Validación de existencia de la relación OneToMany
         Actividad actividad = actividadRepository.findById(dto.getActividadId())
                 .orElseThrow(() -> new ResourceNotFoundException("No se puede crear el horario: Actividad no encontrada"));
+        log.debug("Actividad encontrada: {}", actividad.getNombre());
 
         Horario nuevoHorario = horarioMapper.toEntity(dto);
         nuevoHorario.setActividad(actividad);
 
-        return horarioMapper.toResponseDto(horarioRepository.save(nuevoHorario));
+        HorarioResponseDto resultado = horarioMapper.toResponseDto(horarioRepository.save(nuevoHorario));
+        log.info("Horario creado exitosamente con ID: {}", resultado.getId());
+        return resultado;
     }
 
     /**
@@ -84,11 +95,13 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional
     public HorarioResponseDto actualizar(Long id, HorarioRequestDto dto) {
+        log.info("Actualizando horario con ID: {}", id);
         Horario existente = horarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: Horario no encontrado"));
 
         // Gestión de cambio de actividad vinculada
         if (!existente.getActividad().getId().equals(dto.getActividadId())) {
+            log.debug("Cambiando actividad vinculada de {} a {}", existente.getActividad().getId(), dto.getActividadId());
             Actividad nuevaActividad = actividadRepository.findById(dto.getActividadId())
                     .orElseThrow(() -> new ResourceNotFoundException("La nueva actividad asignada no existe"));
             existente.setActividad(nuevaActividad);
@@ -101,7 +114,9 @@ public class HorarioServiceImp implements IHorarioService {
         existente.setHoraFin(dto.getHoraFin());
         existente.setAforoMax(dto.getAforoMax());
 
-        return horarioMapper.toResponseDto(horarioRepository.save(existente));
+        HorarioResponseDto resultado = horarioMapper.toResponseDto(horarioRepository.save(existente));
+        log.info("Horario {} actualizado exitosamente", id);
+        return resultado;
     }
 
     /**
@@ -112,10 +127,13 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional
     public void eliminar(Long id) {
+        log.info("Eliminando horario con ID: {}", id);
         if (!horarioRepository.existsById(id)) {
+            log.warn("No se puede eliminar: Horario con ID {} no existe", id);
             throw new ResourceNotFoundException("No se puede eliminar: ID " + id + " no existe");
         }
         horarioRepository.deleteById(id);
+        log.info("Horario {} eliminado exitosamente", id);
     }
 
     /**
@@ -126,9 +144,12 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional(readOnly = true)
     public List<HorarioResponseDto> listarPorDia(String dia) {
-        return horarioMapper.toResponseDtoList(
+        log.info("Listando horarios por día: {}", dia);
+        List<HorarioResponseDto> horarios = horarioMapper.toResponseDtoList(
             horarioRepository.findByDiaSemanaIgnoreCase(dia)
         );
+        log.debug("Horarios encontrados para día '{}': {}", dia, horarios.size());
+        return horarios;
     }
 
     /**
@@ -139,8 +160,11 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional(readOnly = true)
     public List<HorarioResponseDto> buscarPorActividad(Long actividadId) {
-        return horarioMapper.toResponseDtoList(
+        log.info("Buscando horarios por actividad ID: {}", actividadId);
+        List<HorarioResponseDto> horarios = horarioMapper.toResponseDtoList(
             horarioRepository.findByActividadId(actividadId)
         );
+        log.debug("Horarios encontrados para actividad {}: {}", actividadId, horarios.size());
+        return horarios;
     }
 }

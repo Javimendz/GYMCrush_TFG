@@ -13,16 +13,38 @@ import com.backend.service.ICategoriaTutorialService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Controlador REST para gestionar las categorías de tutoriales.
+ * <p>
+ * Este controlador proporciona endpoints para el CRUD de categorías de tutoriales:
+ * <ul>
+ *   <li>Listar todas las categorías</li>
+ *   <li>Obtener categoría por ID</li>
+ *   <li>Crear nueva categoría (ADMIN)</li>
+ *   <li>Eliminar categoría (ADMIN)</li>
+ * </ul>
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
 @RestController
 @RequestMapping("/api/v1/categorias-tutorial")
 @RequiredArgsConstructor
+@Slf4j
 @io.swagger.v3.oas.annotations.tags.Tag(name = "CategoriaTutorial", description = "Operaciones relacionadas con las categorías de tutoriales")
 public class CategoriaTutorialController {
 
     private final ICategoriaTutorialService categoriaService;
 
-    // LISTAR TODAS LAS CATEGORÍAS
+    /**
+     * Lista todas las categorías de tutoriales disponibles.
+     *
+     * @return ResponseEntity con la lista de categorías y mensaje de éxito
+     */
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar todas las categorías de tutoriales", description = "Recupera una lista de todas las categorías de tutoriales disponibles")
@@ -30,7 +52,9 @@ public class CategoriaTutorialController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para listar categorías de tutoriales") 
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<List<CategoriaTutorialResponseDto>>> listarTodas() {
+        log.info("Listando todas las categorías de tutoriales");
         List<CategoriaTutorialResponseDto> data = categoriaService.listarTodas();
+        log.debug("Total de categorías recuperadas: {}", data.size());
         
         return ResponseEntity.ok(ApiResponseDto.<List<CategoriaTutorialResponseDto>>builder()
                 .mensaje("Listado de categorías de entrenamiento recuperado")
@@ -39,7 +63,12 @@ public class CategoriaTutorialController {
                 .build());
     }
 
-    // OBTENER DETALLE DE UNA CATEGORÍA POR ID
+    /**
+     * Obtiene los detalles de una categoría específica por su ID.
+     *
+     * @param id el ID de la categoría a buscar
+     * @return ResponseEntity con los datos de la categoría encontrada
+     */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Obtener categoría por ID", description = "Recupera los detalles de una categoría de tutorial por su ID")
@@ -48,16 +77,26 @@ public class CategoriaTutorialController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<CategoriaTutorialResponseDto>> obtenerPorId(@PathVariable Long id) {
+        log.info("Obteniendo categoría por ID: {}", id);
         CategoriaTutorialResponseDto data = categoriaService.buscarPorId(id);
+        log.debug("Categoría encontrada: {} - {}", data.getId(), data.getNombre());
         
         return ResponseEntity.ok(ApiResponseDto.<CategoriaTutorialResponseDto>builder()
-                .mensaje("Detalle de la categoría recuperado")
+                .mensaje("Detalles de la categoría recuperados")
                 .datos(data)
                 .success(true)
                 .build());
     }
 
-    // CREAR NUEVA CATEGORÍA (Solo ADMIN)
+    /**
+     * Crea una nueva categoría de tutoriales.
+     * <p>
+     * Solo los usuarios con rol ADMIN pueden crear categorías.
+     * </p>
+     *
+     * @param dto los datos de la categoría a crear
+     * @return ResponseEntity con la categoría creada
+     */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Crear nueva categoría", description = "Crea una nueva categoría de tutorial")
@@ -75,8 +114,16 @@ public class CategoriaTutorialController {
                 .build());
     }
 
-    // ELIMINAR CATEGORÍA (Solo ADMIN)
-    // Nota: El Service debe manejar si hay tutoriales asociados antes de borrar
+    /**
+     * Elimina una categoría de tutoriales.
+     * <p>
+     * Solo los usuarios con rol ADMIN pueden eliminar categorías.
+     * El servicio debe verificar si hay tutoriales asociados antes de eliminar.
+     * </p>
+     *
+     * @param id el ID de la categoría a eliminar
+     * @return ResponseEntity con confirmación de eliminación
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Eliminar categoría", description = "Elimina una categoría de tutorial por su ID")

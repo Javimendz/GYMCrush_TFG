@@ -1,0 +1,447 @@
+2026-03-26 11:45:03.962 INFO  com.backend.App - Starting App v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
+2026-03-26 11:45:03.966 DEBUG com.backend.App - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-03-26 11:45:03.967 INFO  com.backend.App - The following 1 profile is active: "dev"
+2026-03-26 11:45:04.269 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-03-26 11:45:04.914 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-26 11:45:04.997 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 70 ms. Found 16 JPA repository interfaces.
+2026-03-26 11:45:05.645 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-03-26 11:45:05.658 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-26 11:45:05.662 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-26 11:45:05.663 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-03-26 11:45:05.690 INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1670 ms
+2026-03-26 11:45:05.910 INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-03-26 11:45:05.942 INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-03-26 11:45:06.267 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-26 11:45:06.289 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-26 11:45:06.456 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4a68cbc5
+2026-03-26 11:45:06.458 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-26 11:45:06.506 WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-26 11:45:06.533 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://db:5432/spring_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 15.17
+	Default catalog/schema: spring_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-26 11:45:07.444 INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-26 11:45:07.535 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-26 11:45:07.594 INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-26 11:45:07.775 DEBUG c.b.s.jwt.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-03-26 11:45:08.173 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailServiceImp
+2026-03-26 11:45:09.005 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-03-26 11:45:09.023 DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-03-26 11:45:09.341 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Starting...
+2026-03-26 11:45:09.342 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@6aa4a749]]
+2026-03-26 11:45:09.344 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Started.
+2026-03-26 11:45:09.344 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-26 11:45:09.360 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-03-26 11:45:09.370 INFO  com.backend.App - Started App in 5.883 seconds (process running for 6.334)
+2026-03-26 11:45:09.522 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-26 11:45:09.555 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-26 11:45:09.560 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.telefono,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-26 11:45:09.570 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.telefono,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-26 11:45:09.582 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.telefono,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-26 11:45:09.584 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.telefono,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-26 11:45:09.595 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-26 11:45:09.601 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-26 11:45:09.609 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-03-26 11:45:09.610 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-03-26 11:45:09.631 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-26 11:45:09.635 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-26 11:46:09.312 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-26 12:16:09.170 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 2, active threads = 1, queued tasks = 0, completed tasks = 1]
+2026-03-26 12:46:09.064 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 3, active threads = 1, queued tasks = 0, completed tasks = 2]
+2026-03-26 13:16:08.947 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 4, active threads = 1, queued tasks = 0, completed tasks = 3]
+2026-03-26 13:30:51.233 INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-26 13:30:51.257 INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-03-26 13:30:51.268 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopping...
+2026-03-26 13:30:51.270 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@6aa4a749]]
+2026-03-26 13:30:51.270 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopped.
+2026-03-26 13:30:51.300 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-26 13:30:51.335 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-26 13:30:51.345 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-26 13:30:53.683 INFO  com.backend.App - Starting App v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
+2026-03-26 13:30:53.686 DEBUG com.backend.App - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-03-26 13:30:53.688 INFO  com.backend.App - The following 1 profile is active: "dev"
+2026-03-26 13:30:54.090 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-03-26 13:30:54.705 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-26 13:30:54.785 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 72 ms. Found 16 JPA repository interfaces.
+2026-03-26 13:30:55.525 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-03-26 13:30:55.536 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-26 13:30:55.539 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-26 13:30:55.540 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-03-26 13:30:55.572 INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1808 ms
+2026-03-26 13:30:55.835 INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-03-26 13:30:55.886 INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-03-26 13:30:56.332 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-26 13:30:56.361 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-26 13:30:56.573 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@63537871
+2026-03-26 13:30:56.577 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-26 13:30:56.617 WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-26 13:30:56.645 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://db:5432/spring_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 15.17
+	Default catalog/schema: spring_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-26 13:30:57.630 INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-26 13:30:57.705 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-26 13:30:57.751 INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-26 13:30:57.964 DEBUG c.b.s.jwt.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-03-26 13:30:58.429 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailServiceImp
+2026-03-26 13:30:59.293 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-03-26 13:30:59.317 DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-03-26 13:30:59.646 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Starting...
+2026-03-26 13:30:59.647 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@569ac51e]]
+2026-03-26 13:30:59.648 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Started.
+2026-03-26 13:30:59.649 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-26 13:30:59.664 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-03-26 13:30:59.673 INFO  com.backend.App - Started App in 6.583 seconds (process running for 7.157)
+2026-03-26 13:30:59.824 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-26 13:30:59.858 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-26 13:30:59.864 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.telefono,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-26 13:30:59.874 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.telefono,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-26 13:30:59.887 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.telefono,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-26 13:30:59.889 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.telefono,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-26 13:30:59.901 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-26 13:30:59.907 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-26 13:30:59.916 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-03-26 13:30:59.917 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-03-26 13:30:59.938 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-26 13:30:59.940 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-26 13:31:59.627 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-26 13:38:29.161 INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-26 13:38:29.165 INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-03-26 13:38:29.167 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopping...
+2026-03-26 13:38:29.168 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@569ac51e]]
+2026-03-26 13:38:29.168 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopped.
+2026-03-26 13:38:29.176 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-26 13:38:29.179 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-26 13:38:29.182 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

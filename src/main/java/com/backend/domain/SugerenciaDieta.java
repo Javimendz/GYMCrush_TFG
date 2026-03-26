@@ -1,49 +1,118 @@
-//Paquete
 package com.backend.domain;
-//Imports
-import java.time.LocalDateTime;
-import jakarta.persistence.*;//Importamos todo el paquete
-import lombok.*; //Importamos todo el paquete
 
-@Entity// Indica que esta clase es una entidad JPA
-@Table(name = "sugerenciasDieta") // Nombre de la tabla en la base de datos
-@Data// Lombok para generar getters, setters, toString, equals, y hashCode
-@AllArgsConstructor// Lombok para generar un constructor con todos los argumentos
-@NoArgsConstructor// Lombok para generar un constructor sin argumentos
-@Builder// Lombok para generar un constructor con argumentos usando el patrón Builder
+import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+/**
+ * Entidad que representa una sugerencia de plan dietético.
+ * <p>
+ * Almacena recomendaciones personalizadas para usuarios,
+ * incluyendo objetivos calóricos y macronutrientes en formato JSON.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
+@Entity
+@Table(name = "sugerenciasDieta")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class SugerenciaDieta {
 
+    /**
+     * Identificador único de la sugerencia.
+     * <p>
+     * Generado automáticamente por la base de datos.
+     * </p>
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Nombre descriptivo del plan dietético sugerido.
+     * <p>
+     * Obligatorio y con longitud máxima de 80 caracteres.
+     * </p>
+     */
     @Column(name = "nombre_dieta", length = 80)
     private String nombreDieta;
 
+    /**
+     * Calorías objetivo diarias del plan.
+     * <p>
+     * Obligatorio, define el meta calórica del usuario.
+     * </p>
+     */
     @Column(name = "calorias_objetivo")
     private Integer caloriasObjetivo;
 
-    @Column(name = "macronutrientes_json",columnDefinition = "TEXT") // Para JSON sin límites
-    private String macronutrientesJson; 
+    /**
+     * Distribución de macronutrientes en formato JSON.
+     * <p>
+     * Opcional, permite almacenar información nutricional
+     * estructurada sin límites de longitud.
+     * </p>
+     */
+    @Column(name = "macronutrientes_json", columnDefinition = "TEXT")
+    private String macronutrientesJson;
 
-    @Column(name = "tipo_dieta", length = 50 )
+    /**
+     * Tipo de dieta sugerida.
+     * <p>
+     * Obligatorio, clasifica el plan (ej: keto, vegana, etc.).
+     * </p>
+     */
+    @Column(name = "tipo_dieta", length = 50)
     private String tipoDieta;
 
+    /**
+     * Fecha y hora de generación de la sugerencia.
+     * <p>
+     * Obligatorio, no modificable después de creación.
+     * </p>
+     */
     @Column(name = "fecha_generacion", nullable = false, updatable = false)
     private LocalDateTime fechaGeneracion;
 
+    /**
+     * Usuario que recibe la sugerencia.
+     * <p>
+     * Relación muchos-a-uno con carga eager para obtener
+     * información del usuario automáticamente.
+     * </p>
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuarioId", referencedColumnName = "id")
-    @ToString.Exclude // Para evitar la recursión infinita en el toString
+    @ToString.Exclude
     private Usuario usuario;
 
+    /**
+     * Plan dietético asociado a esta sugerencia.
+     * <p>
+     * Relación muchos-a-uno con carga eager para obtener
+     * información completa del plan dietético.
+     * </p>
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "dieta_id", referencedColumnName = "id")
-    @ToString.Exclude // Para evitar la recursión infinita en el toString
+    @ToString.Exclude
     private Dieta dieta;
 
-    @PrePersist// Para que se ejecute antes de guardar en la base de datos
+    /**
+     * Método callback que se ejecuta antes de persistir la sugerencia.
+     * <p>
+     * Establece la fecha de generación actual si no se especifica.
+     * </p>
+     */
+    @PrePersist
     protected void onCreate() {
+        // Establecer fecha de generación automática
         this.fechaGeneracion = LocalDateTime.now();
     }
 }

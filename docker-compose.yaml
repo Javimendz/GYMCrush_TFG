@@ -6,13 +6,20 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/spring_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=secret
+      
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASS}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - JWT_SECRET=${JWT_SECRET}
+      - LOG_PATH=/app/logs
+      - JWT_EXPIRATION= ${JWT_EXPIRATION}
+      - SPRING_PROFILES_ACTIVE=dev
+    volumes:
+      - ./logs:/app/logs
     depends_on:
-      - db
-
+        db:
+          condition: service_healthy
   db:
     image: postgres:15-alpine
     container_name: postgres-db
@@ -24,6 +31,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck: 
+      test: ["CMD-SHELL", "pg_isready -U postgres -d spring_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

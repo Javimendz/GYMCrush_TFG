@@ -67,6 +67,7 @@ El sistema utiliza **Spring Security con JWT (JSON Web Tokens)**.
 - **PostgreSQL**
 - **MapStruct** & **Lombok**
 - **Docker** para contenerización
+- **Swagger** para documentación
 
 **Nota**: Todas las respuestas exitosas siguen el formato de `ApiResponseDto` para facilitar la integración con la App de Android.
 
@@ -237,21 +238,33 @@ Gestión de entradas y salidas mediante tokens temporales para control de aforo 
 | GET | `/api/v1/accesos/aforo` | Devuelve el número de usuarios con sesión activa (sin hora de salida). | Token (USER/ADMIN) |
 
 
-Material usado para websockets: (1)[https://www.youtube.com/watch?v=KAm6I_iLXOI]
+### **MATERIAL USADO PARA WEBSOCKETS**
 
-websockets en postman: (1)[https://www.youtube.com/watch?v=aSPHr6dbMmo] 
-Tutorial para websockets y testeo:(2)[https://pasksoftware.com/spring-boot-websocket/]
-extension:  Simple Web Socket Client (1)[https://chromewebstore.google.com/detail/simple-websocket-client/pfdhoblngboilpfeibdedpjgfnlcodoo] para probar los websockets con stomp
+- `https://www.youtube.com/watch?v=KAm6I_iLXOI`
+
+### **websockets en postman:** 
+- `https://www.youtube.com/watch?v=aSPHr6dbMmo`
+
+### **Tutorial para websockets y testeo:** 
+- `https://pasksoftware.com/spring-boot-websocket/`
+
+### **extension:  Simple Web Socket Client**
+- `https://chromewebstore.google.com/detail/simple-websocket-client/pfdhoblngboilpfeibdedpjgfnlcodoo`
+
+ para probar los websockets con stomp
 
 
 
 
-Tutoriales utilizados para la implementación del jwt: (1)[https://www.youtube.com/watch?v=KYNR5js2cXE], (2)[https://www.youtube.com/watch?v=ZzpDyIJizjo]
+Tutoriales utilizados para la implementación del jwt: 
+- `https://www.youtube.com/watch?v=KYNR5js2cXE`
+
+- `https://www.youtube.com/watch?v=ZzpDyIJizjo`
 
 
 Ciclo de vida del token QR:
 
-
+```
   El usuario solicita su acceso, el método generateQrToken() crea un JWT 30s de vida, firmado con su ID. Al ser sin estado, el token no se guarda en la BD, lo que hace el proceso ultra rápido.
 
   La App convierte ese jwt en un código QR, el escáner del gimnasio lee el texto y lo envía mediante un POST al endpoint de Validación del servidor.
@@ -260,6 +273,7 @@ Ciclo de vida del token QR:
 
   El backend responde con un JSON. Según la respuesta, la App muestra exito o fracaso.
 
+```
 
 
 #  

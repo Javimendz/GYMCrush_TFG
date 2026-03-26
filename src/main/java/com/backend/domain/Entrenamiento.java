@@ -6,6 +6,17 @@ import java.time.LocalDateTime;
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
 
+/**
+ * Entidad que representa una sesión de entrenamiento personalizado.
+ * <p>
+ * Almacena información sobre rutinas de ejercicio,
+ * incluyendo intensidad, duración y fechas programadas.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
 @Entity
 @Table(name = "entrenamientos")
 @Data
@@ -14,25 +25,62 @@ import lombok.*;
 @Builder
 public class Entrenamiento {
 
+    /**
+     * Identificador único de la sesión de entrenamiento.
+     * <p>
+     * Generado automáticamente por la base de datos.
+     * </p>
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Fecha programada para el entrenamiento.
+     * <p>
+     * Opcional, indica cuándo se realizará la sesión.
+     * </p>
+     */
     @Column(name = "fecha", nullable = true)
     private LocalDateTime fecha;
 
+    /**
+     * Hora de inicio del entrenamiento.
+     * <p>
+     * Opcional, especifica la hora exacta de comienzo.
+     * </p>
+     */
     @Column(name = "hora", nullable = true)
     private LocalDateTime hora;
 
+    /**
+     * Duración total de la sesión de entrenamiento.
+     * <p>
+     * Opcional, representa el tiempo total en minutos.
+     * </p>
+     */
     @Column(name = "duracion", nullable = true)
     private LocalDateTime duracion;
 
-    @Column(name = "intensidad",length = 150)
+    /**
+     * Nivel de intensidad del entrenamiento.
+     * <p>
+     * Obligatorio, clasifica la dificultad (ej: baja, media, alta).
+     * </p>
+     */
+    @Column(name = "intensidad", length = 150)
     private String intensidad;
 
+    /**
+     * Usuario que realiza el entrenamiento.
+     * <p>
+     * Relación muchos-a-uno con carga eager para obtener
+     * información del usuario automáticamente.
+     * </p>
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false, unique = true)
-    @ToString.Exclude //Evita que exploten los logs de consola!!!!
+    @ToString.Exclude
     private Usuario usuario;
 
 }

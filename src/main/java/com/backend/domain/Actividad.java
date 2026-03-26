@@ -1,44 +1,95 @@
-//Paquete
 package com.backend.domain;
+
 import java.util.List;
 
+import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-//Imports
-import jakarta.persistence.*; //Importo todo el paquete
-import lombok.*;
-
-@Entity // Indica que esta clase es una entidad JPA
-@Table(name = "actividades") // Nombre de la tabla en la base de datos
-@Data // Lombok para generar getters, setters, toString, equals, y hashCode
-@AllArgsConstructor // Lombok para generar un constructor con todos los argumentos
-@NoArgsConstructor // Lombok para generar un constructor sin argumentos
+/**
+ * Entidad que representa una actividad deportiva del gimnasio.
+ * <p>
+ * Almacena información sobre disciplinas deportivas ofrecidas,
+ * incluyendo duración, precio, ubicación y horarios asociados.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
+@Entity
+@Table(name = "actividades")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @RequestMapping("/api/v1/actividades")
-@Builder // Lombok para generar un constructor con argumentos usando el patrón Builder
-@CrossOrigin(origins = "*") // Permite que Android se conecte sin bloqueos de CORS
+@CrossOrigin(origins = "*")
 public class Actividad {
-     
+    /**
+     * Identificador único de la actividad.
+     * <p>
+     * Generado automáticamente por la base de datos.
+     * </p>
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;   
 
+    /**
+     * Nombre de la actividad deportiva.
+     * <p>
+     * Obligatorio y con longitud máxima de 20 caracteres.
+     * </p>
+     */
     @Column(name = "nombre", nullable = false, length = 20)
-    private String nombre; //Para el nombre de la actividad
+    private String nombre;
 
+    /**
+     * Descripción detallada de la actividad.
+     * <p>
+     * Obligatorio y con longitud máxima de 100 caracteres.
+     * </p>
+     */
     @Column(name = "descripcion", nullable = false, length = 100)
-    private String descripcion; //Para la descripcion de la actividad
+    private String descripcion;
 
+    /**
+     * Duración de la actividad en minutos.
+     * <p>
+     * Obligatorio, representa el tiempo total de la sesión.
+     * </p>
+     */
     @Column(name = "duracion", nullable = false)
-    private Integer duracion; //Para la duracion de la actividad
+    private Integer duracion;
 
+    /**
+     * Ubicación donde se realiza la actividad.
+     * <p>
+     * Obligatorio y con longitud máxima de 50 caracteres.
+     * </p>
+     */
     @Column(name = "lugar", nullable = false, length = 50)
-    private String lugar; //Para el lugar de la actividad
+    private String lugar;
 
+    /**
+     * Precio de la actividad en la moneda local.
+     * <p>
+     * Obligatorio, representa el costo por sesión o mensualidad.
+     * </p>
+     */
     @Column(name = "precio", nullable = false)
-    private Integer precio; //Para el precio de la actividad
+    private Integer precio;
 
+    /**
+     * Lista de horarios asociados a esta actividad.
+     * <p>
+     * Relación uno-a-muchos con carga eager para obtener
+     * los horarios automáticamente al cargar la actividad.
+     * </p>
+     */
     @OneToMany(mappedBy = "actividad", fetch = FetchType.EAGER)
-    @ToString.Exclude // Importante para evitar errores de recursividad
+    @ToString.Exclude
     private List<Horario> horarios;
 }

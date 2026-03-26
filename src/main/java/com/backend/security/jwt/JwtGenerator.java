@@ -1,11 +1,10 @@
-//Paquete
 package com.backend.security.jwt;
 
-//Imports
+//Imports necesarios para la generación y validación de tokens JWT
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException; // Nueva importación para la excepción de firma
+import io.jsonwebtoken.security.SignatureException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -18,24 +17,46 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.crypto.SecretKey; // Importar SecretKey para el cast en verifyWith
-//Clase para generar tokens JWT
+import javax.crypto.SecretKey;
 
-@Component // Componente para inyectar la clase en otras partes de la aplicacion
-@ConfigurationProperties(prefix = "jwt") // Propiedades de configuracion para la clase,todos con prefijo jwt
+/**
+ * Clase responsable de generar, validar y extraer información de tokens JWT.
+ * Proporciona métodos para crear tokens de acceso y QR, además de
+ * validar la integridad y autenticidad de los tokens recibidos.
+ * 
+ * @author backend team
+ * @version 1.0
+ * @since 2026
+ */
+@Component // Componente para inyectar la clase en otras partes de la aplicación
+@ConfigurationProperties(prefix = "jwt") // Propiedades de configuración para la clase, todos con prefijo jwt
 public class JwtGenerator {
 
-    @Value("${jwt.secret}") // Propiedad de configuracion para la clave secreta del token
+    /** Clave secreta para firmar los tokens JWT (configurada en application.properties) */
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration}") // Propiedad de configuracion para la expiracion del token
+    /** Tiempo de expiración del token en milisegundos (configurado en application.properties) */
+    @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+    /**
+     * Genera la clave de firma para los tokens JWT usando el algoritmo HMAC-SHA512.
+     * Esta clave se usa tanto para firmar como para verificar los tokens.
+     * 
+     * @return SecretKey clave criptográfica para firmar tokens
+     */
     private SecretKey getSigningKey() {
-
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Genera un token JWT para un usuario autenticado.
+     * Incluye el username, roles, fecha de emisión y expiración.
+     * 
+     * @param authentication Objeto de autenticación de Spring Security
+     * @return Token JWT firmado y codificado
+     */
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
         
@@ -56,7 +77,13 @@ public class JwtGenerator {
                 .compact();
     }
 
-    // Método actualizado para obtener el nombre de usuario del token
+    /**
+     * Extrae el nombre de usuario (subject) de un token JWT válido.
+     * 
+     * @param token Token JWT del cual extraer el username
+     * @return Nombre de usuario contenido en el token
+     * @throws Exception si el token es inválido o está expirado
+     */
     public String getUsernameFromJwt(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -66,7 +93,14 @@ public class JwtGenerator {
         return claims.getSubject();
     }
 
-    // Método para obtener los roles del token JWT
+    /**
+     * Extrae la lista de roles de un token JWT.
+     * Los roles son almacenados como un claim personalizado en el token.
+     * 
+     * @param token Token JWT del cual extraer los roles
+     * @return Lista de roles del usuario
+     * @throws Exception si el token es inválido
+     */
     @SuppressWarnings("unchecked")
     public List<String> getRoleFromJwt(String token) {
         Claims claims = Jwts.parser()
@@ -77,7 +111,13 @@ public class JwtGenerator {
         return claims.get("roles", List.class);
     }
 
-    // Método actualizado para validar el token
+    /**
+     * Valida la integridad, autenticidad y expiración de un token JWT.
+     * Verifica la firma, el formato y la fecha de expiración.
+     * 
+     * @param token Token JWT a validar
+     * @return true si el token es válido, false en caso contrario
+     */
     public boolean validateToken(String token) {
         try {
             // La forma moderna para validación también
@@ -100,16 +140,25 @@ public class JwtGenerator {
         return false;
     }
 
-    //Metodo para generar el token jwt para el qr temporal
-    public String generateQrToken(String username, Long userId){
-        //Fecha actual
+    /**
+     * Genera un token JWT temporal para acceso mediante código QR.
+     * Este token tiene un tiempo de vida corto (30 segundos) y está diseñado
+     * específicamente para validación de acceso físico al gimnasio.
+     * 
+     * @param username Nombre de usuario del titular del QR
+     * @param userId ID único del usuario para trazabilidad
+     * @return Token JWT temporal para acceso QR
+     */
+    public String generateQrToken(String username, Long userId) {
+        // Fecha actual
         Date currentDate = new Date();
 
-        //Tiempo de expiracion corto
+        // Tiempo de expiración corto (30 segundos)
         Long qrExpiration = 30000L;
-        //Fecha de expiracion
+        // Fecha de expiración
         Date expireDate = new Date(currentDate.getTime() + qrExpiration);
-        //Construir el token
+        
+        // Construir el token con claims específicos para QR
         return Jwts.builder()
                 .subject(username)
                 .claim("userId", userId)
@@ -120,6 +169,13 @@ public class JwtGenerator {
                 .compact();
     }
 
+    /**
+     * Método alternativo para extraer el username de un token.
+     * Realiza la misma función que getUsernameFromJwt pero con diferente implementación.
+     * 
+     * @param token Token JWT del cual extraer el username
+     * @return Nombre de usuario contenido en el token
+     */
     public String getUsernameFromToken(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())

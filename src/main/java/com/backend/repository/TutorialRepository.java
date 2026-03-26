@@ -6,12 +6,33 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.backend.domain.Tutorial;
-
+/**
+ * Interfaz de repositorio para la entidad Tutorial
+ * <p>
+ * Proporciona métodos para acceder a la base de datos de tutoriales.
+ * </p>
+ */
 @Repository
 public interface TutorialRepository extends JpaRepository<Tutorial, Long> {    
-        // Buscar todos los tutoriales de una categoría específica, ej "Yoga"
+/**
+ * Busca todos los tutoriales de una categoría específica.
+ * <p>
+ * Retorna todos los tutoriales con la categoría especificada.
+ * </p>
+ *
+ * @param categoriaId ID de la categoría a buscar
+ * @return Lista de tutoriales encontrados
+ */
     List<Tutorial> findByCategoriaId(Long categoriaId);
     
-    // Buscar por título, por si se añade un buscador en Android
+/**
+ * Busca todos los tutoriales que contienen el título especificado.
+ * <p>
+ * Retorna todos los tutoriales que contienen el título especificado.
+ * </p>
+ *
+ * @param titulo Título a buscar
+ * @return Lista de tutoriales encontrados
+ */
     List<Tutorial> findByTituloContainingIgnoreCase(String titulo);
 }

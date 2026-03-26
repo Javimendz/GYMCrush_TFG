@@ -21,17 +21,43 @@ import com.backend.service.ITicketService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Controlador REST para gestionar los tickets de soporte al usuario.
+ * <p>
+ * Este controlador proporciona endpoints para:
+ * <ul>
+ *   <li>Crear tickets de soporte</li>
+ *   <li>Ver historial de tickets de un usuario</li>
+ *   <li>Ver todos los tickets (ADMIN)</li>
+ *   <li>Actualizar estado de tickets (ADMIN)</li>
+ * </ul>
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
 @RestController
 @RequestMapping("api/v1/tickets")
 @RequiredArgsConstructor
+@Slf4j
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Ticket", description = "Operaciones relacionadas con los tickets de soporte")
 public class TicketController {
     
-
     private final ITicketService ticketService;
 
-    //Endpoint para crear ticket
+    /**
+     * Crea un nuevo ticket de soporte para un usuario.
+     * <p>
+     * Cualquier usuario autenticado (USUARIO o ADMIN) puede crear tickets.
+     * </p>
+     *
+     * @param usuarioId el ID del usuario que crea el ticket
+     * @param dto los datos del ticket a crear
+     * @return ResponseEntity con el ticket creado y mensaje de confirmación
+     */
     @PostMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Crear ticket", description = "Permite a un usuario crear un nuevo ticket de soporte")
@@ -42,19 +68,23 @@ public class TicketController {
         @PathVariable Long usuarioId,
         @Valid @RequestBody TicketRequestDto dto
     ){
-
+        log.info("Creando ticket para usuario ID: {}", usuarioId);
         TicketResponseDto nuevoTicket = ticketService.crearTicket(dto, usuarioId);
+        log.info("Ticket creado exitosamente con ID: {}", nuevoTicket.getId());
 
         return ResponseEntity.ok(ApiResponseDto.<TicketResponseDto>builder()
                 .mensaje("Ticket creado exitosamente. Revisaremos tu mensaje pronto.")
                 .success(true)
                 .datos(nuevoTicket) 
                 .build());
-    
-        
     }
 
-    //Para el usuario ver su historial de tickets
+    /**
+     * Obtiene el historial de tickets de un usuario específico.
+     *
+     * @param usuarioId el ID del usuario cuyos tickets se quieren consultar
+     * @return ResponseEntity con la lista de tickets del usuario
+     */
     @GetMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Ver mis tickets", description = "Permite a un usuario ver su historial de tickets de soporte")
@@ -64,7 +94,6 @@ public class TicketController {
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verMisTickets(
         @PathVariable Long usuarioId
     ){
-
         List<TicketResponseDto> lista = ticketService.obtenerPorUsuario(usuarioId);
 
         return ResponseEntity.ok(ApiResponseDto.<List<TicketResponseDto>>builder()
@@ -73,17 +102,22 @@ public class TicketController {
                 .datos(lista)
                 .build()
             );
-
     }
 
-    //Admin puede ver todos los tickets
+    /**
+     * Obtiene todos los tickets del sistema (solo administradores).
+     * <p>
+     * Endpoint exclusivo para usuarios con rol ADMIN para ver el panel de administración.
+     * </p>
+     *
+     * @return ResponseEntity con la lista de todos los tickets
+     */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Ver todos los tickets", description = "Permite al administrador ver todos los tickets de soporte")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Todos los tickets recuperados con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verTodos() {
-        
         List<TicketResponseDto> todos = ticketService.obtenerTodos();
 
         return ResponseEntity.ok(ApiResponseDto.<List<TicketResponseDto>>builder()
@@ -93,7 +127,16 @@ public class TicketController {
                 .build());
     }
 
-    //para que el admin resuelva el estado del ticket
+    /**
+     * Actualiza el estado de un ticket (solo administradores).
+     * <p>
+     * Permite al administrador cambiar el estado de un ticket (PENDIENTE, EN_PROCESO, RESUELTO, CERRADO).
+     * </p>
+     *
+     * @param id el ID del ticket a actualizar
+     * @param nuevoEstado el nuevo estado del ticket
+     * @return ResponseEntity con el ticket actualizado
+     */
     @PatchMapping("/{id}/estado")
     @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Resolver ticket", description = "Permite al administrador resolver un ticket de soporte")       
@@ -112,6 +155,5 @@ public class TicketController {
             .datos(actualizado)
             .build()
     );
-
     }
 }

@@ -9,24 +9,59 @@ import com.backend.dto.ActividadRequestDto;
 import com.backend.dto.ActividadResponseDto;
 
 /**
- * Mapper para la entidad Actividad.
- * unmappedTargetPolicy = IGNORE: Evita avisos si la Entidad tiene más campos que el DTO (como la lista de horarios).
- * componentModel = "spring": Permite inyectar este mapper en los Services usando @Autowired.
+ * Mapper de MapStruct para la entidad {@link Actividad}.
+ * <p>
+ * Convierte entre la entidad Actividad y sus DTOs de request/response.
+ * </p>
+ * <p>
+ * Configuración:
+ * <ul>
+ *   <li>componentModel = "spring": Permite inyección con @Autowired</li>
+ *   <li>unmappedTargetPolicy = IGNORE: Ignora campos no mapeados (como la lista de horarios)</li>
+ * </ul>
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
  */
 @Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface ActividadMapper {
 
-    // Para mostrar datos Entidad - ResponseDto
+    /**
+     * Convierte una entidad Actividad a DTO de respuesta.
+     *
+     * @param actividad la entidad a convertir
+     * @return el DTO de respuesta
+     */
     ActividadResponseDto toResponseDto(Actividad actividad);
 
+    /**
+     * Convierte una lista de entidades Actividad a lista de DTOs de respuesta.
+     *
+     * @param actividades la lista de entidades
+     * @return la lista de DTOs
+     */
     List<ActividadResponseDto> toResponseDtoList(List<Actividad> actividades);
 
-    // CREAR RequestDto - Entidad
+    /**
+     * Convierte un DTO de request a nueva entidad Actividad para crear.
+     * Ignora el ID y los horarios (se asignan en el servicio).
+     *
+     * @param dto el DTO con los datos de la nueva actividad
+     * @return la nueva entidad Actividad
+     */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "horarios", ignore = true)
-    Actividad toEntityCreate(ActividadRequestDto dto); //  el RequestDto
+    Actividad toEntityCreate(ActividadRequestDto dto);
 
-    // Para ACTUALIZAR RequestDto - Entidad existente
+    /**
+     * Actualiza una entidad Actividad existente con datos del DTO.
+     * Ignora el ID para preservar el identificador original.
+     *
+     * @param dto el DTO con los datos actualizados
+     * @param actividad la entidad a actualizar
+     */
     @Mapping(target = "id", ignore = true)
     void updateActividadFromDto(ActividadRequestDto dto, @MappingTarget Actividad actividad);
 }
