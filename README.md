@@ -38,6 +38,9 @@ Mvnrepository.com - MapStruct
 Nota : MapStruct es una biblioteca de mapeo de objetos que simplifica la copia de datos entre objetos de diferentes tipos. Lo utilizamos para mapear entre objetos de entidad y objetos de transferencia de datos (DTO).  
 ```
 
+`Logs con SLF4J y Logback ` - Sistema de logeo profesional con estas tecnologias.
+
+
  ## DOCUMENTACION API RESTFUL SWAGGER `: http://localhost:8080/swagger-ui/index.html `
 
 # /Comandos
