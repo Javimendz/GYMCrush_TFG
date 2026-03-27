@@ -87,7 +87,7 @@ public class ActividadRequestDto {
      */
     @NotBlank(message = "El lugar es obligatorio (ej: Sala A, Piscina, Exterior)")
     @Schema(description = "Lugar donde se realizará la actividad", example = "Sala A")
-    private String lugar;
+    private String sala;
 
     /**
      * Precio de la actividad en la moneda local.

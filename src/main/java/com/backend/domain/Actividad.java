@@ -70,8 +70,8 @@ public class Actividad {
      * Obligatorio y con longitud máxima de 50 caracteres.
      * </p>
      */
-    @Column(name = "lugar", nullable = false, length = 50)
-    private String lugar;
+    @Column(name = "sala", nullable = false, length = 50)
+    private String sala;
 
     /**
      * Precio de la actividad en la moneda local.
