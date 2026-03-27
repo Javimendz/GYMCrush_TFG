@@ -1,89 +1,87 @@
-## CONTROL DE ACCESO (QR DINÁMICO)
+Relaciones 
 
-Gestión de entradas y salidas mediante tokens temporales para control de aforo y seguridad.
+// USUARIO Y PERFIL
+Usuario 1 ─── 1 Perfil
 
----
+// ACTIVIDAD Y SALA
+Categoria 1 ──── N Actividad
+Actividad 1 ──── N Horario
+Sala      1 ──── N Horario
 
-### Registro de Salida (Escáner / Torno)
+//ACCESO 
+Usuario 1 ──── N Acceso 
 
-- **Método:** `POST`
-- **Endpoint:** `/api/v1/accesos/validar-salida`
-- **Descripción:** El dispositivo escáner envía el QR leído al finalizar el entrenamiento para cerrar la sesión activa del socio.
-- **Headers:**
-  - `Content-Type: application/json`
-  - `Authorization: Bearer <TOKEN_ADMIN_ESCÁNER>`
+// HORARIO Y RESERVAS
+Horario   1 ──── N Reserva
+Usuario   1 ──── N Reserva
 
-**Ejemplo de cuerpo (JSON):**
 
-```json
-{
-  "token": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbl9neW0iLCJ1c2VySWQiOjEsInB1cnBvc2UiOiJRUl9BQ0NFU1MiLCJpYXQiOjE3MTExMDU2MDAsImV4cCI6MTcxMTEwNTYzMH0..."
-}
-```
+// ROLES Y PERMISOS
+Usuario N ──── N Rol
 
----
+// SALUD Y ENTRENAMIENTO
+Usuario   1 ──── N Entrenamiento
+Usuario   1 ──── N Salud
+Entrenamiento 1 ──── N Rutina
+Usuario   1 ──── N Rutina
 
-### Consulta de Historial (Socio / Admin)
+// DIETA
+Usuario 1 ──── N SugerenciaDieta
+Dieta 1 ──── N SugerenciaDieta
 
-- **Método:** `GET`
-- **Endpoint:** `/api/v1/accesos/historial`
-- **Descripción:** Obtiene la lista cronológica de todas las sesiones de entrenamiento (entradas y salidas) del usuario autenticado.
-- **Headers:**
-  - `Authorization: Bearer <TOKEN_DE_SESIÓN_USUARIO>`
+// TUTORIAL
+CategoriaTutorial 1 ──── N Tutorial
+Tutorial  N ──── N Usuario  a través de  Visualizacion
 
-**Ejemplo de petición:**
+// CHAT 
+Usuario   1 ──── N Chat  
 
-`GET http://localhost:8080/api/v1/accesos/historial`
 
-**Ejemplo de respuesta (body):**
+// SOPORTE Y NOTIFICACIONES
+Usuario   1 ──── N Ticket
+Usuario   1 ──── N Notificacion
 
-```json
-{
-  "mensaje": "Historial recuperado",
-  "success": true,
-  "datos": [
-    {
-      "id": 10,
-      "username": "usuario_gym",
-      "fechaHoraEntrada": "2026-03-24T18:00:00",
-      "fechaHoraSalida": "2026-03-24T19:30:00",
-      "tipo": "SALIDA"
-    },
-    {
-      "id": 11,
-      "username": "usuario_gym",
-      "fechaHoraEntrada": "2026-03-25T10:15:00",
-      "fechaHoraSalida": null,
-      "tipo": "ENTRADA"
-    }
-  ]
-}
-```
 
----
 
-### Consulta de Aforo en Tiempo Real
+Modelo relacional 
+Tablas 
 
-- **Método:** `GET`
-- **Endpoint:** `/api/v1/accesos/aforo`
-- **Descripción:** Calcula y devuelve el número total de socios que se encuentran actualmente dentro de las instalaciones (sesiones sin marcar salida).
-- **Headers:**
-  - `Authorization: Bearer <TOKEN_DE_SESIÓN_USUARIO>`
+TRoles(id PK, name)
 
-**Ejemplo de petición:**
+TUsuarios_Roles(usuarioId FK, rolId FK)
 
-`GET http://localhost:8080/api/v1/accesos/aforo`
+TAccesos(id PK, fecha_hora_entrada, fecha_hora_salida, tipo, qr_token,usuarioId FK)
 
-**Ejemplo de respuesta (body):**
+TUsuarios(id PK, username, correo, password, qr_token,token_expira_en, fecha_registro, created_at, updated_at)
 
-```json
-{
-  "mensaje": "Aforo en tiempo real",
-  "success": true,
-  "datos": 42
-}
-```
+TPerfiles(id PK, nombre, apellidos, telefono, dni, fecha_nacimiento,genero, foto_url, bio, direccion, ciudad, pais, codigo_postal,usuarioId FK)
 
----
+TCategorias(id PK, nombre, descripcion)
 
-Si quieres, puedo añadir también las secciones detalladas para `generar-qr` y `validar-entrada` con ejemplos.
+TSalas(id PK, nombre, capacidad_max, descripcion,ubicacion, equipamiento, activa)
+
+THorarios(id PK, dia_semana, hora_inicio, hora_fin, aforo_max, salaId FK, actividadId FK)
+
+TActividades(id PK, nombre, tipo, duracion_min, intensidad, precio, categoriaId FK)
+
+TReservas(id PK, fecha_reserva, estado, confirmado, usuarioId FK, horarioId FK)
+
+TEntrenamientos(id PK, fecha, hora_inicio, duracion_min, intensidad, notas,usuarioId FK)
+
+TRutinas(id PK, fecha_asignacion, orden, completado,usuarioId FK ,entrenamientoId FK )
+
+TSalud(id PK, peso_kg, estatura_cm, nivel_actividad, comentario, fecha_medicion,usuarioId FK)
+
+TDietas(id PK, nombre, tipo_dieta, objetivo_calorico, proteinas_g, carbohidratos_g, grasas_g, categoria)
+
+TSugerenciasDieta(id PK, fecha_generacion, observaciones,usuarioId FK ,dietaId FK )
+
+TCategoriasTutorial(id PK, nombre, descripcion)
+
+TTutoriales(id PK, titulo, descripcion, url_video, duracion_min,categoriaId FK)
+
+TVisualizaciones(id PK, fecha_visualizacion, completado, progreso_segundos,usuarioId FK,tutorialId FK)
+
+TNotificaciones(id PK, titulo, mensaje, tipo, leido, fecha_hora_creacion, url_accion,usuarioId FK)
+
+TTickets(id PK, asunto, mensaje, estado, fecha_creacion, fecha_resolucion,usuarioId FK)

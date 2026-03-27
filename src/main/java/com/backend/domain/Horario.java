@@ -77,8 +77,6 @@ public class Horario {
      * Obligatorio y con longitud máxima de 20 caracteres.
      * </p>
      */
-    @Column(name = "sala", nullable = false, length = 20)
-    private String sala;
 
     /**
      * Actividad que se imparte en este horario.
@@ -88,6 +86,14 @@ public class Horario {
      * </p>
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="actividad_id", referencedColumnName = "id")
+    @JoinColumn(name = "actividad_id", referencedColumnName = "id")
     private Actividad actividad;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "entrenador_id")
+    private Usuario entrenador;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "sala_id")
+    private Sala sala;
 }

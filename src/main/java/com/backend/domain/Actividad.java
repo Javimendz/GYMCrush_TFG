@@ -92,4 +92,9 @@ public class Actividad {
     @OneToMany(mappedBy = "actividad", fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Horario> horarios;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private
+    Categoria categoria;
 }

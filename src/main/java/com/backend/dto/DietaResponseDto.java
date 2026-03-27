@@ -133,28 +133,16 @@ public class DietaResponseDto {
      * </ul>
      * </p>
      */
-    @Schema(description = "Cantidad total de calorias en la dieta", example = "300")
-    private Integer cantidadTotal;
+    @Schema(description = "Calorías totales objetivo", example = "2000")
+    private Integer objetivoCalorico;
     
-    /**
-     * Categoría de la dieta según preferencias o restricciones alimentarias.
-     * <p>
-     * Clasifica la dieta según el tipo de alimentación o restricciones
-     * que sigue, ayudando a los usuarios a encontrar planes compatibles
-     * con su estilo de vida o necesidades específicas.
-     * </p>
-     * 
-     * <p>
-     * <b>Categorías comunes:</b>
-     * <ul>
-     *   <li><b>Vegana</b>: Solo productos de origen vegetal</li>
-     *   <li><b>Vegetariana</b>: Sin carne, pero puede incluir lácteos y huevos</li>
-     *   <li><b>Keto</b>: Muy baja en carbohidratos, alta en grasas</li>
-     *   <li><b>Mediterránea</b>: Rica en grasas saludables y pescado</li>
-     *   <li><b>Omnívora</b>: Incluye todos los grupos de alimentos</li>
-     * </ul>
-     * </p>
-     */
-    @Schema(description = "Categoría de la dieta (vegana, vegetariana, etc.)", example = "Vegana")
-    private String categoria;
+   
+    
+    //Datos para la categoria
+   @Schema(description = "ID de la categoría")
+    private Long categoriaDietaId;
+    
+    @Schema(description = "Nombre de la categoría")
+    private String nombreCategoria;
+
 }

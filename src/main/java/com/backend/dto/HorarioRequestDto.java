@@ -132,9 +132,9 @@ public class HorarioRequestDto {
      * "Sala de Spinning", "Exterior", "Sala de Yoga".
      * </p>
      */
-    @NotBlank(message = "La sala es obligatoria")
-    @Schema(description = "Sala donde se impartirá el entrenamiento", example = "Sala 1")
-    private String sala;
+    @NotNull(message = "El ID de la sala es obligatorio")
+    @Schema(description = "ID de la sala física donde se impartirá la actividad", example = "1")
+    private Long salaId;
 
     /**
      * Identificador único de la actividad asociada a este horario.

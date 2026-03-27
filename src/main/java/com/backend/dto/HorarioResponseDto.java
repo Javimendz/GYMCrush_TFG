@@ -104,8 +104,8 @@ public class HorarioResponseDto {
      * Ejemplos: "Sala 1", "Piscina", "Exterior".
      * </p>
      */
-    @Schema(description = "Sala donde se impartirá el entrenamiento", example = "Sala 1")
-    private String sala;
+    @Schema(description = "Nombre de la sala", example = "Sala Zen")
+    private String nombreSala;
     
     // Campos "aplanados" de la relación con Actividad
     // Esto es vital para que el RecyclerView en Android muestre el nombre
@@ -138,4 +138,8 @@ public class HorarioResponseDto {
      */
     @Schema(description = "Nombre de la actividad asociada al horario", example = "Clase de Fútbol")
     private String nombreActividad;
+
+
+    @Schema(description = "ID de la sala física", example = "1")
+    private Long salaId;
 }

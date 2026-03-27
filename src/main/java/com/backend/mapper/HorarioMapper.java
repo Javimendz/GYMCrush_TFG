@@ -31,6 +31,8 @@ public interface HorarioMapper {
      */
     @Mapping(target = "actividadId", source = "actividad.id")
     @Mapping(target = "nombreActividad", source = "actividad.nombre")
+    @Mapping(target = "salaId", source = "sala.id")           
+    @Mapping(target = "nombreSala", source = "sala.nombre")
     HorarioResponseDto toResponseDto(Horario horario);
 
     /**
@@ -41,7 +43,8 @@ public interface HorarioMapper {
      * @return la nueva entidad Horario
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "actividad", ignore = true) // Importante: lo asignaremos en el Service
+    @Mapping(target = "actividad", ignore = true) 
+    @Mapping(target = "sala", ignore = true)
     Horario toEntity(HorarioRequestDto dto);
 
     /**

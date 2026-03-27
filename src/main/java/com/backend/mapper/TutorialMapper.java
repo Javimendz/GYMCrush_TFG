@@ -40,5 +40,6 @@ public interface TutorialMapper {
      */
     @Mapping(target = "categoria", ignore = true) // Se busca el objeto Categoria en el Service
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "visualizaciones", ignore = true)
     Tutorial toEntity(TutorialRequestDto dto);
 }

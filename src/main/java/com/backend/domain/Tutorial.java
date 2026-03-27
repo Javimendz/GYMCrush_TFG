@@ -1,5 +1,8 @@
 package com.backend.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -75,4 +78,9 @@ public class Tutorial {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
     private CategoriaTutorial categoria;
+
+    @OneToMany(mappedBy = "tutorial", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude // evitar bs infinitos
+    private List<Visualizacion> visualizaciones = new ArrayList<>();
 }

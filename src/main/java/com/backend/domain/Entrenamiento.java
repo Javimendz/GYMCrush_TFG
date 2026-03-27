@@ -3,6 +3,10 @@ package com.backend.domain;
 
 //Imports
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
 
@@ -51,7 +55,7 @@ public class Entrenamiento {
      * </p>
      */
     @Column(name = "hora", nullable = true)
-    private LocalDateTime hora;
+    private LocalTime hora;
 
     /**
      * Duración total de la sesión de entrenamiento.
@@ -60,7 +64,7 @@ public class Entrenamiento {
      * </p>
      */
     @Column(name = "duracion", nullable = true)
-    private LocalDateTime duracion;
+    private Integer duracion;
 
     /**
      * Nivel de intensidad del entrenamiento.
@@ -79,8 +83,13 @@ public class Entrenamiento {
      * </p>
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false, unique = true)
+    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
     private Usuario usuario;
 
+
+    @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    private List<Rutina> rutinas = new ArrayList<>();
 }

@@ -1,6 +1,8 @@
 package com.backend.dto;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -16,10 +18,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Confirmación de reservas de entrenamiento</li>
- *   <li>Historial de sesiones completadas</li>
- *   <li>Planificación de futuras sesiones</li>
- *   <li>Seguimiento del progreso deportivo</li>
+ * <li>Confirmación de reservas de entrenamiento</li>
+ * <li>Historial de sesiones completadas</li>
+ * <li>Planificación de futuras sesiones</li>
+ * <li>Seguimiento del progreso deportivo</li>
  * </ul>
  * </p>
  * 
@@ -37,7 +39,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Data // Genera automáticamente getters, setters, toString, equals y hashCode
 @Schema(description = "DTO para la respuesta de entrenamiento")
 public class EntrenamientoResponseDto {
-    
+
     /**
      * Identificador único del entrenamiento en la base de datos.
      * <p>
@@ -48,7 +50,7 @@ public class EntrenamientoResponseDto {
      */
     @Schema(description = "ID único del entrenamiento", example = "1")
     private Long id;
-    
+
     /**
      * Fecha en que está programado el entrenamiento.
      * <p>
@@ -64,7 +66,7 @@ public class EntrenamientoResponseDto {
      */
     @Schema(description = "Fecha del entrenamiento", example = "2023-12-31")
     private LocalDateTime fecha;
-    
+
     /**
      * Hora de inicio del entrenamiento.
      * <p>
@@ -79,8 +81,8 @@ public class EntrenamientoResponseDto {
      * </p>
      */
     @Schema(description = "Hora del entrenamiento", example = "18:00")
-    private LocalDateTime hora;
-    
+    private LocalTime hora;
+
     /**
      * Duración estimada del entrenamiento.
      * <p>
@@ -94,9 +96,9 @@ public class EntrenamientoResponseDto {
      * <b>Ejemplo:</b> 1970-01-01T01:00:00 (representa 60 minutos)
      * </p>
      */
-    @Schema(description = "Duración del entrenamiento", example = "60 minutos")
-    private LocalDateTime duracion;
-    
+    @Schema(description = "Duración del entrenamiento", example = "60")
+    private Integer duracion;
+
     /**
      * Nivel de intensidad del entrenamiento.
      * <p>
@@ -108,12 +110,17 @@ public class EntrenamientoResponseDto {
      * <p>
      * <b>Niveles disponibles:</b>
      * <ul>
-     *   <li><b>Baja</b>: Ideal para principiantes o días de recuperación</li>
-     *   <li><b>Media</b>: Nivel intermedio para mantenimiento general</li>
-     *   <li><b>Alta</b>: Para usuarios avanzados y mejora de rendimiento</li>
+     * <li><b>Baja</b>: Ideal para principiantes o días de recuperación</li>
+     * <li><b>Media</b>: Nivel intermedio para mantenimiento general</li>
+     * <li><b>Alta</b>: Para usuarios avanzados y mejora de rendimiento</li>
      * </ul>
      * </p>
      */
     @Schema(description = "Intensidad del entrenamiento (baja, media, alta)", example = "Media")
     private String intensidad;
+
+    private String nombreUsuario;
+    @Schema(description = "Número de ejercicios en esta sesión")
+    private Integer cantidadEjercicios;
+    private Long usuarioId;
 }

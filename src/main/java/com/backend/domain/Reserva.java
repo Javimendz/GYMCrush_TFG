@@ -91,4 +91,6 @@ public class Reserva {
             this.estado = EnumEstado.CONFIRMADA;
         }
     }
+    @Column(name = "confirmado")
+    private Boolean confirmado;
 }
