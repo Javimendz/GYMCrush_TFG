@@ -12,9 +12,12 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.crypto.SecretKey; // Importar SecretKey para el cast en verifyWith
 //Clase para generar tokens JWT
 
@@ -35,11 +38,18 @@ public class JwtGenerator {
 
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
+        
+        // Extraer los roles del usuario autenticado
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + jwtExpiration);
 
         return Jwts.builder()
                 .subject(username)
+                .claim("roles", roles) // Agregar los roles al token
                 .issuedAt(currentDate)
                 .expiration(expireDate)
                 .signWith(getSigningKey(), Jwts.SIG.HS512)
@@ -54,6 +64,17 @@ public class JwtGenerator {
                 .parseSignedClaims(token)
                 .getPayload();
         return claims.getSubject();
+    }
+
+    // Método para obtener los roles del token JWT
+    @SuppressWarnings("unchecked")
+    public List<String> getRoleFromJwt(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("roles", List.class);
     }
 
     // Método actualizado para validar el token

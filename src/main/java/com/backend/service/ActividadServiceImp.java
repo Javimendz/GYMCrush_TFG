@@ -6,12 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import com.backend.domain.Actividad;
+import com.backend.dto.ActividadRequestDto;
 import com.backend.dto.ActividadResponseDto;
 import com.backend.mapper.ActividadMapper;
 import com.backend.repository.ActividadRepository;
+import com.backend.exceptions.ResourceNotFoundException;
 
 @Service
-@RequiredArgsConstructor // Importante: Esto inyecta automáticamente el Repo y el Mapper
+@RequiredArgsConstructor 
 public class ActividadServiceImp implements IActividadService {
 
     private final ActividadRepository actividadRepository;
@@ -20,33 +22,35 @@ public class ActividadServiceImp implements IActividadService {
     @Override
     @Transactional(readOnly = true)
     public List<ActividadResponseDto> listarTodos() {
-        List<Actividad> actividades = actividadRepository.findAll();
-        return actividadMapper.toResponseDtoList(actividades);
+
+        return actividadMapper.toResponseDtoList(actividadRepository.findAll());
     }
 
     @Override
     @Transactional(readOnly = true)
     public ActividadResponseDto buscarPorId(Long id) {
         Actividad actividad = actividadRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada con ID: " + id));
         return actividadMapper.toResponseDto(actividad);
     }
 
     @Override
     @Transactional
-    public ActividadResponseDto crear(ActividadResponseDto dto) {
-        // Usamos toEntityCreate para que el ID sea autogenerado por la DB
+    public ActividadResponseDto crear(ActividadRequestDto dto) {
+
         Actividad nueva = actividadMapper.toEntityCreate(dto);
-        return actividadMapper.toResponseDto(actividadRepository.save(nueva));
+        Actividad guardada = actividadRepository.save(nueva);
+        
+        return actividadMapper.toResponseDto(guardada);
     }
 
     @Override
     @Transactional
-    public ActividadResponseDto actualizar(Long id, ActividadResponseDto dto) {
+    public ActividadResponseDto actualizar(Long id, ActividadRequestDto dto) {
+
         Actividad existente = actividadRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ID no encontrado para actualizar"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: la actividad con ID " + id + " no existe"));
         
-        // El mapper actualiza los campos de la entidad 'existente' con los del DTO
         actividadMapper.updateActividadFromDto(dto, existente);
         
         return actividadMapper.toResponseDto(actividadRepository.save(existente));
@@ -56,12 +60,12 @@ public class ActividadServiceImp implements IActividadService {
     @Transactional
     public void eliminar(Long id) {
         if (!actividadRepository.existsById(id)) {
-            throw new RuntimeException("No existe la actividad con ese ID");
+            throw new ResourceNotFoundException("Error al eliminar: ID " + id + " no encontrado");
         }
         actividadRepository.deleteById(id);
     }
 
-    // --- MÉTODOS DE FILTRO SEGÚN TU REPOSITORY ---
+    
 
     @Override
     @Transactional(readOnly = true)
@@ -80,8 +84,10 @@ public class ActividadServiceImp implements IActividadService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ActividadResponseDto> filtrarPorPrecioMaximo(Integer precio) {
-        List<Actividad> actividades = actividadRepository.findByPrecioLessThanEqual(precio);
-        return actividadMapper.toResponseDtoList(actividades);
+        return actividadMapper.toResponseDtoList(
+            actividadRepository.findByPrecioLessThanEqual(precio)
+        );
     }
 }

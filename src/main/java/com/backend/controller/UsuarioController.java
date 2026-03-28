@@ -69,7 +69,7 @@ public class UsuarioController {
                     .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_USUARIO no encontrado en la DB"));
             rolesReales.add(defaultRole);
         }
-        usuarioToSave.setRol(rolesReales);
+        usuarioToSave.setRoles(rolesReales);
         usuarioToSave.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
 
         Perfil perfil = usuarioToSave.getPerfil();
@@ -114,7 +114,7 @@ public class UsuarioController {
                 rolesReales.add(roleBd);
             }
             // Sustituimos los roles del mapper por los reales con ID
-            updatedUsuario.setRol(rolesReales);
+            updatedUsuario.setRoles(rolesReales);
         }
 
         if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isEmpty()) {

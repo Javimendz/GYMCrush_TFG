@@ -1,0 +1,435 @@
+{
+  "info": {
+    "_postman_id": "a8923096-489c-4ec5-8182-84e90e631477",
+    "name": "TFG",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49427845",
+    "_collection_link": "https://go.postman.co/collection/49427845-a8923096-489c-4ec5-8182-84e90e631477?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Usuario",
+      "item": [
+        {
+          "name": "crear",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTVUFSSU8iLCJGQUNUT1JfUEFTU1dPUkQiXSwiaWF0IjoxNzczNjUwMTgyLCJleHAiOjE3NzM2NTA3ODJ9.7OMWkd2sOu2IF-NSAROBC2GpknYBbZJAwy9vpZ0JtXI_xLdEd7UXZ0TwqoZTCkwOpSmeSiLK9iidHnqIDJa08g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"antonio_fit\",\r\n  \"password\": \"Password123!\",\r\n  \"correo\": \"antonio.gym@example.com\",\r\n  \"nombre\": \"Antonio\",\r\n  \"apellidos\": \"García Pérez\",\r\n  \"dni\": \"12345678Z\",\r\n  \"telefono\": \"611223344\",\r\n  \"direccion\": \"Avenida de la Constitución 15\",\r\n  \"ciudad\": \"Madrid\",\r\n  \"pais\": \"España\",\r\n  \"codigoPostal\": \"28001\",\r\n  \"fechaNacimiento\": \"1992-08-24\",\r\n  \"genero\": \"HOMBRE\",\r\n  \"bio\": \"Entusiasta del fitness y el levantamiento de pesas. Mi meta es mejorar mi fuerza y resistencia.\",\r\n  \"rol\": [\"ROLE_USUARIO\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuario/crear",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "usuario",
+                "crear"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete usuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTVUFSSU8iLCJGQUNUT1JfUEFTU1dPUkQiXSwiaWF0IjoxNzczNjU1MTQ2LCJleHAiOjE3NzM2NTU3NDZ9.tw8EtWICeeQxjn00zr2CArUbrFpPQhlYz4yHKzgk1q7eniKiTOzIW5AwMPUnVHOtnsb4TgXrq19hYCjUpk_i4Q",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuario/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "usuario",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJBTnRvbmlvcyIsInJvbGVzIjpbIlJPTEVfVVNVQVJJTyIsIkZBQ1RPUl9QQVNTV09SRCJdLCJpYXQiOjE3NzMyNDQ4ODgsImV4cCI6MTc3MzI0NTQ4OH0.sAnVUmVQS1TfZhHf8yZA4rjxw8PbruP-efbIKfarowvdN1Zct5Kw9gU-nrwu6n7OPU3-8aCUGsYfhJ7yhW7hPg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"tesddddt\",\r\n  \"password\": \"12345678\", \r\n  \"correo\": \"testddd@test.com\",\r\n  \"nombre\": \"Test\",\r\n  \"apellidos\": \"User\",\r\n  \"ciudad\": \"Madrid\",\r\n  \"pais\": \"España\",\r\n    \"codigoPostal\": \"28001\",\r\n\r\n  \"rol\": [\"ROLE_USUARIO\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuario/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "usuario",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "listar",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nombre\": \"Juan\",\r\n    \"apellidos\": \"Pérez García\",\r\n    \"correo\": \"juan.perez@email.com\",\r\n    \"telefono\": \"600123456\",\r\n    \"password\": \"miPasswordSegura123\",\r\n    \"direccion\": \"Calle Falsa 123\",\r\n    \"ciudad\": \"Madrid\",\r\n    \"pais\": \"España\",\r\n    \"codigoPostal\": \"28001\",\r\n    \"rol\": \"USUARIO\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/usuario",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "usuario"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Login/Registrar",
+      "item": [
+        {
+          "name": "login",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "password",
+                  "value": "admin123",
+                  "type": "string"
+                },
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin1234\"\r\n   // \"username\": \"ANtonios\",\r\n    //\"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "registrar",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc3MzE1NzkwMiwiZXhwIjoxNzczMTU4NTAyfQ.frduUTOV2xvAef06YLStTpLGae6hn1NKsO-ZqcmwV6rbF4LebRI9a5tWd_zPEEhI9lQWORp5ZIQuKgNsTTPqww",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"juan_perezyyy\",\r\n    \"password\": \"password123\",\r\n    \"nombre\": \"Juanico\",\r\n    \"apellidos\": \"Pérezdd\",\r\n    \"ciudad\": \"Madrid\",\r\n    \"correo\": \"juan.pereddz@example.com\",\r\n    \"roles\": [\"USUARIO\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Perfil",
+      "item": [
+        {
+          "name": "listar perfil",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTVUFSSU8iLCJGQUNUT1JfUEFTU1dPUkQiXSwiaWF0IjoxNzczNjcyMzU4LCJleHAiOjE3NzM2NzI5NTh9.0l7FVS7xt7c0JKTdyUPNACqmeWdW9_6wh4qgT0FIjdfVh3X-Y2961GzBIb9bfT0TepdtTO_Jh3LynMDbRHJ4lQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/perfil",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "perfil"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list perfil por id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTVUFSSU8iLCJGQUNUT1JfUEFTU1dPUkQiXSwiaWF0IjoxNzczNjcyNTU4LCJleHAiOjE3NzM2NzMxNTh9.z7teHEiANVkNz9PfBud7oYv6Ls5qyJpnCt2uOD1YKxPKWd-MOWFa5LvRwp2zkELUD3O4nuMm-_d_0DT6Pv3r-A",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/perfil/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "perfil",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar perfil",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTVUFSSU8iLCJGQUNUT1JfUEFTU1dPUkQiXSwiaWF0IjoxNzczNjc2MDI0LCJleHAiOjE3NzM2NzY2MjR9.eBekGSz1hnzDXmr0NjlyVeBlQRo8jvLFW3w1ctAPV6poMFjgqtSrz4hDPALOMcl-37TqCeqB1Dge-GXveLHUNA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"antonio_fit3333\",\r\n  \"password\": \"Password123!\",\r\n  \"correo\": \"antonio.gym@example.com\",\r\n  \"nombre\": \"Antonio333\",\r\n  \"apellidos\": \"García Pérez\",\r\n  \"dni\": \"12345678Z\",\r\n  \"telefono\": \"611223344\",\r\n  \"direccion\": \"Avenida de la Constitución 15\",\r\n  \"ciudad\": \"Madrid\",\r\n  \"pais\": \"España\",\r\n  \"codigoPostal\": \"28001\",\r\n  \"fechaNacimiento\": \"1992-08-24\",\r\n  \"genero\": \"Hombre\",\r\n  \"bio\": \"Entusiasta del fitness y el levantamiento de pesas. Mi meta es mejorar mi fuerza y resistencia.\",\r\n  \"rol\": [\"ROLE_USUARIO\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/perfil/12",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "perfil",
+                "12"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Salud",
+      "item": [
+        {
+          "name": "crear salud",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iLCJST0xFX1VTVUFSSU8iLCJGQUNUT1JfUEFTU1dPUkQiXSwiaWF0IjoxNzczNjc2MDI0LCJleHAiOjE3NzM2NzY2MjR9.eBekGSz1hnzDXmr0NjlyVeBlQRo8jvLFW3w1ctAPV6poMFjgqtSrz4hDPALOMcl-37TqCeqB1Dge-GXveLHUNA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"peso\": 82.5,\r\n  \"estatura\": 1.80,\r\n  \"nivelActividad\": \"ACTIVO\",\r\n  \"comentario\": \"esto es un comentario de salud\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/salud/usuario/7",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "salud",
+                "usuario",
+                "7"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get progresoActual",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "obtener Historial",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "delete salud",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

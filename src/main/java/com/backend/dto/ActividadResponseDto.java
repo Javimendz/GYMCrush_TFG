@@ -1,9 +1,10 @@
 package com.backend.dto;
 
-import lombok.*;
+import lombok.Data;
 
 @Data
 public class ActividadResponseDto {
+    
     private Long id;
 
     private String nombre;
@@ -15,5 +16,5 @@ public class ActividadResponseDto {
     private String lugar;
 
     private Integer precio;
-
+    
 }

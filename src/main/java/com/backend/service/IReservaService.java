@@ -1,11 +1,13 @@
 package com.backend.service;
 
-import com.backend.dto.ReservaResponseDto;
 import java.util.List;
 
-public interface IReservaService {
-    // 1. Crear (Valida aforo y duplicados)
-    ReservaResponseDto crearReserva(Long usuarioId, Long horarioId);//En pantalla Actividades boton reservar
+import com.backend.dto.ReservaResponseDto;
+
+public interface IReservaService  {
+    
+
+     ReservaResponseDto crearReserva(Long usuarioId, Long horarioId);//En pantalla Actividades boton reservar
     
     // 2. Listar (Usa el filtro de "EstadoNot" para no ver canceladas)
     List<ReservaResponseDto> obtenerReservasUsuario(Long usuarioId);
@@ -18,5 +20,4 @@ public interface IReservaService {
 
     // 5. LO QUE FALTA: Confirmar Asistencia (El "Check-in" del QR)
     void confirmarAsistencia(Long reservaId);
-    
 }

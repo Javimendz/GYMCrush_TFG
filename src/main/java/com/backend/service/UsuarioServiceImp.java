@@ -1,11 +1,13 @@
 //Paquete
 package com.backend.service;
+
+import java.time.LocalDateTime;
 //Imports
 import java.util.List;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioRequestDto;
 import com.backend.exceptions.ResourceNotFoundException;
@@ -22,6 +24,7 @@ public class UsuarioServiceImp implements IUsuarioService {
     // Eliminamos el uso de Autowired al usar lombok
     private final UsuarioRepository usuarioRepo;
     private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Usuario save(Usuario usuario) {
@@ -29,13 +32,11 @@ public class UsuarioServiceImp implements IUsuarioService {
         return usuarioRepo.save(usuario);
     }
 
-
     // Logica para el QR de acceso
     @Override
     public Usuario generarTokenAcceso(Long id) {
         Usuario usuario = usuarioRepo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
         usuario.setQrToken(java.util.UUID.randomUUID().toString());
         usuario.setTokenExpiraEn(java.time.LocalDateTime.now().plusSeconds(30));
 
@@ -55,10 +56,17 @@ public class UsuarioServiceImp implements IUsuarioService {
 
     @Override
     public void deleteById(Long id) {
+        Usuario usuario = this.findById(id);
+        usuarioRepo.delete(usuario);
+    }
 
-        Usuario usuarioToDelete = this.findById(id);
-        usuarioRepo.delete(usuarioToDelete);
-
+    public boolean validarTokenQR(String token, Long userId) {
+        Usuario usuario = findById(userId);
+        if (usuario.getQrToken() == null || usuario.getTokenExpiraEn() == null) {
+            return false; // No hay token generado
+        }
+        return token.equals(usuario.getQrToken()) &&
+                LocalDateTime.now().isBefore(usuario.getTokenExpiraEn());
     }
 
     @Override
@@ -66,9 +74,11 @@ public class UsuarioServiceImp implements IUsuarioService {
 
         Usuario existente = this.findById(id);
 
-        // Mapeamos los cambios del DTO al objeto
-        usuarioMapper.updateUsuarioFromDto(usuarioRequestDto, existente);
+        if (usuarioRequestDto.getPassword() != null && !usuarioRequestDto.getPassword().isEmpty()) {
+            existente.setPassword(passwordEncoder.encode(usuarioRequestDto.getPassword()));
+        } // Mapeamos los cambios del DTO al objeto
 
+        usuarioMapper.updateUsuarioFromDto(usuarioRequestDto, existente);
         // Guardamos los cambios
         usuarioRepo.save(existente);
     }

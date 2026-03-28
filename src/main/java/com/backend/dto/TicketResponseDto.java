@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import lombok.*;
 
 @Data
+@Builder
 public class TicketResponseDto {
 
     private Long id;
@@ -16,7 +17,11 @@ public class TicketResponseDto {
     private String estado;
 
     private LocalDateTime fechaResolucion;
-
-    private LocalDateTime fechaCreacion; 
+    
+    private LocalDateTime fechaCreacion;
+    private String username;
+    private Long usuarioId;
+    private String usuarioEmail;
+    private String nombreCompletoUsuario;
 
 }

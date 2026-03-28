@@ -41,23 +41,9 @@ public class Reserva {
 
     @PrePersist
     protected void onCreate() {
-        // Al pulsar el botón, la reserva nace siempre como 'CONFIRMADA'
-        // Esto evita que el frontend tenga que gestionar estados iniciales.
         if (this.estado == null) {
+            // Asumiendo que PENDIENTE o CONFIRMADA es un valor de tu EnumEstado
             this.estado = EnumEstado.CONFIRMADA; 
-        }
-
-        // Se captura el momento exacto del "clic" para la auditoría del gimnasio.
-        if (this.fecha == null) {
-            this.fecha = LocalDate.now();
-        }
-
-        // MUY IMPORTANTE: Aunque el botón diga "Confirmar Reserva", 
-        // el booleano 'confirmado' sigue en false. 
-        // Esto indica que la reserva es válida pero el socio aún no ha 
-        // pasado por el torno o escaneado el QR de acceso.
-        if(this.confirmado == null){
-            this.confirmado = false;
         }
     }
 }

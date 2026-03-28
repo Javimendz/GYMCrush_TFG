@@ -7,15 +7,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "usuarios")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Usuario {
 
     @Id
@@ -25,11 +29,11 @@ public class Usuario {
     @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "nombre", nullable = false) 
-    private String nombre;
+    //@Column(name = "nombre", nullable = false)
+    //private String nombre;
 
-    @Column(name = "apellido", nullable = false) 
-    private String apellidos;
+    //@Column(name = "apellidos", nullable = false)
+    //private String apellidos;
 
     @Column(name = "correo", unique = true, nullable = false, length = 150)
     private String correo;
@@ -37,28 +41,24 @@ public class Usuario {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-
     @Column(name = "telefono", length = 20)
     private String telefono;
 
-    @Column(name = "direccion", length = 255)
-    private String direccion;
+    //@Column(name = "direccion", length = 255)
+    //private String direccion;
 
-    @Column(name = "ciudad", length = 100)
-    private String ciudad;
+    //@Column(name = "ciudad", length = 100)
+    //private String ciudad;
 
-    @Column(name = "pais", length = 100)
-    private String pais;
+    //@Column(name = "pais", length = 100)
+    //private String pais;
 
-    @Column(name = "codigo_postal", length = 20)
-    private String codigoPostal;
-    
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(  //Creamos una relacion N:M y creamos la tabla intermedia de la relacion con JoinTable
-        name="users_roles",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name= "role_id", referencedColumnName = "id") 
-    )
+    //@Column(name = "codigo_postal", length = 20)
+    //private String codigoPostal;
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Role> roles = new HashSet<>();
 
     @Column(name = "qr_token", length = 255)
@@ -76,10 +76,13 @@ public class Usuario {
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude // Para evitar bucle infinito con Lombok
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // Cambiamos a EAGER para el Login
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ToString.Exclude// Para evitar bucle infinito con Lombok
     private Perfil perfil; // Relación 1:1 con Perfil
 
+
+    
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Reserva> reservas; // Un usuario realiza N reservas
 
@@ -109,4 +112,15 @@ public class Usuario {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void addRole(Role role) {
+        this.roles.add(role);
+        role.getUsuarios().add(this);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+        role.getUsuarios().remove(this);
+    }
+
+   
 }

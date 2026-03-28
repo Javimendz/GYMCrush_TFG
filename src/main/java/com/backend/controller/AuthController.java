@@ -59,7 +59,7 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado"));
 
         String nombreAMostrar = (usuario.getPerfil() != null) ? usuario.getPerfil().getNombre() : usuario.getUsername();
-        List<String> roles = usuario.getRol().stream().map(r -> r.getName()).toList();
+        List<String> roles = usuario.getRoles().stream().map(r -> r.getName()).toList();
 
         JwtAuthResponseDto data = JwtAuthResponseDto.builder()
                 .id(usuario.getId())
@@ -105,5 +105,3 @@ public ResponseEntity<?> registerUser(@RequestBody RegisterDto registerDto) {
     return new ResponseEntity<>(response, HttpStatus.CREATED);
 }
 }
-    
-

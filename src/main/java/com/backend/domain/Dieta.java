@@ -14,8 +14,8 @@ import lombok.*; //Importo todos los paquetes
 @NoArgsConstructor
 @Builder
 public class Dieta {
-
-    @Id
+    
+   @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -34,7 +34,7 @@ public class Dieta {
     @Column(name = "cantidad_g", nullable = true)
     private Integer cantidadGrasas; 
 
-    @Column(name = "candidad", nullable = true)
+    @Column(name = "cantidad", nullable = true)
     private Integer cantidadTotal;
 
     @Column(name = "categoria", length = 100, nullable = true)

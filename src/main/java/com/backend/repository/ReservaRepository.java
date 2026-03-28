@@ -1,17 +1,17 @@
+//Paquete de repositorio
 package com.backend.repository;
-
-import com.backend.domain.Reserva;
-import com.backend.domain.enums.EnumEstado;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
+//Imports
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import com.backend.domain.Reserva;
+import com.backend.domain.enums.EnumEstado;
+//Interfaz de repositorio para la entidad Reserva
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
-    // Listar reservas de un alumno específico
-    List<Reserva> findByUsuarioId(Long usuarioId);
+     List<Reserva> findByUsuarioId(Long usuarioId);
     // Listar reservas de un usuario que no estén canceladas
     List<Reserva> findByUsuarioIdAndEstadoNot (Long usuarioId, EnumEstado estado);
     
@@ -24,5 +24,4 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     
     // Evitar que el mismo usuario reserve la misma clase dos veces el mismo día
     boolean existsByUsuarioIdAndHorarioIdAndFecha(Long usuarioId, Long horarioId, LocalDate fecha);
-    
 }
