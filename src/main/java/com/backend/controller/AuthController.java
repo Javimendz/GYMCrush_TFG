@@ -3,7 +3,6 @@ package com.backend.controller;
 
 import java.util.List;
 
-//Imports
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,41 +25,74 @@ import com.backend.security.jwt.JwtGenerator;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-//Clase para manejar la autenticacion de usuarios
-@RestController // Controlador para manejar las peticiones de autenticacion
-@RequiredArgsConstructor // Inyeccion de dependencias
-@RequestMapping("/api/v1/auth") // Ruta base para las peticiones de autenticacion
+/**
+ * Controlador REST para gestionar la autenticación de usuarios.
+ * <p>
+ * Este controlador proporciona endpoints para:
+ * <ul>
+ *   <li>Inicio de sesión de usuarios existentes</li>
+ *   <li>Registro de nuevos usuarios</li>
+ * </ul>
+ * Maneja la generación de tokens JWT para la autenticación segura.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
+@RestController
+@RequiredArgsConstructor
+@Slf4j
+@RequestMapping("/api/v1/auth")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Auth", description = "Operaciones relacionadas con la autenticacion de usuarios")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager; // Administrador de autenticacion
-    private final JwtGenerator jwtGenerator; // Generador de tokens JWT
-    private final UsuarioRepository usuarioRepository; // Repositorio de usuarios
-    private final PasswordEncoder passwordEncoder; // Codificador de contraseñas
+    private final AuthenticationManager authenticationManager;
+    private final JwtGenerator jwtGenerator;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
 
+    /**
+     * Autentica un usuario y genera un token JWT.
+     * <p>
+     * Valida las credenciales del usuario y, si son correctas, genera un token JWT
+     * que debe ser usado en las peticiones subsiguientes para autenticación.
+     * </p>
+     *
+     * @param loginDto las credenciales de inicio de sesión (username y password)
+     * @return ResponseEntity con el token JWT y datos del usuario autenticado
+     */
    @PostMapping("/login")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Iniciar sesión", description = "Autentica al usuario y devuelve un token JWT")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Inicio de sesión exitoso")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Credenciales inválidas")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para iniciar sesión") 
     public ResponseEntity<ApiResponseDto<JwtAuthResponseDto>> login(@Valid @RequestBody LoginDto loginDto) {
-        // 1. Autenticar credenciales
+        log.info("Intento de inicio de sesión para el usuario: {}", loginDto.getUsername());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.info("Inicio de sesión exitoso para el usuario: {}", loginDto.getUsername());
         
-        // 2. Generar JWT
         String jwt = jwtGenerator.generateToken(authentication);
-
-        // 3. Obtener datos extra del usuario para la App
+        log.debug("Token JWT generado para el usuario: {}", loginDto.getUsername());
+        
         Usuario usuario = usuarioRepository.findByUsername(loginDto.getUsername())
                 .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado"));
-
         String nombreAMostrar = (usuario.getPerfil() != null) ? usuario.getPerfil().getNombre() : usuario.getUsername();
-        List<String> roles = usuario.getRoles().stream().map(r -> r.getName()).toList();
-
+        log.debug("Usuario autenticado: {} - Perfil: {}", usuario.getUsername(), nombreAMostrar);
+        
+        List<String> roles = usuario.getRol().stream().map(r -> r.getName()).toList();
+        
         JwtAuthResponseDto data = JwtAuthResponseDto.builder()
                 .id(usuario.getId())
                 .username(usuario.getUsername())
@@ -69,7 +101,7 @@ public class AuthController {
                 .accessToken(jwt)
                 .tokenType("Bearer")
                 .build();
-
+        log.info("Login exitoso - Usuario: {} con roles: {}", usuario.getUsername(), roles);
         return ResponseEntity.ok(ApiResponseDto.<JwtAuthResponseDto>builder()
                 .mensaje("¡Bienvenido de nuevo!")
                 .datos(data)
@@ -77,30 +109,45 @@ public class AuthController {
                 .build());
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     * <p>
+     * Crea una cuenta de usuario con el nombre de usuario y contraseña proporcionados.
+     * Si el nombre de usuario ya existe, retorna un error 400.
+     * Crea automáticamente un perfil básico para el usuario.
+     * </p>
+     *
+     * @param registerDto los datos de registro del nuevo usuario
+     * @return ResponseEntity con los datos del usuario creado o mensaje de error
+     */
     @PostMapping("/register")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Registro de usuario", description = "Registra un nuevo usuario en el sistema")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario registrado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Nombre de usuario ya existe")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para registrarse") 
 public ResponseEntity<?> registerUser(@RequestBody RegisterDto registerDto) {
+        log.info("Intento de registro de usuario: {}", registerDto.getUsername());
     if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
+        log.warn("Registro fallido - Username ya existe: {}", registerDto.getUsername());
         return new ResponseEntity<>("Nombre de usuario ya existe", HttpStatus.BAD_REQUEST);
     }
-
-    // Mapeamos el DTO a la Entidad
+    
     Usuario user = usuarioMapper.registerDtoToUser(registerDto);
     user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-    //  Vinculamos el perfil antes de guardar
     if (user.getPerfil() != null) {
         user.getPerfil().setUsuario(user);
     } else {
-        
         Perfil nuevoPerfil = new Perfil();
         nuevoPerfil.setNombre(user.getUsername());
         nuevoPerfil.setUsuario(user);
         user.setPerfil(nuevoPerfil);
     }
-
-    // Guardamos solo una vez. El Cascade guarda el perfil automáticamente.
+    
     Usuario savedUser = usuarioRepository.save(user);
-
+    log.info("Usuario registrado exitosamente: {} con ID: {}", savedUser.getUsername(), savedUser.getId());
+    
     UsuarioResponseDto response = usuarioMapper.toUsuarioResponseDto(savedUser);
     return new ResponseEntity<>(response, HttpStatus.CREATED);
 }

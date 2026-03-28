@@ -1,53 +1,113 @@
-//Paquete
 package com.backend.domain;
 
 //Imports
 import java.time.LocalDateTime;
-import jakarta.persistence.*; // Para usar JPA, importamos todo el paquete
-import lombok.*; // Para usar Lombok, importamos todo el paquete
 
-@Entity // Indica que esta clase es una entidad JPA
-@Table(name = "salud") // Nombre de la tabla en la base de datos
-@Data // Lombok para generar getters, setters, toString, equals, y hashCode
-@AllArgsConstructor // Lombok para generar un constructor con todos los argumentos
-@NoArgsConstructor // Lombok para generar un constructor sin argumentos
-@Builder // Lombok para generar un constructor con argumentos usando el patrón Builder
+import jakarta.persistence.*;
+import lombok.*;
+
+/**
+ * Entidad que representa los datos de salud y progreso físico de un usuario.
+ * <p>
+ * Almacena métricas corporales, IMC calculado y seguimiento
+ * del progreso físico con timestamps automáticos.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
+@Entity
+@Table(name = "salud")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Salud {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "peso", nullable = false )
+    /**
+     * Peso del usuario en kilogramos.
+     * <p>
+     * Obligatorio, para cálculo de IMC y seguimiento.
+     * </p>
+     */
+    @Column(name = "peso", nullable = false)
     private Double peso;
 
-    @Column(name = "estatura", nullable = false )
+    /**
+     * Estatura del usuario en metros.
+     * <p>
+     * Obligatorio, para cálculo de IMC.
+     * </p>
+     */
+    @Column(name = "estatura", nullable = false)
     private Double estatura;
 
+    /**
+     * Nivel de actividad física del usuario.
+     * <p>
+     * Obligatorio, clasifica el estado físico (ej: sedentario, activo, atleta).
+     * </p>
+     */
     @Column(name = "nivel_actividad", length = 50)
     private String nivelActividad;
 
-    @Column(name = "comentario", columnDefinition = "TEXT") // Nota detallada extendida
+    /**
+     * Comentarios o notas adicionales sobre la medición.
+     * <p>
+     * Opcional, permite texto largo para observaciones.
+     * </p>
+     */
+    @Column(name = "comentario", columnDefinition = "TEXT")
     private String comentario;
 
+    /**
+     * Fecha y hora en que se realizó la medición.
+     * <p>
+     * Obligatorio, no modificable después de creación.
+     * </p>
+     */
     @Column(name = "fecha_medicion", nullable = false, updatable = false)
     private LocalDateTime fechaMedicion;
 
+    /**
+     * Índice de Masa Corporal calculado.
+     * <p>
+     * Calculado automáticamente basado en peso y estatura.
+     * </p>
+     */
     private Double imc;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /**
+     * Usuario al que pertenece este registro de salud.
+     * <p>
+     * Relación muchos-a-uno con carga eager para obtener
+     * información del usuario automáticamente.
+     * </p>
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false)
-    @ToString.Exclude // Para evitar la recursión infinita en el toString
+    @ToString.Exclude
     private Usuario usuario;
 
+    /**
+     * Método callback que se ejecuta antes de persistir el registro.
+     * <p>
+     * Establece la fecha de medición actual si no se especifica
+     * y calcula el IMC automáticamente.
+     * </p>
+     */
     @PrePersist
     protected void antesDeGuardar() {
-        //  Gestionar la fecha
+        // Gestionar la fecha de medición
         if (this.fechaMedicion == null) {
             this.fechaMedicion = LocalDateTime.now();
         }
-
-        //  Calcular el IMC automáticamente
+        
+        // Calcular el IMC automáticamente
         if (this.peso != null && this.estatura != null && this.estatura > 0) {
             // Fórmula: peso / (estatura * estatura)
             double calculo = this.peso / (Math.pow(this.estatura, 2));

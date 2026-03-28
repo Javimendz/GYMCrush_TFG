@@ -7,14 +7,15 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # --- ETAPA 2: Run ---
-FROM eclipse-temurin:25-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-# Asegúrate de que el usuario tiene permisos
-RUN addgroup --system spring && adduser --system spring --ingroup spring
-USER spring:spring
 
+
+
+# Copiamos el JAR (al ser el usuario spring el dueño de /app, no habrá problemas)
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
-# Ejecuta la aplicación real
+
+# Ejecuta la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,28 +1,20 @@
 package com.backend.mapper;
 
-import java.util.List;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.ReportingPolicy;
 import com.backend.domain.Dieta;
 import com.backend.dto.DietaRequestDto;
 import com.backend.dto.DietaResponseDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface DietaMapper {
 
-    // Entidad -> ResponseDto (Para listar dietas)
-    DietaResponseDto toResponseDto(Dieta dieta);
-
-    List<DietaResponseDto> toResponseDtoList(List<Dieta> dietas);
-
-    
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "sugerencias", ignore = true)
-    Dieta toEntityCreate(DietaRequestDto dto);
+    @Mapping(target = "categoriaDieta", ignore = true) 
+    Dieta toEntity(DietaRequestDto requestDto);
 
-    // Actualizar entidad existente
-    @Mapping(target = "id", ignore = true)
-    void updateDietaFromDto(DietaRequestDto dto, @MappingTarget Dieta dieta);
+    @Mapping(target = "categoriaDietaId", source = "categoriaDieta.id")
+    @Mapping(target = "nombreCategoria", source = "categoriaDieta.nombre")
+    DietaResponseDto toResponseDto(Dieta dieta);
 }

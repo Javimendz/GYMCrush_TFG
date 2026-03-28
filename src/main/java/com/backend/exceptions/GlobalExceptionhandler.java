@@ -10,86 +10,151 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.backend.security.dto.ApiResponseDto;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * Manejador global de excepciones para la API REST.
+ * <p>
+ * Esta clase centraliza el manejo de todas las excepciones lanzadas por los controladores,
+ * transformándolas en respuestas HTTP estandarizadas con {@link ApiResponseDto}.
+ * </p>
+ * <p>
+ * Excepciones manejadas:
+ * <ul>
+ *   <li>{@link MethodArgumentNotValidException} - Errores de validación (400)</li>
+ *   <li>{@link BadCredentialsException} - Credenciales inválidas (401)</li>
+ *   <li>{@link ResourceNotFoundException} - Recurso no encontrado (404)</li>
+ *   <li>{@link DataIntegrityViolationException} - Violación de integridad (409)</li>
+ *   <li>{@link AccessDeniedException} - Acceso denegado (403)</li>
+ *   <li>{@link RuntimeException} - Errores de lógica de negocio (400)</li>
+ *   <li>{@link Exception} - Errores genéricos del sistema (500)</li>
+ * </ul>
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
 @RestControllerAdvice 
 public class GlobalExceptionhandler {
 
+    /**
+     * Maneja errores de validación en DTOs con campos incorrectos.
+     * Devuelve un string con todos los errores de validación concatenados.
+     *
+     * @param ex la excepción de validación con los errores de binding
+     * @return ResponseEntity con mensaje de error y código HTTP 400 (BAD_REQUEST)
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponseDto<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> validationErrors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> 
-            validationErrors.put(error.getField(), error.getDefaultMessage())
-        );
+    public ResponseEntity<ApiResponseDto<Void>> handleValidationException(MethodArgumentNotValidException ex) {
+        String errores = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(" | "));
 
-        ApiResponseDto<Map<String, String>> response = ApiResponseDto.<Map<String, String>>builder()
-                .mensaje("Errores de validación en los datos enviados")
+        ApiResponseDto<Void> respuesta = ApiResponseDto.<Void>builder()
+                .mensaje("Error de validación: " + errores)
                 .success(false)
-                .datos(validationErrors) 
                 .build();
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                
+        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
     }
-
-    // Manejo de credenciales inválidas (401)
+   
+    /**
+     * Maneja intentos de autenticación con credenciales inválidas.
+     *
+     * @param ex la excepción de credenciales incorrectas
+     * @return ResponseEntity con mensaje de error y código HTTP 401 (UNAUTHORIZED)
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleBadCredentialsException(BadCredentialsException ex) {
         ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
-                .mensaje("Usuario o contraseña incorrectos.") // Mensaje genérico por seguridad
+                .mensaje("Usuario o contraseña incorrectos.")
                 .success(false)
-                .datos(null)
                 .build();
 
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED); // 401 Unauthorized
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
-    // Recurso no encontrado (404)
+
+    /**
+     * Maneja el caso en que un recurso solicitado no existe en la base de datos.
+     *
+     * @param ex la excepción de recurso no encontrado
+     * @return ResponseEntity con mensaje de error y código HTTP 404 (NOT_FOUND)
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
                 .mensaje(ex.getMessage())
                 .success(false)
-                .datos(null)
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    //  Conflictos de datos (409)
+    /**
+     * Maneja violaciones de integridad de datos (registros duplicados, constraints, etc.).
+     *
+     * @param ex la excepción de violación de integridad
+     * @return ResponseEntity con mensaje de error y código HTTP 409 (CONFLICT)
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        String detail = ex.getRootCause() != null ? ex.getRootCause().getMessage() : "Conflicto de integridad de datos";
+        String mensaje = "Error de base de datos: El registro ya existe o viola una restricción.";
         
         ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
-                .mensaje("Error de base de datos: " + detail)
+                .mensaje(mensaje)
                 .success(false)
-                .datos(null)
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
-    // Acceso denegado (403)
+    /**
+     * Maneja intentos de acceso a recursos sin los permisos necesarios.
+     *
+     * @param ex la excepción de acceso denegado
+     * @return ResponseEntity con mensaje de error y código HTTP 403 (FORBIDDEN)
+     */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponseDto<Void>> handleAccessDeniedException(AccessDeniedException ex) {
         ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
-                .mensaje("No tienes permisos suficientes para realizar esta acción.")
+                .mensaje("No tienes permisos suficientes para esta acción.")
                 .success(false)
-                .datos(null)
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
-    //  Errores generales (500)
+    /**
+     * Maneja excepciones de tiempo de ejecución de la lógica de negocio.
+     *
+     * @param ex la excepción de tiempo de ejecución
+     * @return ResponseEntity con mensaje de error y código HTTP 400 (BAD_REQUEST)
+     */
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponseDto<Void>> handleRuntimeException(RuntimeException ex) {
+        ApiResponseDto<Void> respuesta = ApiResponseDto.<Void>builder()
+                .mensaje(ex.getMessage())
+                .success(false)
+                .build();
+        
+        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Manejador de último recurso para cualquier excepción no capturada.
+     * Imprime el stack trace para debugging en la consola.
+     *
+     * @param ex la excepción genérica capturada
+     * @return ResponseEntity con mensaje de error genérico y código HTTP 500 (INTERNAL_SERVER_ERROR)
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseDto<Void>> handleGeneralException(Exception ex) {
-        ex.printStackTrace(); // Log para el desarrollador
+        ex.printStackTrace(); // Para que tú lo veas en la consola de Docker
 
         ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
                 .mensaje("Ocurrió un error inesperado en el sistema.")
                 .success(false)
-                .datos(null)
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

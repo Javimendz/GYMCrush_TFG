@@ -18,7 +18,26 @@ import com.backend.repository.RoleRepository;
 import com.backend.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-//Clase para cargar datos iniciales en la base de datos
+
+/**
+ * Componente que carga datos iniciales en la base de datos al iniciar la aplicación.
+ * <p>
+ * Esta clase implementa {@link CommandLineRunner} para ejecutar operaciones de inicialización
+ * automáticamente después de que el contexto de Spring se haya cargado.
+ * </p>
+ * <p>
+ * Se encarga de:
+ * <ul>
+ *   <li>Crear los roles ROLE_ADMIN y ROLE_USUARIO si no existen</li>
+ *   <li>Crear usuarios de prueba (admin y usuario)</li>
+ *   <li>Crear perfiles asociados a los usuarios</li>
+ * </ul>
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2024
+ */
 @Component
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
@@ -28,6 +47,16 @@ public class DataLoader implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder; // Codificador de contraseñas
     private final PerfilRepository perfilRepository; // Repositorio de perfiles
 
+    /**
+     * Ejecuta la carga de datos iniciales al iniciar la aplicación.
+     * <p>
+     * Se ejecuta dentro de una transacción para garantizar la consistencia de los datos.
+     * Los datos solo se crean si no existen previamente en la base de datos.
+     * </p>
+     *
+     * @param args argumentos de línea de comandos pasados a la aplicación
+     * @throws Exception si ocurre algún error durante la inicialización
+     */
     @Override
     @Transactional // Usamos transactional para que lo haga todo a la vez
     public void run(String... args) throws Exception {

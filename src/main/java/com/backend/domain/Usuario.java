@@ -3,6 +3,7 @@ package com.backend.domain;
 
 //Imports
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,8 +42,7 @@ public class Usuario {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @Column(name = "telefono", length = 20)
-    private String telefono;
+   
 
     //@Column(name = "direccion", length = 255)
     //private String direccion;
@@ -57,9 +57,10 @@ public class Usuario {
     //private String codigoPostal;
     @Builder.Default
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Role> roles = new HashSet<>();
+    @JoinTable(name = "users_roles", 
+               joinColumns = @JoinColumn(name = "user_id"), 
+               inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> rol = new HashSet<>();
 
     @Column(name = "qr_token", length = 255)
     private String qrToken;
@@ -78,29 +79,44 @@ public class Usuario {
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // Cambiamos a EAGER para el Login
     @OnDelete(action = OnDeleteAction.CASCADE)
+    
     @ToString.Exclude// Para evitar bucle infinito con Lombok
     private Perfil perfil; // Relación 1:1 con Perfil
 
 
     
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Reserva> reservas; // Un usuario realiza N reservas
+    @Builder.Default
+    private List<Reserva> reservas = new ArrayList<>(); // Un usuario realiza N reservas
+
+    @Builder.Default
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Entrenamiento> entrenamientos = new ArrayList<>();// Un usuario realiza N entrenamientos
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Entrenamiento> entrenamientos; // Un usuario realiza N entrenamientos
+    @Builder.Default
+    private List<Salud> salud = new ArrayList<>();// Un usuario registra N datos de salud
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Salud> salud; // Un usuario registra N datos de salud
+    @Builder.Default
+    private List<SugerenciaDieta> ssugerenciasDieta = new ArrayList<>(); // Un usuario recibe N sugerencias
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<SugerenciaDieta> sugerenciasDieta; // Un usuario recibe N sugerencias
+    @Builder.Default
+    private List<Ticket> tickets = new ArrayList<>(); // Un usuario crea N tickets
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Ticket> tickets; // Un usuario crea N tickets
+    @Builder.Default
+    private List<Chat> chat = new ArrayList<>(); // Un usuario conecta con el chat
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private List<Chat> chat; // Un usuario conecta con el chat
 
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Rutina> rutinas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Visualizacion> visualizaciones = new ArrayList<>();
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
