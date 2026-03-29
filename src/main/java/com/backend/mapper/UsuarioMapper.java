@@ -57,7 +57,7 @@ public abstract class UsuarioMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
-    @Mapping(target = "roles", source = "rol", qualifiedByName = "mapStringsToRoles")
+    @Mapping(target = "rol", source = "rol", qualifiedByName = "mapStringsToRoles")
     @Mapping(target = "perfil", source = ".", qualifiedByName = "mapRegisterDtoToPerfil")
     public abstract Usuario registerDtoToUser(RegisterDto registerDto);
 
@@ -109,7 +109,7 @@ public abstract class UsuarioMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
-    @Mapping(target = "roles", source = "rol", qualifiedByName = "mapStringsToRoles")
+    @Mapping(target = "rol", source = "rol", qualifiedByName = "mapStringsToRoles")
     @Mapping(target = "perfil.nombre", source = "nombre")
     @Mapping(target = "perfil.apellidos", source = "apellidos")
     @Mapping(target = "perfil.dni", source = "dni")
@@ -133,7 +133,7 @@ public abstract class UsuarioMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
-    @Mapping(target = "roles", source = "rol", qualifiedByName = "mapStringsToRoles")
+    @Mapping(target = "rol", source = "rol", qualifiedByName = "mapStringsToRoles")
     @Mapping(target = "perfil.nombre", source = "nombre")
     @Mapping(target = "perfil.apellidos", source = "apellidos")
     @Mapping(target = "perfil.dni", source = "dni")

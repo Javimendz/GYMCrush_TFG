@@ -18,9 +18,9 @@ public class DietaServiceImpl implements IDietaService {
     @Override
     @Transactional
     public DietaResponseDto crearDieta(DietaRequestDto dto) {
-        Dieta dieta = dietaMapper.toEntityCreate(dto);
+        Dieta dieta = dietaMapper.toEntity(dto);
         int kcal = (dto.getCantidadProteinas() * 4) + (dto.getCantidadCarbohidratos() * 4) + (dto.getCantidadGrasas() * 9);
-        dieta.setCantidadTotal(kcal);
+        dieta.setObjetivoCalorico(kcal);
         return dietaMapper.toResponseDto(dietaRepository.save(dieta));
     }
 

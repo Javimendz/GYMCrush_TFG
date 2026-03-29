@@ -41,7 +41,7 @@ public interface PerfilMapper {
      */
     @Mapping(target = "username", source = "usuario.username")
     @Mapping(target = "correo", source = "usuario.correo")
-    @Mapping(target = "roles", source = "usuario.roles", qualifiedByName = "mapRolesToStrings")
+    @Mapping(target = "rol", source = "usuario.rol", qualifiedByName = "mapRolesToStrings")
     @Mapping(target = "peso", ignore = true)
     @Mapping(target = "estatura", ignore = true)
     @Mapping(target = "imc", ignore = true)

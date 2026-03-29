@@ -55,7 +55,7 @@ public class NutricionServiceImpl implements INutricionService {
         }
 
         // 4. Buscar una dieta base del catálogo que coincida con la categoría
-        Dieta dietaBase = dietaRepository.findByCategoria(categoriaBuscada).stream()
+        Dieta dietaBase = dietaRepository.findByCategoriaDietaNombre(categoriaBuscada).stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No hay dietas base para " + categoriaBuscada));
 

@@ -211,6 +211,10 @@ public class SugerenciaDietaReponseDto {
      * </ul>
      * </p>
      */
+
+    @Schema(description = "JSON con el desglose de macronutrientes")
+    private String detalles;
+
     @Schema(description = "Fecha en la que se generó la sugerencia de dieta")
     private LocalDateTime fechaGeneracion;
     private Long usuarioId;

@@ -23,7 +23,7 @@ public class SugerenciaServiceImpl implements ISugerenciaService {
     @Transactional
     public SugerenciaDietaReponseDto guardarAsignacion(SugerenciaRequestDto dto) {
         // Convertimos el DTO a entidad
-        SugerenciaDieta entidad = sugerenciaMapper.toEntityCreate(dto);
+        SugerenciaDieta entidad = sugerenciaMapper.toEntity(dto);
         
         // Seteamos la fecha actual antes de guardar
         entidad.setFechaGeneracion(LocalDateTime.now());

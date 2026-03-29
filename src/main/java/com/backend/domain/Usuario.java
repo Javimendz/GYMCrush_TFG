@@ -129,12 +129,12 @@ public class Usuario {
     }
 
     public void addRole(Role role) {
-        this.roles.add(role);
+        this.rol.add(role);
         role.getUsuarios().add(this);
     }
 
     public void removeRole(Role role) {
-        this.roles.remove(role);
+        this.rol.remove(role);
         role.getUsuarios().remove(this);
     }
 
