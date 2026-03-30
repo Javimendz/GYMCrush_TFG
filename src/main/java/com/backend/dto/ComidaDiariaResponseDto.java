@@ -11,7 +11,7 @@ public class ComidaDiariaResponseDto {
     private String nombreAlimento;
     private Double cantidadGramos;
     private Double calorias;
-    
+    private String imagenUrl;
     // Estos campos ayudan al Frontend a mostrar info nutricional por plato
     private String proteina;
     private String carbohidratos;

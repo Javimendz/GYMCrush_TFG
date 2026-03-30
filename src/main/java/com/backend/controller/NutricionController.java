@@ -35,14 +35,20 @@ public class NutricionController {
      * GET /api/nutricion/usuario/{id}
      * Recupera el último plan generado para un usuario específico.
      */
-    @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<NutricionResponseDto> obtenerUltimoPlan(@PathVariable Long usuarioId) {
-        NutricionResponseDto response = nutricionService.obtenerUltimoPlanPorUsuario(usuarioId);
-        
-        if (response == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        
-        return ResponseEntity.ok(response);
+   @GetMapping("/usuario/{usuarioId}")
+public ResponseEntity<ApiResponseDto<NutricionResponseDto>> obtenerUltimoPlan(@PathVariable Long usuarioId) {
+    // 1. Obtenemos el DTO desde el servicio
+    NutricionResponseDto response = nutricionService.obtenerUltimoPlanPorUsuario(usuarioId);
+    
+    if (response == null) {
+        // Devolvemos el error con la estructura ApiResponseDto
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(ApiResponseDto.error("No se encontró ningún plan para el usuario " + usuarioId));
     }
+    
+    // Devolvemos el éxito con los datos dentro
+    return ResponseEntity.ok(
+        ApiResponseDto.success("¡Plan recuperado correctamente!", response)
+    );
+}
 }

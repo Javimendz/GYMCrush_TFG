@@ -26,7 +26,7 @@ public class ComidaDiaria {
     private String proteina; // Lo que viene de FatSecret
     private String carbohidratos; // Lo que viene de FatSecret
     private String grasas; // Lo que viene de FatSecret
-        
+    private String imagenUrl; // URL de la imagen del alimento, si quieres mostrarla en el frontend
     @ManyToOne
     @JoinColumn(name = "plan_id")
     private Nutricion plan; // Para saber a qué plan pertenece este plato

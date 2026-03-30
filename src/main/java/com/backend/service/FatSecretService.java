@@ -1,5 +1,7 @@
 package com.backend.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -7,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -20,76 +20,71 @@ public class FatSecretService {
     @Value("${fatsecret.client.secret}")
     private String clientSecret;
 
-    @Value("${fatsecret.oauth.url}")
-    private String oauthUrl;
-
     @Value("${fatsecret.api.url}")
     private String apiUrl;
 
-    private final RestTemplate restTemplate; // Necesitas declarar un @Bean RestTemplate en tu Webconfig
-    private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper; // Jackson
 
-    /**
-     * PASO 1: Obtener el token de FatSecret
-     */
     public String obtenerTokenAutenticacion() {
-    String url = "https://oauth.fatsecret.com/connect/token";
-    RestTemplate restTemplate = new RestTemplate();
+        String url = "https://oauth.fatsecret.com/connect/token";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBasicAuth(clientId, clientSecret);
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-    headers.setBasicAuth(clientId, clientSecret);
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "client_credentials");
+        map.add("scope", "basic");
 
-    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add("grant_type", "client_credentials");
-    map.add("scope", "basic");
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-
-    // CAMBIO CLAVE: Pedimos la respuesta como String, no como JsonNode u Objeto
-    ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-    String body = response.getBody();
-
-    // Extraemos el token con lógica de String básica para evitar Jackson
-    if (body != null && body.contains("access_token\":\"")) {
-        return body.split("access_token\":\"")[1].split("\"")[0];
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            
+            // USANDO JACKSON CORRECTAMENTE:
+            JsonNode root = objectMapper.readTree(response.getBody());
+            if (root.has("access_token")) {
+                return root.get("access_token").asText();
+            }
+            throw new RuntimeException("Respuesta de FatSecret no contiene token");
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener token con Jackson: " + e.getMessage());
+        }
     }
-    
-    throw new RuntimeException("No se pudo obtener el token de FatSecret");
-}
-    /**
-     * PASO 2: Buscar recetas basadas en macros
-     */
-   public String buscarRecetasPorMacros(int calorias, int proteinas, int carbohidratos, int grasas) {
-    String token = obtenerTokenAutenticacion();
-    System.out.println("🔑 Token obtenido correctamente");
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.setBearerAuth(token);
+    public String buscarRecetasPorMacros(int calorias, int proteinas, int carbohidratos, int grasas) {
+        String token = obtenerTokenAutenticacion();
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
 
-    // Reducimos el rango de búsqueda a algo más realista por plato
-    int calPorPlato = calorias / 3; 
+        int calPorPlato = calorias / 3; 
+        String url = apiUrl + "?method=recipes.search&format=json" +
+                     "&calories.from=" + (calPorPlato - 200) + 
+                     "&calories.to=" + (calPorPlato + 200);
 
-    String url = apiUrl + "?method=recipes.search&format=json" +
-                 "&calories.from=" + (calPorPlato - 200) + 
-                 "&calories.to=" + (calPorPlato + 200);
+        HttpEntity<?> request = new HttpEntity<>(headers);
+        
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+            String body = response.getBody();
 
-    System.out.println("🌐 Llamando a URL: " + url);
+            // JACKSON: Validamos si la respuesta es un error de FatSecret (como el de la IP)
+            JsonNode root = objectMapper.readTree(body);
+            if (root.has("error")) {
+                String errorMsg = root.get("error").get("message").asText();
+                System.err.println("❌ Error de FatSecret (Code " + root.get("error").get("code") + "): " + errorMsg);
+                
+                // Si hay error, devolvemos un JSON vacío pero válido para que no explote tu DB
+                return "{\"recipes\": {\"recipe\": []}}"; 
+            }
 
-    HttpEntity<?> request = new HttpEntity<>(headers);
-    ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
-
-    // ESTO ES LO IMPORTANTE: Imprimir qué nos dice FatSecret
-    System.out.println("🍱 Respuesta de FatSecret: " + response.getBody());
-
-    return response.getBody(); 
-}
-    @jakarta.annotation.PostConstruct
-public void validarConfiguracion() {
-    System.out.println("--------------------------------------");
-    System.out.println("🚀 FATSECRET CONFIG CHECK:");
-    System.out.println("ID: " + (clientId != null ? clientId.substring(0, 4) + "****" : "NULL"));
-    System.out.println("OAUTH URL: " + oauthUrl);
-    System.out.println("--------------------------------------");
-}
+            return body; // Si todo está bien, devolvemos el JSON original
+        } catch (Exception e) {
+            System.err.println("⚠️ Error procesando recetas: " + e.getMessage());
+            return "{\"recipes\": {\"recipe\": []}}";
+        }
+    }
 }

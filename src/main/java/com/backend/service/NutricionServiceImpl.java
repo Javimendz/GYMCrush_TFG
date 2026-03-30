@@ -25,104 +25,100 @@ public class NutricionServiceImpl implements INutricionService {
     private final SugerenciaDietaRepository sugerenciaRepository;
     private final SugerenciaDietaMapper sugerenciaMapper;
     private final NutricionMapper nutricionMapper;
-    private final NutricionRepository nutricionRepository;
 
     private final FatSecretService fatSecretService;
 
     @Override
-    @Transactional
-    public SugerenciaDietaReponseDto generarPlanAutomatico(PerfilFisicoRequest request) {
-        //  Obtención de datos
-        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+@Transactional
+public SugerenciaDietaReponseDto generarPlanAutomatico(PerfilFisicoRequest request) {
+    // 1. Validación de seguridad básica
+    if (request.getPeso() <= 0 || request.getAltura() <= 0) {
+        throw new RuntimeException("Datos físicos inválidos");
+    }
 
-        Perfil perfil = usuario.getPerfil();
-        if (perfil == null || perfil.getFechaNacimiento() == null || perfil.getGenero() == null) {
-            throw new RuntimeException("Perfil incompleto: Se requiere fecha de nacimiento y género.");
-        }
+    Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        int edad = Period.between(perfil.getFechaNacimiento(), LocalDate.now()).getYears();
+    Perfil perfil = usuario.getPerfil();
+    int edad = Period.between(perfil.getFechaNacimiento(), LocalDate.now()).getYears();
 
-        //  Tasa Metabólica Basal
-        double tmb = (10 * request.getPeso()) + (6.25 * request.getAltura()) - (5 * edad);
-        tmb = (perfil.getGenero().name().equalsIgnoreCase("HOMBRE") || 
-               perfil.getGenero().name().equalsIgnoreCase("MASCULINO")) ? tmb + 5 : tmb - 161;
+    // 2. Cálculo Metabólico (Mifflin-St Jeor)
+    boolean esHombre = perfil.getGenero().name().matches("(?i)HOMBRE|MASCULINO");
+    double tmb = (10 * request.getPeso()) + (6.25 * request.getAltura()) - (5 * edad) + (esHombre ? 5 : -161);
+    double tdee = tmb * request.getNivelActividad().getFactor();
 
-        //  Gasto Energético Total (TDEE)
-        double tdee = tmb * request.getNivelActividad().getFactor();
+    int kcalObjetivo;
+    String categoriaNombre;
 
-        int kcalObjetivo;
-        String categoriaNombre;
+    switch (request.getObjetivo()) {
+        case GANAR: 
+            kcalObjetivo = (int) (tdee * 1.10);
+            categoriaNombre = "VOLUMEN";
+            break;
+        case PERDER:
+            kcalObjetivo = (int) (tdee * 0.80);
+            categoriaNombre = "DEFINICION";
+            break;
+        default:
+            kcalObjetivo = (int) tdee;
+            categoriaNombre = "MANTENIMIENTO";
+            break;
+    }
 
-        //  Lógica del Plan
-        switch (request.getObjetivo()) {
-            case GANAR: 
-                kcalObjetivo = (int) (tdee * 1.10);
-                categoriaNombre = "VOLUMEN";
-                break;
-            case PERDER:
-                kcalObjetivo = (int) (tdee * 0.80);
-                categoriaNombre = "DEFINICION";
-                break;
-            default: // MANTENER
-                kcalObjetivo = (int) tdee;
-                categoriaNombre = "MANTENIMIENTO";
-                break;
-        }
+    // 3. Macronutrientes (2g Prot, 0.8g Grasa, resto CH)
+    double proteinasGramos = request.getPeso() * 2.0;
+    double grasasGramos = request.getPeso() * 0.8;
+    double carbohidratosGramos = (kcalObjetivo - (proteinasGramos * 4) - (grasasGramos * 9)) / 4;
 
-        //  Macronutrientes Exactos Calculados
-        double proteinasGramos = request.getPeso() * 2.0;
-        double grasasGramos = request.getPeso() * 0.8;
-        double carbohidratosGramos = (kcalObjetivo - (proteinasGramos * 4) - (grasasGramos * 9)) / 4;
+    String macrosJson = String.format(
+        "{\"proteinas\": \"%.1fg\", \"carbohidratos\": \"%.1fg\", \"grasas\": \"%.1fg\"}",
+        proteinasGramos, carbohidratosGramos, grasasGramos
+    );
 
-        //Tratamos la llamada a la api de fastsecret con un try catch para evitar que si falla la api, el usuario se quede sin dieta
-        //  Si la api falla, usamos los macros matemáticos para que no se quede sin dieta   
-
-
-       String macrosJson = String.format(
-            "{\"proteinas\": \"%.1fg\", \"carbohidratos\": \"%.1fg\", \"grasas\": \"%.1fg\"}",
-            proteinasGramos, carbohidratosGramos, grasasGramos
+    // 4. Obtención de Menú (Con validación de error de FatSecret)
+    String menuFinal;
+    try {
+        menuFinal = fatSecretService.buscarRecetasPorMacros(
+                kcalObjetivo, (int) proteinasGramos, (int) carbohidratosGramos, (int) grasasGramos
         );
-
-        String menuRealJson;
-        try {
-            // Plan A: Intentamos buscar comida real en internet
-            menuRealJson = fatSecretService.buscarRecetasPorMacros(
-                    kcalObjetivo, (int) proteinasGramos, (int) carbohidratosGramos, (int) grasasGramos
-            );
-        } catch (Exception e) {
-        // Cambia el System.err por esto para ver TODO el rastro del error
-        e.printStackTrace(); 
-        System.err.println("⚠️ Detalle del error: " + e.getMessage());
-        menuRealJson = macrosJson;
+        
+        // Si la respuesta de la API es un error (como el de la IP), usamos el fallback
+        if (menuFinal.contains("\"error\"")) {
+            menuFinal = macrosJson;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        menuFinal = macrosJson;
     }
 
-        //  Buscar Dieta Base
-        Dieta dietaBase = dietaRepository.findByCategoriaDietaNombre(categoriaNombre).stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Catálogo vacío para " + categoriaNombre));
+    Dieta dietaBase = dietaRepository.findByCategoriaDietaNombre(categoriaNombre).stream()
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Catálogo vacío para " + categoriaNombre));
 
-        //  Guardar Sugerencia
-        SugerenciaDieta sugerencia = SugerenciaDieta.builder()
-                .usuario(usuario)
-                .dieta(dietaBase)
-                .nombreDieta("Plan " + categoriaNombre)
-                .caloriasObjetivo(kcalObjetivo)
-                .tipoDieta(dietaBase.getNombre())
-                // GUARDAMOS EL MENÚ REAL DE LA API EN VEZ DE SOLO EL STRING FORMAT
-                .macronutrientesJson(menuRealJson) 
-                .fechaGeneracion(LocalDateTime.now())
-                .build();
+    // 5. Persistencia
+    SugerenciaDieta sugerencia = SugerenciaDieta.builder()
+            .usuario(usuario)
+            .dieta(dietaBase)
+            .nombreDieta("Plan " + categoriaNombre)
+            .caloriasObjetivo(kcalObjetivo)
+            .tipoDieta(dietaBase.getNombre())
+            .macronutrientesJson(menuFinal) 
+            .fechaGeneracion(LocalDateTime.now())
+            .build();
 
-        return sugerenciaMapper.toResponseDto(sugerenciaRepository.save(sugerencia));
-    }
+    // Usamos el Mapper que ya sabe manejar JsonNode
+    return sugerenciaMapper.toResponseDto(sugerenciaRepository.save(sugerencia));
+}
+ 
 
-   @Override
-    public NutricionResponseDto obtenerUltimoPlanPorUsuario(Long usuarioId) {
-        // Buscamos en la DB el último plan de ese usuario
-        // Suponiendo que tienes un método en el repo que busque por ID de usuario
-        return nutricionRepository.findFirstByUsuarioIdOrderByIdDesc(usuarioId)
-                .map(nutricionMapper::toResponse) // Lo pasamos por el Mapper para tener el DTO
-                .orElse(null); // Si no hay plan, devolvemos null (el controller enviará un 404)
-    }
+@Override
+public NutricionResponseDto obtenerUltimoPlanPorUsuario(Long usuarioId) {
+    // 1. Llamamos al repo, que devuelve Optional<SugerenciaDieta>
+    // 2. Usamos .map() directamente sobre el Optional
+    // 3. .orElse(null) extrae el resultado o devuelve null si no existe
+    return sugerenciaRepository.findFirstByUsuarioIdOrderByIdDesc(usuarioId)
+            .map(nutricionMapper::toResponseDto) 
+            .orElse(null);
+}
+
 }
