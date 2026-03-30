@@ -3,7 +3,6 @@ package com.backend.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import lombok.Data;
 
@@ -17,11 +16,10 @@ public class NutricionResponseDto {
     private String tipoDieta;
     private Integer caloriasObjetivo;
 
-    // Aquí convertimos el JSON raro en un objeto real para el Frontend
-@JsonRawValue // <-- Esto hace la magia
-private String macronutrientes; 
-    // ESTO ES LO QUE TE FALTABA: La lista de platos reales
-   @JsonProperty("dietas")
+    // convertimos el JSON en un objeto real para el Frontend
+    @JsonRawValue
+    private String macronutrientes;
+    @JsonProperty("dietas")
     private List<ComidaDiariaResponseDto> comidas;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

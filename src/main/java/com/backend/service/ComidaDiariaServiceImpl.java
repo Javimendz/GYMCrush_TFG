@@ -4,6 +4,7 @@ import com.backend.domain.ComidaDiaria;
 import com.backend.domain.Nutricion;
 import com.backend.dto.ComidaDiariaRequestDto;
 import com.backend.dto.ComidaDiariaResponseDto;
+import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.mapper.ComidaDiariaMapper;
 import com.backend.repository.ComidaDiariaRepository;
 import com.backend.repository.NutricionRepository;
@@ -32,7 +33,7 @@ public class ComidaDiariaServiceImpl implements IComidaDiariaService {
         // Convertimos los DTOs en Entidades y las guardamos
         List<ComidaDiaria> entidades = comidasRequest.stream()
                 .map(dto -> comidaMapper.toEntity(dto, plan))
-                .collect(Collectors.toList());
+                .toList();
 
         comidaRepository.saveAll(entidades);
     }
@@ -46,12 +47,15 @@ public class ComidaDiariaServiceImpl implements IComidaDiariaService {
         ComidaDiaria nuevaComida = comidaMapper.toEntity(request, plan);
         ComidaDiaria guardada = comidaRepository.save(nuevaComida);
         
-        return comidaMapper.toResponse(guardada);
+        return comidaMapper.toResponseDto(guardada);
     }
 
     @Override
     @Transactional
     public void eliminarComida(Long id) {
+        if (!comidaRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Comida no encontrada con ID: " + id);
+        }
         comidaRepository.deleteById(id);
     }
 }

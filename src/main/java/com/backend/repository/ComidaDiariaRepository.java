@@ -1,12 +1,8 @@
 package com.backend.repository;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.backend.domain.ComidaDiaria;
-import com.backend.domain.Nutricion;
 
 public interface ComidaDiariaRepository  extends JpaRepository<ComidaDiaria, Long> {
     

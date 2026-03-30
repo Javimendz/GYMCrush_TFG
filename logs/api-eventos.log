@@ -18472,3 +18472,2307 @@ Caused by: org.springframework.data.core.PropertyReferenceException: No property
 2026-03-30 19:07:13.289 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-03-30 19:07:13.294 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2026-03-30 19:07:13.297 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-30 19:18:44.257 INFO  com.backend.App - Starting App v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
+2026-03-30 19:18:44.259 DEBUG com.backend.App - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-03-30 19:18:44.260 INFO  com.backend.App - The following 1 profile is active: "dev"
+2026-03-30 19:18:44.540 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-03-30 19:18:45.007 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-30 19:18:45.097 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 82 ms. Found 23 JPA repository interfaces.
+2026-03-30 19:18:45.590 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-03-30 19:18:45.599 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-30 19:18:45.602 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-30 19:18:45.603 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-03-30 19:18:45.626 INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1317 ms
+2026-03-30 19:18:45.786 INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-03-30 19:18:45.818 INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-03-30 19:18:46.126 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-30 19:18:46.144 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-30 19:18:46.305 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5c20505f
+2026-03-30 19:18:46.307 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-30 19:18:46.343 WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-30 19:18:46.360 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://db:5432/spring_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 15.17
+	Default catalog/schema: spring_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-30 19:18:47.268 INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-30 19:18:47.371 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-30 19:18:47.415 INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-30 19:18:47.579 DEBUG c.b.s.jwt.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-03-30 19:18:47.956 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailServiceImp
+2026-03-30 19:18:48.730 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-03-30 19:18:48.740 DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-03-30 19:18:48.981 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Starting...
+2026-03-30 19:18:48.982 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@569fc8ac]]
+2026-03-30 19:18:48.983 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Started.
+2026-03-30 19:18:48.983 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-30 19:18:48.996 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-03-30 19:18:49.004 INFO  com.backend.App - Started App in 5.229 seconds (process running for 5.743)
+2026-03-30 19:18:49.141 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-30 19:18:49.170 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-30 19:18:49.174 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:18:49.183 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:18:49.194 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:18:49.199 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:18:49.206 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-30 19:18:49.210 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-30 19:18:49.221 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:18:49.227 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:18:49.230 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:18:49.240 DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        dietas d1_0
+2026-03-30 19:18:49.253 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-03-30 19:18:49.253 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-03-30 19:18:49.272 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-30 19:18:49.274 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-30 19:18:56.800 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-30 19:18:56.801 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-30 19:18:56.803 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-03-30 19:18:56.813 DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/v1/auth/login
+2026-03-30 19:18:56.822 WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/v1/auth/login' (previous null). Performing CorsConfiguration lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-03-30 19:18:56.827 DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2026-03-30 19:18:56.830 DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/v1/auth/login
+2026-03-30 19:18:56.904 INFO  c.backend.controller.AuthController - Intento de inicio de sesión para el usuario: admin
+2026-03-30 19:18:56.961 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:18:56.963 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:18:57.017 DEBUG o.s.s.a.d.DaoAuthenticationProvider - Authenticated user
+2026-03-30 19:18:57.018 INFO  c.backend.controller.AuthController - Inicio de sesión exitoso para el usuario: admin
+2026-03-30 19:18:57.097 DEBUG c.backend.controller.AuthController - Token JWT generado para el usuario: admin
+2026-03-30 19:18:57.098 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:18:57.100 DEBUG c.backend.controller.AuthController - Usuario autenticado: admin - Perfil: Admin
+2026-03-30 19:18:57.101 INFO  c.backend.controller.AuthController - Login exitoso - Usuario: admin con roles: [ROLE_ADMIN, ROLE_USUARIO]
+2026-03-30 19:19:04.949 DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/nutricion/generar-plan
+2026-03-30 19:19:04.986 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:19:04.987 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:19:04.990 DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/nutricion/generar-plan
+2026-03-30 19:19:05.005 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.generarPlan(com.backend.dto.PerfilFisicoRequest); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:19:05.014 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.generarPlan(com.backend.dto.PerfilFisicoRequest); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:19:05.018 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    left join
+        perfiles p1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-03-30 19:19:06.328 DEBUG org.hibernate.SQL - 
+    select
+        d1_0.id,
+        d1_0.cantidad_c,
+        d1_0.cantidad_g,
+        d1_0.cantidad_p,
+        d1_0.categoria_dieta_id,
+        d1_0.descripcion,
+        d1_0.nombre,
+        d1_0.objetivo_calorico,
+        d1_0.tipo 
+    from
+        dietas d1_0 
+    left join
+        categoria_dieta cd1_0 
+            on cd1_0.id=d1_0.categoria_dieta_id 
+    where
+        cd1_0.nombre=?
+2026-03-30 19:19:06.341 DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        sugerencias_dieta
+        (calorias_objetivo, dieta_id, fecha_generacion, macronutrientes_json, nombre_dieta, tipo_dieta, usuario_id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-03-30 19:19:11.680 DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/nutricion/usuario/2
+2026-03-30 19:19:11.684 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:19:11.685 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:19:11.689 DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/nutricion/usuario/2
+2026-03-30 19:19:11.691 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.obtenerUltimoPlan(java.lang.Long); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:19:11.692 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.obtenerUltimoPlan(java.lang.Long); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:19:11.700 DEBUG org.hibernate.SQL - 
+    select
+        sd1_0.id,
+        sd1_0.calorias_objetivo,
+        sd1_0.dieta_id,
+        sd1_0.fecha_generacion,
+        sd1_0.macronutrientes_json,
+        sd1_0.nombre_dieta,
+        sd1_0.tipo_dieta,
+        sd1_0.usuario_id 
+    from
+        sugerencias_dieta sd1_0 
+    where
+        sd1_0.usuario_id=? 
+    order by
+        sd1_0.id desc 
+    fetch
+        first ? rows only
+2026-03-30 19:19:11.702 DEBUG org.hibernate.SQL - 
+    select
+        d1_0.id,
+        d1_0.cantidad_c,
+        d1_0.cantidad_g,
+        d1_0.cantidad_p,
+        d1_0.categoria_dieta_id,
+        d1_0.descripcion,
+        d1_0.nombre,
+        d1_0.objetivo_calorico,
+        d1_0.tipo 
+    from
+        dietas d1_0 
+    where
+        d1_0.id=?
+2026-03-30 19:19:11.704 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    left join
+        perfiles p1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-03-30 19:19:48.956 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-30 19:27:35.034 INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-30 19:27:35.037 INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-03-30 19:27:35.040 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopping...
+2026-03-30 19:27:35.040 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@569fc8ac]]
+2026-03-30 19:27:35.041 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopped.
+2026-03-30 19:27:35.048 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-30 19:27:35.051 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-30 19:27:35.053 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-30 19:27:57.856 INFO  com.backend.App - Starting App v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
+2026-03-30 19:27:57.858 DEBUG com.backend.App - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-03-30 19:27:57.859 INFO  com.backend.App - The following 1 profile is active: "dev"
+2026-03-30 19:27:58.262 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-03-30 19:27:58.627 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-30 19:27:58.703 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 70 ms. Found 23 JPA repository interfaces.
+2026-03-30 19:27:59.207 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-03-30 19:27:59.220 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-30 19:27:59.224 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-30 19:27:59.225 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-03-30 19:27:59.255 INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1345 ms
+2026-03-30 19:27:59.416 INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-03-30 19:27:59.446 INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-03-30 19:27:59.751 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-30 19:27:59.770 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-30 19:27:59.919 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5c20505f
+2026-03-30 19:27:59.920 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-30 19:27:59.951 WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-30 19:27:59.968 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://db:5432/spring_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 15.17
+	Default catalog/schema: spring_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-30 19:28:00.919 INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-30 19:28:01.020 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-30 19:28:01.061 INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-30 19:28:01.225 DEBUG c.b.s.jwt.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-03-30 19:28:01.588 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailServiceImp
+2026-03-30 19:28:02.375 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-03-30 19:28:02.386 DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-03-30 19:28:02.629 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Starting...
+2026-03-30 19:28:02.630 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@5b99fc65]]
+2026-03-30 19:28:02.630 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Started.
+2026-03-30 19:28:02.631 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-30 19:28:02.644 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-03-30 19:28:02.652 INFO  com.backend.App - Started App in 5.461 seconds (process running for 6.112)
+2026-03-30 19:28:02.826 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-30 19:28:02.861 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-30 19:28:02.866 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:28:02.874 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:28:02.887 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:28:02.889 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:28:02.896 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-30 19:28:02.902 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-30 19:28:02.917 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:28:02.923 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:28:02.927 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:28:02.938 DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        dietas d1_0
+2026-03-30 19:28:02.946 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-03-30 19:28:02.946 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-03-30 19:28:02.963 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-30 19:28:02.966 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-30 19:28:13.619 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-30 19:28:13.621 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-30 19:28:13.622 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-30 19:28:13.635 DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/v1/auth/login
+2026-03-30 19:28:13.644 WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/v1/auth/login' (previous null). Performing CorsConfiguration lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-03-30 19:28:13.648 DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2026-03-30 19:28:13.651 DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/v1/auth/login
+2026-03-30 19:28:13.732 INFO  c.backend.controller.AuthController - Intento de inicio de sesión para el usuario: admin
+2026-03-30 19:28:13.791 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:28:13.793 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:28:13.846 DEBUG o.s.s.a.d.DaoAuthenticationProvider - Authenticated user
+2026-03-30 19:28:13.847 INFO  c.backend.controller.AuthController - Inicio de sesión exitoso para el usuario: admin
+2026-03-30 19:28:13.917 DEBUG c.backend.controller.AuthController - Token JWT generado para el usuario: admin
+2026-03-30 19:28:13.919 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:28:13.920 DEBUG c.backend.controller.AuthController - Usuario autenticado: admin - Perfil: Admin
+2026-03-30 19:28:13.922 INFO  c.backend.controller.AuthController - Login exitoso - Usuario: admin con roles: [ROLE_USUARIO, ROLE_ADMIN]
+2026-03-30 19:28:20.764 DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/nutricion/generar-plan
+2026-03-30 19:28:20.823 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:28:20.826 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:28:20.831 DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/nutricion/generar-plan
+2026-03-30 19:28:20.845 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.generarPlan(com.backend.dto.PerfilFisicoRequest); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:28:20.855 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.generarPlan(com.backend.dto.PerfilFisicoRequest); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:28:20.861 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    left join
+        perfiles p1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-03-30 19:28:22.121 DEBUG org.hibernate.SQL - 
+    select
+        d1_0.id,
+        d1_0.cantidad_c,
+        d1_0.cantidad_g,
+        d1_0.cantidad_p,
+        d1_0.categoria_dieta_id,
+        d1_0.descripcion,
+        d1_0.nombre,
+        d1_0.objetivo_calorico,
+        d1_0.tipo 
+    from
+        dietas d1_0 
+    left join
+        categoria_dieta cd1_0 
+            on cd1_0.id=d1_0.categoria_dieta_id 
+    where
+        cd1_0.nombre=?
+2026-03-30 19:28:22.136 DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        sugerencias_dieta
+        (calorias_objetivo, dieta_id, fecha_generacion, macronutrientes_json, nombre_dieta, tipo_dieta, usuario_id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-03-30 19:28:26.252 DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/nutricion/usuario/2
+2026-03-30 19:28:26.257 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:28:26.258 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:28:26.262 DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/nutricion/usuario/2
+2026-03-30 19:28:26.265 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.obtenerUltimoPlan(java.lang.Long); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:28:26.267 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.obtenerUltimoPlan(java.lang.Long); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:28:26.274 DEBUG org.hibernate.SQL - 
+    select
+        sd1_0.id,
+        sd1_0.calorias_objetivo,
+        sd1_0.dieta_id,
+        sd1_0.fecha_generacion,
+        sd1_0.macronutrientes_json,
+        sd1_0.nombre_dieta,
+        sd1_0.tipo_dieta,
+        sd1_0.usuario_id 
+    from
+        sugerencias_dieta sd1_0 
+    where
+        sd1_0.usuario_id=? 
+    order by
+        sd1_0.id desc 
+    fetch
+        first ? rows only
+2026-03-30 19:28:26.277 DEBUG org.hibernate.SQL - 
+    select
+        d1_0.id,
+        d1_0.cantidad_c,
+        d1_0.cantidad_g,
+        d1_0.cantidad_p,
+        d1_0.categoria_dieta_id,
+        d1_0.descripcion,
+        d1_0.nombre,
+        d1_0.objetivo_calorico,
+        d1_0.tipo 
+    from
+        dietas d1_0 
+    where
+        d1_0.id=?
+2026-03-30 19:28:26.278 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    left join
+        perfiles p1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-03-30 19:29:02.606 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-30 19:37:33.065 DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/sugerencias_dieta/usuario/2
+2026-03-30 19:37:33.079 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:37:33.083 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:37:33.093 DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/sugerencias_dieta/usuario/2
+2026-03-30 19:37:33.106 DEBUG org.hibernate.SQL - 
+    select
+        sd1_0.id,
+        sd1_0.calorias_objetivo,
+        sd1_0.dieta_id,
+        sd1_0.fecha_generacion,
+        sd1_0.macronutrientes_json,
+        sd1_0.nombre_dieta,
+        sd1_0.tipo_dieta,
+        sd1_0.usuario_id 
+    from
+        sugerencias_dieta sd1_0 
+    where
+        sd1_0.usuario_id=? 
+    order by
+        sd1_0.fecha_generacion desc
+2026-03-30 19:37:33.111 DEBUG org.hibernate.SQL - 
+    select
+        d1_0.id,
+        d1_0.cantidad_c,
+        d1_0.cantidad_g,
+        d1_0.cantidad_p,
+        d1_0.categoria_dieta_id,
+        d1_0.descripcion,
+        d1_0.nombre,
+        d1_0.objetivo_calorico,
+        d1_0.tipo 
+    from
+        dietas d1_0 
+    where
+        d1_0.id=?
+2026-03-30 19:37:33.113 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    left join
+        perfiles p1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-03-30 19:38:22.810 INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-30 19:38:22.814 INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-03-30 19:38:22.817 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopping...
+2026-03-30 19:38:22.817 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@5b99fc65]]
+2026-03-30 19:38:22.817 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopped.
+2026-03-30 19:38:22.828 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-30 19:38:22.835 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-30 19:38:22.839 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-30 19:38:45.855 INFO  com.backend.App - Starting App v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
+2026-03-30 19:38:45.857 DEBUG com.backend.App - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-03-30 19:38:45.858 INFO  com.backend.App - The following 1 profile is active: "dev"
+2026-03-30 19:38:46.152 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-03-30 19:38:46.659 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-30 19:38:46.731 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 66 ms. Found 23 JPA repository interfaces.
+2026-03-30 19:38:47.231 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-03-30 19:38:47.243 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-30 19:38:47.245 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-30 19:38:47.247 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-03-30 19:38:47.281 INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1375 ms
+2026-03-30 19:38:47.458 INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-03-30 19:38:47.493 INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-03-30 19:38:47.770 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-30 19:38:47.789 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-30 19:38:47.948 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5c20505f
+2026-03-30 19:38:47.951 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-30 19:38:47.983 WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-30 19:38:48.000 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://db:5432/spring_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 15.17
+	Default catalog/schema: spring_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-30 19:38:48.867 INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-30 19:38:48.964 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-30 19:38:49.003 INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-30 19:38:49.211 DEBUG c.b.s.jwt.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-03-30 19:38:49.585 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailServiceImp
+2026-03-30 19:38:50.340 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-03-30 19:38:50.348 DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-03-30 19:38:50.586 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Starting...
+2026-03-30 19:38:50.587 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@56a4969b]]
+2026-03-30 19:38:50.588 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Started.
+2026-03-30 19:38:50.589 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-30 19:38:50.602 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-03-30 19:38:50.610 INFO  com.backend.App - Started App in 5.28 seconds (process running for 5.74)
+2026-03-30 19:38:50.752 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-30 19:38:50.781 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-30 19:38:50.785 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:38:50.793 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:38:50.805 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:38:50.807 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:38:50.813 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-30 19:38:50.817 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-30 19:38:50.827 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:38:50.834 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:38:50.837 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:38:50.847 DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        dietas d1_0
+2026-03-30 19:38:50.854 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-03-30 19:38:50.855 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-03-30 19:38:50.872 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-30 19:38:50.874 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-30 19:38:58.737 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-30 19:38:58.737 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-30 19:38:58.739 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-30 19:38:58.750 DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/v1/auth/login
+2026-03-30 19:38:58.756 WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/v1/auth/login' (previous null). Performing CorsConfiguration lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-03-30 19:38:58.760 DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2026-03-30 19:38:58.765 DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/v1/auth/login
+2026-03-30 19:38:58.841 INFO  c.backend.controller.AuthController - Intento de inicio de sesión para el usuario: admin
+2026-03-30 19:38:58.898 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:38:58.899 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:38:58.953 DEBUG o.s.s.a.d.DaoAuthenticationProvider - Authenticated user
+2026-03-30 19:38:58.954 INFO  c.backend.controller.AuthController - Inicio de sesión exitoso para el usuario: admin
+2026-03-30 19:38:59.025 DEBUG c.backend.controller.AuthController - Token JWT generado para el usuario: admin
+2026-03-30 19:38:59.026 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:38:59.028 DEBUG c.backend.controller.AuthController - Usuario autenticado: admin - Perfil: Admin
+2026-03-30 19:38:59.029 INFO  c.backend.controller.AuthController - Login exitoso - Usuario: admin con roles: [ROLE_USUARIO, ROLE_ADMIN]
+2026-03-30 19:39:05.892 DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/nutricion/generar-plan
+2026-03-30 19:39:05.921 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:39:05.922 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:39:05.926 DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/nutricion/generar-plan
+2026-03-30 19:39:05.939 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.generarPlangenerarPlanAutomatico(com.backend.dto.PerfilFisicoRequest); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:39:46.573 INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-30 19:39:46.577 INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-03-30 19:39:46.580 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopping...
+2026-03-30 19:39:46.580 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@56a4969b]]
+2026-03-30 19:39:46.581 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopped.
+2026-03-30 19:39:46.587 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-30 19:39:46.590 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-30 19:39:46.593 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-30 19:40:09.992 INFO  com.backend.App - Starting App v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
+2026-03-30 19:40:09.994 DEBUG com.backend.App - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-03-30 19:40:09.995 INFO  com.backend.App - The following 1 profile is active: "dev"
+2026-03-30 19:40:10.287 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-03-30 19:40:10.774 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-30 19:40:10.844 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 63 ms. Found 23 JPA repository interfaces.
+2026-03-30 19:40:11.338 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-03-30 19:40:11.350 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-03-30 19:40:11.353 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-30 19:40:11.354 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-03-30 19:40:11.380 INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1339 ms
+2026-03-30 19:40:11.562 INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-03-30 19:40:11.593 INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-03-30 19:40:11.857 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-30 19:40:11.874 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-30 19:40:12.028 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5c20505f
+2026-03-30 19:40:12.029 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-30 19:40:12.060 WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-30 19:40:12.077 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://db:5432/spring_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 15.17
+	Default catalog/schema: spring_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-30 19:40:12.993 INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-30 19:40:13.090 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-30 19:40:13.127 INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-30 19:40:13.314 DEBUG c.b.s.jwt.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-03-30 19:40:13.712 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailServiceImp
+2026-03-30 19:40:14.506 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-03-30 19:40:14.517 DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-03-30 19:40:14.750 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Starting...
+2026-03-30 19:40:14.750 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@56a4969b]]
+2026-03-30 19:40:14.751 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Started.
+2026-03-30 19:40:14.751 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-03-30 19:40:14.763 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-03-30 19:40:14.770 INFO  com.backend.App - Started App in 5.202 seconds (process running for 5.623)
+2026-03-30 19:40:14.903 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-30 19:40:14.931 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-03-30 19:40:14.935 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:40:14.943 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:40:14.956 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:40:14.957 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:40:14.964 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-30 19:40:14.968 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-03-30 19:40:14.978 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:40:14.985 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:40:14.988 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-03-30 19:40:14.998 DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        dietas d1_0
+2026-03-30 19:40:15.005 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-03-30 19:40:15.006 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-03-30 19:40:15.024 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-30 19:40:15.026 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-03-30 19:40:21.354 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-30 19:40:21.355 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-30 19:40:21.360 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 5 ms
+2026-03-30 19:40:21.376 DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/v1/auth/login
+2026-03-30 19:40:21.385 WARN  o.s.w.s.h.HandlerMappingIntrospector - Cache miss for REQUEST dispatch to '/api/v1/auth/login' (previous null). Performing CorsConfiguration lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-03-30 19:40:21.392 DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2026-03-30 19:40:21.395 DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/v1/auth/login
+2026-03-30 19:40:21.499 INFO  c.backend.controller.AuthController - Intento de inicio de sesión para el usuario: admin
+2026-03-30 19:40:21.557 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:40:21.560 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:40:21.615 DEBUG o.s.s.a.d.DaoAuthenticationProvider - Authenticated user
+2026-03-30 19:40:21.616 INFO  c.backend.controller.AuthController - Inicio de sesión exitoso para el usuario: admin
+2026-03-30 19:40:21.700 DEBUG c.backend.controller.AuthController - Token JWT generado para el usuario: admin
+2026-03-30 19:40:21.701 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:40:21.703 DEBUG c.backend.controller.AuthController - Usuario autenticado: admin - Perfil: Admin
+2026-03-30 19:40:21.704 INFO  c.backend.controller.AuthController - Login exitoso - Usuario: admin con roles: [ROLE_USUARIO, ROLE_ADMIN]
+2026-03-30 19:40:27.391 DEBUG o.s.security.web.FilterChainProxy - Securing POST /api/nutricion/generar-plan
+2026-03-30 19:40:27.419 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:40:27.421 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:40:27.424 DEBUG o.s.security.web.FilterChainProxy - Secured POST /api/nutricion/generar-plan
+2026-03-30 19:40:27.434 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.generarPlangenerarPlanAutomatico(com.backend.dto.PerfilFisicoRequest); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:40:27.441 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.generarPlangenerarPlanAutomatico(com.backend.dto.PerfilFisicoRequest); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:40:27.446 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    left join
+        perfiles p1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-03-30 19:40:29.947 DEBUG org.hibernate.SQL - 
+    select
+        d1_0.id,
+        d1_0.cantidad_c,
+        d1_0.cantidad_g,
+        d1_0.cantidad_p,
+        d1_0.categoria_dieta_id,
+        d1_0.descripcion,
+        d1_0.nombre,
+        d1_0.objetivo_calorico,
+        d1_0.tipo 
+    from
+        dietas d1_0 
+    left join
+        categoria_dieta cd1_0 
+            on cd1_0.id=d1_0.categoria_dieta_id 
+    where
+        cd1_0.nombre=?
+2026-03-30 19:40:29.961 DEBUG org.hibernate.SQL - 
+    insert 
+    into
+        sugerencias_dieta
+        (calorias_objetivo, dieta_id, fecha_generacion, macronutrientes_json, nombre_dieta, tipo_dieta, usuario_id) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+2026-03-30 19:40:34.872 DEBUG o.s.security.web.FilterChainProxy - Securing GET /api/nutricion/usuario/2
+2026-03-30 19:40:34.876 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-03-30 19:40:34.877 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-03-30 19:40:34.881 DEBUG o.s.security.web.FilterChainProxy - Secured GET /api/nutricion/usuario/2
+2026-03-30 19:40:34.883 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.obtenerUltimoPlan(java.lang.Long); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:40:34.884 DEBUG o.s.s.a.m.AuthorizationManagerBeforeMethodInterceptor - Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.backend.controller.NutricionController.obtenerUltimoPlan(java.lang.Long); target is of class [com.backend.controller.NutricionController]
+2026-03-30 19:40:34.890 DEBUG org.hibernate.SQL - 
+    select
+        sd1_0.id,
+        sd1_0.calorias_objetivo,
+        sd1_0.dieta_id,
+        sd1_0.fecha_generacion,
+        sd1_0.macronutrientes_json,
+        sd1_0.nombre_dieta,
+        sd1_0.tipo_dieta,
+        sd1_0.usuario_id 
+    from
+        sugerencias_dieta sd1_0 
+    where
+        sd1_0.usuario_id=? 
+    order by
+        sd1_0.id desc 
+    fetch
+        first ? rows only
+2026-03-30 19:40:34.892 DEBUG org.hibernate.SQL - 
+    select
+        d1_0.id,
+        d1_0.cantidad_c,
+        d1_0.cantidad_g,
+        d1_0.cantidad_p,
+        d1_0.categoria_dieta_id,
+        d1_0.descripcion,
+        d1_0.nombre,
+        d1_0.objetivo_calorico,
+        d1_0.tipo 
+    from
+        dietas d1_0 
+    where
+        d1_0.id=?
+2026-03-30 19:40:34.893 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    left join
+        perfiles p1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        u1_0.id=?
+2026-03-30 19:41:14.725 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-30 19:42:22.950 INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-30 19:42:22.952 INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-03-30 19:42:22.954 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopping...
+2026-03-30 19:42:22.954 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@56a4969b]]
+2026-03-30 19:42:22.954 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopped.
+2026-03-30 19:42:22.960 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-30 19:42:22.962 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-30 19:42:22.964 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

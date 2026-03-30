@@ -3,8 +3,11 @@ package com.backend.service;
 import com.backend.domain.SugerenciaDieta;
 import com.backend.dto.SugerenciaDietaReponseDto;
 import com.backend.dto.SugerenciaDietaRequestDto;
+import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.mapper.SugerenciaDietaMapper;
 import com.backend.repository.SugerenciaDietaRepository;
+import com.backend.repository.UsuarioRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +21,15 @@ public class SugerenciaDietaServiceImp implements ISugerenciaDietaService {
 
     private final SugerenciaDietaRepository sugerenciaRepository;
     private final SugerenciaDietaMapper sugerenciaMapper;
+    private final UsuarioRepository usuarioRepository;
 
     @Override
     @Transactional
     public SugerenciaDietaReponseDto guardarAsignacion(SugerenciaDietaRequestDto dto) {
+         if (dto == null) {
+            throw new IllegalArgumentException("El DTO de sugerencia no puede ser nulo");
+        }
+
         // Asignación MANUAL pura y dura, sin fatsecret ni nada, solo guardamos lo que nos envían
         SugerenciaDieta entidad = sugerenciaMapper.toEntity(dto);
         entidad.setFechaGeneracion(LocalDateTime.now());
@@ -32,6 +40,9 @@ public class SugerenciaDietaServiceImp implements ISugerenciaDietaService {
     @Override
     @Transactional(readOnly = true)
     public List<SugerenciaDietaReponseDto> obtenerHistorial(Long usuarioId) {
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId);
+        }
         // Obtenemos el historial ordenado por fecha descendente (más reciente primero)
         return sugerenciaMapper.toResponseDtoList(
                 sugerenciaRepository.findByUsuarioIdOrderByFechaGeneracionDesc(usuarioId));

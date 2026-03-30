@@ -17,6 +17,7 @@ public class SugerenciaDietaController {
     private final ISugerenciaDietaService sugerenciaService;
 
     @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")  
     public ResponseEntity<List<SugerenciaDietaReponseDto>> obtenerHistorial(@PathVariable Long usuarioId) {
         List<SugerenciaDietaReponseDto> historial = sugerenciaService.obtenerHistorial(usuarioId);
         return ResponseEntity.ok(historial);
