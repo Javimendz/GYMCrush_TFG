@@ -1,6 +1,8 @@
 package com.backend.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
 import com.backend.domain.SugerenciaDieta;
 import com.backend.dto.SugerenciaDietaReponseDto;
 
@@ -16,12 +18,7 @@ import com.backend.dto.SugerenciaDietaReponseDto;
  */
 @Mapper(componentModel = "spring")
 public interface SugerenciaDietaMapper {
-
-    /**
-     * Convierte una entidad SugerenciaDieta a su DTO de respuesta.
-     *
-     * @param sugerenciaDieta la entidad a convertir
-     * @return el DTO de respuesta
-     */
-    SugerenciaDietaReponseDto sugerenciaDietaToSugerenciaDietaDTO(SugerenciaDieta sugerenciaDieta);
+    @Mapping(target = "usuarioId", source = "usuario.id")
+    @Mapping(target = "dietaId", source = "dieta.id")
+    SugerenciaDietaReponseDto toResponseDto(SugerenciaDieta sugerencia);
 }

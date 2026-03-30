@@ -9,15 +9,20 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.backend.domain.CategoriaDieta;
+import com.backend.domain.Dieta;
 import com.backend.domain.Perfil;
 import com.backend.domain.Role;
 import com.backend.domain.Usuario;
 import com.backend.domain.enums.EnumGenero;
+import com.backend.repository.CategoriaDietaRepository;
+import com.backend.repository.DietaRepository;
 import com.backend.repository.PerfilRepository;
 import com.backend.repository.RoleRepository;
 import com.backend.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Componente que carga datos iniciales en la base de datos al iniciar la aplicación.
@@ -38,6 +43,7 @@ import lombok.RequiredArgsConstructor;
  * @version 1.0
  * @since 2024
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
@@ -57,9 +63,13 @@ public class DataLoader implements CommandLineRunner {
      * @param args argumentos de línea de comandos pasados a la aplicación
      * @throws Exception si ocurre algún error durante la inicialización
      */
+    private final CategoriaDietaRepository categoriaDietaRepository;
+    private final DietaRepository dietaRepository;
     @Override
     @Transactional // Usamos transactional para que lo haga todo a la vez
     public void run(String... args) throws Exception {
+
+        
 
         // Se ejecta todo antes de hacer peticiones, asi creara los usuarios lo primero.
 
@@ -170,6 +180,59 @@ public class DataLoader implements CommandLineRunner {
          * .build();
          * saludRepository.save(inicial);
          */
+        inicializarNutricion();
     }
 
+
+    private void inicializarNutricion() {
+        // --- CATEGORÍAS ---
+        CategoriaDieta catVolumen = categoriaDietaRepository.findByNombreIgnoreCase("VOLUMEN")
+                .orElseGet(() -> categoriaDietaRepository.save(
+                    CategoriaDieta.builder().nombre("VOLUMEN").descripcion("Plan para ganar masa muscular").build()));
+
+        CategoriaDieta catDefinicion = categoriaDietaRepository.findByNombreIgnoreCase("DEFINICION")
+                .orElseGet(() -> categoriaDietaRepository.save(
+                    CategoriaDieta.builder().nombre("DEFINICION").descripcion("Plan para quema de grasa y definición").build()));
+
+        CategoriaDieta catMantenimiento = categoriaDietaRepository.findByNombreIgnoreCase("MANTENIMIENTO")
+                .orElseGet(() -> categoriaDietaRepository.save(
+                    CategoriaDieta.builder().nombre("MANTENIMIENTO").descripcion("Plan para mantener el peso actual").build()));
+
+        // --- DIETAS BASE (Ejemplos) ---
+        // Solo creamos si la tabla de dietas está vacía para no duplicar
+        if (dietaRepository.count() == 0) {
+            
+            dietaRepository.save(Dieta.builder()
+                .nombre("Dieta Hipercalórica Estándar")
+                .descripcion("Enfoque en superávit de carbohidratos y proteínas.")
+                .objetivoCalorico(3000)
+                .cantidadProteinas(180)
+                .cantidadCarbohidratos(400)
+                .cantidadGrasas(80)
+                .categoriaDieta(catVolumen)
+                .build());
+
+            dietaRepository.save(Dieta.builder()
+                .nombre("Déficit Calórico Agresivo")
+                .descripcion("Baja en carbohidratos, alta en fibra y proteína.")
+                .objetivoCalorico(1800)
+                .cantidadProteinas(160)
+                .cantidadCarbohidratos(150)
+                .cantidadGrasas(60)
+                .categoriaDieta(catDefinicion)
+                .build());
+
+            dietaRepository.save(Dieta.builder()
+                .nombre("Equilibrio Nutricional")
+                .descripcion("Reparto equilibrado de macros para salud general.")
+                .objetivoCalorico(2300)
+                .cantidadProteinas(140)
+                .cantidadCarbohidratos(250)
+                .cantidadGrasas(75)
+                .categoriaDieta(catMantenimiento)
+                .build());
+            
+            log.info("Dietas base de catálogo creadas.");
+        }
+    }
 }

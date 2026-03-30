@@ -42,4 +42,4 @@ public interface TutorialMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "visualizaciones", ignore = true)
     Tutorial toEntity(TutorialRequestDto dto);
-}
+}   
