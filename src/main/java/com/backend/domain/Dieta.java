@@ -80,6 +80,8 @@ public class Dieta {
     @Column(name = "cantidad_g", nullable = true)
     private Integer cantidadGrasas;
 
+    @Column
+    private String descripcion;
 
    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_dieta_id")

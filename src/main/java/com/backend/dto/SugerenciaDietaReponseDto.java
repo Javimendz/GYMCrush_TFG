@@ -93,6 +93,12 @@ public class SugerenciaDietaReponseDto {
     @Schema(description = "Nombre de la dieta sugerida")
     private String nombreDieta;
     
+@Schema(description = "ID del usuario al que pertenece la sugerencia")
+    private Long usuarioId;
+
+    @Schema(description = "ID de la dieta base utilizada para esta sugerencia")
+    private Long dietaId;
+
     /**
      * Calorías objetivo diarias para la dieta sugerida.
      * <p>

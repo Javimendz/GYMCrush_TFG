@@ -256,8 +256,25 @@ Gestión de entradas y salidas mediante tokens temporales para control de aforo 
 
  para probar los websockets con stomp
 
+### Para la sugerencia de dietas, se utilizara fastsecret(Pasos):
 
+#### ir a la página de desarrolladores de FatSecret (FatSecret Platform API) y regístrarse.
 
+    Crea una nueva aplicación allí.
+
+    Me darán dos cosas clave: un Client ID y un Client Secret.
+
+#### Configurar application.properties
+
+    añadir esto :
+    
+      # Integración FatSecret
+      fatsecret.client.id=${FATSECRET_CLIENT_ID:tu_client_id_aqui}
+      fatsecret.client.secret=${FATSECRET_CLIENT_SECRET:tu_client_secret_aqui}
+      fatsecret.oauth.url=https://oauth.fatsecret.com/connect/token
+      fatsecret.api.url=https://platform.fatsecret.com/rest/server.api
+
+---    
 
 Tutoriales utilizados para la implementación del jwt: 
 - `https://www.youtube.com/watch?v=KYNR5js2cXE`

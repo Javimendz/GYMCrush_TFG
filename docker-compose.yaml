@@ -15,6 +15,9 @@ services:
       - LOG_PATH=/app/logs
       - JWT_EXPIRATION= ${JWT_EXPIRATION}
       - SPRING_PROFILES_ACTIVE=dev
+      - FATSECRET_CLIENT_ID=${FATSECRET_CLIENT_ID}
+      - FATSECRET_CLIENT_SECRET=${FATSECRET_CLIENT_SECRET}
+      
     volumes:
       - ./logs:/app/logs
     depends_on:
