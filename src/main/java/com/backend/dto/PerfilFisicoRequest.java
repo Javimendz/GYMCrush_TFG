@@ -1,5 +1,8 @@
 package com.backend.dto;
 
+import com.backend.domain.enums.EnumNivelActividad;
+import com.backend.domain.enums.EnumObjetivo;
+
 import lombok.Data;
 
 @Data
@@ -10,5 +13,7 @@ public class PerfilFisicoRequest {
 
     private Double altura;
 
-    private String objetivo;
+    private EnumObjetivo objetivo;
+    private EnumNivelActividad nivelActividad;
+    
 }

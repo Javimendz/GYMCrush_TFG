@@ -1,6 +1,9 @@
 package com.backend.service;
 
 import com.backend.domain.*;
+// Corregimos los imports de los Enums
+import com.backend.domain.enums.EnumObjetivo;
+import com.backend.domain.enums.EnumNivelActividad;
 import com.backend.dto.*;
 import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.mapper.SugerenciaDietaMapper;
@@ -22,10 +25,10 @@ public class NutricionServiceImpl implements INutricionService {
     private final SugerenciaDietaRepository sugerenciaRepository;
     private final SugerenciaDietaMapper sugerenciaMapper;
 
-   @Override
+    @Override
     @Transactional
     public SugerenciaDietaReponseDto generarPlanAutomatico(PerfilFisicoRequest request) {
-        // 1. Obtención de datos básicos
+        // 1. Obtención de datos
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
@@ -36,26 +39,25 @@ public class NutricionServiceImpl implements INutricionService {
 
         int edad = Period.between(perfil.getFechaNacimiento(), LocalDate.now()).getYears();
 
-        // 2. Cálculo de Tasa Metabólica Basal (TMB) - Mifflin-St Jeor
-        // TMB = (10 * peso) + (6.25 * altura) - (5 * edad) + s (s=+5 masc, s=-161 fem)
+        // 2. Tasa Metabólica Basal
         double tmb = (10 * request.getPeso()) + (6.25 * request.getAltura()) - (5 * edad);
         tmb = (perfil.getGenero().name().equalsIgnoreCase("HOMBRE") || 
                perfil.getGenero().name().equalsIgnoreCase("MASCULINO")) ? tmb + 5 : tmb - 161;
 
-        // 3. Cálculo de Gasto Energético Total (TDEE) usando Factor de Actividad dinámico
+        // 3. Gasto Energético Total (TDEE)
         double tdee = tmb * request.getNivelActividad().getFactor();
 
-        // 4. Ajuste por objetivo y selección de categoría
         int kcalObjetivo;
         String categoriaNombre;
 
+        // 4. Lógica del Plan - CORRECCIÓN EN LOS CASE
         switch (request.getObjetivo()) {
-            case GANAR:
-                kcalObjetivo = (int) (tdee * 1.10); // Superávit del 10%
+            case GANAR: // <-- IMPORTANTE: Sin el prefijo "EnumObjetivo."
+                kcalObjetivo = (int) (tdee * 1.10);
                 categoriaNombre = "VOLUMEN";
                 break;
             case PERDER:
-                kcalObjetivo = (int) (tdee * 0.80); // Déficit del 20%
+                kcalObjetivo = (int) (tdee * 0.80);
                 categoriaNombre = "DEFINICION";
                 break;
             default: // MANTENER
@@ -64,8 +66,7 @@ public class NutricionServiceImpl implements INutricionService {
                 break;
         }
 
-        // 5. Reparto de Macronutrientes (Basado en peso corporal)
-        // Proteína: 2g/kg | Grasas: 0.8g/kg | Carbohidratos: El resto
+        // 5. Macronutrientes
         double proteinasGramos = request.getPeso() * 2.0;
         double grasasGramos = request.getPeso() * 0.8;
         double carbohidratosGramos = (kcalObjetivo - (proteinasGramos * 4) - (grasasGramos * 9)) / 4;
@@ -75,16 +76,16 @@ public class NutricionServiceImpl implements INutricionService {
             proteinasGramos, carbohidratosGramos, grasasGramos
         );
 
-        // 6. Vinculación con Dieta Base del catálogo
+        // 6. Buscar Dieta Base
         Dieta dietaBase = dietaRepository.findByCategoriaDietaNombre(categoriaNombre).stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Catálogo vacío: No hay dietas base para " + categoriaNombre));
+                .orElseThrow(() -> new RuntimeException("Catálogo vacío para " + categoriaNombre));
 
-        // 7. Persistencia de la Sugerencia Personalizada
+        // 7. Guardar Sugerencia
         SugerenciaDieta sugerencia = SugerenciaDieta.builder()
                 .usuario(usuario)
                 .dieta(dietaBase)
-                .nombreDieta("Plan " + categoriaNombre + " - " + request.getObjetivo())
+                .nombreDieta("Plan " + categoriaNombre)
                 .caloriasObjetivo(kcalObjetivo)
                 .tipoDieta(dietaBase.getNombre())
                 .macronutrientesJson(macrosJson)

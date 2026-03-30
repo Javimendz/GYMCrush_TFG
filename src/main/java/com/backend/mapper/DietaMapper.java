@@ -15,6 +15,7 @@ public interface DietaMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "sugerencias", ignore = true)
     @Mapping(target = "categoriaDieta", ignore = true) 
+    @Mapping(target = "descripcion", ignore = true)
     Dieta toEntity(DietaRequestDto requestDto);
 
     List<DietaResponseDto> toResponseDtoList(List<Dieta> dietas);
