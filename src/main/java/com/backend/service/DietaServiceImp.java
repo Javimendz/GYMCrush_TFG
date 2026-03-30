@@ -8,8 +8,6 @@ import com.backend.mapper.DietaMapper;
 import com.backend.repository.CategoriaDietaRepository;
 import com.backend.repository.DietaRepository;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -23,8 +21,7 @@ public class DietaServiceImp implements IDietaService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-
+    
     public DietaResponseDto crearDieta(DietaRequestDto dto) {
         //  Convertimos a entidad
         Dieta dieta = dietaMapper.toEntity(dto);

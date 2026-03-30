@@ -1,7 +1,6 @@
 package com.backend.service;
 
 import com.backend.domain.*;
-// Corregimos los imports de los Enums
 import com.backend.domain.enums.EnumObjetivo;
 import com.backend.domain.enums.EnumNivelActividad;
 import com.backend.dto.*;
@@ -24,11 +23,14 @@ public class NutricionServiceImpl implements INutricionService {
     private final DietaRepository dietaRepository;
     private final SugerenciaDietaRepository sugerenciaRepository;
     private final SugerenciaDietaMapper sugerenciaMapper;
+    
+    
+    private final FatSecretService fatSecretService;
 
     @Override
     @Transactional
     public SugerenciaDietaReponseDto generarPlanAutomatico(PerfilFisicoRequest request) {
-        // 1. Obtención de datos
+        //  Obtención de datos
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
@@ -39,20 +41,20 @@ public class NutricionServiceImpl implements INutricionService {
 
         int edad = Period.between(perfil.getFechaNacimiento(), LocalDate.now()).getYears();
 
-        // 2. Tasa Metabólica Basal
+        //  Tasa Metabólica Basal
         double tmb = (10 * request.getPeso()) + (6.25 * request.getAltura()) - (5 * edad);
         tmb = (perfil.getGenero().name().equalsIgnoreCase("HOMBRE") || 
                perfil.getGenero().name().equalsIgnoreCase("MASCULINO")) ? tmb + 5 : tmb - 161;
 
-        // 3. Gasto Energético Total (TDEE)
+        //  Gasto Energético Total (TDEE)
         double tdee = tmb * request.getNivelActividad().getFactor();
 
         int kcalObjetivo;
         String categoriaNombre;
 
-        // 4. Lógica del Plan - CORRECCIÓN EN LOS CASE
+        //  Lógica del Plan
         switch (request.getObjetivo()) {
-            case GANAR: // <-- IMPORTANTE: Sin el prefijo "EnumObjetivo."
+            case GANAR: 
                 kcalObjetivo = (int) (tdee * 1.10);
                 categoriaNombre = "VOLUMEN";
                 break;
@@ -66,29 +68,47 @@ public class NutricionServiceImpl implements INutricionService {
                 break;
         }
 
-        // 5. Macronutrientes
+        //  Macronutrientes Exactos Calculados
         double proteinasGramos = request.getPeso() * 2.0;
         double grasasGramos = request.getPeso() * 0.8;
         double carbohidratosGramos = (kcalObjetivo - (proteinasGramos * 4) - (grasasGramos * 9)) / 4;
 
-        String macrosJson = String.format(
+        //Tratamos la llamada a la api de fastsecret con un try catch para evitar que si falla la api, el usuario se quede sin dieta
+        //  Si la api falla, usamos los macros matemáticos para que no se quede sin dieta   
+
+
+       String macrosJson = String.format(
             "{\"proteinas\": \"%.1fg\", \"carbohidratos\": \"%.1fg\", \"grasas\": \"%.1fg\"}",
             proteinasGramos, carbohidratosGramos, grasasGramos
         );
 
-        // 6. Buscar Dieta Base
+        String menuRealJson;
+        try {
+            // Plan A: Intentamos buscar comida real en internet
+            menuRealJson = fatSecretService.buscarRecetasPorMacros(
+                    kcalObjetivo, (int) proteinasGramos, (int) carbohidratosGramos, (int) grasasGramos
+            );
+        } catch (Exception e) {
+        // Cambia el System.err por esto para ver TODO el rastro del error
+        e.printStackTrace(); 
+        System.err.println("⚠️ Detalle del error: " + e.getMessage());
+        menuRealJson = macrosJson;
+    }
+
+        //  Buscar Dieta Base
         Dieta dietaBase = dietaRepository.findByCategoriaDietaNombre(categoriaNombre).stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Catálogo vacío para " + categoriaNombre));
 
-        // 7. Guardar Sugerencia
+        //  Guardar Sugerencia
         SugerenciaDieta sugerencia = SugerenciaDieta.builder()
                 .usuario(usuario)
                 .dieta(dietaBase)
                 .nombreDieta("Plan " + categoriaNombre)
                 .caloriasObjetivo(kcalObjetivo)
                 .tipoDieta(dietaBase.getNombre())
-                .macronutrientesJson(macrosJson)
+                // GUARDAMOS EL MENÚ REAL DE LA API EN VEZ DE SOLO EL STRING FORMAT
+                .macronutrientesJson(menuRealJson) 
                 .fechaGeneracion(LocalDateTime.now())
                 .build();
 

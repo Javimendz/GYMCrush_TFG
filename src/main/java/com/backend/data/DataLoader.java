@@ -198,12 +198,13 @@ public class DataLoader implements CommandLineRunner {
                 .orElseGet(() -> categoriaDietaRepository.save(
                     CategoriaDieta.builder().nombre("MANTENIMIENTO").descripcion("Plan para mantener el peso actual").build()));
 
-        // --- DIETAS BASE (Ejemplos) ---
+        //  DIETAS BASE 
         // Solo creamos si la tabla de dietas está vacía para no duplicar
         if (dietaRepository.count() == 0) {
             
             dietaRepository.save(Dieta.builder()
                 .nombre("Dieta Hipercalórica Estándar")
+                .tipo("Hipercalórica")
                 .descripcion("Enfoque en superávit de carbohidratos y proteínas.")
                 .objetivoCalorico(3000)
                 .cantidadProteinas(180)
@@ -214,6 +215,7 @@ public class DataLoader implements CommandLineRunner {
 
             dietaRepository.save(Dieta.builder()
                 .nombre("Déficit Calórico Agresivo")
+                .tipo("Hipocalórica")
                 .descripcion("Baja en carbohidratos, alta en fibra y proteína.")
                 .objetivoCalorico(1800)
                 .cantidadProteinas(160)
@@ -224,6 +226,7 @@ public class DataLoader implements CommandLineRunner {
 
             dietaRepository.save(Dieta.builder()
                 .nombre("Equilibrio Nutricional")
+                .tipo("Normocalórica")
                 .descripcion("Reparto equilibrado de macros para salud general.")
                 .objetivoCalorico(2300)
                 .cantidadProteinas(140)
