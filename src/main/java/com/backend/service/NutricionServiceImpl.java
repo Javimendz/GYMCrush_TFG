@@ -5,6 +5,7 @@ import com.backend.domain.enums.EnumObjetivo;
 import com.backend.domain.enums.EnumNivelActividad;
 import com.backend.dto.*;
 import com.backend.exceptions.ResourceNotFoundException;
+import com.backend.mapper.NutricionMapper;
 import com.backend.mapper.SugerenciaDietaMapper;
 import com.backend.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,9 @@ public class NutricionServiceImpl implements INutricionService {
     private final DietaRepository dietaRepository;
     private final SugerenciaDietaRepository sugerenciaRepository;
     private final SugerenciaDietaMapper sugerenciaMapper;
-    
-    
+    private final NutricionMapper nutricionMapper;
+    private final NutricionRepository nutricionRepository;
+
     private final FatSecretService fatSecretService;
 
     @Override
@@ -113,5 +115,14 @@ public class NutricionServiceImpl implements INutricionService {
                 .build();
 
         return sugerenciaMapper.toResponseDto(sugerenciaRepository.save(sugerencia));
+    }
+
+   @Override
+    public NutricionResponseDto obtenerUltimoPlanPorUsuario(Long usuarioId) {
+        // Buscamos en la DB el último plan de ese usuario
+        // Suponiendo que tienes un método en el repo que busque por ID de usuario
+        return nutricionRepository.findFirstByUsuarioIdOrderByIdDesc(usuarioId)
+                .map(nutricionMapper::toResponse) // Lo pasamos por el Mapper para tener el DTO
+                .orElse(null); // Si no hay plan, devolvemos null (el controller enviará un 404)
     }
 }

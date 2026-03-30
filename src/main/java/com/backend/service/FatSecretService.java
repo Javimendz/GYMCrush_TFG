@@ -32,21 +32,31 @@ public class FatSecretService {
     /**
      * PASO 1: Obtener el token de FatSecret
      */
-    private String obtenerTokenAutenticacion() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setBasicAuth(clientId, clientSecret);
+    public String obtenerTokenAutenticacion() {
+    String url = "https://oauth.fatsecret.com/connect/token";
+    RestTemplate restTemplate = new RestTemplate();
 
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type", "client_credentials");
-        body.add("scope", "basic");
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    headers.setBasicAuth(clientId, clientSecret);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        
-        ResponseEntity<JsonNode> response = restTemplate.postForEntity(oauthUrl, request, JsonNode.class);
-        return response.getBody().get("access_token").asText();
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("grant_type", "client_credentials");
+    map.add("scope", "basic");
+
+    HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+
+    // CAMBIO CLAVE: Pedimos la respuesta como String, no como JsonNode u Objeto
+    ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+    String body = response.getBody();
+
+    // Extraemos el token con lógica de String básica para evitar Jackson
+    if (body != null && body.contains("access_token\":\"")) {
+        return body.split("access_token\":\"")[1].split("\"")[0];
     }
-
+    
+    throw new RuntimeException("No se pudo obtener el token de FatSecret");
+}
     /**
      * PASO 2: Buscar recetas basadas en macros
      */
