@@ -30,11 +30,11 @@ public class Usuario {
     @Column(name = "username", nullable = false)
     private String username;
 
-    //@Column(name = "nombre", nullable = false)
-    //private String nombre;
+    // @Column(name = "nombre", nullable = false)
+    // private String nombre;
 
-    //@Column(name = "apellidos", nullable = false)
-    //private String apellidos;
+    // @Column(name = "apellidos", nullable = false)
+    // private String apellidos;
 
     @Column(name = "correo", unique = true, nullable = false, length = 150)
     private String correo;
@@ -42,24 +42,21 @@ public class Usuario {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-   
+    // @Column(name = "direccion", length = 255)
+    // private String direccion;
 
-    //@Column(name = "direccion", length = 255)
-    //private String direccion;
+    // @Column(name = "ciudad", length = 100)
+    // private String ciudad;
 
-    //@Column(name = "ciudad", length = 100)
-    //private String ciudad;
+    // @Column(name = "pais", length = 100)
+    // private String pais;
 
-    //@Column(name = "pais", length = 100)
-    //private String pais;
-
-    //@Column(name = "codigo_postal", length = 20)
-    //private String codigoPostal;
+    // @Column(name = "codigo_postal", length = 20)
+    // private String codigoPostal;
     @Builder.Default
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "users_roles", 
-               joinColumns = @JoinColumn(name = "user_id"), 
-               inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Role> rol = new HashSet<>();
 
     @Column(name = "qr_token", length = 255)
@@ -77,46 +74,46 @@ public class Usuario {
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // Cambiamos a EAGER para el Login
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // Cambiamos
+                                                                                                              // a EAGER
+                                                                                                              // par //
+                                                                                                              // Login
     @OnDelete(action = OnDeleteAction.CASCADE)
-    
-    @ToString.Exclude// Para evitar bucle infinito con Lombok
+    @ToString.Exclude // Para evitar bucle infinito con Lombok
     private Perfil perfil; // Relación 1:1 con Perfil
 
-
-    
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Reserva> reservas = new ArrayList<>(); // Un usuario realiza N reservas
 
     @Builder.Default
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Entrenamiento> entrenamientos = new ArrayList<>();// Un usuario realiza N entrenamientos
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
     private List<Salud> salud = new ArrayList<>();// Un usuario registra N datos de salud
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
-    private List<SugerenciaDieta> ssugerenciasDieta = new ArrayList<>(); // Un usuario recibe N sugerencias
+    private List<SugerenciaDieta> sugerenciasDieta = new ArrayList<>(); // Un usuario recibe N sugerencias
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
     private List<Ticket> tickets = new ArrayList<>(); // Un usuario crea N tickets
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL,orphanRemoval = true)
     @Builder.Default
     private List<Chat> chat = new ArrayList<>(); // Un usuario conecta con el chat
 
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
     @Builder.Default
     private List<Rutina> rutinas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
     @Builder.Default
     private List<Visualizacion> visualizaciones = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -138,5 +135,4 @@ public class Usuario {
         role.getUsuarios().remove(this);
     }
 
-   
 }

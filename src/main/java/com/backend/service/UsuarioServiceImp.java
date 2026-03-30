@@ -127,13 +127,41 @@ public class UsuarioServiceImp implements IUsuarioService {
      * @param id ID del usuario a eliminar
      * @throws ResourceNotFoundException si el usuario no existe
      */
-    @Override
-    public void deleteById(Long id) {
-        log.info("Eliminando usuario con ID: {}", id);
-        Usuario usuario = this.findById(id);
-        usuarioRepo.delete(usuario);
-        log.info("Usuario {} eliminado exitosamente", usuario.getUsername());
+ @Override
+@Transactional // Asegura que toda la operación sea una sola unidad de trabajo
+public void deleteById(Long id) {
+    log.info("Iniciando borrado integral del usuario ID: {}", id);
+
+    // 1. Buscamos al usuario (si no existe, lanzamos 404)
+    Usuario usuario = usuarioRepo.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
+
+    // 2. ROMPER EL PUENTE CON ROLES (Relación ManyToMany)
+    // Esto es lo que soluciona tu error en la tabla 'users_roles'
+    if (usuario.getRol() != null) {
+        log.debug("Desvinculando roles para el usuario: {}", usuario.getUsername());
+        usuario.getRol().clear();
     }
+
+    // 3. LIMPIEZA DE RELACIONES HIJAS (Opcional, pero añade robustez)
+    // Aunque tengas CascadeType.ALL, vaciar las listas ayuda a JPA a gestionar los huérfanos
+    usuario.getReservas().clear();
+    usuario.getEntrenamientos().clear();
+    usuario.getSalud().clear();
+    // usuario.getChat().clear(); // Añade aquí el resto de tus listas si es necesario
+
+    // 4. SINCRONIZACIÓN FORZOSA (El Flush)
+    // Obliga a Spring a ejecutar los DELETE en las tablas hijas e intermedias AHORA.
+    // Sin esto, Hibernate podría intentar borrar al usuario antes que los roles.
+    usuarioRepo.saveAndFlush(usuario);
+
+    // 5. BORRADO FINAL DEL USUARIO
+    // Ahora que el usuario no tiene ninguna "atadura" en la DB, se borra sin errores.
+    usuarioRepo.delete(usuario);
+    
+    log.info("Usuario '{}' (ID: {}) y todas sus dependencias eliminados correctamente", 
+             usuario.getUsername(), id);
+}
     /**
      * Valida un token QR para un usuario.
      * <p>
