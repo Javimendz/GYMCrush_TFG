@@ -75,7 +75,7 @@ public class FatSecretService {
             JsonNode root = objectMapper.readTree(body);
             if (root.has("error")) {
                 String errorMsg = root.get("error").get("message").asText();
-                System.err.println("❌ Error de FatSecret (Code " + root.get("error").get("code") + "): " + errorMsg);
+                System.err.println(" Error de FatSecret (Code " + root.get("error").get("code") + "): " + errorMsg);
                 
                 // Si hay error, devolvemos un JSON vacío pero válido para que no explote tu DB
                 return "{\"recipes\": {\"recipe\": []}}"; 
@@ -83,7 +83,7 @@ public class FatSecretService {
 
             return body; // Si todo está bien, devolvemos el JSON original
         } catch (Exception e) {
-            System.err.println("⚠️ Error procesando recetas: " + e.getMessage());
+            System.err.println(" Error procesando recetas: " + e.getMessage());
             return "{\"recipes\": {\"recipe\": []}}";
         }
     }

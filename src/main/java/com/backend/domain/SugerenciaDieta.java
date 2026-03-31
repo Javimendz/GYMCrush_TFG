@@ -87,8 +87,8 @@ public class SugerenciaDieta {
      * información del usuario automáticamente.
      * </p>
      */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "usuarioId", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
     @ToString.Exclude
     private Usuario usuario;
 
@@ -99,8 +99,8 @@ public class SugerenciaDieta {
      * información completa del plan dietético.
      * </p>
      */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "dieta_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dieta_id", nullable = false)
     @ToString.Exclude
     private Dieta dieta;
 

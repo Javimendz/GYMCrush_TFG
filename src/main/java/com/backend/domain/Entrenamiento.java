@@ -83,7 +83,7 @@ public class Entrenamiento {
      * </p>
      */
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
     private Usuario usuario;
 

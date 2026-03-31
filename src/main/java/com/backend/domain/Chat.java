@@ -1,6 +1,6 @@
 package com.backend.domain;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,7 +50,7 @@ public class Chat {
      * </p>
      */
     @Column(name = "fecha_hora", nullable = false)
-    private LocalDate fechaHora;
+    private LocalDateTime fechaHora;
 
     /**
      * Estado de lectura del mensaje.
@@ -68,8 +68,16 @@ public class Chat {
      * información del usuario automáticamente.
      * </p>
      */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false, unique = true)
+ 
+
+     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "emisor_id", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
-    private Usuario usuario;
+    private Usuario emisor;
+ 
+    // CORRECTO: receptorId — quién recibe el mensaje
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "receptor_id", referencedColumnName = "id", nullable = false)
+    @ToString.Exclude
+    private Usuario receptor;
 }

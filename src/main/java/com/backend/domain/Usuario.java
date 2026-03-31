@@ -90,27 +90,29 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Entrenamiento> entrenamientos = new ArrayList<>();// Un usuario realiza N entrenamientos
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Salud> salud = new ArrayList<>();// Un usuario registra N datos de salud
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<SugerenciaDieta> sugerenciasDieta = new ArrayList<>(); // Un usuario recibe N sugerencias
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Ticket> tickets = new ArrayList<>(); // Un usuario crea N tickets
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL,orphanRemoval = true)
-    @Builder.Default
-    private List<Chat> chat = new ArrayList<>(); // Un usuario conecta con el chat
+    @OneToMany(mappedBy = "emisor", cascade = CascadeType.ALL)
+    private List<Chat> mensajesEnviados;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
+    @OneToMany(mappedBy = "receptor", cascade = CascadeType.ALL)
+    private List<Chat> mensajesRecibidos;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Builder.Default
     private List<Rutina> rutinas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Builder.Default
     private List<Visualizacion> visualizaciones = new ArrayList<>();
 

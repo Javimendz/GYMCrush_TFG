@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "DTO para crear un entrenamiento")
 public class EntrenamientoRequestDto {
     
-    private Long id;
+    
     private LocalDateTime fecha;
     private LocalTime hora;
     private Integer duracion;

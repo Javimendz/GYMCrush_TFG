@@ -120,19 +120,20 @@ public class HorarioServiceImp implements IHorarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: Horario no encontrado"));
 
         // Gestión de cambio de actividad vinculada
-        if (!existente.getActividad().getId().equals(dto.getActividadId())) {
+        if (existente.getActividad() == null ||
+                !existente.getActividad().getId().equals(dto.getActividadId())) {
             log.debug("Cambiando actividad vinculada de {} a {}", existente.getActividad().getId(),
                     dto.getActividadId());
             Actividad nuevaActividad = actividadRepository.findById(dto.getActividadId())
                     .orElseThrow(() -> new ResourceNotFoundException("La nueva actividad asignada no existe"));
             existente.setActividad(nuevaActividad);
         }
-        if (!existente.getSala().getId().equals(dto.getSalaId())) {
+        if (existente.getSala() == null ||
+                !existente.getSala().getId().equals(dto.getSalaId())) {
             Sala nuevaSala = salaRepository.findById(dto.getSalaId())
                     .orElseThrow(() -> new ResourceNotFoundException("La nueva sala asignada no existe"));
             existente.setSala(nuevaSala);
         }
-
         // Actualización de atributos básicos
         existente.setDiaSemana(dto.getDiaSemana());
         existente.setHoraInicio(dto.getHoraInicio());

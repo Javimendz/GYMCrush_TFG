@@ -3,53 +3,56 @@ package com.backend.controller;
 import com.backend.dto.NutricionResponseDto;
 import com.backend.dto.PerfilFisicoRequest;
 import com.backend.dto.SugerenciaDietaReponseDto;
-import com.backend.security.dto.ApiResponseDto; // Importante: tu wrapper de respuesta
+import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.INutricionService;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/nutricion")
+@RequestMapping("/api/v1/nutricion")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')") // ← prefijo ROLE_ correcto
 public class NutricionController {
 
     private final INutricionService nutricionService;
-
+ 
+    // -----------------------------------------------------------------------
+    // POST /api/v1/nutricion/generar-plan
+    // Genera un plan nutricional personalizado basado en los datos físicos
+    // -----------------------------------------------------------------------
     @PostMapping("/generar-plan")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<ApiResponseDto<SugerenciaDietaReponseDto>> generarPlangenerarPlanAutomatico(
+    public ResponseEntity<ApiResponseDto<SugerenciaDietaReponseDto>> generarPlan(
             @RequestBody PerfilFisicoRequest request) {
-        // Ejecuta el motor de cálculo (Mifflin-St Jeor) y persiste la sugerencia
         SugerenciaDietaReponseDto plan = nutricionService.generarPlanAutomatico(request);
-
-        // Devolvemos la respuesta unificada
         return ResponseEntity.ok(
-                ApiResponseDto.success("¡Tu plan nutricional personalizado ha sido generado con éxito!", plan));
+                ApiResponseDto.success("Plan nutricional personalizado generado con éxito", plan));
     }
 
-    /**
-     * GET /api/nutricion/usuario/{id}
-     * Recupera el último plan generado para un usuario específico.
-     */
-    @GetMapping("/usuario/{usuarioId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<ApiResponseDto<NutricionResponseDto>> obtenerUltimoPlan(@PathVariable Long usuarioId) {
-        // 1. Obtenemos el DTO desde el servicio
+    // -----------------------------------------------------------------------
+    // GET /api/v1/nutricion/ultimo-plan/{usuarioId}
+    // Recupera el último plan generado para un usuario
+    // -----------------------------------------------------------------------
+    @GetMapping("/ultimo-plan/{usuarioId}")
+    public ResponseEntity<ApiResponseDto<NutricionResponseDto>> obtenerUltimoPlan(
+            @PathVariable Long usuarioId) {
         NutricionResponseDto response = nutricionService.obtenerUltimoPlanPorUsuario(usuarioId);
-
-        if (response == null) {
-            // Devolvemos el error con la estructura ApiResponseDto
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponseDto.error("No se encontró ningún plan para el usuario " + usuarioId));
-        }
-
-        // Devolvemos el éxito con los datos dentro
         return ResponseEntity.ok(
-                ApiResponseDto.success("¡Plan recuperado correctamente!", response));
+                ApiResponseDto.success("Plan recuperado correctamente", response));
+    }
+
+    // -----------------------------------------------------------------------
+    // GET /api/v1/nutricion/historial/{usuarioId}
+    // Recupera el historial completo de planes de un usuario
+    // -----------------------------------------------------------------------
+    @GetMapping("/historial/{usuarioId}")
+    public ResponseEntity<ApiResponseDto<List<SugerenciaDietaReponseDto>>> obtenerHistorial(
+            @PathVariable Long usuarioId) {
+        List<SugerenciaDietaReponseDto> historial = nutricionService.obtenerHistorial(usuarioId);
+        return ResponseEntity.ok(
+                ApiResponseDto.success("Historial de planes recuperado correctamente", historial));
     }
 }

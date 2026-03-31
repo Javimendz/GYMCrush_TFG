@@ -103,7 +103,7 @@ public class HorarioController {
      * @return ResponseEntity con el horario creado y estado 201 (CREATED)
      */
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Crear horario", description = "Crea un nuevo horario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Horario creado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
@@ -123,7 +123,7 @@ public class HorarioController {
      * @return ResponseEntity con el horario actualizado
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar horario", description = "Actualiza los detalles de un horario existente")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Horario actualizado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
@@ -145,7 +145,7 @@ public class HorarioController {
      * @return ResponseEntity con confirmación de eliminación
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Eliminar horario", description = "Elimina un horario existente por su ID")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Horario eliminado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Horario no encontrado")

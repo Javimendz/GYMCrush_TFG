@@ -41,17 +41,17 @@ public class Dieta {
     @Column(name = "nombre", nullable = false, length = 80)
     private String nombre;
 
-    @Column(name = "objetivo_calorico", nullable = true)
-    private Integer objetivoCalorico;
-
     /**
      * Tipo de dieta o plan alimenticio.
      * <p>
      * Opcional, clasifica el plan (ej: keto, vegana, etc.).
      * </p>
      */
-    @Column(name = "tipo", length = 50, nullable = true)
+    @Column(name = "tipo", length = 50)
     private String tipo;
+
+    @Column(name = "objetivo_calorico", nullable = true)
+    private Integer objetivoCalorico;
 
     /**
      * Cantidad de proteínas en gramos.
@@ -71,23 +71,17 @@ public class Dieta {
     @Column(name = "cantidad_c", nullable = true)
     private Integer cantidadCarbohidratos;
 
-    /**
-     * Cantidad de grasas en gramos.
-     * <p>
-     * Opcional, información nutricional detallada.
-     * </p>
-     */
-    @Column(name = "cantidad_g", nullable = true)
-    private Integer cantidadGrasas;
-
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-   @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_dieta_id")
     @ToString.Exclude
     private CategoriaDieta categoriaDieta;
 
+
+      @Column(name = "cantidad_g")
+    private Integer cantidadGrasas;
     /**
      * Lista de sugerencias asociadas a este plan dietético.
      * <p>
