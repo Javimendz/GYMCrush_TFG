@@ -74,13 +74,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         
         // 1. Endpoint estándar WebSocket puro (SIN SockJS)
         // Ideal para clientes móviles nativos (Android/iOS) o Postman
-        registry.addEndpoint("/chats")
+       registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*");
         
         // 2. Endpoint con soporte SockJS
         // Proporciona fallback para navegadores web
-        registry.addEndpoint("/chats-sockjs")
-                .setAllowedOriginPatterns("*") // Usar Patterns evita errores de CORS con credenciales
-                .withSockJS();
+        
     }
 }
