@@ -1,10 +1,13 @@
 //Paquete de repositorio
 package com.backend.repository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 //Imports
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.backend.domain.Reserva;
 import com.backend.domain.enums.EnumEstado;
@@ -28,6 +31,13 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     // Busca reservas por ID de horario, fecha específica y una lista de estados (ej: CONFIRMADA, ASISTIDA)
     List<Reserva> findByHorarioIdAndFechaAndEstadoIn(Long horarioId, LocalDate fecha, List<EnumEstado> estados);
 
-    
+    List<Reserva> findReservasParaRecordatorio(LocalDateTime ahora, LocalDateTime limite);    
 
+
+    @Query("SELECT r FROM Reserva r WHERE r.fecha = :hoy AND r.horario.horaInicio BETWEEN :ahora AND :limite AND r.estado = 'CONFIRMADA'")
+    List<Reserva> findReservasParaRecordatorio(
+        @Param("hoy") java.time.LocalDate hoy, 
+        @Param("ahora") java.time.LocalTime ahora, 
+        @Param("limite") java.time.LocalTime limite
+    );
 }

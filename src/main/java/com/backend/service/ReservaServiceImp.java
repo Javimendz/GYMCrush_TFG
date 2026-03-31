@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +12,9 @@ import com.backend.domain.Horario;
 import com.backend.domain.Reserva;
 import com.backend.domain.Usuario;
 import com.backend.domain.enums.EnumEstado;
+import com.backend.domain.enums.TipoNotificacion;
 import com.backend.dto.ReservaResponseDto;
+import com.backend.event.ReservaEvent;
 import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.repository.ReservaRepository;
 import com.backend.repository.UsuarioRepository;
@@ -30,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2026
  */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -44,6 +48,9 @@ public class ReservaServiceImp implements IReservaService {
     /** Repositorio para el acceso a datos de horarios */
     private final HorarioRepository horarioRepository;
 
+    /** Publicador de eventos de Spring para notificaciones */
+    private final ApplicationEventPublisher eventPublisher;
+
     /**
      * Crea una nueva reserva para un usuario en un horario específico.
      * <p>
@@ -55,8 +62,7 @@ public class ReservaServiceImp implements IReservaService {
      * @param horarioId ID del horario a reservar
      * @return DTO con los datos de la reserva creada
      * @throws ResourceNotFoundException si el horario no existe
-     * @throws RuntimeException          si el usuario ya tiene reserva activa o no
-     *                                   hay cupo
+     * @throws RuntimeException          si el usuario ya tiene reserva activa o no hay cupo
      */
     @Override
     @Transactional
@@ -77,7 +83,7 @@ public class ReservaServiceImp implements IReservaService {
             throw new RuntimeException("Clase completa. Límite: " + horario.getAforoMax());
         }
 
-        // Buscar usuario y crear reserva
+        // Buscar usuario
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
@@ -89,8 +95,19 @@ public class ReservaServiceImp implements IReservaService {
                 .estado(EnumEstado.CONFIRMADA)
                 .build();
 
-        // Guardar y retornar DTO
-        return mapToDto(reservaRepository.save(reserva));
+        // Guardar la entidad y capturarla en una variable
+        Reserva nuevaReserva = reservaRepository.save(reserva);
+
+        // Publicar el evento de notificación
+        eventPublisher.publishEvent(new ReservaEvent(
+                nuevaReserva,
+                "¡Reserva confirmada!",
+                "Gimnasio App",
+                TipoNotificacion.CONFIRMACION
+        ));
+
+        // Retornar DTO pasando la reserva recién creada
+        return mapToDto(nuevaReserva);
     }
 
     /**
@@ -167,16 +184,14 @@ public class ReservaServiceImp implements IReservaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
 
         reserva.setEstado(EnumEstado.ASISTIDA);
-        // reserva.setConfirmado(true); // Asegúrate de tener este campo en la Entidad
-        // Reserva
+        // reserva.setConfirmado(true); // Asegúrate de tener este campo en la Entidad Reserva si lo necesitas
         reservaRepository.save(reserva);
     }
 
     /**
-     * Obtiene la lista de personas apuntadas a una clase específica para el día de
-     * hoy.
-     * * @param horarioId ID del horario de la clase
-     * 
+     * Obtiene la lista de personas apuntadas a una clase específica para el día de hoy.
+     *
+     * @param horarioId ID del horario de la clase
      * @return Lista de DTOs con la información de los alumnos inscritos
      */
     @Transactional(readOnly = true)
@@ -194,8 +209,8 @@ public class ReservaServiceImp implements IReservaService {
 
     /**
      * Obtiene un resumen del aforo actual de una clase.
-     * * @param horarioId ID del horario
-     * 
+     *
+     * @param horarioId ID del horario
      * @return String con formato "inscritos/total"
      */
     @Transactional(readOnly = true)
@@ -225,12 +240,9 @@ public class ReservaServiceImp implements IReservaService {
                 .id(reserva.getId())
                 .fecha(reserva.getFecha())
                 .username(reserva.getUsuario() != null ? reserva.getUsuario().getUsername() : "Anónimo")
-                .estado(reserva.getEstado().name()) // O reserva.getEstado().name()
+                .estado(reserva.getEstado().name()) 
                 .diaSemana(reserva.getHorario() != null ? reserva.getHorario().getDiaSemana() : null)
                 .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)
-                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null
-                        ? reserva.getHorario().getActividad().getNombre()
-                        : "Sin nombre")
                 .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null
                         ? reserva.getHorario().getActividad().getNombre()
                         : "Sin Actividad")

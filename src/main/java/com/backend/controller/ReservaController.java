@@ -4,7 +4,6 @@ import com.backend.dto.ReservaResponseDto;
 import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.IReservaService;
 
-import io.swagger.v3.oas.models.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -54,8 +53,8 @@ public class ReservaController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida, posiblemente el horario ya está reservado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<ReservaResponseDto>> reservar(
-            @PathVariable Long uId, 
-            @PathVariable Long hId) {
+           @PathVariable("uId") Long uId, 
+        @PathVariable("hId") Long hId){
         log.info("Creando reserva para usuario {} en horario {}", uId, hId);
         ReservaResponseDto nuevaReserva = reservaService.crearReserva(uId, hId);
         log.info("Reserva creada exitosamente con ID: {}", nuevaReserva.getId());
@@ -102,7 +101,7 @@ public class ReservaController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Reserva cancelada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Reserva no encontrada")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<Void>> cancelarReserva(@PathVariable Long reservaId) {
+        public ResponseEntity<ApiResponseDto<Void>> cancelarReserva(@PathVariable("reservaId") Long reservaId) {
         reservaService.cancelarReserva(reservaId);
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
                 .mensaje("Reserva cancelada")
