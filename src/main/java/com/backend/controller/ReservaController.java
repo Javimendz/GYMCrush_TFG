@@ -3,6 +3,8 @@ package com.backend.controller;
 import com.backend.dto.ReservaResponseDto;
 import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.IReservaService;
+
+import io.swagger.v3.oas.models.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +48,7 @@ public class ReservaController {
      * @return ResponseEntity con la reserva creada y mensaje de confirmación
      */
     @PostMapping("/usuario/{uId}/horario/{hId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Reservar horario", description = "Permite a un usuario reservar un horario disponible")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Reserva confirmada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida, posiblemente el horario ya está reservado")
@@ -71,8 +73,8 @@ public class ReservaController {
      * @param id el ID del usuario cuyas reservas se quieren consultar
      * @return ResponseEntity con la lista de reservas del usuario
      */
-    @GetMapping("/usuario/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/mis-reservas/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar mis reservas", description = "Recupera el historial de reservas de un usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de reservas recuperada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -94,18 +96,54 @@ public class ReservaController {
      * @param id el ID de la reserva a cancelar
      * @return ResponseEntity con confirmación de cancelación
      */
-    @PatchMapping("/{id}/cancelar")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PatchMapping("/{reservaId}/cancelar")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Cancelar reserva", description = "Permite a un usuario cancelar una reserva previamente hecha")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Reserva cancelada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Reserva no encontrada")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<Void>> cancelar(@PathVariable Long id) {
-        reservaService.cancelarReserva(id);
-
+    public ResponseEntity<ApiResponseDto<Void>> cancelarReserva(@PathVariable Long reservaId) {
+        reservaService.cancelarReserva(reservaId);
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
-                .mensaje("Reserva cancelada correctamente")
+                .mensaje("Reserva cancelada")
                 .success(true)
                 .build());
     }
+
+    @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
+    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerReservas(@PathVariable Long usuarioId) {
+        List<ReservaResponseDto> reservas = reservaService.obtenerReservasUsuario(usuarioId);
+        return ResponseEntity.ok(ApiResponseDto.<List<ReservaResponseDto>>builder()
+                .mensaje("Reservas obtenidas")
+                .success(true)
+                .datos(reservas)
+                .build());
+    }
+
+    @GetMapping("/clase/{horarioId}/asistentes")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
+    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerAsistentesClase(@PathVariable Long horarioId) {
+        List<ReservaResponseDto> asistentes = reservaService.obtenerAsistentesPorHorario(horarioId);
+        String ocupacion = reservaService.obtenerResumenAforo(horarioId);
+        
+        return ResponseEntity.ok(ApiResponseDto.<List<ReservaResponseDto>>builder()
+                .mensaje("Lista de asistentes (" + ocupacion + ")")
+                .success(true)
+                .datos(asistentes)
+                .build());
+    }
+
+
+    @PatchMapping("/{reservaId}/confirmar")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
+    public ResponseEntity<ApiResponseDto<Void>> confirmarAsistencia(@PathVariable Long reservaId) {
+        reservaService.confirmarAsistencia(reservaId);
+        return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                .mensaje("Asistencia confirmada correctamente")
+                .success(true)
+                .build());
+    }
+
+   
 }

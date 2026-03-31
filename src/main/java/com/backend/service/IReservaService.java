@@ -3,6 +3,7 @@ package com.backend.service;
 import java.util.List;
 
 import com.backend.dto.ReservaResponseDto;
+import com.backend.exceptions.ResourceNotFoundException;
 
 /**
  * Interfaz del servicio para la gestión de reservas de clases.
@@ -77,4 +78,7 @@ public interface IReservaService  {
      * @throws ResourceNotFoundException si la reserva no existe
      */
     void confirmarAsistencia(Long reservaId);
+
+    List<ReservaResponseDto> obtenerAsistentesPorHorario(Long horarioId);
+    String obtenerResumenAforo(Long horarioId);
 }

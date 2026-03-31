@@ -37,12 +37,12 @@ public class ReservaServiceImp implements IReservaService {
 
     /** Repositorio para el acceso a datos de reservas */
     private final ReservaRepository reservaRepository;
-    
+
     /** Repositorio para el acceso a datos de usuarios */
     private final UsuarioRepository usuarioRepository;
-    
+
     /** Repositorio para el acceso a datos de horarios */
-    private final HorarioRepository horarioRepository; 
+    private final HorarioRepository horarioRepository;
 
     /**
      * Crea una nueva reserva para un usuario en un horario específico.
@@ -55,13 +55,14 @@ public class ReservaServiceImp implements IReservaService {
      * @param horarioId ID del horario a reservar
      * @return DTO con los datos de la reserva creada
      * @throws ResourceNotFoundException si el horario no existe
-     * @throws RuntimeException si el usuario ya tiene reserva activa o no hay cupo
+     * @throws RuntimeException          si el usuario ya tiene reserva activa o no
+     *                                   hay cupo
      */
     @Override
     @Transactional
     public ReservaResponseDto crearReserva(Long usuarioId, Long horarioId) {
         log.info("Creando reserva para usuario {} en horario {}", usuarioId, horarioId);
-        
+
         // Validar que el usuario no tenga reserva activa para el mismo día
         if (reservaRepository.existsByUsuarioIdAndHorarioIdAndFecha(usuarioId, horarioId, LocalDate.now())) {
             log.warn("El usuario {} ya tiene una reserva para esta clase hoy", usuarioId);
@@ -79,7 +80,7 @@ public class ReservaServiceImp implements IReservaService {
         // Buscar usuario y crear reserva
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        
+
         // Crear la reserva con estado CONFIRMADA
         Reserva reserva = Reserva.builder()
                 .usuario(usuario)
@@ -110,6 +111,7 @@ public class ReservaServiceImp implements IReservaService {
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
+
     /**
      * Cancela una reserva.
      * <p>
@@ -123,10 +125,11 @@ public class ReservaServiceImp implements IReservaService {
     public void cancelarReserva(Long reservaId) {
         Reserva reserva = reservaRepository.findById(reservaId)
                 .orElseThrow(() -> new ResourceNotFoundException("La reserva no existe"));
-        
+
         reserva.setEstado(EnumEstado.CANCELADA);
         reservaRepository.save(reserva);
     }
+
     /**
      * Verifica si hay cupo disponible para un horario.
      * <p>
@@ -143,8 +146,9 @@ public class ReservaServiceImp implements IReservaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado"));
 
         List<EnumEstado> estadosActivos = List.of(EnumEstado.CONFIRMADA, EnumEstado.ASISTIDA);
-        long inscritos = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(), estadosActivos);
-        
+        long inscritos = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(),
+                estadosActivos);
+
         return inscritos < horario.getAforoMax();
     }
 
@@ -161,10 +165,49 @@ public class ReservaServiceImp implements IReservaService {
     public void confirmarAsistencia(Long reservaId) {
         Reserva reserva = reservaRepository.findById(reservaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
-        
+
         reserva.setEstado(EnumEstado.ASISTIDA);
-        // reserva.setConfirmado(true); // Asegúrate de tener este campo en la Entidad Reserva
+        // reserva.setConfirmado(true); // Asegúrate de tener este campo en la Entidad
+        // Reserva
         reservaRepository.save(reserva);
+    }
+
+    /**
+     * Obtiene la lista de personas apuntadas a una clase específica para el día de
+     * hoy.
+     * * @param horarioId ID del horario de la clase
+     * 
+     * @return Lista de DTOs con la información de los alumnos inscritos
+     */
+    @Transactional(readOnly = true)
+    public List<ReservaResponseDto> obtenerAsistentesPorHorario(Long horarioId) {
+        log.info("Consultando lista de asistentes para el horario {}", horarioId);
+
+        // Estados que consideramos como "apuntados" (excluimos cancelados)
+        List<EnumEstado> estadosActivos = List.of(EnumEstado.CONFIRMADA, EnumEstado.ASISTIDA);
+
+        return reservaRepository.findByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(), estadosActivos)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene un resumen del aforo actual de una clase.
+     * * @param horarioId ID del horario
+     * 
+     * @return String con formato "inscritos/total"
+     */
+    @Transactional(readOnly = true)
+    public String obtenerResumenAforo(Long horarioId) {
+        Horario horario = horarioRepository.findById(horarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado"));
+
+        List<EnumEstado> estadosActivos = List.of(EnumEstado.CONFIRMADA, EnumEstado.ASISTIDA);
+        long inscritos = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(),
+                estadosActivos);
+
+        return inscritos + " / " + horario.getAforoMax();
     }
 
     /**
@@ -184,11 +227,13 @@ public class ReservaServiceImp implements IReservaService {
                 .username(reserva.getUsuario() != null ? reserva.getUsuario().getUsername() : "Anónimo")
                 .estado(reserva.getEstado().name()) // O reserva.getEstado().name()
                 .diaSemana(reserva.getHorario() != null ? reserva.getHorario().getDiaSemana() : null)
-                .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)               
-                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
-                                 ? reserva.getHorario().getActividad().getNombre() : "Sin nombre")
-                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
-                             ? reserva.getHorario().getActividad().getNombre() : "Sin Actividad")
-            .build();
+                .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)
+                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null
+                        ? reserva.getHorario().getActividad().getNombre()
+                        : "Sin nombre")
+                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null
+                        ? reserva.getHorario().getActividad().getNombre()
+                        : "Sin Actividad")
+                .build();
     }
 }

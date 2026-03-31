@@ -5,6 +5,8 @@ services:
     container_name: spring-boot-app
     ports:
       - "8080:8080"
+    networks:
+      - gym-network
     environment:
       
       - SPRING_DATASOURCE_URL=${DB_URL}
@@ -30,6 +32,8 @@ services:
       - POSTGRES_DB=spring_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=secret
+    networks:
+      - gym-network
     ports:
       - "5432:5432"
     volumes:
@@ -39,6 +43,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
+networks:
+  gym-network:
+    driver: bridge
 volumes:
   postgres_data:

@@ -24,4 +24,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     
     // Evitar que el mismo usuario reserve la misma clase dos veces el mismo día
     boolean existsByUsuarioIdAndHorarioIdAndFecha(Long usuarioId, Long horarioId, LocalDate fecha);
+
+    // Busca reservas por ID de horario, fecha específica y una lista de estados (ej: CONFIRMADA, ASISTIDA)
+    List<Reserva> findByHorarioIdAndFechaAndEstadoIn(Long horarioId, LocalDate fecha, List<EnumEstado> estados);
+
+    
+
 }
