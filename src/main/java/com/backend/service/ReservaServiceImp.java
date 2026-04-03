@@ -43,6 +43,7 @@ public class ReservaServiceImp implements IReservaService {
     
     /** Repositorio para el acceso a datos de horarios */
     private final HorarioRepository horarioRepository; 
+    private final NotificacionService notificacionService;
 
     /**
      * Crea una nueva reserva para un usuario en un horario específico.
@@ -60,37 +61,44 @@ public class ReservaServiceImp implements IReservaService {
     @Override
     @Transactional
     public ReservaResponseDto crearReserva(Long usuarioId, Long horarioId) {
-        log.info("Creando reserva para usuario {} en horario {}", usuarioId, horarioId);
-        
-        // Validar que el usuario no tenga reserva activa para el mismo día
-        if (reservaRepository.existsByUsuarioIdAndHorarioIdAndFecha(usuarioId, horarioId, LocalDate.now())) {
-            log.warn("El usuario {} ya tiene una reserva para esta clase hoy", usuarioId);
-            throw new RuntimeException("Ya tienes una reserva para esta clase hoy.");
-        }
-
-        // Buscar horario y validar aforo
-        Horario horario = horarioRepository.findById(horarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado"));
-
-        if (!hayCupoDisponible(horarioId)) {
-            throw new RuntimeException("Clase completa. Límite: " + horario.getAforoMax());
-        }
-
-        // Buscar usuario y crear reserva
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        
-        // Crear la reserva con estado CONFIRMADA
-        Reserva reserva = Reserva.builder()
-                .usuario(usuario)
-                .horario(horario)
-                .fecha(LocalDate.now())
-                .estado(EnumEstado.CONFIRMADA)
-                .build();
-
-        // Guardar y retornar DTO
-        return mapToDto(reservaRepository.save(reserva));
+    log.info("Creando reserva para usuario {} en horario {}", usuarioId, horarioId);
+    
+    // 1. Validaciones existentes
+    if (reservaRepository.existsByUsuarioIdAndHorarioIdAndFecha(usuarioId, horarioId, LocalDate.now())) {
+        log.warn("El usuario {} ya tiene una reserva para esta clase hoy", usuarioId);
+        throw new RuntimeException("Ya tienes una reserva para esta clase hoy.");
     }
+
+    Horario horario = horarioRepository.findById(horarioId)
+            .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado"));
+
+    if (!hayCupoDisponible(horarioId)) {
+        throw new RuntimeException("Clase completa. Límite: " + horario.getAforoMax());
+    }
+
+    Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+    
+    // 2. Creación de la reserva
+    Reserva reserva = Reserva.builder()
+            .usuario(usuario)
+            .horario(horario)
+            .fecha(LocalDate.now())
+            .estado(EnumEstado.CONFIRMADA)
+            .build();
+
+    Reserva guardada = reservaRepository.save(reserva);
+
+    // 3. DISPARADOR DE NOTIFICACIÓN (Lo que faltaba incluir)
+    notificacionService.enviarNotificacionRapida(
+        usuarioId, 
+        "Reserva Confirmada", 
+        "Has reservado plaza para " + horario.getActividad().getNombre() + " hoy a las " + horario.getHoraInicio(), 
+        com.backend.domain.enums.TipoNotificacion.RECORDATORIO
+    );
+
+    return mapToDto(guardada);
+}
 
     /**
      * Obtiene las reservas de un usuario.
@@ -118,15 +126,32 @@ public class ReservaServiceImp implements IReservaService {
      *
      * @param reservaId ID de la reserva a cancelar
      */
-    @Override
+   @Override
     @Transactional
     public void cancelarReserva(Long reservaId) {
-        Reserva reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new ResourceNotFoundException("La reserva no existe"));
-        
-        reserva.setEstado(EnumEstado.CANCELADA);
-        reservaRepository.save(reserva);
-    }
+    // 1. Buscar la reserva existente
+    Reserva reserva = reservaRepository.findById(reservaId)
+            .orElseThrow(() -> new ResourceNotFoundException("La reserva no existe"));
+    
+    // 2. Cambiar el estado a CANCELADA
+    reserva.setEstado(EnumEstado.CANCELADA);
+    reservaRepository.save(reserva);
+
+    // 3. DISPARADOR DE NOTIFICACIÓN
+    // Usamos los datos de la reserva recuperada para personalizar el mensaje
+    String nombreActividad = (reserva.getHorario() != null && reserva.getHorario().getActividad() != null) 
+                             ? reserva.getHorario().getActividad().getNombre() 
+                             : "clase";
+
+    notificacionService.enviarNotificacionRapida(
+        reserva.getUsuario().getId(), 
+        "Reserva Cancelada", 
+        "Has cancelado tu reserva para la clase de " + nombreActividad + ".", 
+        com.backend.domain.enums.TipoNotificacion.SISTEMA
+    );
+    
+    log.info("Notificación de cancelación enviada al usuario {}", reserva.getUsuario().getId());
+}
     /**
      * Verifica si hay cupo disponible para un horario.
      * <p>

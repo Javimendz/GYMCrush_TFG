@@ -1,0 +1,24 @@
+package com.backend.service;
+
+import java.util.List;
+import com.backend.domain.Usuario;
+import com.backend.domain.enums.TipoNotificacion;
+import com.backend.dto.NotificacionRequestDto;
+import com.backend.dto.NotificacionResponseDto;
+
+public interface NotificacionService {
+    
+    // Cambiamos los parámetros sueltos por el DTO de entrada
+    NotificacionResponseDto crear(NotificacionRequestDto dto);
+    
+    List<NotificacionResponseDto> listarPorUsuario(Long usuarioId);
+    
+    void marcarComoLeida(Long id);
+    
+    // Útil para enviar avisos rápidos desde otros servicios (ej. Login o Pagos)
+    void enviarNotificacionRapida(Long usuarioId, String titulo, String mensaje, TipoNotificacion tipo);
+    
+    // Para el contador de la App de Android
+    long contarNoLeidas(Long usuarioId);
+    void eliminar(Long id);
+}

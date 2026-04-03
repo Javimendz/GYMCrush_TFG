@@ -8,12 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.backend.domain.Actividad;
 import com.backend.domain.Horario;
+import com.backend.domain.Reserva;
 import com.backend.domain.Sala;
 import com.backend.dto.HorarioRequestDto;
 import com.backend.dto.HorarioResponseDto;
 import com.backend.mapper.HorarioMapper;
 import com.backend.repository.ActividadRepository;
 import com.backend.repository.HorarioRepository;
+import com.backend.repository.ReservaRepository;
 import com.backend.repository.SalaRepository;
 import com.backend.exceptions.ResourceNotFoundException;
 
@@ -36,6 +38,8 @@ public class HorarioServiceImp implements IHorarioService {
     private final ActividadRepository actividadRepository;
     private final HorarioMapper horarioMapper;
     private final SalaRepository salaRepository;
+    private final NotificacionService notificacionService;
+    private final ReservaRepository reservaRepository;
 
     /**
      * Recupera el listado completo de horarios configurados en el sistema.
@@ -113,37 +117,60 @@ public class HorarioServiceImp implements IHorarioService {
      *                                   existen.
      */
     @Override
-    @Transactional
-    public HorarioResponseDto actualizar(Long id, HorarioRequestDto dto) {
-        log.info("Actualizando horario con ID: {}", id);
-        Horario existente = horarioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: Horario no encontrado"));
+@Transactional
+public HorarioResponseDto actualizar(Long id, HorarioRequestDto dto) {
+    log.info("Actualizando horario con ID: {}", id);
+    Horario existente = horarioRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: Horario no encontrado"));
 
-        // Gestión de cambio de actividad vinculada
-        if (!existente.getActividad().getId().equals(dto.getActividadId())) {
-            log.debug("Cambiando actividad vinculada de {} a {}", existente.getActividad().getId(),
-                    dto.getActividadId());
-            Actividad nuevaActividad = actividadRepository.findById(dto.getActividadId())
-                    .orElseThrow(() -> new ResourceNotFoundException("La nueva actividad asignada no existe"));
-            existente.setActividad(nuevaActividad);
-        }
-        if (!existente.getSala().getId().equals(dto.getSalaId())) {
-            Sala nuevaSala = salaRepository.findById(dto.getSalaId())
-                    .orElseThrow(() -> new ResourceNotFoundException("La nueva sala asignada no existe"));
-            existente.setSala(nuevaSala);
-        }
+    // 1. CORRECCIÓN DE TIPO: Usamos LocalTime (java.time.LocalTime)
+    java.time.LocalTime horaAntigua = existente.getHoraInicio();
+    Long salaAntiguaId = existente.getSala().getId();
 
-        // Actualización de atributos básicos
-        existente.setDiaSemana(dto.getDiaSemana());
-        existente.setHoraInicio(dto.getHoraInicio());
-
-        existente.setHoraFin(dto.getHoraFin());
-        existente.setAforoMax(dto.getAforoMax());
-
-        HorarioResponseDto resultado = horarioMapper.toResponseDto(horarioRepository.save(existente));
-        log.info("Horario {} actualizado exitosamente", id);
-        return resultado;
+    // Gestión de cambio de actividad vinculada
+    if (!existente.getActividad().getId().equals(dto.getActividadId())) {
+        Actividad nuevaActividad = actividadRepository.findById(dto.getActividadId())
+                .orElseThrow(() -> new ResourceNotFoundException("La nueva actividad asignada no existe"));
+        existente.setActividad(nuevaActividad);
     }
+    
+    if (!existente.getSala().getId().equals(dto.getSalaId())) {
+        Sala nuevaSala = salaRepository.findById(dto.getSalaId())
+                .orElseThrow(() -> new ResourceNotFoundException("La nueva sala asignada no existe"));
+        existente.setSala(nuevaSala);
+    }
+
+    // Actualización de atributos básicos
+    existente.setDiaSemana(dto.getDiaSemana());
+    existente.setHoraInicio(dto.getHoraInicio()); // Suponiendo que el DTO también es LocalTime
+    existente.setHoraFin(dto.getHoraFin());
+    existente.setAforoMax(dto.getAforoMax());
+
+    Horario guardado = horarioRepository.save(existente);
+    HorarioResponseDto resultado = horarioMapper.toResponseDto(guardado);
+
+    // --- LÓGICA DE NOTIFICACIÓN PARA SOCIOS INSCRITOS ---
+    // Comparamos los objetos LocalTime y los IDs de las salas
+    if (!horaAntigua.equals(dto.getHoraInicio()) || !salaAntiguaId.equals(dto.getSalaId())) {
+        log.info("Detectado cambio crítico en horario {}. Notificando usuarios...", id);
+        
+        // Buscamos las reservas confirmadas (Necesitas inyectar reservaRepository en esta clase)
+        List<Reserva> reservasAfectadas = reservaRepository.findByHorarioIdAndEstado(id, com.backend.domain.enums.EnumEstado.CONFIRMADA);
+        
+        for (Reserva reserva : reservasAfectadas) {
+            notificacionService.enviarNotificacionRapida(
+                reserva.getUsuario().getId(),
+                "Cambio de horario/sala",
+                // 2. CORRECCIÓN DE MÉTODO: Navegamos por el objeto actividad para el nombre
+                "La clase de " + guardado.getActividad().getNombre() + " ha sufrido cambios. ¡Revísala!",
+                com.backend.domain.enums.TipoNotificacion.ALERTA
+            );
+        }
+    }
+
+    log.info("Horario {} actualizado exitosamente", id);
+    return resultado;
+}
 
     /**
      * Elimina físicamente un horario del sistema.
