@@ -132,13 +132,27 @@ public class ReservaServiceImp implements IReservaService {
     // 1. Buscar la reserva existente
     Reserva reserva = reservaRepository.findById(reservaId)
             .orElseThrow(() -> new ResourceNotFoundException("La reserva no existe"));
-    
+
+    // --- NUEVA REGLA DE NEGOCIO: POLÍTICA DE CANCELACIÓN (2 HORAS) ---
+    // Combinamos la fecha de la reserva con la hora de inicio de la clase
+    java.time.LocalDateTime ahora = java.time.LocalDateTime.now();
+    java.time.LocalDateTime fechaHoraClase = java.time.LocalDateTime.of(
+            reserva.getFecha(), 
+            reserva.getHorario().getHoraInicio()
+    );
+
+    // Si la hora actual es posterior al límite (Hora clase - 2 horas), lanzamos error
+    if (ahora.isAfter(fechaHoraClase.minusHours(2))) {
+        log.warn("Intento de cancelación fuera de plazo para reserva ID: {}", reservaId);
+        throw new RuntimeException("No puedes cancelar: El límite de tiempo es de 2 horas antes de la clase.");
+    }
+    // -----------------------------------------------------------------
+
     // 2. Cambiar el estado a CANCELADA
     reserva.setEstado(EnumEstado.CANCELADA);
     reservaRepository.save(reserva);
 
     // 3. DISPARADOR DE NOTIFICACIÓN
-    // Usamos los datos de la reserva recuperada para personalizar el mensaje
     String nombreActividad = (reserva.getHorario() != null && reserva.getHorario().getActividad() != null) 
                              ? reserva.getHorario().getActividad().getNombre() 
                              : "clase";
@@ -182,15 +196,28 @@ public class ReservaServiceImp implements IReservaService {
      * @param reservaId ID de la reserva
      */
     @Override
-    @Transactional
-    public void confirmarAsistencia(Long reservaId) {
-        Reserva reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
-        
-        reserva.setEstado(EnumEstado.ASISTIDA);
-        // reserva.setConfirmado(true); // Asegúrate de tener este campo en la Entidad Reserva
-        reservaRepository.save(reserva);
+@Transactional
+public void confirmarAsistencia(Long reservaId) {
+    Reserva reserva = reservaRepository.findById(reservaId)
+            .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+    
+    // REGLA TFG: Solo permitir check-in si la clase es HOY
+    if (!reserva.getFecha().equals(LocalDate.now())) {
+        throw new RuntimeException("Solo puedes confirmar asistencia el día de la clase.");
     }
+
+    // REGLA TFG: Ventana de tiempo (15 min antes hasta 10 min después)
+    java.time.LocalTime ahora = java.time.LocalTime.now();
+    java.time.LocalTime inicioClase = reserva.getHorario().getHoraInicio();
+
+    if (ahora.isBefore(inicioClase.minusMinutes(15)) || ahora.isAfter(inicioClase.plusMinutes(10))) {
+        throw new RuntimeException("El Check-in solo está disponible 15 minutos antes del inicio.");
+    }
+
+    reserva.setEstado(EnumEstado.ASISTIDA);
+    reservaRepository.save(reserva);
+    log.info("Asistencia confirmada para reserva ID: {}", reservaId);
+}
 
     /**
      * Mapea una reserva a un DTO.
@@ -212,8 +239,7 @@ public class ReservaServiceImp implements IReservaService {
                 .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)               
                 .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
                                  ? reserva.getHorario().getActividad().getNombre() : "Sin nombre")
-                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
-                             ? reserva.getHorario().getActividad().getNombre() : "Sin Actividad")
+                
             .build();
     }
 }
