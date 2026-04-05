@@ -89,7 +89,7 @@ public class ReservaServiceImp implements IReservaService {
 
     Reserva guardada = reservaRepository.save(reserva);
 
-    // 3. DISPARADOR DE NOTIFICACIÓN (Lo que faltaba incluir)
+    // 3. DISPARADOR DE NOTIFICACIÓN
     notificacionService.enviarNotificacionRapida(
         usuarioId, 
         "Reserva Confirmada", 
