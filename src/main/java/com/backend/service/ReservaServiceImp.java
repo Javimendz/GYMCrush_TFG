@@ -12,9 +12,7 @@ import com.backend.domain.Horario;
 import com.backend.domain.Reserva;
 import com.backend.domain.Usuario;
 import com.backend.domain.enums.EnumEstado;
-import com.backend.domain.enums.TipoNotificacion;
 import com.backend.dto.ReservaResponseDto;
-import com.backend.event.ReservaEvent;
 import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.repository.ReservaRepository;
 import com.backend.repository.UsuarioRepository;
@@ -42,6 +40,8 @@ public class ReservaServiceImp implements IReservaService {
     /** Repositorio para el acceso a datos de reservas */
     private final ReservaRepository reservaRepository;
 
+    private final NotificacionService notificacionService;
+
     /** Repositorio para el acceso a datos de usuarios */
     private final UsuarioRepository usuarioRepository;
 
@@ -67,48 +67,44 @@ public class ReservaServiceImp implements IReservaService {
     @Override
     @Transactional
     public ReservaResponseDto crearReserva(Long usuarioId, Long horarioId) {
-        log.info("Creando reserva para usuario {} en horario {}", usuarioId, horarioId);
-
-        // Validar que el usuario no tenga reserva activa para el mismo día
-        if (reservaRepository.existsByUsuarioIdAndHorarioIdAndFecha(usuarioId, horarioId, LocalDate.now())) {
-            log.warn("El usuario {} ya tiene una reserva para esta clase hoy", usuarioId);
-            throw new RuntimeException("Ya tienes una reserva para esta clase hoy.");
-        }
-
-        // Buscar horario y validar aforo
-        Horario horario = horarioRepository.findById(horarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado"));
-
-        if (!hayCupoDisponible(horarioId)) {
-            throw new RuntimeException("Clase completa. Límite: " + horario.getAforoMax());
-        }
-
-        // Buscar usuario
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-
-        // Crear la reserva con estado CONFIRMADA
-        Reserva reserva = Reserva.builder()
-                .usuario(usuario)
-                .horario(horario)
-                .fecha(LocalDate.now())
-                .estado(EnumEstado.CONFIRMADA)
-                .build();
-
-        // Guardar la entidad y capturarla en una variable
-        Reserva nuevaReserva = reservaRepository.save(reserva);
-
-        // Publicar el evento de notificación
-        eventPublisher.publishEvent(new ReservaEvent(
-                nuevaReserva,
-                "¡Reserva confirmada!",
-                "Gimnasio App",
-                TipoNotificacion.CONFIRMACION
-        ));
-
-        // Retornar DTO pasando la reserva recién creada
-        return mapToDto(nuevaReserva);
+    log.info("Creando reserva para usuario {} en horario {}", usuarioId, horarioId);
+    
+    // 1. Validaciones existentes
+    if (reservaRepository.existsByUsuarioIdAndHorarioIdAndFecha(usuarioId, horarioId, LocalDate.now())) {
+        log.warn("El usuario {} ya tiene una reserva para esta clase hoy", usuarioId);
+        throw new RuntimeException("Ya tienes una reserva para esta clase hoy.");
     }
+
+    Horario horario = horarioRepository.findById(horarioId)
+            .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado"));
+
+    if (!hayCupoDisponible(horarioId)) {
+        throw new RuntimeException("Clase completa. Límite: " + horario.getAforoMax());
+    }
+
+    Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+    
+    // 2. Creación de la reserva
+    Reserva reserva = Reserva.builder()
+            .usuario(usuario)
+            .horario(horario)
+            .fecha(LocalDate.now())
+            .estado(EnumEstado.CONFIRMADA)
+            .build();
+
+    Reserva guardada = reservaRepository.save(reserva);
+
+    // 3. DISPARADOR DE NOTIFICACIÓN
+    notificacionService.enviarNotificacionRapida(
+        usuarioId, 
+        "Reserva Confirmada", 
+        "Has reservado plaza para " + horario.getActividad().getNombre() + " hoy a las " + horario.getHoraInicio(), 
+        com.backend.domain.enums.TipoNotificacion.RECORDATORIO
+    );
+
+    return mapToDto(guardada);
+}
 
     /**
      * Obtiene las reservas de un usuario.
@@ -137,16 +133,46 @@ public class ReservaServiceImp implements IReservaService {
      *
      * @param reservaId ID de la reserva a cancelar
      */
-    @Override
+   @Override
     @Transactional
     public void cancelarReserva(Long reservaId) {
-        Reserva reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new ResourceNotFoundException("La reserva no existe"));
+    // 1. Buscar la reserva existente
+    Reserva reserva = reservaRepository.findById(reservaId)
+            .orElseThrow(() -> new ResourceNotFoundException("La reserva no existe"));
 
-        reserva.setEstado(EnumEstado.CANCELADA);
-        reservaRepository.save(reserva);
+    // --- NUEVA REGLA DE NEGOCIO: POLÍTICA DE CANCELACIÓN (2 HORAS) ---
+    // Combinamos la fecha de la reserva con la hora de inicio de la clase
+    java.time.LocalDateTime ahora = java.time.LocalDateTime.now();
+    java.time.LocalDateTime fechaHoraClase = java.time.LocalDateTime.of(
+            reserva.getFecha(), 
+            reserva.getHorario().getHoraInicio()
+    );
+
+    // Si la hora actual es posterior al límite (Hora clase - 2 horas), lanzamos error
+    if (ahora.isAfter(fechaHoraClase.minusHours(2))) {
+        log.warn("Intento de cancelación fuera de plazo para reserva ID: {}", reservaId);
+        throw new RuntimeException("No puedes cancelar: El límite de tiempo es de 2 horas antes de la clase.");
     }
+    // -----------------------------------------------------------------
 
+    // 2. Cambiar el estado a CANCELADA
+    reserva.setEstado(EnumEstado.CANCELADA);
+    reservaRepository.save(reserva);
+
+    // 3. DISPARADOR DE NOTIFICACIÓN
+    String nombreActividad = (reserva.getHorario() != null && reserva.getHorario().getActividad() != null) 
+                             ? reserva.getHorario().getActividad().getNombre() 
+                             : "clase";
+
+    notificacionService.enviarNotificacionRapida(
+        reserva.getUsuario().getId(), 
+        "Reserva Cancelada", 
+        "Has cancelado tu reserva para la clase de " + nombreActividad + ".", 
+        com.backend.domain.enums.TipoNotificacion.SISTEMA
+    );
+    
+    log.info("Notificación de cancelación enviada al usuario {}", reserva.getUsuario().getId());
+}
     /**
      * Verifica si hay cupo disponible para un horario.
      * <p>
@@ -178,15 +204,28 @@ public class ReservaServiceImp implements IReservaService {
      * @param reservaId ID de la reserva
      */
     @Override
-    @Transactional
-    public void confirmarAsistencia(Long reservaId) {
-        Reserva reserva = reservaRepository.findById(reservaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
-
-        reserva.setEstado(EnumEstado.ASISTIDA);
-        // reserva.setConfirmado(true); // Asegúrate de tener este campo en la Entidad Reserva si lo necesitas
-        reservaRepository.save(reserva);
+@Transactional
+public void confirmarAsistencia(Long reservaId) {
+    Reserva reserva = reservaRepository.findById(reservaId)
+            .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+    
+    // REGLA TFG: Solo permitir check-in si la clase es HOY
+    if (!reserva.getFecha().equals(LocalDate.now())) {
+        throw new RuntimeException("Solo puedes confirmar asistencia el día de la clase.");
     }
+
+    // REGLA TFG: Ventana de tiempo (15 min antes hasta 10 min después)
+    java.time.LocalTime ahora = java.time.LocalTime.now();
+    java.time.LocalTime inicioClase = reserva.getHorario().getHoraInicio();
+
+    if (ahora.isBefore(inicioClase.minusMinutes(15)) || ahora.isAfter(inicioClase.plusMinutes(10))) {
+        throw new RuntimeException("El Check-in solo está disponible 15 minutos antes del inicio.");
+    }
+
+    reserva.setEstado(EnumEstado.ASISTIDA);
+    reservaRepository.save(reserva);
+    log.info("Asistencia confirmada para reserva ID: {}", reservaId);
+}
 
     /**
      * Obtiene la lista de personas apuntadas a una clase específica para el día de hoy.

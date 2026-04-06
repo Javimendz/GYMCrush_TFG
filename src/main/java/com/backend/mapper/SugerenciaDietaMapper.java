@@ -21,8 +21,9 @@ import com.backend.dto.SugerenciaDietaRequestDto;
  */
 @Mapper(componentModel = "spring")
 public interface SugerenciaDietaMapper {
- @Mapping(target = "usuarioId", source = "usuario.id")
+    @Mapping(target = "usuarioId", source = "usuario.id")
     @Mapping(target = "dietaId", source = "dieta.id")
+    @Mapping(target = "esFavorita", source = "esFavorita")
     SugerenciaDietaReponseDto toResponseDto(SugerenciaDieta sugerencia);
 
     List<SugerenciaDietaReponseDto> toResponseDtoList(List<SugerenciaDieta> sugerencias);
@@ -36,6 +37,8 @@ public interface SugerenciaDietaMapper {
     @Mapping(target = "tipoDieta", ignore = true)
     @Mapping(target = "caloriasObjetivo", ignore = true) 
     @Mapping(target = "macronutrientesJson", ignore = true) 
+    // Es vital ignorarlo aquí para evitar errores si el DTO de petición no lo trae
+    @Mapping(target = "esFavorita", ignore = true)
     SugerenciaDieta toEntity(SugerenciaDietaRequestDto dto);
 
 }

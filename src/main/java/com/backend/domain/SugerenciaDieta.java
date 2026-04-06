@@ -80,6 +80,8 @@ public class SugerenciaDieta {
     @Column(name = "fecha_generacion", nullable = false, updatable = false)
     private LocalDateTime fechaGeneracion;
 
+    private boolean esFavorita;
+
     /**
      * Usuario que recibe la sugerencia.
      * <p>

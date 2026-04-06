@@ -84,6 +84,10 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    private List<Notificacion> notificaciones = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Reserva> reservas = new ArrayList<>(); // Un usuario realiza N reservas
 
     @Builder.Default

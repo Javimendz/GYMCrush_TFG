@@ -50,4 +50,6 @@ public class ComidaDiariaController {
         comidaService.guardarComidas(comidas, planId);
         return ResponseEntity.ok("Platos guardados correctamente en el plan " + planId);
     }
+
+    
 }

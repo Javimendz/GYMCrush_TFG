@@ -10,6 +10,10 @@ public interface INutricionService{
 
     SugerenciaDietaReponseDto generarPlanAutomatico(PerfilFisicoRequest request);
     NutricionResponseDto obtenerUltimoPlanPorUsuario(Long usuarioId);
+<<<<<<< HEAD
     List<SugerenciaDietaReponseDto> obtenerHistorial(Long usuarioId);
 
 } 
+=======
+} 
+>>>>>>> origin/andrearama

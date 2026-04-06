@@ -13,4 +13,6 @@ public interface ComidaDiariaRepository  extends JpaRepository<ComidaDiaria, Lon
      */
     
    List<ComidaDiaria> findByPlanId(Long planId);
+
+  //List<ComidaDiaria> findByPlanNutricionalId(Long planId);
 }

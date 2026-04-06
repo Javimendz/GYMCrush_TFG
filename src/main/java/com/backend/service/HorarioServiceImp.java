@@ -1,5 +1,6 @@
 package com.backend.service;
 
+import java.time.LocalTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,23 +9,24 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.backend.domain.Actividad;
 import com.backend.domain.Horario;
+import com.backend.domain.Reserva;
 import com.backend.domain.Sala;
+import com.backend.domain.enums.EnumEstado;
+import com.backend.domain.enums.TipoNotificacion; // Asegúrate de que este Enum exista y tenga el valor ALERTA o cámbialo por RECORDATORIO
 import com.backend.dto.HorarioRequestDto;
 import com.backend.dto.HorarioResponseDto;
 import com.backend.mapper.HorarioMapper;
 import com.backend.repository.ActividadRepository;
 import com.backend.repository.HorarioRepository;
+import com.backend.repository.ReservaRepository;
 import com.backend.repository.SalaRepository;
 import com.backend.exceptions.ResourceNotFoundException;
 
 /**
- * Implementación de la lógica de negocio para la gestión de horarios del
- * gimnasio.
- * Esta clase coordina la asignación de actividades a franjas horarias
- * específicas,
+ * Implementación de la lógica de negocio para la gestión de horarios del gimnasio.
+ * Esta clase coordina la asignación de actividades a franjas horarias específicas,
  * asegurando la integridad referencial y el control de aforo.
  * * @author JavierMendez/TFG
- * 
  * @version 1.0
  */
 @Service
@@ -36,11 +38,12 @@ public class HorarioServiceImp implements IHorarioService {
     private final ActividadRepository actividadRepository;
     private final HorarioMapper horarioMapper;
     private final SalaRepository salaRepository;
+    private final NotificacionService notificacionService;
+    private final ReservaRepository reservaRepository;
 
     /**
      * Recupera el listado completo de horarios configurados en el sistema.
-     * * @return Lista de {@link HorarioResponseDto} con la información técnica y
-     * comercial.
+     * @return Lista de {@link HorarioResponseDto} con la información técnica y comercial.
      */
     @Override
     @Transactional(readOnly = true)
@@ -53,8 +56,7 @@ public class HorarioServiceImp implements IHorarioService {
 
     /**
      * Busca un horario específico por su identificador único.
-     * * @param id Identificador del horario.
-     * 
+     * @param id Identificador del horario.
      * @return DTO con la información detallada del horario.
      * @throws ResourceNotFoundException si el ID no existe en la base de datos.
      */
@@ -70,22 +72,17 @@ public class HorarioServiceImp implements IHorarioService {
 
     /**
      * Crea un nuevo registro de horario vinculándolo a una actividad existente.
-     * Realiza una validación previa para asegurar que la actividad asignada sea
-     * válida.
-     * * @param dto Datos de la petición (día, horas, aforo e ID de actividad).
-     * 
-     * @return {@link HorarioResponseDto} con los datos persistidos y el nombre de
-     *         la actividad.
-     * @throws ResourceNotFoundException si la actividad referenciada no existe.
+     * @param dto Datos de la petición (día, horas, aforo e ID de actividad).
+     * @return {@link HorarioResponseDto} con los datos persistidos.
+     * @throws ResourceNotFoundException si la actividad o sala referenciada no existe.
      */
     @Override
     @Transactional
     public HorarioResponseDto crear(HorarioRequestDto dto) {
         log.info("Creando nuevo horario para actividad ID: {}", dto.getActividadId());
-        // Validación de existencia de la relación OneToMany
+        
         Actividad actividad = actividadRepository.findById(dto.getActividadId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("No se puede crear el horario: Actividad no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se puede crear el horario: Actividad no encontrada"));
         log.debug("Actividad encontrada: {}", actividad.getNombre());
 
         Sala sala = salaRepository.findById(dto.getSalaId())
@@ -102,15 +99,11 @@ public class HorarioServiceImp implements IHorarioService {
     }
 
     /**
-     * Actualiza la información de un horario existente.
-     * Si el ID de la actividad cambia, se actualiza el vínculo con la nueva
-     * entidad.
-     * * @param id ID del horario a modificar.
-     * 
+     * Actualiza la información de un horario existente y notifica a los usuarios
+     * en caso de cambios críticos (hora o sala).
+     * * @param id  ID del horario a modificar.
      * @param dto Nuevos datos de configuración.
      * @return DTO actualizado.
-     * @throws ResourceNotFoundException si el horario o la nueva actividad no
-     *                                   existen.
      */
     @Override
     @Transactional
@@ -119,37 +112,64 @@ public class HorarioServiceImp implements IHorarioService {
         Horario existente = horarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: Horario no encontrado"));
 
-        // Gestión de cambio de actividad vinculada
-        if (existente.getActividad() == null ||
-                !existente.getActividad().getId().equals(dto.getActividadId())) {
-            log.debug("Cambiando actividad vinculada de {} a {}", existente.getActividad().getId(),
-                    dto.getActividadId());
+        // 1. Guardar estado antiguo para validación posterior (Notificaciones)
+        LocalTime horaAntigua = existente.getHoraInicio();
+        Long salaAntiguaId = (existente.getSala() != null) ? existente.getSala().getId() : null;
+
+        // 2. Gestión de cambio de actividad vinculada
+        if (existente.getActividad() == null || !existente.getActividad().getId().equals(dto.getActividadId())) {
+            log.debug("Cambiando actividad vinculada al horario");
             Actividad nuevaActividad = actividadRepository.findById(dto.getActividadId())
                     .orElseThrow(() -> new ResourceNotFoundException("La nueva actividad asignada no existe"));
             existente.setActividad(nuevaActividad);
         }
-        if (existente.getSala() == null ||
-                !existente.getSala().getId().equals(dto.getSalaId())) {
+        
+        // 3. Gestión de cambio de sala
+        if (existente.getSala() == null || !existente.getSala().getId().equals(dto.getSalaId())) {
+            log.debug("Cambiando sala vinculada al horario");
             Sala nuevaSala = salaRepository.findById(dto.getSalaId())
                     .orElseThrow(() -> new ResourceNotFoundException("La nueva sala asignada no existe"));
             existente.setSala(nuevaSala);
         }
-        // Actualización de atributos básicos
+
+        // 4. Actualización de atributos básicos
         existente.setDiaSemana(dto.getDiaSemana());
         existente.setHoraInicio(dto.getHoraInicio());
-
         existente.setHoraFin(dto.getHoraFin());
         existente.setAforoMax(dto.getAforoMax());
 
-        HorarioResponseDto resultado = horarioMapper.toResponseDto(horarioRepository.save(existente));
+        // 5. Guardar la entidad
+        Horario guardado = horarioRepository.save(existente);
+        HorarioResponseDto resultado = horarioMapper.toResponseDto(guardado);
+
+        // 6. Lógica de notificación para socios inscritos
+        boolean cambioHora = horaAntigua != null && !horaAntigua.equals(dto.getHoraInicio());
+        boolean cambioSala = salaAntiguaId != null && !salaAntiguaId.equals(dto.getSalaId());
+
+        if (cambioHora || cambioSala) {
+            log.info("Detectado cambio crítico en horario {}. Notificando usuarios...", id);
+            
+            // Buscar reservas afectadas (estado CONFIRMADA)
+            List<Reserva> reservasAfectadas = reservaRepository.findByHorarioIdAndEstado(id, EnumEstado.CONFIRMADA);
+            
+            for (Reserva reserva : reservasAfectadas) {
+                // NOTA: Asegúrate de que el Enum TipoNotificacion.ALERTA existe en tu código.
+                notificacionService.enviarNotificacionRapida(
+                    reserva.getUsuario().getId(),
+                    "Cambio de horario/sala",
+                    "La clase de " + guardado.getActividad().getNombre() + " ha sufrido cambios. ¡Revísala!",
+                    TipoNotificacion.ALERTA 
+                );
+            }
+        }
+
         log.info("Horario {} actualizado exitosamente", id);
         return resultado;
     }
 
     /**
      * Elimina físicamente un horario del sistema.
-     * * @param id ID del registro a eliminar.
-     * 
+     * @param id ID del registro a eliminar.
      * @throws ResourceNotFoundException si el registro no existe.
      */
     @Override
@@ -166,8 +186,7 @@ public class HorarioServiceImp implements IHorarioService {
 
     /**
      * Filtra los horarios disponibles según el día de la semana.
-     * * @param dia Nombre del día (LUNES, MARTES, etc.).
-     * 
+     * @param dia Nombre del día (LUNES, MARTES, etc.).
      * @return Lista de horarios programados para dicho día.
      */
     @Override
@@ -182,8 +201,7 @@ public class HorarioServiceImp implements IHorarioService {
 
     /**
      * Obtiene el cronograma semanal de una actividad específica.
-     * * @param actividadId ID de la actividad (ej: Crossfit).
-     * 
+     * @param actividadId ID de la actividad (ej: Crossfit).
      * @return Lista de horarios donde se imparte la actividad.
      */
     @Override
