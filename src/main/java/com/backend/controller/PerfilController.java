@@ -29,9 +29,9 @@ import lombok.extern.slf4j.Slf4j;
  * <p>
  * Este controlador proporciona endpoints para:
  * <ul>
- *   <li>Listar todos los perfiles (ADMIN)</li>
- *   <li>Obtener perfil por ID</li>
- *   <li>Actualizar perfil de usuario</li>
+ * <li>Listar todos los perfiles (ADMIN)</li>
+ * <li>Obtener perfil por ID</li>
+ * <li>Actualizar perfil de usuario</li>
  * </ul>
  * Los perfiles incluyen información personal y datos de salud asociados.
  * </p>
@@ -56,7 +56,8 @@ public class PerfilController {
      * Lista todos los perfiles de usuarios con datos de salud enriquecidos.
      * <p>
      * Solo los usuarios con rol ADMIN pueden listar todos los perfiles.
-     * Los perfiles se enriquecen con datos de salud del usuario si están disponibles.
+     * Los perfiles se enriquecen con datos de salud del usuario si están
+     * disponibles.
      * </p>
      *
      * @return lista de perfiles de usuarios
@@ -100,10 +101,10 @@ public class PerfilController {
         log.info("Obteniendo perfil por ID: {}", id);
         PerfilResponseDto perfil = perfilService.findById(id);
         log.debug("Perfil encontrado: {} - {}", perfil.getId(), perfil.getNombre());
-        
+
         ApiResponseDto<PerfilResponseDto> respuesta = ApiResponseDto.<PerfilResponseDto>builder()
-                .mensaje("Perfil recuperado con éxito") 
-                .datos(perfil) 
+                .mensaje("Perfil recuperado con éxito")
+                .datos(perfil)
                 .success(true)
                 .build();
 
@@ -116,7 +117,7 @@ public class PerfilController {
      * Permite a usuarios ADMIN o USUARIO actualizar la información del perfil.
      * </p>
      *
-     * @param id el ID del perfil a actualizar
+     * @param id  el ID del perfil a actualizar
      * @param dto los nuevos datos del perfil
      * @return ResponseEntity con el perfil actualizado
      */
@@ -125,7 +126,7 @@ public class PerfilController {
     @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar perfil", description = "Actualiza los datos de un perfil de usuario por su ID")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Perfil actualizado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> updatePerfil(
             @PathVariable Long id,
             @Valid @RequestBody PerfilRequestDto dto) {

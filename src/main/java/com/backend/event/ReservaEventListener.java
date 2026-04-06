@@ -25,6 +25,7 @@ public class ReservaEventListener {
     @Async
     @EventListener
     public void handleReservaEvent(ReservaEvent event) {
+        log.info("Procesando notificación para usuario ID: {}", event.reserva().getUsuario().getId());
         // 1. Guardar en Base de Datos
         Notificacion n = new Notificacion();
         n.setUsuario(event.reserva().getUsuario());

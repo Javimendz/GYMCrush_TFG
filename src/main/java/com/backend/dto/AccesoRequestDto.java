@@ -7,12 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Data Transfer Object (DTO) para solicitudes de acceso al chat mediante token QR.
+ * Data Transfer Object (DTO) para solicitudes de acceso al gimnasio mediante token QR.
  * <p>
  * Esta clase representa la estructura de datos necesaria para que un cliente
- * solicite acceso al sistema de chat utilizando un token QR generado previamente.
+ * solicite acceso al gimnasio utilizando un token QR generado previamente.
  * Es utilizada en el endpoint de autenticación para validar y procesar las
- * solicitudes de entrada al chat.
+ * solicitudes de entrada al gimnasio.
  * </p>
  * 
  * <p>

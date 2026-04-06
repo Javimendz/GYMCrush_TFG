@@ -21,15 +21,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Controlador REST para gestionar las operaciones relacionadas con el acceso al sistema.
+ * Controlador REST para gestionar las operaciones relacionadas con el acceso al
+ * sistema.
  * <p>
  * Este controlador proporciona endpoints para:
  * <ul>
- *   <li>Generación de tokens QR para acceso al gimnasio</li>
- *   <li>Validación de entrada mediante escaneo de QR</li>
- *   <li>Validación de salida mediante escaneo de QR</li>
- *   <li>Consulta de aforo actual del establecimiento</li>
- *   <li>Consulta de historial de accesos del usuario</li>
+ * <li>Generación de tokens QR para acceso al gimnasio</li>
+ * <li>Validación de entrada mediante escaneo de QR</li>
+ * <li>Validación de salida mediante escaneo de QR</li>
+ * <li>Consulta de aforo actual del establecimiento</li>
+ * <li>Consulta de historial de accesos del usuario</li>
  * </ul>
  * </p>
  *
@@ -46,10 +47,12 @@ public class AccesoController {
 
     private final IAccesoService accesoService;
     private final JwtGenerator jwtGenerator;
+
     /**
      * Genera un token QR para que el usuario pueda acceder al gimnasio.
      * <p>
-     * El token generado es válido por 30 segundos y debe ser escaneado por el personal
+     * El token generado es válido por 30 segundos y debe ser escaneado por el
+     * personal
      * del gimnasio para registrar la entrada.
      * </p>
      *
@@ -57,7 +60,7 @@ public class AccesoController {
      * @return ResponseEntity con el token QR generado y mensaje de confirmación
      */
     @GetMapping("/generar-qr")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Obtener token QR", description = "Genera un token QR válido por 30 segundos")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Token QR generado con éxito")
     public ResponseEntity<ApiResponseDto<String>> obtenerToken(Authentication auth) {
@@ -72,9 +75,11 @@ public class AccesoController {
     }
 
     /**
-     * Valida la entrada de un usuario al gimnasio mediante el escaneo de su token QR.
+     * Valida la entrada de un usuario al gimnasio mediante el escaneo de su token
+     * QR.
      * <p>
-     * Este endpoint es utilizado por el personal del gimnasio (ADMIN) para registrar
+     * Este endpoint es utilizado por el personal del gimnasio (ADMIN) para
+     * registrar
      * la entrada del usuario en el sistema.
      * </p>
      *
@@ -82,13 +87,13 @@ public class AccesoController {
      * @return ResponseEntity con confirmación de la entrada registrada
      */
     @PostMapping("/validar-entrada")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Validar entrada", description = "Registra la entrada de un usuario por su token QR")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Token QR del usuario para registrar la entrada")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Entrada registrada con éxito")
     public ResponseEntity<ApiResponseDto<Void>> validarEntrada(@RequestBody AccesoRequestDto dto) {
         log.info("Solicitud de validación de entrada para el token QR: {}", dto.getToken());
-        accesoService.registrarEntrada(dto.getToken()); 
+        accesoService.registrarEntrada(dto.getToken());
         log.info("Entrada registrada con éxito para el token QR: {}", dto.getToken());
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
                 .mensaje("Entrada registrada con éxito")
@@ -97,9 +102,11 @@ public class AccesoController {
     }
 
     /**
-     * Valida la salida de un usuario del gimnasio mediante el escaneo de su token QR.
+     * Valida la salida de un usuario del gimnasio mediante el escaneo de su token
+     * QR.
      * <p>
-     * Este endpoint es utilizado por el personal del gimnasio (ADMIN) para registrar
+     * Este endpoint es utilizado por el personal del gimnasio (ADMIN) para
+     * registrar
      * la salida del usuario en el sistema.
      * </p>
      *
@@ -107,13 +114,13 @@ public class AccesoController {
      * @return ResponseEntity con confirmación de la salida registrada
      */
     @PostMapping("/validar-salida")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Validar salida", description = "Registra la salida de un usuario por su token QR")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Token QR del usuario para registrar la salida")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Salida registrada con éxito")
     public ResponseEntity<ApiResponseDto<Void>> validarSalida(@RequestBody AccesoRequestDto dto) {
         log.info("Solicitud de validación de salida para el token QR: {}", dto.getToken());
-        accesoService.registrarSalida(dto.getToken()); 
+        accesoService.registrarSalida(dto.getToken());
         log.info("Salida registrada con éxito para el token QR: {}", dto.getToken());
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
                 .mensaje("Salida registrada con éxito. ¡Buen descanso!")
@@ -131,7 +138,7 @@ public class AccesoController {
      * @return ResponseEntity con el número de personas dentro del gimnasio
      */
     @GetMapping("/aforo")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Consultar aforo", description = "Obtiene el número actual de personas dentro del establecimiento")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Aforo actual recuperado con éxito")
     public ResponseEntity<ApiResponseDto<Long>> consultarAforo() {
@@ -158,7 +165,7 @@ public class AccesoController {
      * @return ResponseEntity con la lista de accesos del usuario
      */
     @GetMapping("/historial")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Ver historial de accesos", description = "Obtiene el historial de accesos del usuario autenticado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Historial de accesos recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró historial para el usuario")

@@ -40,6 +40,8 @@ Nota : MapStruct es una biblioteca de mapeo de objetos que simplifica la copia d
 
 `notificaciones con websockets`: https://www.youtube.com/watch?v=sqYqyr6EpAU
 
+
+
 `Logs con SLF4J y Logback ` - Sistema de logeo profesional con estas tecnologias.
 
 
