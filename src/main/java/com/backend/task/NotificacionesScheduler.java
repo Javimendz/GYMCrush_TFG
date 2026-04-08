@@ -31,20 +31,22 @@ public class NotificacionesScheduler {
         LocalTime ahora = LocalTime.now();
         LocalTime limite = ahora.plusHours(2);
 
-        log.info("Ejecutando Job de recordatorios para clases entre {} y {}", ahora, limite);
+        log.info("Job Recordatorios: Buscando clases para hoy {} entre {} y {}", hoy, ahora, limite);
 
         List<Reserva> proximas = reservaRepo.findReservasParaRecordatorio(hoy, ahora, limite);
 
         for (Reserva r : proximas) {
-            eventPublisher.publishEvent(new ReservaEvent(
-                r, 
-                "¡Recordatorio! Tu clase de " + r.getHorario().getActividad().getNombre() + " empieza pronto.",
-                "Próximo entrenamiento",
-                TipoNotificacion.RECORDATORIO
-            ));
-            
-            // Opcional: Aquí podrías marcar la reserva como "recordatorioEnviado = true" 
-            // y hacer un reservaRepo.save(r) para no enviar el aviso dos veces.
+            if (r.getConfirmado() == null || !r.getConfirmado()) {
+                eventPublisher.publishEvent(new ReservaEvent(
+                    r, 
+                    "¡Recordatorio! Tu clase de " + r.getHorario().getActividad().getNombre() + " empieza pronto.",
+                    "Próximo entrenamiento",
+                    TipoNotificacion.RECORDATORIO
+                ));
+                
+                r.setConfirmado(true);
+                reservaRepo.save(r);
+            }
         }
     }
 }

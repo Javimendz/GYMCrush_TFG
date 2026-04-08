@@ -3,7 +3,6 @@ package com.backend.dto;
 import com.backend.domain.enums.TipoNotificacion;
 import lombok.Builder;
 import lombok.Data;
-import java.time.format.DateTimeFormatter;
 
 @Data
 @Builder

@@ -1,6 +1,8 @@
 package com.backend.domain;
 
 import java.util.List;
+
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -51,7 +53,7 @@ public class Dieta {
     private String tipo;
 
     @Column(name = "objetivo_calorico", nullable = true)
-    private Integer objetivoCalorico;
+    private Double objetivoCalorico;
 
     /**
      * Cantidad de proteínas en gramos.
@@ -60,7 +62,7 @@ public class Dieta {
      * </p>
      */
     @Column(name = "cantidad_p", nullable = true)
-    private Integer cantidadProteinas;
+    private Double cantidadProteinas;
 
     /**
      * Cantidad de carbohidratos en gramos.
@@ -69,7 +71,7 @@ public class Dieta {
      * </p>
      */
     @Column(name = "cantidad_c", nullable = true)
-    private Integer cantidadCarbohidratos;
+    private Double cantidadCarbohidratos;
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
@@ -89,6 +91,6 @@ public class Dieta {
      * gestionar las recomendaciones nutricionales.
      * </p>
      */
-    @OneToMany(mappedBy = "dieta", cascade = CascadeType.ALL)
-    private List<SugerenciaDieta> sugerencias;
+   @OneToMany(mappedBy = "dieta", cascade = CascadeType.ALL)
+    private List<Nutricion> planes;
 }

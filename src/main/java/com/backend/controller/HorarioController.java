@@ -19,12 +19,12 @@ import com.backend.service.IHorarioService;
  * <p>
  * Este controlador proporciona endpoints para el CRUD de horarios:
  * <ul>
- *   <li>Listar todos los horarios</li>
- *   <li>Listar horarios por día de la semana</li>
- *   <li>Obtener horario por ID</li>
- *   <li>Crear nuevo horario (ADMIN)</li>
- *   <li>Actualizar horario (ADMIN)</li>
- *   <li>Eliminar horario (ADMIN)</li>
+ * <li>Listar todos los horarios</li>
+ * <li>Listar horarios por día de la semana</li>
+ * <li>Obtener horario por ID</li>
+ * <li>Crear nuevo horario (ADMIN)</li>
+ * <li>Actualizar horario (ADMIN)</li>
+ * <li>Eliminar horario (ADMIN)</li>
  * </ul>
  * </p>
  *
@@ -47,14 +47,16 @@ public class HorarioController {
      * @return ResponseEntity con la lista de todos los horarios
      */
     @GetMapping
-    @io.swagger.v3.oas.annotations.Operation(summary = "Listar todos los horarios", description = "Obtiene una lista de todos los horarios disponibles")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado de horarios recuperado con éxito")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<List<HorarioResponseDto>> listarTodos() {
+    @io.swagger.v3.oas.annotations.Operation(summary = "Listar todos los horarios")
+    public ResponseEntity<ApiResponseDto<List<HorarioResponseDto>>> listarTodos() {
         log.info("Listando todos los horarios");
         List<HorarioResponseDto> horarios = horarioService.listarTodos();
-        log.debug("Total de horarios recuperados: {}", horarios.size());
-        return ResponseEntity.ok(horarios);
+
+        return ResponseEntity.ok(ApiResponseDto.<List<HorarioResponseDto>>builder()
+                .mensaje("Listado de horarios recuperado con éxito")
+                .success(true)
+                .datos(horarios)
+                .build());
     }
 
     /**
@@ -68,11 +70,15 @@ public class HorarioController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado de horarios recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontraron horarios para el día especificado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<List<HorarioResponseDto>> listarPorDia(@PathVariable String dia) {
+    public ResponseEntity<ApiResponseDto<List<HorarioResponseDto>>> listarPorDia(@PathVariable("dia") String dia) {
         log.info("Listando horarios por día: {}", dia);
         List<HorarioResponseDto> horarios = horarioService.listarPorDia(dia);
         log.debug("Horarios encontrados para día '{}': {}", dia, horarios.size());
-        return ResponseEntity.ok(horarios);
+        return ResponseEntity.ok(ApiResponseDto.<List<HorarioResponseDto>>builder()
+                .mensaje("Horarios del día " + dia + " recuperados")
+                .success(true)
+                .datos(horarios)
+                .build());
     }
 
     /**
@@ -86,11 +92,15 @@ public class HorarioController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Horario recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Horario no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<HorarioResponseDto> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<HorarioResponseDto>> obtenerPorId(@PathVariable("id") Long id) {
         log.info("Obteniendo horario por ID: {}", id);
         HorarioResponseDto horario = horarioService.obtenerPorId(id);
         log.debug("Horario encontrado: {} - {}", horario.getDiaSemana(), horario.getHoraInicio());
-        return ResponseEntity.ok(horario);
+        return ResponseEntity.ok(ApiResponseDto.<HorarioResponseDto>builder()
+                .mensaje("Horario recuperado con éxito")
+                .success(true)
+                .datos(horario)
+                .build());
     }
 
     /**
@@ -103,13 +113,19 @@ public class HorarioController {
      * @return ResponseEntity con el horario creado y estado 201 (CREATED)
      */
     @PostMapping
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Crear horario", description = "Crea un nuevo horario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Horario creado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<HorarioResponseDto> crear(@Valid @RequestBody HorarioRequestDto dto) {
-        return new ResponseEntity<>(horarioService.crear(dto), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponseDto<HorarioResponseDto>> crear(@Valid @RequestBody HorarioRequestDto dto) {
+        HorarioResponseDto nuevoHorario = horarioService.crear(dto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.<HorarioResponseDto>builder()
+                .mensaje("Horario creado exitosamente")
+                .success(true)
+                .datos(nuevoHorario)
+                .build());
     }
 
     /**
@@ -118,21 +134,28 @@ public class HorarioController {
      * Solo los usuarios con rol ADMIN pueden actualizar horarios.
      * </p>
      *
-     * @param id el ID del horario a actualizar
+     * @param id  el ID del horario a actualizar
      * @param dto los nuevos datos del horario
      * @return ResponseEntity con el horario actualizado
      */
     @PutMapping("/{id}")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar horario", description = "Actualiza los detalles de un horario existente")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Horario actualizado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Horario no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<HorarioResponseDto> actualizar(
-            @PathVariable Long id, 
+    public ResponseEntity<ApiResponseDto<HorarioResponseDto>> actualizar(
+            @PathVariable("id") Long id,
             @Valid @RequestBody HorarioRequestDto dto) {
-        return ResponseEntity.ok(horarioService.actualizar(id, dto));
+
+        HorarioResponseDto horarioActualizado = horarioService.actualizar(id, dto);
+
+        return ResponseEntity.ok(ApiResponseDto.<HorarioResponseDto>builder()
+                .mensaje("Horario actualizado exitosamente")
+                .success(true)
+                .datos(horarioActualizado)
+                .build());
     }
 
     /**
@@ -145,20 +168,18 @@ public class HorarioController {
      * @return ResponseEntity con confirmación de eliminación
      */
     @DeleteMapping("/{id}")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Eliminar horario", description = "Elimina un horario existente por su ID")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Horario eliminado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Horario no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable Long id) {
+   public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) {
         horarioService.eliminar(id);
 
-        ApiResponseDto<Void> respuesta = ApiResponseDto.<Void>builder()
-            .mensaje("El horario ha sido eliminado correctamente")
-            .success(true)
-            .datos(null)
-            .build();
-
-        return ResponseEntity.ok(respuesta);
+        return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                .mensaje("El horario ha sido eliminado correctamente")
+                .success(true)
+                .datos(null)
+                .build());
     }
 }

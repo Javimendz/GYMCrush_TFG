@@ -1,7 +1,7 @@
 //Paquete de repositorio
 package com.backend.repository;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 //Imports
@@ -14,34 +14,31 @@ import com.backend.domain.enums.EnumEstado;
 //Interfaz de repositorio para la entidad Reserva
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
-     List<Reserva> findByUsuarioId(Long usuarioId);
-    // Listar reservas de un usuario que no estén canceladas
-    List<Reserva> findByUsuarioIdAndEstadoNot (Long usuarioId, EnumEstado estado);
+    List<Reserva> findByUsuarioId(Long usuarioId);
     
-    // Contar cuántas personas hay en una clase un día concreto
-    //long countByHorarioIdAndFecha(Long horarioId, LocalDate fecha);
+    List<Reserva> findByUsuarioIdAndEstadoNot(Long usuarioId, EnumEstado estado);
     
-    // 2. Control de Aforo: Cuenta solo los que ocupan plaza real
-    // (CONFIRMADA para los que van a ir, ASISTIDA para los que ya están allí)
     long countByHorarioIdAndFechaAndEstadoIn(Long horarioId, LocalDate fecha, List<EnumEstado> estados);
     
-    // Evitar que el mismo usuario reserve la misma clase dos veces el mismo día
     boolean existsByUsuarioIdAndHorarioIdAndFecha(Long usuarioId, Long horarioId, LocalDate fecha);
-<<<<<<< HEAD
 
-    // Busca reservas por ID de horario, fecha específica y una lista de estados (ej: CONFIRMADA, ASISTIDA)
     List<Reserva> findByHorarioIdAndFechaAndEstadoIn(Long horarioId, LocalDate fecha, List<EnumEstado> estados);
 
-    List<Reserva> findReservasParaRecordatorio(LocalDateTime ahora, LocalDateTime limite);    
-
-
-    @Query("SELECT r FROM Reserva r WHERE r.fecha = :hoy AND r.horario.horaInicio BETWEEN :ahora AND :limite AND r.estado = 'CONFIRMADA'")
+    // --- CORRECCIÓN DEFINITIVA ---
+    // Usamos r.fecha (LocalDate) y h.horaInicio (LocalTime) de la entidad Horario
+    @Query("SELECT r FROM Reserva r JOIN r.horario h " +
+           "WHERE r.fecha = :fecha " +
+           "AND h.horaInicio BETWEEN :inicio AND :fin " +
+           "AND r.estado = com.backend.domain.enums.EnumEstado.CONFIRMADA")
     List<Reserva> findReservasParaRecordatorio(
-        @Param("hoy") java.time.LocalDate hoy, 
-        @Param("ahora") java.time.LocalTime ahora, 
-        @Param("limite") java.time.LocalTime limite
+        @Param("fecha") LocalDate fecha, 
+        @Param("inicio") LocalTime inicio, 
+        @Param("fin") LocalTime fin
     );
-=======
+
     List<Reserva> findByHorarioIdAndEstado(Long horarioId, EnumEstado estado);
->>>>>>> origin/andrearama
+
+    boolean existsByUsuarioIdAndFechaAndHorario_HoraInicioAndEstadoNot(
+    Long usuarioId, LocalDate fecha, java.time.LocalTime horaInicio, EnumEstado estado
+);
 }

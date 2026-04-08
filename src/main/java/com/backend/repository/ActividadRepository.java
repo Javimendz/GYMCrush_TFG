@@ -24,6 +24,8 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long> {
     @Query("SELECT a FROM Actividad a JOIN a.horarios h WHERE h.diaSemana = :dia")
     List<Actividad> findActividadesDisponiblesPorDia(@Param("dia") String dia);
 
+
+    boolean existsByNombreIgnoreCase(String nombre);
     //  Buscar por lugar
     List<Actividad> findBySalaIgnoreCase(String sala);
 }

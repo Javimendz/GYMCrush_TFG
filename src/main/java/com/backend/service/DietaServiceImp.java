@@ -26,40 +26,55 @@ public class DietaServiceImp implements IDietaService {
 
     @Override
     @Transactional
-    public DietaResponseDto crearDieta(DietaRequestDto dto) {
-        log.info("Creando dieta base: {}", dto.getNombre());
+   public DietaResponseDto crearDieta(DietaRequestDto dto) {
+        log.info("Iniciando creación de dieta base: {}", dto.getNombre());
 
-        // Convertimos a entidad
+        // Evitar dietas con nombre duplicado en el catálogo
+        if (dietaRepository.existsByNombreIgnoreCase(dto.getNombre())) {
+            log.warn("Ya existe una dieta con el nombre: {}", dto.getNombre());
+            throw new IllegalArgumentException("La dieta '" + dto.getNombre() + "' ya existe en el catálogo.");
+        }
+
+        // Convertimos el DTO a la entidad inicial
         Dieta dieta = dietaMapper.toEntity(dto);
 
-        // Asignamos la categoría
+        //  Asignación  de Categoría
         if (dto.getCategoriaDietaId() != null) {
+            log.debug("Asociando categoría ID {} a la nueva dieta", dto.getCategoriaDietaId());
             CategoriaDieta categoria = categoriaRepository.findById(dto.getCategoriaDietaId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con ID: "
+                    .orElseThrow(() -> new ResourceNotFoundException("No se puede crear la dieta: Categoría no encontrada con ID: " 
                             + dto.getCategoriaDietaId()));
             dieta.setCategoriaDieta(categoria);
         }
 
-       
         Dieta guardada = dietaRepository.save(dieta);
-        log.info("Dieta base creada con ID: {}", guardada.getId());
+        log.info("Dieta base '{}' creada exitosamente con ID: {}", guardada.getNombre(), guardada.getId());
+        
         return dietaMapper.toResponseDto(guardada);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<DietaResponseDto> listarTodas() {
-        log.info("Listando todas las dietas del catálogo");
-        return dietaMapper.toResponseDtoList(dietaRepository.findAll());
+   public List<DietaResponseDto> listarTodas() {
+        log.info("Recuperando todas las dietas del catálogo maestro");
+        List<Dieta> dietas = dietaRepository.findAll();
+        log.debug("Se encontraron {} dietas en total", dietas.size());
+        return dietaMapper.toResponseDtoList(dietas);
     }
 
     @Override
     @Transactional(readOnly = true)
     public DietaResponseDto obtenerPorId(Long id) {
-        log.info("Buscando dieta con ID: {}", id);
+        log.info("Buscando detalle de dieta con ID: {}", id);
         return dietaRepository.findById(id)
-                .map(dietaMapper::toResponseDto)
-                .orElseThrow(() -> new ResourceNotFoundException("Dieta no encontrada con ID: " + id));
+                .map(dieta -> {
+                    log.debug("Dieta localizada: {}", dieta.getNombre());
+                    return dietaMapper.toResponseDto(dieta);
+                })
+                .orElseThrow(() -> {
+                    log.error("Dieta con ID {} no existe", id);
+                    return new ResourceNotFoundException("Dieta no encontrada con ID: " + id);
+                });
     }
 
     @Override

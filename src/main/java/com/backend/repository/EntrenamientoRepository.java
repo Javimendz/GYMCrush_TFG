@@ -1,6 +1,8 @@
 //Imports
 package com.backend.repository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 //Paquete
@@ -49,4 +51,6 @@ public interface EntrenamientoRepository extends JpaRepository<Entrenamiento, Lo
      * (Spring Data permite usar Top para limitar resultados).
      */
     List<Entrenamiento> findTop5ByUsuarioIdOrderByFechaDesc(Long usuarioId);
+
+    boolean existsByUsuarioIdAndFechaAndHora(Long usuarioId, LocalDate fecha, LocalTime hora);
 }

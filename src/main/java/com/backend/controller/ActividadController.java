@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.backend.dto.ActividadRequestDto;
 import com.backend.dto.ActividadResponseDto;
+import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.IActividadService;
 
 import jakarta.validation.Valid;
@@ -48,14 +49,20 @@ public class ActividadController {
      * @return ResponseEntity con la lista de todas las actividades
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar todas las actividades", description = "Obtiene una lista de todas las actividades disponibles")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de actividades recuperada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para ver las actividades")
-    public ResponseEntity<List<ActividadResponseDto>> listarTodas() {
+    public ResponseEntity<ApiResponseDto<List<ActividadResponseDto>>> listarTodas() {
         log.info("Solicitud de listar todas las actividades");
-        return ResponseEntity.ok(actividadService.listarTodos());
+        List<ActividadResponseDto> actividades = actividadService.listarTodos();
+        
+        return ResponseEntity.ok(ApiResponseDto.<List<ActividadResponseDto>>builder()
+                .mensaje("Lista de actividades recuperada con éxito")
+                .success(true)
+                .datos(actividades)
+                .build());
     }
 
     /**
@@ -71,9 +78,15 @@ public class ActividadController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró actividad con el ID especificado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para ver la actividad") 
-    public ResponseEntity<ActividadResponseDto> obtenerPorId(@PathVariable Long id) {
+   public ResponseEntity<ApiResponseDto<ActividadResponseDto>> obtenerPorId(@PathVariable("id") Long id) { // <-- CORREGIDO
         log.info("Solicitud de obtener actividad por ID: {}", id);
-        return ResponseEntity.ok(actividadService.buscarPorId(id));
+        ActividadResponseDto actividad = actividadService.buscarPorId(id);
+        
+        return ResponseEntity.ok(ApiResponseDto.<ActividadResponseDto>builder()
+                .mensaje("Actividad recuperada con éxito")
+                .success(true)
+                .datos(actividad)
+                .build());
     }
 
     /**
@@ -92,9 +105,15 @@ public class ActividadController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida. Verifique los datos proporcionados")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para crear una actividad") 
-    public ResponseEntity<ActividadResponseDto> crear(@Valid @RequestBody ActividadRequestDto dto) {
-        log.info("Solicitud de crear actividad: {}", dto);
-        return new ResponseEntity<>(actividadService.crear(dto), HttpStatus.CREATED);
+   public ResponseEntity<ApiResponseDto<ActividadResponseDto>> crear(@Valid @RequestBody ActividadRequestDto dto) {
+        log.info("Solicitud de crear actividad: {}", dto.getNombre());
+        ActividadResponseDto nuevaActividad = actividadService.crear(dto);
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.<ActividadResponseDto>builder()
+                .mensaje("Actividad creada con éxito")
+                .success(true)
+                .datos(nuevaActividad)
+                .build());
     }
 
     /**
@@ -115,11 +134,17 @@ public class ActividadController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró actividad con el ID especificado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para actualizar la actividad") 
-    public ResponseEntity<ActividadResponseDto> actualizar(
-            @PathVariable Long id, 
+    public ResponseEntity<ApiResponseDto<ActividadResponseDto>> actualizar(
+            @PathVariable("id") Long id,
             @Valid @RequestBody ActividadRequestDto dto) {
-        log.info("Solicitud de actualizar actividad por ID: {} con datos: {}", id, dto);
-        return ResponseEntity.ok(actividadService.actualizar(id, dto));
+        log.info("Solicitud de actualizar actividad por ID: {}", id);
+        ActividadResponseDto actividadActualizada = actividadService.actualizar(id, dto);
+        
+        return ResponseEntity.ok(ApiResponseDto.<ActividadResponseDto>builder()
+                .mensaje("Actividad actualizada con éxito")
+                .success(true)
+                .datos(actividadActualizada)
+                .build());
     }
 
     /**
@@ -139,10 +164,16 @@ public class ActividadController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró actividad con el ID especificado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para eliminar la actividad") 
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        actividadService.eliminar(id);
+    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) { 
         log.info("Solicitud de eliminar actividad por ID: {}", id);
-        return ResponseEntity.noContent().build();
+        actividadService.eliminar(id);
+        
+        
+        return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                .mensaje("Actividad eliminada con éxito")
+                .success(true)
+                .datos(null)
+                .build());
     }
 
     /**
@@ -162,9 +193,16 @@ public class ActividadController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontraron actividades con el nombre especificado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para buscar actividades por nombre") 
-    public ResponseEntity<List<ActividadResponseDto>> buscarPorNombre(@RequestParam String nombre) {
+    public ResponseEntity<ApiResponseDto<List<ActividadResponseDto>>> buscarPorNombre(
+            @RequestParam("nombre") String nombre) { 
         log.info("Solicitud de buscar actividad por nombre: {}", nombre);
-        return ResponseEntity.ok(actividadService.buscarPorNombre(nombre));
+        List<ActividadResponseDto> actividades = actividadService.buscarPorNombre(nombre);
+        
+        return ResponseEntity.ok(ApiResponseDto.<List<ActividadResponseDto>>builder()
+                .mensaje("Resultados de la búsqueda recuperados")
+                .success(true)
+                .datos(actividades)
+                .build());
     }
 
     /**
@@ -183,9 +221,16 @@ public class ActividadController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontraron actividades para el día especificado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para listar actividades por día") 
-    public ResponseEntity<List<ActividadResponseDto>> listarPorDia(@PathVariable String dia) {
-        log.info("Solicitud de listar actividades por día: {}", dia);
-        return ResponseEntity.ok(actividadService.listarPorDia(dia));
+    public ResponseEntity<ApiResponseDto<List<ActividadResponseDto>>> listarPorDia(
+            @PathVariable("dia") String dia) { 
+        log.info("Solicitud de listar actividades para el día: {}", dia);
+        List<ActividadResponseDto> actividades = actividadService.listarPorDia(dia);
+        
+        return ResponseEntity.ok(ApiResponseDto.<List<ActividadResponseDto>>builder()
+                .mensaje("Actividades del día " + dia + " recuperadas")
+                .success(true)
+                .datos(actividades)
+                .build());
     }
 
     /**
@@ -205,8 +250,15 @@ public class ActividadController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontraron actividades con el precio máximo especificado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para filtrar actividades por precio máximo") 
-    public ResponseEntity<List<ActividadResponseDto>> filtrarPorPrecio(@RequestParam Integer precio) {
+    public ResponseEntity<ApiResponseDto<List<ActividadResponseDto>>> filtrarPorPrecio(
+            @RequestParam("precio") Integer precio) { 
         log.info("Solicitud de filtrar actividades por precio máximo: {}", precio);
-        return ResponseEntity.ok(actividadService.filtrarPorPrecioMaximo(precio));
+        List<ActividadResponseDto> actividades = actividadService.filtrarPorPrecioMaximo(precio);
+        
+        return ResponseEntity.ok(ApiResponseDto.<List<ActividadResponseDto>>builder()
+                .mensaje("Actividades filtradas por precio recuperadas")
+                .success(true)
+                .datos(actividades)
+                .build());
     }
 }

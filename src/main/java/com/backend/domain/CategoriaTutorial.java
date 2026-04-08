@@ -56,6 +56,6 @@ public class CategoriaTutorial {
      * gestionar el ciclo de vida de los tutoriales.
      * </p>
      */
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "categoria", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Tutorial> tutoriales;
 }

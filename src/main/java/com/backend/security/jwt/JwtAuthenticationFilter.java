@@ -5,8 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,7 +27,6 @@ import java.io.IOException;
  * @since 2026
  */
 @Component // Componente para inyectar la clase en otras partes de la aplicación
-@RequiredArgsConstructor // Constructor con los campos final lombok
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /** Generador de tokens JWT para validación y extracción de información */
@@ -36,6 +35,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /** Servicio de detalles de usuario para cargar información desde la base de datos */
     private final UserDetailsService userDetailsService;
 
+
+    public JwtAuthenticationFilter(JwtGenerator jwtGenerator, @Lazy UserDetailsService userDetailsService) {
+        this.jwtGenerator = jwtGenerator;
+        this.userDetailsService = userDetailsService;
+    }
     /**
      * Método principal del filtro que procesa cada petición HTTP.
      * Extrae el token JWT de la cabecera Authorization, lo valida y establece

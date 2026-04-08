@@ -1,8 +1,8 @@
 //Paquete
 package com.backend.domain;
 
+import java.time.LocalDate;
 //Imports
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,17 @@ public class Entrenamiento {
      * </p>
      */
     @Column(name = "fecha", nullable = true)
-    private LocalDateTime fecha;
+    private LocalDate fecha;
+
+
+     /**
+     * Descripción detallada de la sesión de entrenamiento.
+     * <p>
+     * Opcional, puede incluir información sobre el enfoque
+     * o los objetivos específicos de esta sesión.
+     * </p>
+     */
+    private Integer cantidadEjercicios;
 
     /**
      * Hora de inicio del entrenamiento.

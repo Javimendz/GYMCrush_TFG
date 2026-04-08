@@ -8,4 +8,5 @@ import java.util.Optional;
 @Repository
 public interface CategoriaTutorialRepository extends JpaRepository<CategoriaTutorial, Long> {
     Optional<CategoriaTutorial> findByNombre(String nombre);
+    boolean existsByNombreIgnoreCase(String nombre);
 }

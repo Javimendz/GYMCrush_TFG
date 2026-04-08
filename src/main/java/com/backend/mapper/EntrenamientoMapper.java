@@ -18,11 +18,11 @@ public interface EntrenamientoMapper {
     @Mapping(target = "usuario", ignore = true)
     @Mapping(target = "id", ignore = true)
      @Mapping(target= "rutinas", ignore = true)
+     @Mapping(target = "cantidadEjercicios", source = "cantidadEjercicios")
     Entrenamiento toEntity(EntrenamientoRequestDto dto);
 
     @Mapping(target = "usuarioId", source = "usuario.id")
     @Mapping(target = "nombreUsuario", source = "usuario.username") // Sacamos el username de la entidad Usuario
-    @Mapping(target = "cantidadEjercicios", expression = "java(entrenamiento.getRutinas() != null ? entrenamiento.getRutinas().size() : 0)")
     EntrenamientoResponseDto toResponseDto(Entrenamiento entrenamiento);
 
     /**

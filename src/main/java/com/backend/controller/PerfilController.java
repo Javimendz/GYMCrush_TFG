@@ -67,12 +67,12 @@ public class PerfilController {
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar perfiles", description = "Recupera una lista de todos los perfiles de usuarios")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de perfiles recuperada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public List<PerfilResponseDto> findAll() {
+    public ResponseEntity<ApiResponseDto<List<PerfilResponseDto>>> findAll() {
         log.info("Listando todos los perfiles");
         List<Perfil> perfiles = perfilRepository.findAll();
         log.debug("Total de perfiles encontrados: {}", perfiles.size());
 
-        return perfiles.stream().map(perfil -> {
+        List<PerfilResponseDto> listaEnriquecida = perfiles.stream().map(perfil -> {
             PerfilResponseDto dto = perfilMapper.toDto(perfil);
             saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
                     .ifPresent(salud -> {
@@ -83,6 +83,12 @@ public class PerfilController {
                     });
             return dto;
         }).toList();
+
+        return ResponseEntity.ok(ApiResponseDto.<List<PerfilResponseDto>>builder()
+                .mensaje("Lista de perfiles recuperada con éxito")
+                .datos(listaEnriquecida)
+                .success(true)
+                .build());
     }
 
     /**
@@ -97,18 +103,18 @@ public class PerfilController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Perfil recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<PerfilResponseDto>> getPerfilById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<PerfilResponseDto>> getPerfilById(
+            @PathVariable("id") Long id) { 
+            
         log.info("Obteniendo perfil por ID: {}", id);
         PerfilResponseDto perfil = perfilService.findById(id);
         log.debug("Perfil encontrado: {} - {}", perfil.getId(), perfil.getNombre());
 
-        ApiResponseDto<PerfilResponseDto> respuesta = ApiResponseDto.<PerfilResponseDto>builder()
+        return ResponseEntity.ok(ApiResponseDto.<PerfilResponseDto>builder()
                 .mensaje("Perfil recuperado con éxito")
                 .datos(perfil)
                 .success(true)
-                .build();
-
-        return ResponseEntity.ok(respuesta);
+                .build());
     }
 
     /**
@@ -128,17 +134,16 @@ public class PerfilController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> updatePerfil(
-            @PathVariable Long id,
+            @PathVariable("id") Long id, 
             @Valid @RequestBody PerfilRequestDto dto) {
-
+            
+        log.info("Actualizando perfil ID: {}", id);
         PerfilResponseDto actualizado = perfilService.update(id, dto);
 
-        ApiResponseDto<PerfilResponseDto> respuesta = ApiResponseDto.<PerfilResponseDto>builder()
+        return ResponseEntity.ok(ApiResponseDto.<PerfilResponseDto>builder()
                 .mensaje("Perfil actualizado correctamente")
                 .datos(actualizado)
                 .success(true)
-                .build();
-
-        return ResponseEntity.ok(respuesta);
+                .build());
     }
 }

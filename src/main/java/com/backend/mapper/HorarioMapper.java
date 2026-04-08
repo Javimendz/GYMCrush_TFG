@@ -33,6 +33,7 @@
         @Mapping(target = "nombreActividad", source = "actividad.nombre")
         @Mapping(target = "salaId", source = "sala.id")           
         @Mapping(target = "nombreSala", source = "sala.nombre")
+        
         HorarioResponseDto toResponseDto(Horario horario);
 
         /**
@@ -45,6 +46,7 @@
         @Mapping(target = "id", ignore = true)
         @Mapping(target = "actividad", ignore = true) 
         @Mapping(target = "sala", ignore = true)
+        @Mapping(target = "entrenador", ignore = true)
         Horario toEntity(HorarioRequestDto dto);
 
         /**

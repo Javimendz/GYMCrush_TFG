@@ -2,7 +2,6 @@ package com.backend.controller;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
 
 
 
@@ -18,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-//@CrossOrigin(origins = "*") // Permite que la App de Android conecte sin problemas de CORS
+
 
 @RestController
 @RequestMapping("/api/notificaciones")

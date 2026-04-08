@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Chat", description = "Operaciones relacionadas con el chat en tiempo real")
 public class WSChatController {
     
     private final MensajeChatRepository mensajeRepository;
@@ -49,10 +48,6 @@ public class WSChatController {
      */
     @MessageMapping("/chat1")
     @SendTo("/topic/canal1")
-    @io.swagger.v3.oas.annotations.Operation(summary = "Procesar mensaje de chat", description = "Permite a un usuario enviar un mensaje al chat y lo envía a todos los usuarios conectados")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Mensaje procesado con éxito")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
     public ChatResponseDto processMessage(ChatRequestDto request, Principal principal) {
         String username = (principal != null) ? principal.getName() : "Anónimo";
         log.info("Mensaje recibido de {}: {}", username, request.contenido());

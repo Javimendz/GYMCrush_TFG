@@ -22,13 +22,11 @@ public class EntrenamientoRequestDto {
     private Integer duracion;
     private String intensidad;
 
-    // Campos que MapStruct no encontraba:
-    @Schema(description = "ID del usuario propietario")
     private Long usuarioId;
 
-    @Schema(description = "Nombre (username) del usuario")
     private String nombreUsuario; 
 
-    @Schema(description = "Número de ejercicios en esta sesión")
     private Integer cantidadEjercicios;
+
+    
 }

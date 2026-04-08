@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2026
  */
 @RestController
-@RequestMapping("api/v1/tickets")
+@RequestMapping("/api/v1/tickets")
 @RequiredArgsConstructor
 @Slf4j
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Ticket", description = "Operaciones relacionadas con los tickets de soporte")
@@ -65,14 +66,14 @@ public class TicketController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<TicketResponseDto>> crear(
-        @PathVariable Long usuarioId,
-        @Valid @RequestBody TicketRequestDto dto
-    ){
+            @PathVariable("usuarioId") Long usuarioId,
+            @Valid @RequestBody TicketRequestDto dto) {
+            
         log.info("Creando ticket para usuario ID: {}", usuarioId);
         TicketResponseDto nuevoTicket = ticketService.crearTicket(dto, usuarioId);
         log.info("Ticket creado exitosamente con ID: {}", nuevoTicket.getId());
 
-        return ResponseEntity.ok(ApiResponseDto.<TicketResponseDto>builder()
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.<TicketResponseDto>builder()
                 .mensaje("Ticket creado exitosamente. Revisaremos tu mensaje pronto.")
                 .success(true)
                 .datos(nuevoTicket) 
@@ -92,16 +93,15 @@ public class TicketController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró historial para el usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<List<TicketResponseDto>>> verMisTickets(
-        @PathVariable Long usuarioId
-    ){
+            @PathVariable("usuarioId") Long usuarioId) {
+            
         List<TicketResponseDto> lista = ticketService.obtenerPorUsuario(usuarioId);
 
         return ResponseEntity.ok(ApiResponseDto.<List<TicketResponseDto>>builder()
-                .mensaje("Hisotrial de tickets recuperado")
+                .mensaje("Historial de tickets recuperado")
                 .success(true)
                 .datos(lista)
-                .build()
-            );
+                .build());
     }
 
     /**
@@ -144,7 +144,7 @@ public class TicketController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<TicketResponseDto>> resolverTicket(
-        @PathVariable Long id,
+        @PathVariable("id") Long id,
         @RequestParam EnumEstadoTicket nuevoEstado
     ){
         TicketResponseDto actualizado = ticketService.actualizarEstado(id, nuevoEstado);

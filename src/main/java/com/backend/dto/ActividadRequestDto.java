@@ -101,4 +101,7 @@ public class ActividadRequestDto {
     @Min(value = 0, message = "El precio no puede ser negativo")
     @Schema(description = "Precio de la actividad", example = "50.00")
     private Integer precio; 
+
+    @NotNull(message = "El ID de la categoría es obligatorio")
+    private Long categoriaId;
 }

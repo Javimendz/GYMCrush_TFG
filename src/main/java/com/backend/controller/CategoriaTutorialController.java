@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +47,7 @@ public class CategoriaTutorialController {
      * @return ResponseEntity con la lista de categorías y mensaje de éxito
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar todas las categorías de tutoriales", description = "Recupera una lista de todas las categorías de tutoriales disponibles")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado de categorías recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para listar categorías de tutoriales") 
@@ -70,13 +71,13 @@ public class CategoriaTutorialController {
      * @return ResponseEntity con los datos de la categoría encontrada
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Obtener categoría por ID", description = "Recupera los detalles de una categoría de tutorial por su ID")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Detalles de la categoría recuperados con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para obtener detalles de categorías de tutoriales") 
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<CategoriaTutorialResponseDto>> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<CategoriaTutorialResponseDto>> obtenerPorId(@PathVariable("id") Long id) {
         log.info("Obteniendo categoría por ID: {}", id);
         CategoriaTutorialResponseDto data = categoriaService.buscarPorId(id);
         log.debug("Categoría encontrada: {} - {}", data.getId(), data.getNombre());
@@ -107,7 +108,7 @@ public class CategoriaTutorialController {
     public ResponseEntity<ApiResponseDto<CategoriaTutorialResponseDto>> crear(@Valid @RequestBody CategoriaTutorialRequestDto dto) {
         CategoriaTutorialResponseDto nueva = categoriaService.crear(dto);
         
-        return ResponseEntity.ok(ApiResponseDto.<CategoriaTutorialResponseDto>builder()
+       return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.<CategoriaTutorialResponseDto>builder()
                 .mensaje("Categoría '" + nueva.getNombre() + "' creada con éxito")
                 .datos(nueva)
                 .success(true)
@@ -131,7 +132,7 @@ public class CategoriaTutorialController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. El usuario no tiene permisos para eliminar categorías de tutoriales") 
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) {
         categoriaService.eliminar(id);
         
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
@@ -139,4 +140,25 @@ public class CategoriaTutorialController {
                 .success(true)
                 .build());
     }
+
+    @PutMapping("/{id}")
+        @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+        @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar categoría", description = "Actualiza los detalles de una categoría de tutorial existente")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description  = "Categoría actualizada con éxito")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description  = "Solicitud inválida. Verifique los datos proporcionados")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description  = "Acceso denegado. El usuario no tiene permisos para actualizar categorías de tutoriales")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description  = "Categoría no encontrada")
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description  = "Error interno del servidor")
+public ResponseEntity<ApiResponseDto<CategoriaTutorialResponseDto>> actualizar(
+        @PathVariable Long id, 
+        @RequestBody CategoriaTutorialRequestDto dto) {
+    
+    CategoriaTutorialResponseDto actualizado = categoriaService.actualizar(id, dto);
+    
+    return ResponseEntity.ok(ApiResponseDto.<CategoriaTutorialResponseDto>builder()
+            .mensaje("Categoría actualizada")
+            .success(true)
+            .datos(actualizado)
+            .build());
+}
 }

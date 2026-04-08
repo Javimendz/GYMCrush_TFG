@@ -22,21 +22,25 @@ public class DietaRequestDto {
 
     @Schema(description = "Cantidad de proteínas en gramos")
     @PositiveOrZero(message = "Las proteínas no pueden ser negativas")
-    private Integer cantidadProteinas;
+    private Double cantidadProteinas;
 
     @Schema(description = "Cantidad de carbohidratos en gramos")
     @PositiveOrZero(message = "Los carbohidratos no pueden ser negativos")
-    private Integer cantidadCarbohidratos;
+    private Double cantidadCarbohidratos;
 
     @Schema(description = "Cantidad de grasas en gramos")
     @PositiveOrZero(message = "Las grasas no pueden ser negativas")
-    private Integer cantidadGrasas;
+    private Double cantidadGrasas;
 
     @NotNull(message = "El objetivo calórico es obligatorio")
     @Positive(message = "Las calorías deben ser mayores a cero")
-    private Integer objetivoCalorico;
+    private Double objetivoCalorico;
 
     @Schema(description = "ID de la categoría de la dieta")
     @NotNull(message = "Debe asignar una categoría a la dieta")
     private Long categoriaDietaId;
+
+    @Schema(description = "Descripción de la dieta")
+    @Size(max = 255)
+    private String descripcion;
 }

@@ -15,4 +15,6 @@ public interface DietaRepository extends JpaRepository<Dieta, Long> {
     
     // Para validaciones de integridad
     boolean existsByNombreIgnoreCase(String nombre);  
+
+    List<Dieta> findByCategoriaDietaNombreIgnoreCase(String nombreCategoria);
 } 

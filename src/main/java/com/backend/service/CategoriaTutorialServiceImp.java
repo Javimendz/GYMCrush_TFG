@@ -70,7 +70,10 @@ public class CategoriaTutorialServiceImp implements ICategoriaTutorialService {
     @Transactional
     public CategoriaTutorialResponseDto crear(CategoriaTutorialRequestDto dto) {
         log.info("Creando nueva categoría de tutorial: {}", dto.getNombre());
-        
+        if (categoriaRepository.existsByNombreIgnoreCase(dto.getNombre())) {
+            log.warn("Intento de crear categoría duplicada: {}", dto.getNombre());
+            throw new IllegalArgumentException("Ya existe una categoría de tutorial con el nombre: " + dto.getNombre());
+        }
         // Convertir DTO a entidad y guardar en la base de datos
         CategoriaTutorial entity = categoriaMapper.toEntity(dto);
         CategoriaTutorialResponseDto resultado = categoriaMapper.toDto(categoriaRepository.save(entity));
@@ -119,5 +122,42 @@ public class CategoriaTutorialServiceImp implements ICategoriaTutorialService {
         }
         categoriaRepository.deleteById(id);
         log.info("Categoría con ID {} eliminada exitosamente", id);
+    }
+
+    /**
+     * Actualiza una categoría de tutoriales existente.
+     * <p>
+     * Valida que el nuevo nombre no esté siendo usado por otra categoría.
+     * </p>
+     *
+     * @param id  Identificador de la categoría a modificar
+     * @param dto Datos actualizados
+     * @return DTO de la categoría actualizada
+     */
+    @Override
+    @Transactional
+    public CategoriaTutorialResponseDto actualizar(Long id, CategoriaTutorialRequestDto dto) {
+        log.info("Actualizando categoría de tutorial con ID: {}", id);
+
+        // 1. Buscar la categoría existente
+        CategoriaTutorial existente = categoriaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
+
+        // 2. VALIDACIÓN: Si el nombre cambia, verificar que el nuevo no exista ya
+        if (!existente.getNombre().equalsIgnoreCase(dto.getNombre()) && 
+            categoriaRepository.existsByNombreIgnoreCase(dto.getNombre())) {
+            log.warn("Conflicto: Ya existe otra categoría con el nombre {}", dto.getNombre());
+            throw new IllegalArgumentException("No se puede actualizar: El nombre '" + dto.getNombre() + "' ya está en uso.");
+        }
+
+        // 3. Actualizar los campos (puedes usar el mapper o hacerlo manualmente)
+        existente.setNombre(dto.getNombre());
+        // Si tu entidad tiene descripción, también: existente.setDescripcion(dto.getDescripcion());
+
+        // 4. Guardar y retornar
+        CategoriaTutorial guardada = categoriaRepository.save(existente);
+        log.info("Categoría {} actualizada exitosamente", id);
+        
+        return categoriaMapper.toDto(guardada);
     }
 }

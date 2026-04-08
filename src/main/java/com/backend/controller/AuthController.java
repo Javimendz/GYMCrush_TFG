@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.domain.Perfil;
 import com.backend.domain.Usuario;
+import com.backend.domain.enums.TipoNotificacion;
 import com.backend.dto.UsuarioResponseDto;
 import com.backend.mapper.UsuarioMapper;
 import com.backend.repository.UsuarioRepository;
@@ -22,6 +23,7 @@ import com.backend.security.dto.JwtAuthResponseDto;
 import com.backend.security.dto.LoginDto;
 import com.backend.security.dto.RegisterDto;
 import com.backend.security.jwt.JwtGenerator;
+import com.backend.service.NotificacionService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +60,7 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioMapper usuarioMapper;
+    private final NotificacionService notificacionService;
 
     /**
      * Autentica un usuario y genera un token JWT.
@@ -121,56 +124,72 @@ public class AuthController {
      * @param registerDto los datos de registro del nuevo usuario
      * @return ResponseEntity con los datos del usuario creado o mensaje de error
      */
- @PostMapping("/register")
-@io.swagger.v3.oas.annotations.Operation(summary = "Registro de usuario", description = "Registra un nuevo usuario en el sistema")
-@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario registrado con éxito")
-@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de registro inválidos (username o correo ya existen)")
-public ResponseEntity<ApiResponseDto<UsuarioResponseDto>> registerUser(@RequestBody RegisterDto registerDto) {
-    log.info("Intento de registro de usuario: {} con correo: {}", registerDto.getUsername(), registerDto.getCorreo());
+    @PostMapping("/register")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Registro de usuario", description = "Registra un nuevo usuario en el sistema")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario registrado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de registro inválidos (username o correo ya existen)")
+    public ResponseEntity<ApiResponseDto<UsuarioResponseDto>> registerUser(@Valid @RequestBody  RegisterDto registerDto) {
+        log.info("Intento de registro de usuario: {} con correo: {}", registerDto.getUsername(),
+                registerDto.getCorreo());
 
-    // 1. VALIDACIÓN DE USERNAME (Ya la tenías)
-    if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
-        log.warn("Registro fallido - Username ya existe: {}", registerDto.getUsername());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponseDto.error("El nombre de usuario '" + registerDto.getUsername() + "' ya está en uso"));
-    }
-
-    // 2. CORRECCIÓN: VALIDACIÓN DE CORREO (Añadido)
-    // Esto evita que la base de datos lance el error de "unique constraint"
-    if (usuarioRepository.existsByCorreo(registerDto.getCorreo())) {
-        log.warn("Registro fallido - Correo ya existe: {}", registerDto.getCorreo());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponseDto.error("El correo electrónico '" + registerDto.getCorreo() + "' ya está registrado"));
-    }
-
-    try {
-        // Mapeo y cifrado de contraseña
-        Usuario user = usuarioMapper.registerDtoToUser(registerDto);
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-
-        // Gestión del Perfil
-        if (user.getPerfil() != null) {
-            user.getPerfil().setUsuario(user);
-        } else {
-            Perfil nuevoPerfil = new Perfil();
-            nuevoPerfil.setNombre(user.getUsername());
-            nuevoPerfil.setUsuario(user);
-            user.setPerfil(nuevoPerfil);
+        // 1. VALIDACIÓN DE USERNAME (Ya la tenías)
+        if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
+            log.warn("Registro fallido - Username ya existe: {}", registerDto.getUsername());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponseDto
+                            .error("El nombre de usuario '" + registerDto.getUsername() + "' ya está en uso"));
         }
 
-        // Guardado
-        Usuario savedUser = usuarioRepository.save(user);
-        log.info("Usuario registrado exitosamente: {} con ID: {}", savedUser.getUsername(), savedUser.getId());
+        // 2. CORRECCIÓN: VALIDACIÓN DE CORREO (Añadido)
+        // Esto evita que la base de datos lance el error de "unique constraint"
+        if (usuarioRepository.existsByCorreo(registerDto.getCorreo())) {
+            log.warn("Registro fallido - Correo ya existe: {}", registerDto.getCorreo());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponseDto
+                            .error("El correo electrónico '" + registerDto.getCorreo() + "' ya está registrado"));
+        }
 
-        // Respuesta de éxito
-        UsuarioResponseDto response = usuarioMapper.toUsuarioResponseDto(savedUser);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseDto.success("¡Bienvenido! Usuario registrado con éxito", response));
+        try {
+            // Mapeo y cifrado de contraseña
+            Usuario user = usuarioMapper.registerDtoToUser(registerDto);
+            user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-    } catch (Exception e) {
-        log.error("Error inesperado durante el registro: ", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponseDto.error("Error interno al procesar el registro: " + e.getMessage()));
+            // Gestión del Perfil
+            if (user.getPerfil() != null) {
+                user.getPerfil().setUsuario(user);
+            } else {
+                Perfil nuevoPerfil = new Perfil();
+                nuevoPerfil.setNombre(user.getUsername());
+                nuevoPerfil.setUsuario(user);
+                user.setPerfil(nuevoPerfil);
+            }
+
+            // Guardado
+            Usuario savedUser = usuarioRepository.save(user);
+            log.info("Usuario registrado exitosamente: {} con ID: {}", savedUser.getUsername(), savedUser.getId());
+
+            try {
+                notificacionService.enviarNotificacionRapida(
+                    savedUser.getId(),
+                    "¡Bienvenido a la App!",
+                    "Hola " + savedUser.getUsername() + ", tu cuenta ha sido creada con éxito. ¡Ya puedes reservar tus clases!",
+                    TipoNotificacion.CONFIRMACION
+                );
+                log.info("Notificación de bienvenida enviada al usuario: {}", savedUser.getId());
+            } catch (Exception e) {
+                // Capturamos el error solo para la notificación, no tumbamos el registro completo
+                log.error("Error al enviar notificación de bienvenida al usuario {}: {}", savedUser.getId(), e.getMessage());
+            }
+
+            // Respuesta de éxito
+            UsuarioResponseDto response = usuarioMapper.toUsuarioResponseDto(savedUser);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponseDto.success("¡Bienvenido! Usuario registrado con éxito", response));
+
+        } catch (Exception e) {
+            log.error("Error inesperado durante el registro: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponseDto.error("Error interno al procesar el registro: " + e.getMessage()));
+        }
     }
-}
 }
