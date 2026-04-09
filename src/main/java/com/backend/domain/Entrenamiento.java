@@ -48,6 +48,11 @@ public class Entrenamiento {
     @Column(name = "fecha", nullable = true)
     private LocalDate fecha;
 
+    @Column(nullable = false, length = 100)
+    private String nombre; // Ej: "Pecho y Tríceps"
+
+    @Column(length = 500)
+    private String descripcion;
 
      /**
      * Descripción detallada de la sesión de entrenamiento.

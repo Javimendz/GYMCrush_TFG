@@ -46,7 +46,7 @@ public class ComidaDiariaMapper {
         entity.setMomento(request.getMomento());
         entity.setNombreAlimento(request.getNombreAlimento());
         entity.setCalorias(request.getCalorias());
-        
+        entity.setImagenUrl(request.getImagenUrl());
         // Mapeo directo de número a número
         entity.setProteina(request.getProteina());
         entity.setCarbohidratos(request.getCarbohidratos());

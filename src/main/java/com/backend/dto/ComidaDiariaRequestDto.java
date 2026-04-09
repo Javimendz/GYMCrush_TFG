@@ -8,7 +8,7 @@ public class ComidaDiariaRequestDto {
     private String nombreAlimento; // Ej: "Avena con leche"
     private Double calorias;      // Ej: 350.0
     private Long planNutricionalId; // Relación para saber a qué plan pertenece
-    
+    private String imagenUrl;
     // Opcional: Macros si ya los calculaste antes de enviar
    
     private Double proteina;
