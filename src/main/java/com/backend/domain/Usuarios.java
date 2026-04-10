@@ -2,7 +2,7 @@
 package com.backend.domain;
 //Imports
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
