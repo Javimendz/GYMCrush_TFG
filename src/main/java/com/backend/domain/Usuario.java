@@ -11,6 +11,7 @@ import java.util.Set;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
 
@@ -84,11 +85,13 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    private List<Notificacion> notificaciones = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Reserva> reservas = new ArrayList<>(); // Un usuario realiza N reservas
 
-    @Builder.Default
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Entrenamiento> entrenamientos = new ArrayList<>();// Un usuario realiza N entrenamientos
+    
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -96,7 +99,7 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<SugerenciaDieta> sugerenciasDieta = new ArrayList<>(); // Un usuario recibe N sugerencias
+    private List<Nutricion> planes = new ArrayList<>(); // Un usuario recibe N planes
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

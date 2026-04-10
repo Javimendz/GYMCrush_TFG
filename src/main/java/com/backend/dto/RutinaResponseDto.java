@@ -3,34 +3,37 @@ package com.backend.dto;
 import lombok.*;
 import java.time.LocalDate;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Size;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO de respuesta para una rutina de ejercicio")
+@Schema(description = "DTO que recibe la App con la información completa de la rutina")
 public class RutinaResponseDto {
-    @Schema(description = "ID de la rutina")
+
+    @Schema(description = "ID de la rutina (usar para marcar como completado)")
     private Long id;
-    @Schema(description = "Fecha de asignación de la rutina")
+
+    @Schema(description = "Fecha programada")
     private LocalDate fechaAsignacion;
-    @Schema(description = "Orden de la rutina")
+
+    @Schema(description = "Orden en la lista")
     private Integer orden;
-    @Schema(description = "Indica si la rutina está completada")
+
+    @Schema(description = "Si ya se ha realizado")
     private Boolean completado;
 
-    @Schema(description = "ID del usuario asignado a la rutina")
-    private Long usuarioId;
-    @Schema(description = "Nombre de usuario asignado a la rutina")
-    private String username;
-
-    // Información del Entrenamiento
-    @Schema(description = "ID del entrenamiento asignado a la rutina")
+    // --- Datos que vienen de la relación con Entrenamiento ---
+    
+    @Schema(description = "ID del entrenamiento base")
     private Long entrenamientoId;
-    @Schema(description = "Intensidad del entrenamiento")
-    @Size(max = 50)
-    private String intensidadEntrenamiento;
-    @Schema(description = "Duración del entrenamiento")
+
+    @Schema(description = "Nombre del ejercicio", example = "Press Banca")
+    private String nombreEntrenamiento; 
+
+    @Schema(description = "Duración en minutos", example = "45")
     private Integer duracion;
+
+    @Schema(description = "Nivel de esfuerzo", example = "ALTA")
+    private String intensidad;
 }

@@ -1,18 +1,28 @@
 package com.backend.service;
 
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
 
-import lombok.Data;
 
-@Service
-@Data
-public class NotificacionService {
+    
+import java.util.List;
+import com.backend.domain.enums.TipoNotificacion;
+import com.backend.dto.NotificacionRequestDto;
+import com.backend.dto.NotificacionResponseDto;
 
-    private SimpMessagingTemplate messagingTemplate;
+public interface NotificacionService {
+    
+    // Cambiamos los parámetros sueltos por el DTO de entrada
+    NotificacionResponseDto crear(NotificacionRequestDto dto);
+    
+    List<NotificacionResponseDto> listarPorUsuario(Long usuarioId);
+    
+    void marcarComoLeida(Long id);
+    
+    // Útil para enviar avisos rápidos desde otros servicios (ej. Login o Pagos)
+    void enviarNotificacionRapida(Long usuarioId, String titulo, String mensaje, TipoNotificacion tipo);
+    
 
-    public void enviarNotificacionAUsuario(Long usuarioId, String mensaje) {
-        // Envía el mensaje al tópico al que el usuario 2 está suscrito
-        messagingTemplate.convertAndSend("/topic/notificacion/" + usuarioId, mensaje);
-    }
+     public void enviarNotificacionAUsuario(Long usuarioId, String mensaje);
+    // Para el contador de la App de Android
+    long contarNoLeidas(Long usuarioId);
+    void eliminar(Long id);
 }

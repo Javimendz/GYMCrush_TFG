@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.backend.domain.Actividad;
+import com.backend.domain.Categoria;
 import com.backend.dto.ActividadRequestDto;
 import com.backend.dto.ActividadResponseDto;
 import com.backend.mapper.ActividadMapper;
 import com.backend.repository.ActividadRepository;
+import com.backend.repository.CategoriaRepository;
 import com.backend.exceptions.ResourceNotFoundException;
 
 /**
@@ -35,6 +37,8 @@ public class ActividadServiceImp implements IActividadService {
     
     /** Mapper para convertir entre entidades y DTOs de actividades */
     private final ActividadMapper actividadMapper;
+
+    private final CategoriaRepository categoriaRepository;
 
     /**
      * Obtiene todas las actividades disponibles en el sistema.
@@ -88,13 +92,25 @@ public class ActividadServiceImp implements IActividadService {
      * @param dto DTO con los datos de la nueva actividad
      * @return DTO con los datos de la actividad creada incluyendo su ID
      */
-    @Override
+   @Override
     @Transactional
     public ActividadResponseDto crear(ActividadRequestDto dto) {
-        log.info("Creando nueva actividad: {}", dto.getNombre());
+        log.info("Validando creación de nueva actividad: {}", dto.getNombre());
         
-        // Convertir DTO a entidad y guardar en la base de datos
+        if (actividadRepository.existsByNombreIgnoreCase(dto.getNombre())) {
+            throw new IllegalArgumentException("Ya existe una actividad con el nombre: " + dto.getNombre());
+        }
+
+        // 1. Buscar la categoría (Si no viene ID en el DTO o no existe, lanzamos error)
+        Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
+                .orElseThrow(() -> new ResourceNotFoundException("No se puede crear: Categoría de actividad no encontrada con ID: " + dto.getCategoriaId()));
+
+        // 2. Mapear DTO a Entidad
         Actividad nueva = actividadMapper.toEntityCreate(dto);
+        
+        // 3. ASOCIACIÓN MANUAL: Aquí es donde arreglamos el bug del NULL
+        nueva.setCategoria(categoria);
+
         Actividad guardada = actividadRepository.save(nueva);
         log.info("Actividad creada exitosamente con ID: {}", guardada.getId());
         return actividadMapper.toResponseDto(guardada);
@@ -114,15 +130,28 @@ public class ActividadServiceImp implements IActividadService {
      */
     @Override
     @Transactional
-    public ActividadResponseDto actualizar(Long id, ActividadRequestDto dto) {
-        log.info("Actualizando actividad con ID: {}", id);
+   public ActividadResponseDto actualizar(Long id, ActividadRequestDto dto) {
+        log.info("Actualizando actividad ID: {}", id);
         Actividad existente = actividadRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: la actividad con ID " + id + " no existe"));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+
+        // Validación de nombre duplicado
+        if (!existente.getNombre().equalsIgnoreCase(dto.getNombre()) && 
+            actividadRepository.existsByNombreIgnoreCase(dto.getNombre())) {
+            throw new IllegalArgumentException("El nombre '" + dto.getNombre() + "' ya está en uso por otra actividad.");
+        }
+
+        // 1. Actualizar campos básicos vía Mapper
         actividadMapper.updateActividadFromDto(dto, existente);
-        Actividad actualizada = actividadRepository.save(existente);
-        log.info("Actividad {} actualizada exitosamente", id);
-        return actividadMapper.toResponseDto(actualizada);
+
+        // 2. Actualizar Categoría si el ID ha cambiado
+        if (dto.getCategoriaId() != null && (existente.getCategoria() == null || !existente.getCategoria().getId().equals(dto.getCategoriaId()))) {
+            Categoria nuevaCat = categoriaRepository.findById(dto.getCategoriaId())
+                    .orElseThrow(() -> new ResourceNotFoundException("La nueva categoría asignada no existe"));
+            existente.setCategoria(nuevaCat);
+        }
+
+        return actividadMapper.toResponseDto(actividadRepository.save(existente));
     }
 
     @Override

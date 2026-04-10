@@ -53,6 +53,7 @@ public interface ActividadMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "horarios", ignore = true)
+    @Mapping(target = "categoria", ignore = true)
     Actividad toEntityCreate(ActividadRequestDto dto);
 
     /**
@@ -63,5 +64,6 @@ public interface ActividadMapper {
      * @param actividad la entidad a actualizar
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "categoria", ignore = true)
     void updateActividadFromDto(ActividadRequestDto dto, @MappingTarget Actividad actividad);
 }

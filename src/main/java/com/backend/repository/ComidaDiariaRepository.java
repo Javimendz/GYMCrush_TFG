@@ -13,4 +13,7 @@ public interface ComidaDiariaRepository  extends JpaRepository<ComidaDiaria, Lon
      */
     
    List<ComidaDiaria> findByPlanId(Long planId);
+
+ // Comprueba si existe el mismo alimento en el mismo momento para un plan específico
+    boolean existsByPlanIdAndMomentoIgnoreCaseAndNombreAlimentoIgnoreCase(Long planId, String momento, String nombreAlimento);
 }

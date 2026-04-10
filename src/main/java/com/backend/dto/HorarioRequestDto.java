@@ -152,4 +152,8 @@ public class HorarioRequestDto {
     @NotNull(message = "El ID de la actividad es obligatorio")
     @Schema(description = "ID de la actividad asociada al horario", example = "1")
     private Long actividadId; // Solo enviamos el ID
+
+    @NotNull(message = "El ID del entrenador es obligatorio")
+    @Schema(description = "ID del usuario con rol ENTRENADOR", example = "2")
+    private Long entrenadorId;
 }

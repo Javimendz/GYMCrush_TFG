@@ -24,6 +24,5 @@ public class NutricionResponseDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaGeneracion;
-    private boolean success;
-    private String mensaje;
+    
 }

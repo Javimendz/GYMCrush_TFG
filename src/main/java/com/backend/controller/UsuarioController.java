@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+import com.backend.security.dto.ApiResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2026
  */
 @RestController
-@RequestMapping("/api/v1/usuario")
+@RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
 @Slf4j
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Usuario", description = "Operaciones relacionadas con los usuarios")
@@ -89,7 +89,7 @@ public class UsuarioController {
      * @param usuarioDto los datos del usuario a crear
      * @return ResponseEntity con el usuario creado y estado 201 (CREATED)
      */
-    @PostMapping("/crear")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Crear un nuevo usuario", description = "Permite al administrador crear un nuevo usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario creado con éxito")
@@ -160,16 +160,20 @@ public class UsuarioController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
-    public ResponseEntity<UsuarioResponseDto> getUsuarioById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<UsuarioResponseDto>> getUsuarioById(
+            @PathVariable("id") Long id) { 
+            
         log.info("Obteniendo usuario por ID: {}", id);
-        
-        // Buscar usuario por ID
         Usuario usuario = usuarioService.findById(id);
         log.debug("Usuario encontrado: {} - {}", usuario.getId(), usuario.getUsername());
         
-        // Convertir a DTO y retornar respuesta
         UsuarioResponseDto responseDto = usuarioMapper.toUsuarioResponseDto(usuario);
-        return ResponseEntity.ok(responseDto);
+        
+        return ResponseEntity.ok(ApiResponseDto.<UsuarioResponseDto>builder()
+                .mensaje("Detalles del usuario recuperados")
+                .success(true)
+                .datos(responseDto)
+                .build());
     }
 
     /**
@@ -184,23 +188,21 @@ public class UsuarioController {
      * @return ResponseEntity con el usuario actualizado
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USUARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar usuario por ID", description = "Permite a un administrador o usuario actualizar un usuario por su ID")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario actualizado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
-    public ResponseEntity<UsuarioResponseDto> updateUsuario(@PathVariable Long id,
+   public ResponseEntity<ApiResponseDto<UsuarioResponseDto>> updateUsuario(
+            @PathVariable("id") Long id, 
             @Valid @RequestBody UsuarioRequestDto usuarioDto) {
+            
         log.info("Actualizando usuario ID: {}", id);
-        
-        // Buscar usuario existente
         Usuario updatedUsuario = usuarioService.findById(id);
         
-        // Actualizar campos desde DTO
         usuarioMapper.updateUsuarioFromDto(usuarioDto, updatedUsuario);
         
-        // Actualizar roles si se proporcionan
         if (usuarioDto.getRol() != null && !usuarioDto.getRol().isEmpty()) {
             Set<Role> rolesReales = new HashSet<>();
             for (String nombreRol : usuarioDto.getRol()) {
@@ -211,18 +213,19 @@ public class UsuarioController {
             updatedUsuario.setRol(rolesReales);
         }
         
-        // Actualizar contraseña si se proporciona
         if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isEmpty()) {
             log.debug("Actualizando contraseña para usuario: {}", updatedUsuario.getUsername());
             updatedUsuario.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
         }
         
-        // Guardar cambios
         Usuario updateUsuario = usuarioService.save(updatedUsuario);
         log.info("Usuario actualizado exitosamente: {}", updateUsuario.getId());
         
-        // Convertir a DTO y retornar respuesta
-        return ResponseEntity.ok(usuarioMapper.toUsuarioResponseDto(updateUsuario));
+        return ResponseEntity.ok(ApiResponseDto.<UsuarioResponseDto>builder()
+                .mensaje("Usuario actualizado exitosamente")
+                .success(true)
+                .datos(usuarioMapper.toUsuarioResponseDto(updateUsuario))
+                .build());
     }
 
     /**
@@ -236,19 +239,22 @@ public class UsuarioController {
      * @return ResponseEntity con estado 204 (No Content)
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Eliminar usuario por ID", description = "Permite al administrador eliminar un usuario por su ID")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Usuario eliminado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
-    public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<Void>> deleteUsuario(
+            @PathVariable("id") Long id) {
         log.info("Eliminando usuario ID: {}", id);
         
         // Eliminar usuario por ID
         usuarioService.deleteById(id);
         log.info("Usuario eliminado exitosamente");
         
-        // Retornar respuesta sin contenido
-        return ResponseEntity.noContent().build();
+       return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                .mensaje("Usuario eliminado permanentemente del sistema")
+                .success(true)
+                .build());
     }
 }

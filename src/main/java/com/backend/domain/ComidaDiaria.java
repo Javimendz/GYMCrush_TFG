@@ -7,13 +7,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
-@RequiredArgsConstructor
 @Table(name = "comidas_diarias")
+@Getter
+@Setter
+@Builder 
+@NoArgsConstructor 
+@AllArgsConstructor
 public class ComidaDiaria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,11 +27,11 @@ public class ComidaDiaria {
 
     private String momento; // "Desayuno", "Almuerzo", "Cena"
     private String nombreAlimento; // Lo que viene de FatSecret
-    private Double cantidadGramos;
+    
     private Double calorias;
-    private String proteina; // Lo que viene de FatSecret
-    private String carbohidratos; // Lo que viene de FatSecret
-    private String grasas; // Lo que viene de FatSecret
+    private Double proteina; // Lo que viene de FatSecret
+    private Double carbohidratos; // Lo que viene de FatSecret
+    private Double grasas; // Lo que viene de FatSecret
     private String imagenUrl; // URL de la imagen del alimento, si quieres mostrarla en el frontend
     @ManyToOne
     @JoinColumn(name = "plan_id")

@@ -2,10 +2,14 @@ package com.backend.controller;
 
 import com.backend.dto.NutricionResponseDto;
 import com.backend.dto.PerfilFisicoRequest;
-import com.backend.dto.SugerenciaDietaReponseDto;
 import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.INutricionService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +19,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/nutricion")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')") // ← prefijo ROLE_ correcto
+@Slf4j
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Nutrición", description = "Motor de generación de planes nutricionales automáticos")
 public class NutricionController {
 
     private final INutricionService nutricionService;
@@ -25,11 +30,23 @@ public class NutricionController {
     // Genera un plan nutricional personalizado basado en los datos físicos
     // -----------------------------------------------------------------------
     @PostMapping("/generar-plan")
-    public ResponseEntity<ApiResponseDto<SugerenciaDietaReponseDto>> generarPlan(
-            @RequestBody PerfilFisicoRequest request) {
-        SugerenciaDietaReponseDto plan = nutricionService.generarPlanAutomatico(request);
-        return ResponseEntity.ok(
-                ApiResponseDto.success("Plan nutricional personalizado generado con éxito", plan));
+    @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Generar plan automático", description = "Calcula y genera un plan nutricional usando la fórmula de Mifflin-St Jeor")
+    public ResponseEntity<ApiResponseDto<NutricionResponseDto>> generarPlan(
+            @Valid @RequestBody PerfilFisicoRequest request) { 
+            
+        log.info("Generando plan nutricional para usuario ID: {}", request.getUsuarioId());
+        
+       
+        NutricionResponseDto plan = nutricionService.generarPlanAutomatico(request);
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponseDto.<NutricionResponseDto>builder()
+                        .mensaje("Plan nutricional personalizado generado con éxito")
+                        .success(true)
+                        .datos(plan)
+                        .build()
+        );
     }
 
     // -----------------------------------------------------------------------
@@ -37,22 +54,42 @@ public class NutricionController {
     // Recupera el último plan generado para un usuario
     // -----------------------------------------------------------------------
     @GetMapping("/ultimo-plan/{usuarioId}")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Obtener último plan", description = "Recupera el plan nutricional más reciente activo del usuario")
     public ResponseEntity<ApiResponseDto<NutricionResponseDto>> obtenerUltimoPlan(
-            @PathVariable Long usuarioId) {
+            @PathVariable("usuarioId") Long usuarioId) { 
+            
+        log.info("Consultando último plan nutricional del usuario ID: {}", usuarioId);
         NutricionResponseDto response = nutricionService.obtenerUltimoPlanPorUsuario(usuarioId);
+        
         return ResponseEntity.ok(
-                ApiResponseDto.success("Plan recuperado correctamente", response));
+                ApiResponseDto.<NutricionResponseDto>builder()
+                        .mensaje("Plan recuperado correctamente")
+                        .success(true)
+                        .datos(response)
+                        .build()
+        );
     }
-
     // -----------------------------------------------------------------------
     // GET /api/v1/nutricion/historial/{usuarioId}
     // Recupera el historial completo de planes de un usuario
     // -----------------------------------------------------------------------
     @GetMapping("/historial/{usuarioId}")
-    public ResponseEntity<ApiResponseDto<List<SugerenciaDietaReponseDto>>> obtenerHistorial(
-            @PathVariable Long usuarioId) {
-        List<SugerenciaDietaReponseDto> historial = nutricionService.obtenerHistorial(usuarioId);
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Obtener historial de planes", description = "Recupera todos los planes generados históricamente para el usuario")
+    public ResponseEntity<ApiResponseDto<List<NutricionResponseDto>>> obtenerHistorial(
+            @PathVariable("usuarioId") Long usuarioId) { 
+            
+        log.info("Consultando historial nutricional del usuario ID: {}", usuarioId);
+        
+        List<NutricionResponseDto> historial = nutricionService.obtenerHistorial(usuarioId);
+        
         return ResponseEntity.ok(
-                ApiResponseDto.success("Historial de planes recuperado correctamente", historial));
+                ApiResponseDto.<List<NutricionResponseDto>>builder()
+                        .mensaje("Historial de planes recuperado correctamente")
+                        .success(true)
+                        .datos(historial)
+                        .build()
+        );
     }
 }

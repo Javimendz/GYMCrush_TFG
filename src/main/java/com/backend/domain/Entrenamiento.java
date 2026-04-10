@@ -1,11 +1,6 @@
 //Paquete
 package com.backend.domain;
 
-//Imports
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
@@ -45,17 +40,24 @@ public class Entrenamiento {
      * Opcional, indica cuándo se realizará la sesión.
      * </p>
      */
-    @Column(name = "fecha", nullable = true)
-    private LocalDateTime fecha;
+    
 
-    /**
-     * Hora de inicio del entrenamiento.
+    @Column(nullable = false, length = 100)
+    private String nombre; // Ej: "Pecho y Tríceps"
+
+    @Column(length = 500)
+    private String descripcion;
+
+     /**
+     * Descripción detallada de la sesión de entrenamiento.
      * <p>
-     * Opcional, especifica la hora exacta de comienzo.
+     * Opcional, puede incluir información sobre el enfoque
+     * o los objetivos específicos de esta sesión.
      * </p>
      */
-    @Column(name = "hora", nullable = true)
-    private LocalTime hora;
+    private Integer cantidadEjercicios;
+
+ 
 
     /**
      * Duración total de la sesión de entrenamiento.
@@ -75,21 +77,5 @@ public class Entrenamiento {
     @Column(name = "intensidad", length = 150)
     private String intensidad;
 
-    /**
-     * Usuario que realiza el entrenamiento.
-     * <p>
-     * Relación muchos-a-uno con carga eager para obtener
-     * información del usuario automáticamente.
-     * </p>
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "usuario_id", referencedColumnName = "id", nullable = false)
-    @ToString.Exclude
-    private Usuario usuario;
-
-
-    @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Builder.Default
-    @ToString.Exclude
-    private List<Rutina> rutinas = new ArrayList<>();
+  
 }

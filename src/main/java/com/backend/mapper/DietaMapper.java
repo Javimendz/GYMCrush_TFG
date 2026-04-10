@@ -11,11 +11,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface DietaMapper {
-
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "sugerencias", ignore = true)
+    @Mapping(target = "planes", ignore = true)
     @Mapping(target = "categoriaDieta", ignore = true) 
-    @Mapping(target = "descripcion", ignore = true)
     Dieta toEntity(DietaRequestDto requestDto);
 
     List<DietaResponseDto> toResponseDtoList(List<Dieta> dietas);
@@ -23,4 +21,7 @@ public interface DietaMapper {
     @Mapping(target = "categoriaDietaId", source = "categoriaDieta.id")
     @Mapping(target = "nombreCategoria", source = "categoriaDieta.nombre")
     DietaResponseDto toResponseDto(Dieta dieta);
+
+    // Añade esto para que el Service pueda listar
+    
 }

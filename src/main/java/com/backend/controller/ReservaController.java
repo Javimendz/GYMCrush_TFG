@@ -77,7 +77,7 @@ public class ReservaController {
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar mis reservas", description = "Recupera el historial de reservas de un usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de reservas recuperada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> listarMisReservas(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> listarMisReservas(@PathVariable("id") Long id) {
         log.info("Listando reservas para usuario ID: {}", id);
         List<ReservaResponseDto> misReservas = reservaService.obtenerReservasUsuario(id);
         log.debug("Total de reservas encontradas para usuario {}: {}", id, misReservas.size());
@@ -111,7 +111,7 @@ public class ReservaController {
 
     @GetMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
-    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerReservas(@PathVariable Long usuarioId) {
+    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerReservas(@PathVariable("usuarioId") Long usuarioId) {
         List<ReservaResponseDto> reservas = reservaService.obtenerReservasUsuario(usuarioId);
         return ResponseEntity.ok(ApiResponseDto.<List<ReservaResponseDto>>builder()
                 .mensaje("Reservas obtenidas")
@@ -122,7 +122,7 @@ public class ReservaController {
 
     @GetMapping("/clase/{horarioId}/asistentes")
     @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
-    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerAsistentesClase(@PathVariable Long horarioId) {
+    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerAsistentesClase(@PathVariable("horarioId") Long horarioId) {
         List<ReservaResponseDto> asistentes = reservaService.obtenerAsistentesPorHorario(horarioId);
         String ocupacion = reservaService.obtenerResumenAforo(horarioId);
         
@@ -136,7 +136,7 @@ public class ReservaController {
 
     @PatchMapping("/{reservaId}/confirmar")
     @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
-    public ResponseEntity<ApiResponseDto<Void>> confirmarAsistencia(@PathVariable Long reservaId) {
+    public ResponseEntity<ApiResponseDto<Void>> confirmarAsistencia(@PathVariable("reservaId") Long reservaId) {
         reservaService.confirmarAsistencia(reservaId);
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
                 .mensaje("Asistencia confirmada correctamente")

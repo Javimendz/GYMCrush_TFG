@@ -2,6 +2,8 @@ package com.backend.service;
 
 import com.backend.dto.CategoriaTutorialRequestDto;
 import com.backend.dto.CategoriaTutorialResponseDto;
+import com.backend.exceptions.ResourceNotFoundException;
+
 import java.util.List;
 
 /**
@@ -59,4 +61,7 @@ public interface ICategoriaTutorialService {
      * @throws ResourceNotFoundException si la categoría no existe
      */
     void eliminar(Long id);
+
+CategoriaTutorialResponseDto actualizar(Long id, CategoriaTutorialRequestDto dto);
+
 }

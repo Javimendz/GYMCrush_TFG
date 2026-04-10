@@ -15,14 +15,9 @@ public interface EntrenamientoMapper {
      * De DTO a Entidad
      * Ignoramos 'usuario' y 'rutinas' porque se gestionan en la lógica del Service
      */
-    @Mapping(target = "usuario", ignore = true)
-    @Mapping(target = "id", ignore = true)
-     @Mapping(target= "rutinas", ignore = true)
+  @Mapping(target = "id", ignore = true)
     Entrenamiento toEntity(EntrenamientoRequestDto dto);
-
-    @Mapping(target = "usuarioId", source = "usuario.id")
-    @Mapping(target = "nombreUsuario", source = "usuario.username") // Sacamos el username de la entidad Usuario
-    @Mapping(target = "cantidadEjercicios", expression = "java(entrenamiento.getRutinas() != null ? entrenamiento.getRutinas().size() : 0)")
+    
     EntrenamientoResponseDto toResponseDto(Entrenamiento entrenamiento);
 
     /**

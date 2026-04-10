@@ -25,4 +25,6 @@ public interface RutinaRepository extends JpaRepository<Rutina, Long> {
      * Busca las rutinas pendientes (no completadas) de un usuario.
      */
     List<Rutina> findByUsuarioIdAndCompletadoFalse(Long usuarioId);
+
+    boolean existsByUsuarioIdAndFechaAsignacionAndOrden(Long usuarioId, LocalDate fechaAsignacion, Integer orden);
 }

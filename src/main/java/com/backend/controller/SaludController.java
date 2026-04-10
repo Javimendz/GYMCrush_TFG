@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,15 +62,25 @@ public class SaludController {
     @PostMapping("/usuario/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Registrar progreso de salud", description = "Permite a un usuario registrar su progreso de salud")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Progreso registrado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Progreso registrado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida, posiblemente datos incompletos")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<SaludResponseDto> crearRegistro(@PathVariable Long id,
+    public ResponseEntity<ApiResponseDto<SaludResponseDto>> crearRegistro(
+            @PathVariable("id") Long id, 
             @Valid @RequestBody SaludRequestDto dto) {
+            
         log.info("Registrando progreso de salud para usuario ID: {}", id);
         SaludResponseDto resultado = saludService.registrarProgreso(dto, id);
         log.info("Progreso de salud registrado exitosamente con ID: {}", resultado.getId());
-        return ResponseEntity.ok(resultado);
+        
+        // CORRECCIÓN: Envuelto en ApiResponseDto y cambiado a 201 CREATED
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponseDto.<SaludResponseDto>builder()
+                        .mensaje("Progreso de salud registrado exitosamente")
+                        .success(true)
+                        .datos(resultado)
+                        .build()
+        );
     }
 
     /**
@@ -84,11 +95,21 @@ public class SaludController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Progreso actual recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró progreso para el usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<SaludResponseDto> obtenerProgresoActual(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<SaludResponseDto>> obtenerProgresoActual(
+            @PathVariable("id") Long id) { 
+            
         log.info("Obteniendo progreso actual para usuario ID: {}", id);
         SaludResponseDto progreso = saludService.obtenerProgresoActual(id);
         log.debug("Progreso encontrado para usuario {}: IMC={}, Peso={}", id, progreso.getImc(), progreso.getPeso());
-        return ResponseEntity.ok(progreso);
+        
+        
+        return ResponseEntity.ok(
+                ApiResponseDto.<SaludResponseDto>builder()
+                        .mensaje("Progreso de salud actual recuperado")
+                        .success(true)
+                        .datos(progreso)
+                        .build()
+        );
     }
 
     /**
@@ -103,7 +124,7 @@ public class SaludController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Historial recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró historial para el usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<List<SaludResponseDto>>> getHistorial(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<List<SaludResponseDto>>> getHistorial(@PathVariable("id") Long id) {
         List<SaludResponseDto> historial = saludService.obtenerHistorialPorUsuario(id);
 
         ApiResponseDto<List<SaludResponseDto>> respuesta = ApiResponseDto.<List<SaludResponseDto>>builder()
@@ -127,7 +148,7 @@ public class SaludController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Progreso eliminado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se encontró progreso para el usuario")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable("id") Long id) {
        saludService.eliminarRegistro(id);
 
     ApiResponseDto<Void> respuesta = ApiResponseDto.<Void>builder()

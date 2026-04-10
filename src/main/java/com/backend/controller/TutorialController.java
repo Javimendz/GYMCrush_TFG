@@ -2,6 +2,7 @@ package com.backend.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,7 +57,7 @@ public class TutorialController {
      * @return ResponseEntity con la lista completa de tutoriales
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar todos los tutoriales", description = "Permite a un usuario o administrador listar todos los tutoriales disponibles")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Catálogo de tutoriales recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
@@ -79,12 +80,12 @@ public class TutorialController {
      * @return ResponseEntity con la lista de tutoriales de esa categoría
      */
     @GetMapping("/categoria/{catId}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar tutoriales por categoría", description = "Permite a un usuario o administrador listar tutoriales por su categoría")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tutoriales de la categoría recuperados con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Categoría no encontrada")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
-    public ResponseEntity<ApiResponseDto<List<TutorialResponseDto>>> listarPorCategoria(@PathVariable Long catId) {
+    public ResponseEntity<ApiResponseDto<List<TutorialResponseDto>>> listarPorCategoria(@PathVariable("catId") Long catId) {
         log.info("Listando tutoriales por categoría ID: {}", catId);
         List<TutorialResponseDto> data = tutorialService.obtenerPorCategoria(catId);
         log.debug("Tutoriales encontrados para categoría {}: {}", catId, data.size());
@@ -116,7 +117,7 @@ public class TutorialController {
         TutorialResponseDto nuevo = tutorialService.crear(dto);
         log.info("Tutorial creado exitosamente con ID: {}", nuevo.getId());
         
-        return ResponseEntity.ok(ApiResponseDto.<TutorialResponseDto>builder()
+      return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.<TutorialResponseDto>builder()
                 .mensaje("Tutorial subido correctamente")
                 .datos(nuevo)
                 .success(true)
@@ -129,7 +130,7 @@ public class TutorialController {
      * @return ResponseEntity con la lista de categorías
      */
     @GetMapping("/categorias")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Listar categorías de tutoriales", description = "Permite a un usuario o administrador listar todas las categorías disponibles para los tutoriales")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado de categorías recuperado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
@@ -160,7 +161,7 @@ public class TutorialController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tutorial eliminado correctamente")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Tutorial no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")  
-    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable Long id) {
+    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) {
         log.info("Eliminando tutorial con ID: {}", id);
         tutorialService.eliminar(id);
         log.info("Tutorial {} eliminado exitosamente", id);
