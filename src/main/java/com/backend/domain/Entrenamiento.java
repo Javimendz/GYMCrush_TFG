@@ -1,11 +1,6 @@
 //Paquete
 package com.backend.domain;
 
-import java.time.LocalDate;
-//Imports
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
@@ -45,8 +40,7 @@ public class Entrenamiento {
      * Opcional, indica cuándo se realizará la sesión.
      * </p>
      */
-    @Column(name = "fecha", nullable = true)
-    private LocalDate fecha;
+    
 
     @Column(nullable = false, length = 100)
     private String nombre; // Ej: "Pecho y Tríceps"
@@ -63,14 +57,7 @@ public class Entrenamiento {
      */
     private Integer cantidadEjercicios;
 
-    /**
-     * Hora de inicio del entrenamiento.
-     * <p>
-     * Opcional, especifica la hora exacta de comienzo.
-     * </p>
-     */
-    @Column(name = "hora", nullable = true)
-    private LocalTime hora;
+ 
 
     /**
      * Duración total de la sesión de entrenamiento.
@@ -90,21 +77,5 @@ public class Entrenamiento {
     @Column(name = "intensidad", length = 150)
     private String intensidad;
 
-    /**
-     * Usuario que realiza el entrenamiento.
-     * <p>
-     * Relación muchos-a-uno con carga eager para obtener
-     * información del usuario automáticamente.
-     * </p>
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "usuario_id", referencedColumnName = "id", nullable = false)
-    @ToString.Exclude
-    private Usuario usuario;
-
-
-    @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Builder.Default
-    @ToString.Exclude
-    private List<Rutina> rutinas = new ArrayList<>();
+  
 }

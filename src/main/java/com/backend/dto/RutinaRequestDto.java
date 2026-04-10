@@ -4,32 +4,31 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import java.time.LocalDate;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "DTO de solicitud para una rutina de ejercicio")
+@Schema(description = "DTO para crear o asignar una rutina a un usuario")
 public class RutinaRequestDto {
 
-    @Schema(description = "Fecha de asignación de la rutina")
-    @NotNull(message = "La fecha de asignación es obligatoria")
+    @NotNull(message = "La fecha es obligatoria")
+    @Schema(description = "Fecha en la que el usuario debe realizar el ejercicio", example = "2026-04-15")
     private LocalDate fechaAsignacion;
 
-    @Schema(description = "Orden de la rutina")
-    @Positive(message = "El orden debe ser un número positivo")
+    @Positive(message = "El orden debe ser positivo")
+    @Schema(description = "Posición del ejercicio en la sesión del día", example = "1")
     private Integer orden;
 
-    @Schema(description = "Indica si la rutina está completada")
+    @Schema(description = "Estado de realización", example = "false")
     private Boolean completado;
 
-    @Schema(description = "ID del usuario asignado a la rutina")
     @NotNull(message = "El ID de usuario es obligatorio")
+    @Schema(description = "ID del usuario que recibirá la rutina", example = "1")
     private Long usuarioId;
 
-    @Schema(description = "ID del entrenamiento asignado a la rutina")
     @NotNull(message = "El ID de entrenamiento es obligatorio")
+    @Schema(description = "ID del ejercicio del catálogo que se va a asignar", example = "5")
     private Long entrenamientoId;
 }

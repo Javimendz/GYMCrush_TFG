@@ -69,11 +69,18 @@ public class PlanController {
     @PostMapping("/{planId}/suscribir/{usuarioId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @Operation(summary = "Suscribir usuario", description = "Asigna las rutinas del plan a la agenda del usuario")
-    public ResponseEntity<ApiResponseDto<Void>> suscribir(@PathVariable Long planId, @PathVariable Long usuarioId) {
-        planService.suscribirUsuarioAPlan(usuarioId, planId);
+    public ResponseEntity<ApiResponseDto<Void>> suscribir(@PathVariable Long planId, @PathVariable Long usuarioId,
+        org.springframework.security.core.Authentication auth
+    ) {
+       String usernameLogueado = auth.getName();
+        boolean esAdmin = auth.getAuthorities().stream()
+                .anyMatch(r -> r.getAuthority().contains("ADMIN"));
+
+        // 2. Se los pasamos al servicio para que valide
+        planService.suscribirUsuarioAPlan(usuarioId, planId, usernameLogueado, esAdmin);
+        
         return ResponseEntity.ok(ApiResponseDto.success("¡Plan activado! Revisa tu agenda de hoy", null));
     }
-
     @PostMapping("/{planId}/ejercicios")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Añadir ejercicio al plan", description = "Añade un entrenamiento específico a un día del plan")

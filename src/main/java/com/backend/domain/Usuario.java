@@ -91,9 +91,7 @@ public class Usuario {
     @Builder.Default
     private List<Reserva> reservas = new ArrayList<>(); // Un usuario realiza N reservas
 
-    @Builder.Default
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Entrenamiento> entrenamientos = new ArrayList<>();// Un usuario realiza N entrenamientos
+    
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

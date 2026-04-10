@@ -1,6 +1,7 @@
 package com.backend.service;
 
 
+
 import com.backend.dto.DetallePlanRequestDto;
 import com.backend.dto.DetallePlanResponseDto;
 import com.backend.dto.PlanRequestDto;
@@ -16,6 +17,6 @@ public interface IPlanService {
     List<PlanResponseDto> listarTodos();
     PlanResponseDto obtenerPorId(Long id);
 
-    void suscribirUsuarioAPlan(Long usuarioId, Long planId);
+
     DetallePlanResponseDto añadirEjercicioAlPlan(Long planId, DetallePlanRequestDto dto);
-}
+void suscribirUsuarioAPlan(Long usuarioId, Long planId, String usernameLogueado, boolean esAdmin);}

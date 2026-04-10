@@ -8,6 +8,6 @@ public interface IEntrenamientoService {
     EntrenamientoResponseDto crear(EntrenamientoRequestDto dto);
     EntrenamientoResponseDto actualizar(Long id, EntrenamientoRequestDto dto);
     EntrenamientoResponseDto obtenerPorId(Long id);
-    List<EntrenamientoResponseDto> listarPorUsuario(Long usuarioId);
+List<EntrenamientoResponseDto> listarTodos();
     void eliminar(Long id);
 }

@@ -36,7 +36,7 @@ public class PlanServiceImp implements IPlanService {
     private final UsuarioRepository usuarioRepo;
     private final DetallePlanRepository detalleRepo;
     private final EntrenamientoRepository entrenamientoRepo; // ¡Vital para evitar nulls!
-    private final PlanMapper planMapper; 
+    private final PlanMapper planMapper;
 
     @Override
     @Transactional
@@ -56,15 +56,15 @@ public class PlanServiceImp implements IPlanService {
                 .collect(Collectors.toList());
     }
 
-   @Override
-@Transactional(readOnly = true)
-public PlanResponseDto obtenerPorId(Long id) {
-    
-    PlanEntrenamiento plan = planRepo.findWithEjerciciosById(id)
-            .orElseThrow(() -> new RuntimeException("Plan no encontrado con ID: " + id));
-            
-    return planMapper.toResponseDto(plan);
-}
+    @Override
+    @Transactional(readOnly = true)
+    public PlanResponseDto obtenerPorId(Long id) {
+
+        PlanEntrenamiento plan = planRepo.findWithEjerciciosById(id)
+                .orElseThrow(() -> new RuntimeException("Plan no encontrado con ID: " + id));
+
+        return planMapper.toResponseDto(plan);
+    }
 
     @Override
     @Transactional
@@ -77,21 +77,39 @@ public PlanResponseDto obtenerPorId(Long id) {
 
     @Override
     @Transactional
-    public void suscribirUsuarioAPlan(Long usuarioId, Long planId) {
-        Usuario usuario = usuarioRepo.findById(usuarioId)
+    public void suscribirUsuarioAPlan(Long usuarioId, Long planId, String usernameLogueado, boolean esAdmin) {
+        
+        //  Buscamos al usuario destino
+        Usuario usuarioDestino = usuarioRepo.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+       
+        // Si NO es Admin, y el nombre del usuario destino NO coincide con el que está logueado, Bloqueo
+        if (!esAdmin && !usuarioDestino.getUsername().equals(usernameLogueado)) {
+            log.warn("Intento de suscripción no autorizada. Usuario logueado: {}, Intentó suscribir a: {}", usernameLogueado, usuarioDestino.getUsername());
+            throw new RuntimeException("Acceso denegado: No tienes permiso para suscribir a otros usuarios.");
+        }
+
+        //  Buscamos el plan maestro
         PlanEntrenamiento plan = planRepo.findById(planId)
                 .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
 
         LocalDate hoy = LocalDate.now();
 
+        // Asignamos los ejercicios a la agenda del usuario
         if (plan.getEjercicios() != null) {
             for (DetallePlan detalle : plan.getEjercicios()) {
-                // Asignamos a la semana actual basado en el día (1=Lunes, 7=Domingo)
+                
+                // Calculamos el día de la semana
                 LocalDate fechaAsignacion = hoy.with(java.time.DayOfWeek.of(detalle.getDiaSemana()));
+                
+                // Si el día calculado ya pasó en esta semana, lo pasamos a la semana siguiente
+                if (fechaAsignacion.isBefore(hoy)) {
+                    fechaAsignacion = fechaAsignacion.plusWeeks(1); 
+                }
 
                 Rutina nuevaRutina = Rutina.builder()
-                        .usuario(usuario)
+                        .usuario(usuarioDestino)
                         .entrenamiento(detalle.getEntrenamiento())
                         .fechaAsignacion(fechaAsignacion)
                         .orden(detalle.getOrden())
@@ -103,14 +121,14 @@ public PlanResponseDto obtenerPorId(Long id) {
         }
     }
 
-    // 🔥 LA SOLUCIÓN DEFINITIVA A LOS NULLS 🔥
+    
     @Override
     @Transactional
     public DetallePlanResponseDto añadirEjercicioAlPlan(Long planId, DetallePlanRequestDto dto) {
         // 1. Buscamos el plan
-        PlanEntrenamiento plan = planRepo.findById(planId)
-                .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
-        
+       PlanEntrenamiento plan = planRepo.findWithEjerciciosById(planId)
+        .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+
         // 2. Buscamos el Entrenamiento COMPLETO (Esto trae el nombre de la DB)
         Entrenamiento entrenamiento = entrenamientoRepo.findById(dto.getEntrenamientoId())
                 .orElseThrow(() -> new RuntimeException("Entrenamiento no encontrado"));
@@ -123,9 +141,11 @@ public PlanResponseDto obtenerPorId(Long id) {
         detalle.setOrden(dto.getOrden());
 
         // 4. Guardamos el detalle y forzamos el guardado
-        DetallePlan guardado = detalleRepo.saveAndFlush(detalle); 
+        DetallePlan guardado = detalleRepo.saveAndFlush(detalle);
 
         // 5. Mapeamos y devolvemos la respuesta
         return planMapper.toDetalleResponseDto(guardado);
     }
+
+  
 }

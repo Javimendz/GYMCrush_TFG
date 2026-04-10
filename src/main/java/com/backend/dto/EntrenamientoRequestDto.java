@@ -1,7 +1,6 @@
 package com.backend.dto;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -17,15 +16,10 @@ import lombok.NoArgsConstructor;
 public class EntrenamientoRequestDto {
     
     
-    private LocalDateTime fecha;
-    private LocalTime hora;
+   private String nombre;
+    private String descripcion;
     private Integer duracion;
     private String intensidad;
-
-    private Long usuarioId;
-
-    private String nombreUsuario; 
-
     private Integer cantidadEjercicios;
 
     
