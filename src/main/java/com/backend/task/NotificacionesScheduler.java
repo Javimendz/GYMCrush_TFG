@@ -13,7 +13,7 @@ import com.backend.domain.enums.TipoNotificacion;
 import com.backend.event.ReservaEvent;
 import com.backend.repository.ReservaRepository;
 
-
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +25,9 @@ public class NotificacionesScheduler {
     private final ReservaRepository reservaRepo;
     private final ApplicationEventPublisher eventPublisher;
 
-    @Scheduled(cron = "0 */30 * * * *") // Cada 30 minutos
+    //@Scheduled(cron = "0 */30 * * * *") // Cada 30 minutos
+    @Scheduled(cron = "*/10 * * * * *") // Para pruebas: cada 10 segundos
+    @Transactional
     public void recordatorioProximasClases() {
         LocalDate hoy = LocalDate.now();
         LocalTime ahora = LocalTime.now();

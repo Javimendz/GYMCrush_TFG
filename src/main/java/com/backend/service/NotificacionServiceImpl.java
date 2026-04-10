@@ -84,9 +84,10 @@ public void eliminar(Long id) {
     notificacionRepository.delete(n);
 }
 
-    @Override
-    public void enviarNotificacionAUsuario(Long usuarioId, String mensaje) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'enviarNotificacionAUsuario'");
-    }
+   @Override
+@Transactional
+public void enviarNotificacionAUsuario(Long usuarioId, String mensaje) {
+    // Implementación rápida usando el método que ya tienes
+    this.enviarNotificacionRapida(usuarioId, "Aviso del Gimnasio", mensaje, TipoNotificacion.RECORDATORIO);
+}
 }

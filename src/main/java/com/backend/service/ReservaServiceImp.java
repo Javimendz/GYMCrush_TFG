@@ -11,6 +11,7 @@ import com.backend.domain.Horario;
 import com.backend.domain.Reserva;
 import com.backend.domain.Usuario;
 import com.backend.domain.enums.EnumEstado;
+import com.backend.domain.enums.TipoNotificacion;
 import com.backend.dto.ReservaResponseDto;
 import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.repository.ReservaRepository;
@@ -202,6 +203,13 @@ public class ReservaServiceImp implements IReservaService {
     reserva.setEstado(EnumEstado.CANCELADA);
     reservaRepository.save(reserva);
     
+    notificacionService.enviarNotificacionRapida(
+        reserva.getUsuario().getId(),
+        "Reserva Cancelada ",
+        "Has cancelado tu clase de " + reserva.getHorario().getActividad().getNombre(),
+        TipoNotificacion.CANCELACION
+    );
+
     log.info("Reserva {} cancelada exitosamente por el usuario", reservaId);
 }
     /**

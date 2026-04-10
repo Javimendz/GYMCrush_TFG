@@ -55,6 +55,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
+                String path = request.getServletPath();
+  if (path.startsWith("/ws")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+
         // Extraer el token JWT de la petición HTTP
         String token = getJwtFromRequest(request);
 

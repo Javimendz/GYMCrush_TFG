@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.backend.domain.Notificacion;
 import com.backend.repository.NotificacionRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class ReservaEventListener {
 
     @Async
     @EventListener
+    @Transactional
     public void handleReservaEvent(ReservaEvent event) {
         log.info("Procesando notificación para usuario ID: {}", event.reserva().getUsuario().getId());
         // 1. Guardar en Base de Datos
