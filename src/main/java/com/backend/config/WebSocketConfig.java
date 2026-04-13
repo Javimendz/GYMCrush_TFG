@@ -1,10 +1,24 @@
 package com.backend.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageDeliveryException;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import com.backend.security.jwt.JwtGenerator;
 
 /**
  * Configuración de WebSocket para la aplicación GYM Crush.
@@ -32,6 +46,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+
+    @Autowired
+    private JwtGenerator jwtService;
+     @Autowired
+    private UserDetailsService userDetailsService; 
     /**
      * Configura el broker de mensajes para el manejo de suscripciones y envío de mensajes.
      * <p>
@@ -45,40 +64,56 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      *
      * @param config Registro de configuración del broker de mensajes
      */
-    @Override
+  @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Habilita un broker simple en memoria para los prefijos /topic y /queue
         config.enableSimpleBroker("/topic", "/queue");
-        
-        // Prefijo para los mensajes que van desde el cliente hacia el servidor (@MessageMapping)
         config.setApplicationDestinationPrefixes("/app");
-        
-        // Prefijo clave para usar convertAndSendToUser() en notificaciones privadas
         config.setUserDestinationPrefix("/user");
     }
 
-    /**
-     * Registra los endpoints STOMP para la conexión de clientes WebSocket.
-     * <p>
-     * Configura dos endpoints para diferentes tipos de clientes:
-     * <ul>
-     * <li><b>/chats</b>: Endpoint estándar sin SockJS para clientes WebSocket puros y herramientas como Postman</li>
-     * <li><b>/chats-sockjs</b>: Endpoint con SockJS para navegadores y clientes que necesitan fallback</li>
-     * </ul>
-     * </p>
-     *
-     * @param registry Registro de endpoints STOMP
-     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        
-        // 1. Endpoint estándar WebSocket puro (SIN SockJS)
-        // Ideal para clientes móviles nativos (Android/iOS) o Postman
-       registry.addEndpoint("/ws")
+        // Mantén el endpoint /ws para Postman
+        registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*");
-        
-        // 2. Endpoint con soporte SockJS
-        // Proporciona fallback para navegadores web
-        
     }
+
+    // AÑADE ESTO para capturar el Token en el canal de entrada
+ @Override
+public void configureClientInboundChannel(ChannelRegistration registration) {
+    registration.interceptors(new ChannelInterceptor() {
+        @Override
+        public Message<?> preSend(Message<?> message, MessageChannel channel) {
+            StompHeaderAccessor accessor = 
+                MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+
+            if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                String authHeader = accessor.getFirstNativeHeader("Authorization");
+
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    String token = authHeader.substring(7);
+                    
+                    // 1. Validar el token primero
+                    if (jwtService.validateToken(token)) {
+                        // 2. Extraer el username (ajusta el nombre si es getUsernameFromJWT)
+                        String username = jwtService.getUsernameFromToken(token); 
+
+                        if (username != null) {
+                            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                            UsernamePasswordAuthenticationToken authToken = 
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            
+                            accessor.setUser(authToken);
+                        }
+                    } else {
+                        throw new MessageDeliveryException("Token JWT inválido");
+                    }
+                } else {
+                    throw new MessageDeliveryException("Falta encabezado de autorización");
+                }
+            }
+            return message;
+        }
+    });
+}
 }

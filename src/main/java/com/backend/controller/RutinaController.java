@@ -34,7 +34,6 @@ public class RutinaController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Entrenamiento asignado correctamente")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Entrada inválida")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "ID del usuario a asignar el entrenamiento, fecha y hora de asignación", required = true)
     public ResponseEntity<ApiResponseDto<RutinaResponseDto>> asignar(@Valid @RequestBody RutinaRequestDto dto) {
         RutinaResponseDto response = rutinaService.asignarEntrenamiento(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -46,7 +45,6 @@ public class RutinaController {
     @Operation(summary = "Obtener rutina diaria", description = "Obtiene los ejercicios programados para un usuario en una fecha específica")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Rutina obtenida con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "ID del usuario a obtener la rutina", required = true)
     public ResponseEntity<ApiResponseDto<List<RutinaResponseDto>>> obtenerRutina(
             @PathVariable Long usuarioId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
@@ -62,7 +60,6 @@ public class RutinaController {
     @Operation(summary = "Marcar como completada", description = "El usuario marca un ejercicio de su rutina como realizado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ejercicio marcado como completado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "ID del ejercicio a marcar como completado", required = true)   
     public ResponseEntity<ApiResponseDto<RutinaResponseDto>> completar(@PathVariable Long id) {
         RutinaResponseDto response = rutinaService.marcarComoCompletada(id);
         return ResponseEntity.ok(ApiResponseDto.success("¡Buen trabajo! Ejercicio completado", response));
@@ -73,7 +70,6 @@ public class RutinaController {
     @Operation(summary = "Eliminar asignación", description = "Elimina un ejercicio programado de la rutina")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Asignación eliminada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "ID del ejercicio a eliminar", required = true)     
     public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable Long id) {
         rutinaService.eliminarAsignacion(id);
         return ResponseEntity.ok(ApiResponseDto.success("Asignación eliminada", null));

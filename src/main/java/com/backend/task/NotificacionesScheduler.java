@@ -40,7 +40,7 @@ public class NotificacionesScheduler {
         for (Reserva r : proximas) {
             if (r.getConfirmado() == null || !r.getConfirmado()) {
                 eventPublisher.publishEvent(new ReservaEvent(
-                    r, 
+                    r.getId(), 
                     "¡Recordatorio! Tu clase de " + r.getHorario().getActividad().getNombre() + " empieza pronto.",
                     "Próximo entrenamiento",
                     TipoNotificacion.RECORDATORIO

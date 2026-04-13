@@ -87,7 +87,6 @@ public void eliminar(Long id) {
    @Override
 @Transactional
 public void enviarNotificacionAUsuario(Long usuarioId, String mensaje) {
-    // Implementación rápida usando el método que ya tienes
     this.enviarNotificacionRapida(usuarioId, "Aviso del Gimnasio", mensaje, TipoNotificacion.RECORDATORIO);
 }
 }

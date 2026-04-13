@@ -3,6 +3,7 @@ package com.backend.domain;
 
 //Imports
 import java.time.LocalTime;
+import java.util.List;
 
 import jakarta.persistence.*; //Importo todo el paquete
 import lombok.*;
@@ -96,4 +97,7 @@ public class Horario {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sala_id")
     private Sala sala;
+
+    @OneToMany(mappedBy = "horario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reserva> reservas;
 }

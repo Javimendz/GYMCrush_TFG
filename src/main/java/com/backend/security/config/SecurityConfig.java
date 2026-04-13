@@ -26,12 +26,12 @@ import com.backend.security.jwt.JwtAuthenticationFilter;
  * <p>
  * Esta clase configura:
  * <ul>
- *   <li>Autenticación JWT con filtros personalizados</li>
- *   <li>Autorización basada en roles y perfiles</li>
- *   <li>CORS para comunicación con frontend</li>
- *   <li>Codificación de contraseñas con BCrypt</li>
- *   <li>Gestión de sesiones stateless (sin estado)</li>
- *   <li>Logout y limpieza del contexto de seguridad</li>
+ * <li>Autenticación JWT con filtros personalizados</li>
+ * <li>Autorización basada en roles y perfiles</li>
+ * <li>CORS para comunicación con frontend</li>
+ * <li>Codificación de contraseñas con BCrypt</li>
+ * <li>Gestión de sesiones stateless (sin estado)</li>
+ * <li>Logout y limpieza del contexto de seguridad</li>
  * </ul>
  * </p>
  *
@@ -56,9 +56,10 @@ public class SecurityConfig {
      * <p>
      * Define las reglas de autorización para diferentes rutas:
      * <ul>
-     *   <li>Rutas públicas: /api/v1/auth/**, /chats/**</li>
-     *   <li>Rutas de documentación (solo en dev): /swagger-ui/**, /v3/api-docs/**</li>
-     *   <li>Resto de rutas: requieren autenticación</li>
+     * <li>Rutas públicas: /api/v1/auth/**, /chats/**</li>
+     * <li>Rutas de documentación (solo en dev): /swagger-ui/**,
+     * /v3/api-docs/**</li>
+     * <li>Resto de rutas: requieren autenticación</li>
      * </ul>
      * </p>
      *
@@ -74,25 +75,23 @@ public class SecurityConfig {
                 // Habilita CORS con configuración por defecto
                 .cors(Customizer.withDefaults())
                 // Configura el manejador de errores de autenticación
-                .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(jwtAuthEntryPoint)
-                        )
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
                 // Configura sesiones stateless (sin estado)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                        )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Configura las reglas de autorización
-               .authorizeHttpRequests(auth -> {
+                .authorizeHttpRequests(auth -> {
                     // Rutas siempre públicas (login, registro)
                     auth.requestMatchers("/api/v1/auth/**").permitAll();
-                        auth.requestMatchers("/chats/**").permitAll();
-                        auth.requestMatchers("/chats-sockjs/**").permitAll();
+                    auth.requestMatchers("/ws/**").permitAll();
+                    auth.requestMatchers("/ws-gym/**").permitAll();
+                    auth.requestMatchers("/chats/**").permitAll();
+                    auth.requestMatchers("/chats-sockjs/**").permitAll();
 
                     // Rutas de documentación Swagger (solo en perfil 'dev')
                     if (env.acceptsProfiles(Profiles.of("dev"))) {
-                        auth.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", 
-                        "/v3/api-docs.yaml", "/webjars/**", "/swagger-resources/**").permitAll();
-                            
+                        auth.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
+                                "/v3/api-docs.yaml", "/webjars/**", "/swagger-resources/**").permitAll();
+
                     }
 
                     // Cualquier otra solicitud requiere autenticación
@@ -100,18 +99,17 @@ public class SecurityConfig {
                 })
                 // Configura el endpoint de logout
                 .logout(logout -> logout
-                .logoutUrl("/api/v1/auth/logout")
-                .addLogoutHandler((request, response, authentication) -> {
-                    // Limpia el contexto de seguridad al cerrar sesión
-                    // Nota: Aquí se podría implementar una lista de tokens invalidados (blacklist)
-                    SecurityContextHolder.clearContext();
-                })
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    // Devuelve 200 OK en lugar de redireccionar (comportamiento REST)
-                    response.setStatus(200);
-                })
-            );
-            
+                        .logoutUrl("/api/v1/auth/logout")
+                        .addLogoutHandler((request, response, authentication) -> {
+                            // Limpia el contexto de seguridad al cerrar sesión
+                            // Nota: Aquí se podría implementar una lista de tokens invalidados (blacklist)
+                            SecurityContextHolder.clearContext();
+                        })
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            // Devuelve 200 OK en lugar de redireccionar (comportamiento REST)
+                            response.setStatus(200);
+                        }));
+
         // Añade el filtro JWT antes del filtro de autenticación por usuario/contraseña
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -141,10 +139,9 @@ public class SecurityConfig {
      * @throws Exception si ocurre un error al obtener el administrador
      */
     @Bean
-    public AuthenticationManager authenticationManager
-            (AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    
 }
