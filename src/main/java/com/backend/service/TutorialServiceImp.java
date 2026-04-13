@@ -3,15 +3,19 @@ package com.backend.service;
 
 import com.backend.domain.CategoriaTutorial;
 import com.backend.domain.Tutorial;
+import com.backend.domain.enums.TipoNotificacion;
 import com.backend.dto.CategoriaTutorialResponseDto;
 import com.backend.dto.TutorialRequestDto;
 import com.backend.dto.TutorialResponseDto;
+import com.backend.event.TutorialEvent;
 import com.backend.mapper.CategoriaTutorialMapper;
 import com.backend.mapper.TutorialMapper;
 import com.backend.repository.CategoriaTutorialRepository;
 import com.backend.repository.TutorialRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +49,8 @@ public class TutorialServiceImp implements ITutorialService {
     /** Mapper para convertir entre entidades y DTOs de categorías */
     private final CategoriaTutorialMapper categoriaMapper;
 
+
+    private final ApplicationEventPublisher eventPublisher;
     /**
      * Obtiene todos los tutoriales disponibles en el sistema.
      * <p>
@@ -103,19 +109,29 @@ public class TutorialServiceImp implements ITutorialService {
     public TutorialResponseDto crear(TutorialRequestDto dto) {
         log.info("Creando nuevo tutorial: {}", dto.getTitulo());
         
-        // 1. Buscamos la categoría real en la BD
+        //  Buscamos la categoría real en la BD
         CategoriaTutorial categoria = categoriaRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Error: La categoría seleccionada no existe"));
         log.debug("Categoría encontrada: {}", categoria.getNombre());
 
-        // 2. Mapeamos el DTO a Entidad
+        //  Mapeamos el DTO a Entidad
         Tutorial tutorial = tutorialMapper.toEntity(dto);
         
-        // 3. Establecemos la relación manualmente
+        //  Establecemos la relación manualmente
         tutorial.setCategoria(categoria);
 
-        // 4. Guardamos y devolvemos el DTO de respuesta
+        //  Guardamos y devolvemos el DTO de respuesta
         TutorialResponseDto resultado = tutorialMapper.toDto(tutorialRepository.save(tutorial));
+
+        eventPublisher.publishEvent(new TutorialEvent(
+            resultado.getId(),
+            "¡Nuevo Tutorial Disponible!",
+            "Se ha subido: '" + resultado.getTitulo() + "' en la categoría " + categoria.getNombre(),
+            TipoNotificacion.SISTEMA 
+        ));
+
+      
+        
         log.info("Tutorial creado exitosamente con ID: {}", resultado.getId());
         return resultado;
     }

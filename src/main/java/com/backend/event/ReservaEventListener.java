@@ -26,7 +26,7 @@ public class ReservaEventListener {
    private final NotificacionRepository notificacionRepo;
     private final ReservaRepository reservaRepo;
     private final SimpMessagingTemplate messagingTemplate; 
-    private final NotificacionMapper notificacionMapper; // 1. Inyecta tu mapper
+    private final NotificacionMapper notificacionMapper; // Inyecta  mapper
 
     @Async
     @EventListener
@@ -37,7 +37,7 @@ public class ReservaEventListener {
         Reserva reserva = reservaRepo.findById(event.reservaId())
             .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
-        // 2. Crear y guardar la entidad
+        //  Crear y guardar la entidad
         Notificacion n = new Notificacion();
         n.setUsuario(reserva.getUsuario());
         n.setTitulo(event.titulo());
@@ -45,13 +45,12 @@ public class ReservaEventListener {
         n.setTipo(event.tipo());
         n = notificacionRepo.save(n); // Guardamos para tener el ID y la fecha
 
-        // 3. ¡ESTA ES LA CLAVE! Convertir a DTO antes de enviar
-        // El DTO no tiene referencias circulares, es un objeto plano y seguro.
+        // Convertir a DTO antes de enviar
         var notificacionDto = notificacionMapper.toResponseDto(n);
 
         log.info("Enviando DTO por WebSocket a usuario: {}", reserva.getUsuario().getUsername());
 
-        // 4. Enviar el DTO, NO la entidad 'n'
+        // Enviar el DTO
         messagingTemplate.convertAndSendToUser(
             reserva.getUsuario().getUsername(), 
             "/queue/notificaciones", 

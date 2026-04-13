@@ -73,12 +73,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Mantén el endpoint /ws para Postman
+        
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*");
     }
 
-    // AÑADE ESTO para capturar el Token en el canal de entrada
  @Override
 public void configureClientInboundChannel(ChannelRegistration registration) {
     registration.interceptors(new ChannelInterceptor() {
@@ -93,9 +92,9 @@ public void configureClientInboundChannel(ChannelRegistration registration) {
                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
                     String token = authHeader.substring(7);
                     
-                    // 1. Validar el token primero
+                    //  Validar el token primero
                     if (jwtService.validateToken(token)) {
-                        // 2. Extraer el username (ajusta el nombre si es getUsernameFromJWT)
+                        //  Extraer el username 
                         String username = jwtService.getUsernameFromToken(token); 
 
                         if (username != null) {

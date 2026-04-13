@@ -62,6 +62,19 @@
                     escribirEnConsola(JSON.stringify(dto, null, 2));
                 });
 
+                const destinoPublico = '/topic/notificaciones';
+        escribirEnConsola("Suscribiéndose a: " + destinoPublico);
+        stompClient.subscribe(destinoPublico, function (mensaje) {
+            escribirEnConsola("\n📢 ¡AVISO GLOBAL: NUEVO TUTORIAL!");
+            try {
+                const dto = JSON.parse(mensaje.body);
+                escribirEnConsola(JSON.stringify(dto, null, 2));
+                alert("¡Nuevo vídeo en el Gym: " + dto.titulo + "!");
+            } catch(e) {
+                escribirEnConsola("Error leyendo el mensaje global: " + e);
+            }
+        });
+
             }, function (error) {
                 escribirEnConsola("❌ ERROR DE CONEXIÓN: " + error);
             });
