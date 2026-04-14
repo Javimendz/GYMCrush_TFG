@@ -24,7 +24,7 @@ services:
       db-service:
         condition: service_healthy
 
-  # MICROSERVICIO 2, bd
+  # MICROSERVICIO 2
   db-service:
     build: ./gym-db          # Construye desde la carpeta de la BD
     container_name: gym-database
