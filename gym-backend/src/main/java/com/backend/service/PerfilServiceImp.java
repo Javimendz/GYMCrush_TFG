@@ -1,0 +1,150 @@
+package com.backend.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.backend.domain.Perfil;
+import com.backend.dto.PerfilRequestDto;
+import com.backend.dto.PerfilResponseDto;
+import com.backend.exceptions.ResourceNotFoundException;
+import com.backend.mapper.PerfilMapper;
+import com.backend.repository.PerfilRepository;
+import com.backend.repository.SaludRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Implementación del servicio para la gestión de perfiles de usuario.
+ * <p>
+ * Esta clase maneja las operaciones CRUD para perfiles, incluyendo
+ * la consulta completa con datos de salud más recientes.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
+@RequiredArgsConstructor
+@Service
+@Slf4j
+public class PerfilServiceImp implements IPerfilService {
+
+    private final PerfilRepository perfilRepository;
+    private final SaludRepository saludRepository;
+    private final PerfilMapper perfilMapper;
+
+    /**
+     * Obtiene todos los perfiles de usuarios del sistema.
+     * <p>
+     * Retorna una lista completa de todos los perfiles incluyendo
+     * los datos de salud más recientes de cada usuario.
+     * </p>
+     *
+     * @return Lista de DTOs con todos los perfiles enriquecidos
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<PerfilResponseDto> findAll() {
+        log.info("Obteniendo todos los perfiles");
+        List<Perfil> perfiles = perfilRepository.findAll();
+
+        return perfiles.stream().map(perfil -> {
+            // Convertimos a DTO
+            PerfilResponseDto dto = perfilMapper.toDto(perfil);
+
+            // Enriquecemos con salud
+            saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
+                    .ifPresent(salud -> {
+                        dto.setPeso(salud.getPeso());
+                        dto.setEstatura(salud.getEstatura());
+                        dto.setImc(salud.getImc());
+                        dto.setNivelActividad(salud.getNivelActividad());
+                    });
+            return dto;
+        }).toList();
+    }
+
+    /**
+     * Guarda un nuevo perfil de usuario.
+     * <p>
+     * Crea un nuevo perfil en la base de datos.
+     * </p>
+     *
+     * @param perfil El perfil a guardar
+     * @return El perfil guardado
+     */
+    @Override
+    @Transactional
+    public Perfil save(Perfil perfil) {
+
+        return perfilRepository.save(perfil);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PerfilResponseDto findById(Long id) {
+
+        Perfil perfil = perfilRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
+
+        PerfilResponseDto dto = perfilMapper.toDto(perfil);
+
+        saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
+                .ifPresent(salud -> {
+                    dto.setPeso(salud.getPeso());
+                    dto.setEstatura(salud.getEstatura());
+                    dto.setImc(salud.getImc());
+                    dto.setNivelActividad(salud.getNivelActividad());
+                });
+
+        return dto;
+    }
+
+    /**
+     * Elimina un perfil por su ID.
+     * <p>
+     * Elimina un perfil existente de la base de datos.
+     * </p>
+     *
+     * @param id El ID del perfil a eliminar
+     */
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+
+        if (!perfilRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Perfil no encontrado");
+        }
+        perfilRepository.deleteById(id);
+    }
+
+    /**
+     * Actualiza un perfil existente.
+     * <p>
+     * Actualiza los datos de un perfil existente en la base de datos.
+     * </p>
+     *
+     * @param id  El ID del perfil a actualizar
+     * @param dto Los datos actualizados del perfil
+     * @return El perfil actualizado
+     */
+    @Override
+    @Transactional
+    public PerfilResponseDto update(Long id, PerfilRequestDto dto) {
+        // busco el perfil por id
+        Perfil perfil = perfilRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
+
+        // uso el maper para actualizar
+        perfilMapper.updatePerfilFromDto(dto, perfil);
+
+        // guardo entidad actualizada
+        Perfil actualizado = perfilRepository.save(perfil);
+
+        // devuelvo el dto actualizado
+        return perfilMapper.toDto(actualizado);
+    }
+}

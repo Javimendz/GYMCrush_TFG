@@ -1,0 +1,3202 @@
+2026-04-14 06:54:34.331 INFO  com.backend.App - Starting App v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
+2026-04-14 06:54:34.340 DEBUG com.backend.App - Running with Spring Boot v4.0.3, Spring v7.0.5
+2026-04-14 06:54:34.342 INFO  com.backend.App - The following 1 profile is active: "dev"
+2026-04-14 06:54:34.631 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-14 06:54:35.273 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-14 06:54:35.367 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 85 ms. Found 25 JPA repository interfaces.
+2026-04-14 06:54:36.071 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-04-14 06:54:36.080 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-04-14 06:54:36.083 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-14 06:54:36.083 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.18]
+2026-04-14 06:54:36.108 INFO  o.s.b.w.c.s.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1714 ms
+2026-04-14 06:54:36.268 DEBUG c.b.s.jwt.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-04-14 06:54:36.358 INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-04-14 06:54:36.389 INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.4.Final
+2026-04-14 06:54:36.679 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-14 06:54:36.702 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-04-14 06:54:36.868 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1c65ec63
+2026-04-14 06:54:36.870 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-04-14 06:54:36.914 WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-14 06:54:36.931 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://db:5432/spring_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 15.17
+	Default catalog/schema: spring_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-14 06:54:37.888 INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-14 06:54:37.978 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-14 06:54:38.036 INFO  o.s.d.j.r.q.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-14 06:54:38.593 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailServiceImp
+2026-04-14 06:54:39.775 INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-14 06:54:39.792 DEBUG o.s.s.web.DefaultSecurityFilterChain - Will secure any request with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, CorsFilter, LogoutFilter, JwtAuthenticationFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-04-14 06:54:40.097 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Starting...
+2026-04-14 06:54:40.098 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@2743e9b5]]
+2026-04-14 06:54:40.099 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Started.
+2026-04-14 06:54:40.100 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-04-14 06:54:40.117 INFO  o.s.boot.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-04-14 06:54:40.129 INFO  com.backend.App - Started App in 6.266 seconds (process running for 6.728)
+2026-04-14 06:54:40.259 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-04-14 06:54:40.299 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.name 
+    from
+        roles r1_0 
+    where
+        r1_0.name=?
+2026-04-14 06:54:40.305 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-04-14 06:54:40.315 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-04-14 06:54:40.328 DEBUG org.hibernate.SQL - 
+    select
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        usuarios u1_0 
+    where
+        u1_0.username=?
+2026-04-14 06:54:40.330 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id,
+        p1_0.apellidos,
+        p1_0.bio,
+        p1_0.ciudad,
+        p1_0.codigo_postal,
+        p1_0.direccion,
+        p1_0.dni,
+        p1_0.fecha_nacimiento,
+        p1_0.foto,
+        p1_0.genero,
+        p1_0.nombre,
+        p1_0.pais,
+        p1_0.telefono,
+        p1_0.usuario_id,
+        u1_0.id,
+        u1_0.correo,
+        u1_0.created_at,
+        u1_0.fecha_registro,
+        u1_0.password,
+        u1_0.qr_token,
+        r1_0.user_id,
+        r1_1.id,
+        r1_1.name,
+        u1_0.token_expira_en,
+        u1_0.updated_at,
+        u1_0.username 
+    from
+        perfiles p1_0 
+    join
+        usuarios u1_0 
+            on u1_0.id=p1_0.usuario_id 
+    left join
+        users_roles r1_0 
+            on u1_0.id=r1_0.user_id 
+    left join
+        roles r1_1 
+            on r1_1.id=r1_0.role_id 
+    where
+        p1_0.usuario_id=?
+2026-04-14 06:54:40.336 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-04-14 06:54:40.341 DEBUG org.hibernate.SQL - 
+    select
+        p1_0.id 
+    from
+        perfiles p1_0 
+    where
+        p1_0.dni=? 
+    fetch
+        first ? rows only
+2026-04-14 06:54:40.349 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-04-14 06:54:40.356 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-04-14 06:54:40.360 DEBUG org.hibernate.SQL - 
+    select
+        cd1_0.id,
+        cd1_0.descripcion,
+        cd1_0.nombre 
+    from
+        categoria_dieta cd1_0 
+    where
+        upper(cd1_0.nombre)=upper(?)
+2026-04-14 06:54:40.372 DEBUG org.hibernate.SQL - 
+    select
+        count(*) 
+    from
+        dietas d1_0
+2026-04-14 06:54:40.382 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-04-14 06:54:40.383 WARN  o.s.c.events.SpringDocAppInitializer - SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-04-14 06:54:40.413 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-04-14 06:54:40.416 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id 
+    from
+        roles r1_0 
+    where
+        r1_0.name=? 
+    fetch
+        first ? rows only
+2026-04-14 06:54:50.014 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:54:50.014054391 y 08:54:50.014054391
+2026-04-14 06:54:50.021 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:54:59.997 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:54:59.997035913 y 08:54:59.997035913
+2026-04-14 06:54:59.998 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:55:10.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:55:10.005519065 y 08:55:10.005519065
+2026-04-14 06:55:10.009 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:55:20.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:55:20.003202325 y 08:55:20.003202325
+2026-04-14 06:55:20.005 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:55:29.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:55:29.998196820 y 08:55:29.998196820
+2026-04-14 06:55:29.999 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:55:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:55:40.001961800 y 08:55:40.001961800
+2026-04-14 06:55:40.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:55:40.049 INFO  o.s.w.s.c.WebSocketMessageBrokerStats - WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 8, active threads = 1, queued tasks = 1, completed tasks = 6]
+2026-04-14 06:55:50.008 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:55:50.008076092 y 08:55:50.008076092
+2026-04-14 06:55:50.010 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:55:59.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:55:59.998458234 y 08:55:59.998458234
+2026-04-14 06:55:59.999 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:56:10.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:56:10.002286453 y 08:56:10.002286453
+2026-04-14 06:56:10.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:56:20.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:56:20.003720842 y 08:56:20.003720842
+2026-04-14 06:56:20.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:56:30.000 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:56:30.000615068 y 08:56:30.000615068
+2026-04-14 06:56:30.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:56:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:56:40.001432004 y 08:56:40.001432004
+2026-04-14 06:56:40.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:56:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:56:50.001164582 y 08:56:50.001164582
+2026-04-14 06:56:50.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:56:59.997 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:56:59.997782613 y 08:56:59.997782613
+2026-04-14 06:56:59.999 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:57:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:57:10.001181297 y 08:57:10.001181297
+2026-04-14 06:57:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:57:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:57:20.001559486 y 08:57:20.001559486
+2026-04-14 06:57:20.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:57:30.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:57:30.001144014 y 08:57:30.001144014
+2026-04-14 06:57:30.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:57:40.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:57:40.005734441 y 08:57:40.005734441
+2026-04-14 06:57:40.010 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:57:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:57:50.001568276 y 08:57:50.001568276
+2026-04-14 06:57:50.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:57:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:57:59.999109755 y 08:57:59.999109755
+2026-04-14 06:58:00.000 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:58:10.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:58:10.002123575 y 08:58:10.002123575
+2026-04-14 06:58:10.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:58:20.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:58:20.002635279 y 08:58:20.002635279
+2026-04-14 06:58:20.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:58:29.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:58:29.999726618 y 08:58:29.999726618
+2026-04-14 06:58:30.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:58:40.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:58:40.002009423 y 08:58:40.002009423
+2026-04-14 06:58:40.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:58:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:58:50.001783076 y 08:58:50.001783076
+2026-04-14 06:58:50.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:58:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:58:59.999881780 y 08:58:59.999881780
+2026-04-14 06:59:00.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:59:10.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:59:10.005247820 y 08:59:10.005247820
+2026-04-14 06:59:10.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:59:20.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:59:20.004489899 y 08:59:20.004489899
+2026-04-14 06:59:20.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:59:29.997 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:59:29.997234341 y 08:59:29.997234341
+2026-04-14 06:59:29.998 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:59:40.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:59:40.002786265 y 08:59:40.002786265
+2026-04-14 06:59:40.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:59:50.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:59:50.002992501 y 08:59:50.002992501
+2026-04-14 06:59:50.005 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 06:59:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 06:59:59.999642169 y 08:59:59.999642169
+2026-04-14 07:00:00.001 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:00:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:00:10.001755103 y 09:00:10.001755103
+2026-04-14 07:00:10.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:00:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:00:20.001850739 y 09:00:20.001850739
+2026-04-14 07:00:20.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:00:29.997 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:00:29.997668813 y 09:00:29.997668813
+2026-04-14 07:00:29.998 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:00:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:00:40.001345662 y 09:00:40.001345662
+2026-04-14 07:00:40.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:00:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:00:50.001784853 y 09:00:50.001784853
+2026-04-14 07:00:50.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:01:00.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:01:00.003821906 y 09:01:00.003821906
+2026-04-14 07:01:00.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:01:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:01:10.001379066 y 09:01:10.001379066
+2026-04-14 07:01:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:01:20.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:01:20.002735581 y 09:01:20.002735581
+2026-04-14 07:01:20.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:01:29.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:01:29.999888439 y 09:01:29.999888439
+2026-04-14 07:01:30.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:01:40.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:01:40.004847979 y 09:01:40.004847979
+2026-04-14 07:01:40.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:01:50.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:01:50.002851428 y 09:01:50.002851428
+2026-04-14 07:01:50.005 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:01:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:01:59.999753928 y 09:01:59.999753928
+2026-04-14 07:02:00.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:02:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:02:10.001355578 y 09:02:10.001355578
+2026-04-14 07:02:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:02:20.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:02:20.004752367 y 09:02:20.004752367
+2026-04-14 07:02:20.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:02:29.996 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:02:29.996520908 y 09:02:29.996520908
+2026-04-14 07:02:29.997 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:02:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:02:40.001700061 y 09:02:40.001700061
+2026-04-14 07:02:40.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:02:50.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:02:50.003057229 y 09:02:50.003057229
+2026-04-14 07:02:50.005 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:02:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:02:59.999129575 y 09:02:59.999129575
+2026-04-14 07:03:00.000 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:03:10.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:03:10.005172366 y 09:03:10.005172366
+2026-04-14 07:03:10.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:03:20.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:03:20.005371564 y 09:03:20.005371564
+2026-04-14 07:03:20.009 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:03:29.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:03:29.998716422 y 09:03:29.998716422
+2026-04-14 07:03:30.001 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:03:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:03:40.001426784 y 09:03:40.001426784
+2026-04-14 07:03:40.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:03:50.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:03:50.003685783 y 09:03:50.003685783
+2026-04-14 07:03:50.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:04:00.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:04:00.002258655 y 09:04:00.002258655
+2026-04-14 07:04:00.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:04:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:04:10.001127103 y 09:04:10.001127103
+2026-04-14 07:04:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:04:20.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:04:20.004820571 y 09:04:20.004820571
+2026-04-14 07:04:20.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:04:30.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:04:30.002488825 y 09:04:30.002488825
+2026-04-14 07:04:30.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:04:40.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:04:40.004845506 y 09:04:40.004845506
+2026-04-14 07:04:40.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:04:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:04:50.001166826 y 09:04:50.001166826
+2026-04-14 07:04:50.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:04:59.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:04:59.998647717 y 09:04:59.998647717
+2026-04-14 07:05:00.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:05:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:05:10.001625484 y 09:05:10.001625484
+2026-04-14 07:05:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:05:20.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:05:20.005544660 y 09:05:20.005544660
+2026-04-14 07:05:20.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:05:29.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:05:29.999520560 y 09:05:29.999520560
+2026-04-14 07:05:30.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:05:40.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:05:40.004438572 y 09:05:40.004438572
+2026-04-14 07:05:40.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:05:50.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:05:50.005012103 y 09:05:50.005012103
+2026-04-14 07:05:50.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:06:00.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:06:00.001498026 y 09:06:00.001498026
+2026-04-14 07:06:00.005 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:06:10.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:06:10.004720846 y 09:06:10.004720846
+2026-04-14 07:06:10.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:06:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:06:20.001075301 y 09:06:20.001075301
+2026-04-14 07:06:20.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:06:30.000 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:06:30.000894821 y 09:06:30.000894821
+2026-04-14 07:06:30.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:06:40.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:06:40.003767695 y 09:06:40.003767695
+2026-04-14 07:06:40.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:06:50.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:06:50.003581919 y 09:06:50.003581919
+2026-04-14 07:06:50.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:06:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:06:59.999672556 y 09:06:59.999672556
+2026-04-14 07:07:00.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:07:10.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:07:10.004476568 y 09:07:10.004476568
+2026-04-14 07:07:10.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:07:20.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:07:20.004601651 y 09:07:20.004601651
+2026-04-14 07:07:20.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:07:30.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:07:30.001111661 y 09:07:30.001111661
+2026-04-14 07:07:30.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:07:40.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:07:40.004226691 y 09:07:40.004226691
+2026-04-14 07:07:40.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:07:50.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:07:50.005657393 y 09:07:50.005657393
+2026-04-14 07:07:50.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:08:00.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:08:00.001916420 y 09:08:00.001916420
+2026-04-14 07:08:00.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:08:10.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:08:10.002148156 y 09:08:10.002148156
+2026-04-14 07:08:10.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:08:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:08:20.001256764 y 09:08:20.001256764
+2026-04-14 07:08:20.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:08:30.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:08:30.002041604 y 09:08:30.002041604
+2026-04-14 07:08:30.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:08:40.005 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:08:40.005784923 y 09:08:40.005784923
+2026-04-14 07:08:40.010 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:08:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:08:50.001262331 y 09:08:50.001262331
+2026-04-14 07:08:50.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:08:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:08:59.999540196 y 09:08:59.999540196
+2026-04-14 07:09:00.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:09:10.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:09:10.003403022 y 09:09:10.003403022
+2026-04-14 07:09:10.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:09:20.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:09:20.004400780 y 09:09:20.004400780
+2026-04-14 07:09:20.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:09:30.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:09:30.001261509 y 09:09:30.001261509
+2026-04-14 07:09:30.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:09:40.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:09:40.004298929 y 09:09:40.004298929
+2026-04-14 07:09:40.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:09:50.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:09:50.004519225 y 09:09:50.004519225
+2026-04-14 07:09:50.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:10:00.000 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:10:00.000797808 y 09:10:00.000797808
+2026-04-14 07:10:00.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:10:10.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:10:10.004418647 y 09:10:10.004418647
+2026-04-14 07:10:10.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:10:20.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:10:20.003919877 y 09:10:20.003919877
+2026-04-14 07:10:20.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:10:30.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:10:30.000942837 y 09:10:30.000942837
+2026-04-14 07:10:30.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:10:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:10:40.001439586 y 09:10:40.001439586
+2026-04-14 07:10:40.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:10:50.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:10:50.002529030 y 09:10:50.002529030
+2026-04-14 07:10:50.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:10:59.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:10:59.998632264 y 09:10:59.998632264
+2026-04-14 07:11:00.000 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:11:10.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:11:10.003538639 y 09:11:10.003538639
+2026-04-14 07:11:10.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:11:20.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:11:20.003464533 y 09:11:20.003464533
+2026-04-14 07:11:20.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:11:30.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:11:30.002206248 y 09:11:30.002206248
+2026-04-14 07:11:30.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:11:40.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:11:40.003911422 y 09:11:40.003911422
+2026-04-14 07:11:40.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:11:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:11:50.001414955 y 09:11:50.001414955
+2026-04-14 07:11:50.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:12:00.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:12:00.001267473 y 09:12:00.001267473
+2026-04-14 07:12:00.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:12:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:12:10.001135002 y 09:12:10.001135002
+2026-04-14 07:12:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:12:20.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:12:20.002984839 y 09:12:20.002984839
+2026-04-14 07:12:20.005 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:12:29.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:12:29.998423499 y 09:12:29.998423499
+2026-04-14 07:12:30.000 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:12:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:12:40.001443336 y 09:12:40.001443336
+2026-04-14 07:12:40.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:12:50.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:12:50.003148603 y 09:12:50.003148603
+2026-04-14 07:12:50.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:12:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:12:59.999930400 y 09:12:59.999930400
+2026-04-14 07:13:00.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:13:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:13:10.001171825 y 09:13:10.001171825
+2026-04-14 07:13:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:13:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:13:20.001088454 y 09:13:20.001088454
+2026-04-14 07:13:20.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:13:29.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:13:29.998272253 y 09:13:29.998272253
+2026-04-14 07:13:29.999 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:13:40.006 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:13:40.006219354 y 09:13:40.006219354
+2026-04-14 07:13:40.009 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:13:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:13:50.001720704 y 09:13:50.001720704
+2026-04-14 07:13:50.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:14:00.000 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:14:00.000058143 y 09:14:00.000058143
+2026-04-14 07:14:00.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:14:10.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:14:10.003957299 y 09:14:10.003957299
+2026-04-14 07:14:10.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:14:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:14:20.001168031 y 09:14:20.001168031
+2026-04-14 07:14:20.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:14:29.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:14:29.999533071 y 09:14:29.999533071
+2026-04-14 07:14:30.001 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:14:40.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:14:40.003636442 y 09:14:40.003636442
+2026-04-14 07:14:40.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:14:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:14:50.001282892 y 09:14:50.001282892
+2026-04-14 07:14:50.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:15:00.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:15:00.002771453 y 09:15:00.002771453
+2026-04-14 07:15:00.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:15:10.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:15:10.004734994 y 09:15:10.004734994
+2026-04-14 07:15:10.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:15:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:15:20.001147477 y 09:15:20.001147477
+2026-04-14 07:15:20.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:15:29.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:15:29.999915822 y 09:15:29.999915822
+2026-04-14 07:15:30.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:15:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:15:40.001743778 y 09:15:40.001743778
+2026-04-14 07:15:40.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:15:50.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:15:50.002027518 y 09:15:50.002027518
+2026-04-14 07:15:50.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:16:00.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:16:00.001255259 y 09:16:00.001255259
+2026-04-14 07:16:00.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:16:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:16:10.001433367 y 09:16:10.001433367
+2026-04-14 07:16:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:16:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:16:20.001101464 y 09:16:20.001101464
+2026-04-14 07:16:20.001 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:16:29.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:16:29.997991755 y 09:16:29.997991755
+2026-04-14 07:16:29.999 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:16:40.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:16:40.003831476 y 09:16:40.003831476
+2026-04-14 07:16:40.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:16:50.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:16:50.004210812 y 09:16:50.004210812
+2026-04-14 07:16:50.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:16:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:16:59.999929718 y 09:16:59.999929718
+2026-04-14 07:17:00.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:17:10.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:17:10.003926812 y 09:17:10.003926812
+2026-04-14 07:17:10.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:17:20.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:17:20.003190286 y 09:17:20.003190286
+2026-04-14 07:17:20.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:17:30.000 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:17:29.999959921 y 09:17:29.999959921
+2026-04-14 07:17:30.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:17:40.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:17:40.002506107 y 09:17:40.002506107
+2026-04-14 07:17:40.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:17:50.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:17:50.004147834 y 09:17:50.004147834
+2026-04-14 07:17:50.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:17:59.998 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:17:59.998514890 y 09:17:59.998514890
+2026-04-14 07:17:59.999 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:18:10.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:18:10.003494295 y 09:18:10.003494295
+2026-04-14 07:18:10.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:18:20.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:18:20.004042696 y 09:18:20.004042696
+2026-04-14 07:18:20.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:18:30.000 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:18:30.000902343 y 09:18:30.000902343
+2026-04-14 07:18:30.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:18:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:18:40.001145450 y 09:18:40.001145450
+2026-04-14 07:18:40.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:18:50.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:18:50.002527329 y 09:18:50.002527329
+2026-04-14 07:18:50.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:19:00.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:19:00.001778489 y 09:19:00.001778489
+2026-04-14 07:19:00.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:19:10.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:19:10.001056436 y 09:19:10.001056436
+2026-04-14 07:19:10.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:19:20.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:19:20.003871545 y 09:19:20.003871545
+2026-04-14 07:19:20.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:19:30.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:19:30.001897497 y 09:19:30.001897497
+2026-04-14 07:19:30.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:19:40.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:19:40.002018037 y 09:19:40.002018037
+2026-04-14 07:19:40.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:19:50.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:19:50.001337733 y 09:19:50.001337733
+2026-04-14 07:19:50.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:20:00.000 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:20:00.000217289 y 09:20:00.000217289
+2026-04-14 07:20:00.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:20:10.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:20:10.001961340 y 09:20:10.001961340
+2026-04-14 07:20:10.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:20:20.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:20:20.001008121 y 09:20:20.001008121
+2026-04-14 07:20:20.002 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:20:30.000 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:20:30.000288457 y 09:20:30.000288457
+2026-04-14 07:20:30.001 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:20:40.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:20:40.001866728 y 09:20:40.001866728
+2026-04-14 07:20:40.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:20:50.004 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:20:50.004327951 y 09:20:50.004327951
+2026-04-14 07:20:50.007 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:21:00.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:21:00.001334097 y 09:21:00.001334097
+2026-04-14 07:21:00.008 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:21:10.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:21:10.003020487 y 09:21:10.003020487
+2026-04-14 07:21:10.005 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:21:20.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:21:20.002004598 y 09:21:20.002004598
+2026-04-14 07:21:20.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:21:30.001 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:21:30.001270265 y 09:21:30.001270265
+2026-04-14 07:21:30.003 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:21:40.003 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:21:40.003340978 y 09:21:40.003340978
+2026-04-14 07:21:40.006 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:21:50.002 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:21:50.002151639 y 09:21:50.002151639
+2026-04-14 07:21:50.004 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:21:59.999 INFO  c.b.task.NotificacionesScheduler - Job Recordatorios: Buscando clases para hoy 2026-04-14 entre 07:21:59.999720224 y 09:21:59.999720224
+2026-04-14 07:22:00.001 DEBUG org.hibernate.SQL - 
+    select
+        r1_0.id,
+        r1_0.confirmado,
+        r1_0.estado,
+        r1_0.fecha,
+        r1_0.horario_id,
+        r1_0.usuario_id 
+    from
+        reservas r1_0 
+    join
+        horarios h1_0 
+            on h1_0.id=r1_0.horario_id 
+    where
+        r1_0.fecha=? 
+        and h1_0.hora_inicio between ? and ? 
+        and r1_0.estado='CONFIRMADA'
+2026-04-14 07:22:01.366 INFO  o.s.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-14 07:22:01.369 INFO  o.s.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-14 07:22:01.371 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopping...
+2026-04-14 07:22:01.372 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@2743e9b5]]
+2026-04-14 07:22:01.372 INFO  o.s.m.s.b.SimpleBrokerMessageHandler - Stopped.
+2026-04-14 07:22:01.381 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-14 07:22:01.384 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-04-14 07:22:01.387 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

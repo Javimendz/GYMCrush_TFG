@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+# Ignorar logs de la aplicación
+logs/
+*.log
+
+.env

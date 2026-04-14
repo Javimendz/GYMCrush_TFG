@@ -1,0 +1,81 @@
+//Paquete
+package com.backend.domain;
+
+
+import jakarta.persistence.*;//Importar todo el paquete
+import lombok.*;
+
+/**
+ * Entidad que representa una sesión de entrenamiento personalizado.
+ * <p>
+ * Almacena información sobre rutinas de ejercicio,
+ * incluyendo intensidad, duración y fechas programadas.
+ * </p>
+ *
+ * @author Backend Team
+ * @version 1.0
+ * @since 2026
+ */
+@Entity
+@Table(name = "entrenamientos")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class Entrenamiento {
+
+    /**
+     * Identificador único de la sesión de entrenamiento.
+     * <p>
+     * Generado automáticamente por la base de datos.
+     * </p>
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    /**
+     * Fecha programada para el entrenamiento.
+     * <p>
+     * Opcional, indica cuándo se realizará la sesión.
+     * </p>
+     */
+    
+
+    @Column(nullable = false, length = 100)
+    private String nombre; // Ej: "Pecho y Tríceps"
+
+    @Column(length = 500)
+    private String descripcion;
+
+     /**
+     * Descripción detallada de la sesión de entrenamiento.
+     * <p>
+     * Opcional, puede incluir información sobre el enfoque
+     * o los objetivos específicos de esta sesión.
+     * </p>
+     */
+    private Integer cantidadEjercicios;
+
+ 
+
+    /**
+     * Duración total de la sesión de entrenamiento.
+     * <p>
+     * Opcional, representa el tiempo total en minutos.
+     * </p>
+     */
+    @Column(name = "duracion", nullable = true)
+    private Integer duracion;
+
+    /**
+     * Nivel de intensidad del entrenamiento.
+     * <p>
+     * Obligatorio, clasifica la dificultad (ej: baja, media, alta).
+     * </p>
+     */
+    @Column(name = "intensidad", length = 150)
+    private String intensidad;
+
+  
+}
