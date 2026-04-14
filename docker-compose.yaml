@@ -1,50 +1,68 @@
-
+# docker-compose.yaml
 services:
-  app:
-    build: .
-    container_name: spring-boot-app
+  # MICROSERVICIO 1, backend API 
+  api-service:
+    build: ./gym-backend     # Construye desde la carpeta del backend
+    container_name: gym-backend-api
+    restart: on-failure
     ports:
       - "8080:8080"
     networks:
-      - gym-network
+      - gym-net
     environment:
-      
-      - SPRING_DATASOURCE_URL=${DB_URL}
+      # variables de entorno para la conexion a la bd y otras configs
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-service:5432/${DB_NAME}
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASS}
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - JWT_SECRET=${JWT_SECRET}
-      - LOG_PATH=/app/logs
-      - JWT_EXPIRATION= ${JWT_EXPIRATION}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update 
       - SPRING_PROFILES_ACTIVE=dev
       - FATSECRET_CLIENT_ID=${FATSECRET_CLIENT_ID}
       - FATSECRET_CLIENT_SECRET=${FATSECRET_CLIENT_SECRET}
-      
-    volumes:
-      - ./logs:/app/logs
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=3600000
     depends_on:
-        db:
-          condition: service_healthy
-  db:
-    image: postgres:15-alpine
-    container_name: postgres-db
+      db-service:
+        condition: service_healthy
+
+  # MICROSERVICIO 2, bd
+  db-service:
+    build: ./gym-db          # Construye desde la carpeta de la BD
+    container_name: gym-database
+    restart: always
     environment:
-      - POSTGRES_DB=spring_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
     networks:
-      - gym-network
+      - gym-net
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - gym_db_data:/var/lib/postgresql/data
     healthcheck: 
-      test: ["CMD-SHELL", "pg_isready -U postgres -d spring_db"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s    # Le damos 10 segundos entre intentos
       timeout: 5s
       retries: 5
+
+  # MICROSERVICIO 3, pgadmin
+  admin-ui:
+    image: dpage/pgadmin4
+    container_name: gym-pgadmin
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@gym.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    networks:
+      - gym-net
+    depends_on:
+      - db-service
+
 networks:
-  gym-network:
+  gym-net:
     driver: bridge
+
 volumes:
-  postgres_data:
+  gym_db_data: {}
