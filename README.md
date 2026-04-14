@@ -115,6 +115,54 @@ JWT_SECRET: Clave secreta para la firma de tokens
 JWT_EXPIRATION: Tiempo de vida del token
 ```
 
+
+# Despliegue
+El proyecto se puede desplegar fácilmente utilizando Docker. Asegúrate de tener Docker instalado y ejecuta el siguiente comando en la raíz del proyecto:
+
+```bash
+# Levantar base de datos y proyecto
+docker compose up --build 
+```
+
+### **4. Acceso a la API**
+- **Backend API**: `http://localhost:8080`
+- **Base de Datos**: `http://localhost:5432`
+- **PgAdmin**: `http://localhost:5050`
+
+# Iniciar sesión en Docker Hub
+
+```
+  - docker login
+
+```
+
+# Construir y subir la imagen (Backend)
+
+```
+  - cd gym-backend
+  - docker build -t tu_usuario/gymcrush-backend:latest .
+  - docker push tu_usuario/gymcrush-backend:latest
+```
+
+# Construir y subir la imagen (BD)
+
+```
+  - cd gym-db
+  - docker build -t tu_usuario/gymcrush-db:latest .
+  - docker push tu_usuario/gymcrush-db:latest
+```
+
+
+2. Puesta en marcha (VPS)
+
+En el servidor, no clonamos todo el código, solo necesitamos los archivos de configuración (docker-compose.yaml y .env):
+
+Bash
+# Crear red y descargar imagen
+
+  - docker network create red_fichaje
+  - docker pull tu_usuario/fichaday-backend:latest
+
 ---
 
 ## **Endpoints de la API**
