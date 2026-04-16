@@ -69,4 +69,7 @@ public interface ITutorialService {
      * @return Lista de DTOs con todas las categorías
      */
     List<CategoriaTutorialResponseDto> listarCategorias();
+
+
+    List<TutorialResponseDto> buscarPorTitulo(String titulo);
 }

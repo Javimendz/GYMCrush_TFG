@@ -8,6 +8,7 @@ import com.backend.dto.CategoriaTutorialResponseDto;
 import com.backend.dto.TutorialRequestDto;
 import com.backend.dto.TutorialResponseDto;
 import com.backend.event.TutorialEvent;
+import com.backend.exceptions.BusinessException;
 import com.backend.mapper.CategoriaTutorialMapper;
 import com.backend.mapper.TutorialMapper;
 import com.backend.repository.CategoriaTutorialRepository;
@@ -39,18 +40,18 @@ public class TutorialServiceImp implements ITutorialService {
 
     /** Repositorio para el acceso a datos de tutoriales */
     private final TutorialRepository tutorialRepository;
-    
+
     /** Repositorio para el acceso a datos de categorías */
     private final CategoriaTutorialRepository categoriaRepository;
-    
+
     /** Mapper para convertir entre entidades y DTOs de tutoriales */
     private final TutorialMapper tutorialMapper;
-    
+
     /** Mapper para convertir entre entidades y DTOs de categorías */
     private final CategoriaTutorialMapper categoriaMapper;
 
-
     private final ApplicationEventPublisher eventPublisher;
+
     /**
      * Obtiene todos los tutoriales disponibles en el sistema.
      * <p>
@@ -64,7 +65,7 @@ public class TutorialServiceImp implements ITutorialService {
     @Transactional(readOnly = true)
     public List<TutorialResponseDto> obtenerTodos() {
         log.info("Obteniendo todos los tutoriales");
-        
+
         // Obtener todos los tutoriales y convertirlos a DTOs
         List<TutorialResponseDto> tutoriales = tutorialRepository.findAll().stream()
                 .map(tutorialMapper::toDto)
@@ -73,6 +74,15 @@ public class TutorialServiceImp implements ITutorialService {
         return tutoriales;
     }
 
+   @Override
+    @Transactional(readOnly = true)
+    public List<TutorialResponseDto> buscarPorTitulo(String titulo) {
+        log.info("Buscando tutoriales locales que contengan: {}", titulo);
+        
+        return tutorialRepository.findByTituloContainingIgnoreCase(titulo).stream()
+                .map(tutorialMapper::toDto)
+                .toList();
+    }
     /**
      * Obtiene los tutoriales filtrados por categoría específica.
      * <p>
@@ -87,7 +97,7 @@ public class TutorialServiceImp implements ITutorialService {
     @Transactional(readOnly = true)
     public List<TutorialResponseDto> obtenerPorCategoria(Long categoriaId) {
         log.info("Buscando tutoriales por categoriaId: {}", categoriaId);
-        
+
         // Buscar tutoriales por categoría y convertirlos a DTOs
         List<TutorialResponseDto> tutoriales = tutorialRepository.findByCategoriaId(categoriaId).stream()
                 .map(tutorialMapper::toDto)
@@ -95,6 +105,7 @@ public class TutorialServiceImp implements ITutorialService {
         log.debug("Tutoriales encontrados para categoria {}: {}", categoriaId, tutoriales.size());
         return tutoriales;
     }
+
     /**
      * Crea un nuevo tutorial en el sistema.
      * <p>
@@ -107,34 +118,42 @@ public class TutorialServiceImp implements ITutorialService {
     @Override
     @Transactional
     public TutorialResponseDto crear(TutorialRequestDto dto) {
-        log.info("Creando nuevo tutorial: {}", dto.getTitulo());
-        
-        //  Buscamos la categoría real en la BD
+        log.info("Iniciando validaciones para nuevo tutorial: {}", dto.getTitulo());
+
+        // 1. VALIDACIÓN: Evitar títulos duplicados (Normalizado)
+        String tituloLimpio = dto.getTitulo().trim();
+        if (tutorialRepository.existsByTituloIgnoreCase(tituloLimpio)) {
+            throw new BusinessException("Ya existe un tutorial con el nombre: " + tituloLimpio);
+        }
+
+        // 2. VALIDACIÓN: Evitar videos/GIFs duplicados
+        if (tutorialRepository.existsByUrlVideo(dto.getUrlVideo())) {
+            throw new BusinessException("Este ejercicio (GIF) ya está registrado en la plataforma.");
+        }
+
+        // 3. VALIDACIÓN: Categoría existente
         CategoriaTutorial categoria = categoriaRepository.findById(dto.getCategoriaId())
-                .orElseThrow(() -> new RuntimeException("Error: La categoría seleccionada no existe"));
-        log.debug("Categoría encontrada: {}", categoria.getNombre());
+                .orElseThrow(() -> new BusinessException("La categoría seleccionada no es válida."));
 
-        //  Mapeamos el DTO a Entidad
+        log.debug("Validaciones superadas con éxito.");
+
+        // Mapeo y persistencia
         Tutorial tutorial = tutorialMapper.toEntity(dto);
-        
-        //  Establecemos la relación manualmente
         tutorial.setCategoria(categoria);
+        tutorial.setTitulo(tituloLimpio); // Guardamos el título sin espacios extra
 
-        //  Guardamos y devolvemos el DTO de respuesta
         TutorialResponseDto resultado = tutorialMapper.toDto(tutorialRepository.save(tutorial));
 
+        // Evento de notificación
         eventPublisher.publishEvent(new TutorialEvent(
-            resultado.getId(),
-            "¡Nuevo Tutorial Disponible!",
-            "Se ha subido: '" + resultado.getTitulo() + "' en la categoría " + categoria.getNombre(),
-            TipoNotificacion.SISTEMA 
-        ));
+                resultado.getId(),
+                "¡Nuevo Tutorial Disponible!",
+                "Se ha subido: '" + resultado.getTitulo() + "'",
+                TipoNotificacion.SISTEMA));
 
-      
-        
-        log.info("Tutorial creado exitosamente con ID: {}", resultado.getId());
         return resultado;
     }
+
     /**
      * Elimina un tutorial por su ID.
      * <p>
@@ -154,6 +173,7 @@ public class TutorialServiceImp implements ITutorialService {
         tutorialRepository.deleteById(id);
         log.info("Tutorial con ID {} eliminado exitosamente", id);
     }
+
     /**
      * Lista todas las categorías de tutoriales.
      * <p>

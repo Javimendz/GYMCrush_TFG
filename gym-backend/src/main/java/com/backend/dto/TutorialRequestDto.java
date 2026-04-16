@@ -230,4 +230,12 @@ public class TutorialRequestDto {
     @io.swagger.v3.oas.annotations.media.Schema(description = "Identificador único de la categoría a la que pertenece el tutorial")
     @NotNull(message = "Debes asignar una categoría al tutorial")
     private Long categoriaId;
+
+   @Schema(description = "Músculo principal que trabaja el ejercicio")
+    @NotBlank(message = "El músculo objetivo es obligatorio")
+    private String musculoObjetivo;
+
+    @Schema(description = "Equipamiento necesario (Mancuernas, Barra, etc.)")
+    @NotBlank(message = "El equipamiento es obligatorio")
+    private String equipamiento;
 }

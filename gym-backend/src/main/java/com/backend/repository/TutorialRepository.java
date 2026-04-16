@@ -35,4 +35,12 @@ public interface TutorialRepository extends JpaRepository<Tutorial, Long> {
  * @return Lista de tutoriales encontrados
  */
     List<Tutorial> findByTituloContainingIgnoreCase(String titulo);
+
+    boolean existsByTituloIgnoreCase(String titulo);
+
+    // Verifica si la URL del GIF ya está en uso
+    boolean existsByUrlVideo(String urlVideo);
+
+    
+    
 }

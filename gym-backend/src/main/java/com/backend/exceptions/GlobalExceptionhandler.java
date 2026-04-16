@@ -9,8 +9,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import com.backend.security.dto.ApiResponseDto;
-import java.util.stream.Collectors;
+
 
 /**
  * Manejador global de excepciones para la API REST.
@@ -36,6 +38,8 @@ import java.util.stream.Collectors;
  * @since 2026
  */
 @RestControllerAdvice 
+@Slf4j
+@RequiredArgsConstructor
 public class GlobalExceptionhandler {
 
     /**
@@ -45,20 +49,35 @@ public class GlobalExceptionhandler {
      * @param ex la excepción de validación con los errores de binding
      * @return ResponseEntity con mensaje de error y código HTTP 400 (BAD_REQUEST)
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponseDto<Void>> handleValidationException(MethodArgumentNotValidException ex) {
-        String errores = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.joining(" | "));
-
-        ApiResponseDto<Void> respuesta = ApiResponseDto.<Void>builder()
-                .mensaje("Error de validación: " + errores)
+   
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponseDto<Void>> handleBusinessException(BusinessException ex) {
+        log.warn("Error de negocio: {}", ex.getMessage());
+        
+        ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
+                .mensaje(ex.getMessage())
                 .success(false)
                 .build();
                 
-        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
+        // Usamos BAD_REQUEST (400) o CONFLICT (409) para errores de lógica
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-   
+
+
+    /**
+     * Opcional: Captura errores de validación (@Valid en los DTOs)
+     */
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponseDto<Void>> handleValidationException(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        String errorMsg = ex.getBindingResult().getFieldError().getDefaultMessage();
+        
+        ApiResponseDto<Void> response = ApiResponseDto.<Void>builder()
+                .mensaje("Error de validación: " + errorMsg)
+                .success(false)
+                .build();
+                
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
     /**
      * Maneja intentos de autenticación con credenciales inválidas.
      *

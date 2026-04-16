@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import com.backend.security.jwt.JwtAuthEntryPoint;
 import com.backend.security.jwt.JwtAuthenticationFilter;
 
@@ -74,6 +76,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 // Habilita CORS con configuración por defecto
                 .cors(Customizer.withDefaults())
+                
                 // Configura el manejador de errores de autenticación
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
                 // Configura sesiones stateless (sin estado)
@@ -86,7 +89,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/ws-gym/**").permitAll();
                     auth.requestMatchers("/chats/**").permitAll();
                     auth.requestMatchers("/chats-sockjs/**").permitAll();
-
+                    auth.requestMatchers("/api/v1/admin/tutoriales/**").hasRole("ADMIN");
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/tutoriales/**").permitAll(); // Para la App móvil
                     // Rutas de documentación Swagger (solo en perfil 'dev')
                     if (env.acceptsProfiles(Profiles.of("dev"))) {
                         auth.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
@@ -127,6 +131,8 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    
 
     /**
      * Configura el administrador de autenticación.

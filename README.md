@@ -48,6 +48,7 @@ Nota : MapStruct es una biblioteca de mapeo de objetos que simplifica la copia d
 
 `Logs con SLF4J y Logback ` - Sistema de logeo profesional con estas tecnologias.
 
+`WorkoutX Exercise API en RapidAPI`
 
 Probar notificaciones: Como postman no soporta Websockets con STOMP, uso un html personlizado para pegar token del usuario y probar notificaciones, que esta 
 dentro del proyecto (test-ws.html). Introduces el token del usuario, creas un horario y haces una reserva y se creara la notificaión en el navegador, de prueba.

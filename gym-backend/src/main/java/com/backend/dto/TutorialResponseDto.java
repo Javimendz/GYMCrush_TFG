@@ -220,4 +220,7 @@ public class TutorialResponseDto {
      */
     @io.swagger.v3.oas.annotations.media.Schema(description = "Nombre de la categoría del tutorial")
     private String nombreCategoria;
+
+    private String musculoObjetivo;
+    private String equipamiento;
 }

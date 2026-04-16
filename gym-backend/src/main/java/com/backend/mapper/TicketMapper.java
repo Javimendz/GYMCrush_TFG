@@ -32,6 +32,7 @@ public interface TicketMapper {
     @Mapping(target = "usuarioEmail", source = "usuario.correo")
     @Mapping(target = "username", source = "usuario.username")
     @Mapping(target = "nombreCompletoUsuario", source = "ticket")
+        
     TicketResponseDto toDto(Ticket ticket);
 
     /**

@@ -184,4 +184,6 @@ public class TicketResponseDto {
     @Schema(description = "Nombre completo del usuario")
     private String nombreCompletoUsuario;
 
+    
+
 }
