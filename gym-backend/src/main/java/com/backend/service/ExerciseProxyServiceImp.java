@@ -87,42 +87,49 @@ public class ExerciseProxyServiceImp implements IExerciseProxyService {
         }
     }
 
-    private String buscarVideoEnPexels(String nombreEjercicio, String musculoObjetivo){
-        try {
-            
-            // Simplificamos la búsqueda para aumentar el éxito
-            String[] palabras = nombreEjercicio.toLowerCase().split("\\s+");
-            String query = nombreEjercicio.toLowerCase() + " " + musculoObjetivo.toLowerCase() + " workout";
-            query += " fitness exercise";
+    private String buscarVideoEnPexels(String nombreEjercicio, String musculoObjetivo) {
+    try {
+        // 1. Limpiamos y dividimos el nombre en palabras
+        String[] palabras = nombreEjercicio.toLowerCase().split("\\s+");
+        
+        // 2. Simplificamos: Si el nombre es muy largo, usamos solo las 2 primeras palabras
+        // Esto evita que Pexels se pierda con nombres como "KETTLEBELL PIRATE SUPPER LEGS"
+        String nombreSimplificado = (palabras.length > 2) ? palabras[0] + " " + palabras[1] : nombreEjercicio.toLowerCase();
 
-            String pexelsUrl = "https://api.pexels.com/videos/search?query=" + query + "&per_page=1";
+        // 3. Construimos la query usando el nombre simplificado + el músculo objetivo
+        // Esto ayuda a que si buscas "Piernas", Pexels sepa que el vídeo debe ser de ese músculo
+        String query = nombreSimplificado + " " + musculoObjetivo.toLowerCase() + " exercise";
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", pexelsApiKey); 
-            HttpEntity<String> entity = new HttpEntity<>(headers);
+        log.info("🔎 Buscando en Pexels con query refinada: {}", query);
 
-            // PASO CLAVE: Pedimos la respuesta como String para evitar el "Type definition error"
-            ResponseEntity<String> response = restTemplate.exchange(
-                    pexelsUrl, HttpMethod.GET, entity, String.class);
+        String pexelsUrl = "https://api.pexels.com/videos/search?query=" + query + "&per_page=1";
 
-            if (response.getBody() != null) {
-                // Parseamos manualmente el JSON
-                JsonNode root = objectMapper.readTree(response.getBody());
-                if (root.has("videos") && root.get("videos").size() > 0) {
-                    JsonNode videoFiles = root.get("videos").get(0).get("video_files");
-                    for (JsonNode file : videoFiles) {
-                        String quality = file.get("quality").asText();
-                        // Preferimos HD o SD (el 4K es muy pesado para móviles)
-                        if (quality.equalsIgnoreCase("hd") || quality.equalsIgnoreCase("sd")) {
-                            return file.get("link").asText();
-                        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", pexelsApiKey); 
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        // Pedimos respuesta como String para evitar errores de mapeo
+        ResponseEntity<String> response = restTemplate.exchange(
+                pexelsUrl, HttpMethod.GET, entity, String.class);
+
+        if (response.getBody() != null) {
+            JsonNode root = objectMapper.readTree(response.getBody());
+            if (root.has("videos") && root.get("videos").size() > 0) {
+                JsonNode videoFiles = root.get("videos").get(0).get("video_files");
+                
+                for (JsonNode file : videoFiles) {
+                    String quality = file.get("quality").asText();
+                    // Filtramos para no bajar vídeos 4K que pesen demasiado
+                    if (quality.equalsIgnoreCase("hd") || quality.equalsIgnoreCase("sd")) {
+                        return file.get("link").asText();
                     }
-                    return videoFiles.get(0).get("link").asText();
                 }
+                return videoFiles.get(0).get("link").asText();
             }
-        } catch (Exception e) {
-            log.error("Error en búsqueda Pexels: {}", e.getMessage());
         }
-        return null; 
+    } catch (Exception e) {
+        log.error("Error en búsqueda Pexels para {}: {}", nombreEjercicio, e.getMessage());
     }
+    return null; 
+}
 }
