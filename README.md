@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+# GYMCrush_TFG
+Repositorio para mi proyecto del TFG, donde realizo el backend del mismo.
+=======
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
@@ -38,7 +42,16 @@ Mvnrepository.com - MapStruct
 Nota : MapStruct es una biblioteca de mapeo de objetos que simplifica la copia de datos entre objetos de diferentes tipos. Lo utilizamos para mapear entre objetos de entidad y objetos de transferencia de datos (DTO).  
 ```
 
+`notificaciones con websockets`: https://www.youtube.com/watch?v=sqYqyr6EpAU
+
+`Testear websockets sin postman`: https://piehost.com/websocket-tester
+
 `Logs con SLF4J y Logback ` - Sistema de logeo profesional con estas tecnologias.
+
+`WorkoutX Exercise API en RapidAPI`
+
+Probar notificaciones: Como postman no soporta Websockets con STOMP, uso un html personlizado para pegar token del usuario y probar notificaciones, que esta 
+dentro del proyecto (test-ws.html). Introduces el token del usuario, creas un horario y haces una reserva y se creara la notificaión en el navegador, de prueba.
 
 
  ## DOCUMENTACION API RESTFUL SWAGGER `: http://localhost:8080/swagger-ui/index.html `
@@ -48,6 +61,11 @@ Nota : MapStruct es una biblioteca de mapeo de objetos que simplifica la copia d
  ```0.``` Exportar extensiones VS Code ``` code --list-extensions > extensiones.txt```, reinstalar las extensiones ```Get-Content plugins.txt | ForEach-Object { code --install-extension $_ }```
 
  ```1.``` Iniciar todo el proyecto primera vez ```docker compose up --build ```. Descarga imagenes, etc.  
+<<<<<<< HEAD
+ ```2.``` Iniciar todo rapido ```docker compose up -d ```
+ ```3.``` Detener todo el proyecto ```docker compose down ```
+>>>>>>> origin/el_camino
+=======
  ```2.``` Iniciar todo rapido ```docker compose up -d ```  
  ```3.``` Detener todo el proyecto ```docker compose down ```  
  ```4.``` Detener todo el proyecto y eliminar volúmenes ```docker compose down -v```
@@ -106,6 +124,54 @@ app.cors.origins: Orígenes permitidos (ej. http://localhost:8080)
 JWT_SECRET: Clave secreta para la firma de tokens
 JWT_EXPIRATION: Tiempo de vida del token
 ```
+
+
+# Despliegue
+El proyecto se puede desplegar fácilmente utilizando Docker. Asegúrate de tener Docker instalado y ejecuta el siguiente comando en la raíz del proyecto:
+
+```bash
+# Levantar base de datos y proyecto
+docker compose up --build 
+```
+
+### **4. Acceso a la API**
+- **Backend API**: `http://localhost:8080`
+- **Base de Datos**: `http://localhost:5432`
+- **PgAdmin**: `http://localhost:5050`
+
+# Iniciar sesión en Docker Hub
+
+```
+  - docker login
+
+```
+
+# Construir y subir la imagen (Backend)
+
+```
+  - cd gym-backend
+  - docker build -t tu_usuario/gymcrush-backend:latest .
+  - docker push tu_usuario/gymcrush-backend:latest
+```
+
+# Construir y subir la imagen (BD)
+
+```
+  - cd gym-db
+  - docker build -t tu_usuario/gymcrush-db:latest .
+  - docker push tu_usuario/gymcrush-db:latest
+```
+
+
+2. Puesta en marcha (VPS)
+
+En el servidor, no clonamos todo el código, solo necesitamos los archivos de configuración (docker-compose.yaml y .env):
+
+Bash
+# Crear red y descargar imagen
+
+  - docker network create red_fichaje
+  - docker pull tu_usuario/fichaday-backend:latest
 
 ---
 
@@ -752,3 +818,4 @@ Gestión de entradas y salidas mediante tokens temporales para control de aforo 
 
 
 **API optimizada para integración con app móvil Android**
+>>>>>>> 462481f93e177b94b20f4b29311d8b147a3d1941

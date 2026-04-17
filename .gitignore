@@ -13,7 +13,7 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
+### IntelliJ IDEA
 .idea
 *.iws
 *.iml
@@ -31,6 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
-
+# Ignorar logs de la aplicación
+logs/
+*.log
 
 .env

@@ -12399,6 +12399,7 @@ com.backend.controller.DetallePlanController#añadirEjercicio(Long, DetallePlanR
 2026-04-09 15:35:34.630 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-04-09 15:35:34.635 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2026-04-09 15:35:34.640 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+<<<<<<< HEAD
 2026-04-09 17:51:24.602 INFO  com.backend.App - Starting App v0.0.1-SNAPSHOT using Java 21.0.10 with PID 1 (/app/app.jar started by root in /app)
 2026-04-09 17:51:24.604 DEBUG com.backend.App - Running with Spring Boot v4.0.3, Spring v7.0.5
 2026-04-09 17:51:24.604 INFO  com.backend.App - The following 1 profile is active: "dev"
@@ -21039,3 +21040,5 @@ org.hibernate.LazyInitializationException: Could not initialize proxy [com.backe
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
 	at java.base/java.lang.Thread.run(Unknown Source)
+=======
+>>>>>>> 002fdc912f4cac856327133565ec08e3b1f05a8e
