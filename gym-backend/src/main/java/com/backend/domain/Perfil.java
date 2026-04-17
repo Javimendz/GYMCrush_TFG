@@ -145,7 +145,7 @@ public class Perfil {
      * Opcional, con longitud máxima de 255 caracteres.
      * </p>
      */
-    @Column(name = "foto", length = 255, nullable = true)
+    @Column(name = "foto", length = 255, nullable = true, columnDefinition = "TEXT")
     private String foto;
 
     /**

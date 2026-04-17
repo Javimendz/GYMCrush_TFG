@@ -67,7 +67,6 @@
             stompClient = Stomp.over(socket);
             
             // Ocultar debug para mantener la consola limpia. 
-            // Quita esta línea si quieres ver el tráfico STOMP en F12.
             stompClient.debug = null; 
 
             const headers = { 'Authorization': 'Bearer ' + token };
@@ -78,13 +77,13 @@
                 document.getElementById('chatContainer').style.display = 'flex';
                 mostrarAviso("Te has conectado a la sala.");
 
-                // 1. SUSCRIPCIÓN A LA SALA PÚBLICA (Nuevos Mensajes)
+                //  SUSCRIPCIÓN A LA SALA PÚBLICA (Nuevos Mensajes)
                 stompClient.subscribe('/topic/sala-publica', function (mensajeStomp) {
                     const mensajeJson = JSON.parse(mensajeStomp.body);
                     mostrarMensajeEnChat(mensajeJson);
                 });
 
-                // 2. SUSCRIPCIÓN AL CANAL DE BORRADOS (Órdenes de eliminar)
+                //  SUSCRIPCIÓN AL CANAL DE BORRADOS (Órdenes de eliminar)
                 stompClient.subscribe('/topic/chat.borrados', function (mensajeStomp) {
                     const peticionJson = JSON.parse(mensajeStomp.body);
                     const idABorrar = peticionJson.id;
