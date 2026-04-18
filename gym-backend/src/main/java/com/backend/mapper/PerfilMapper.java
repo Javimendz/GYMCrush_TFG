@@ -39,9 +39,9 @@ public interface PerfilMapper {
      * @param perfil la entidad a convertir
      * @return el DTO de respuesta
      */
-    @Mapping(target = "username", source = "usuario.username")
+   @Mapping(target = "username", source = "usuario.username")
     @Mapping(target = "correo", source = "usuario.correo")
-    @Mapping(target = "rol", source = "usuario.rol", qualifiedByName = "mapRolesToStrings")
+    @Mapping(target = "rol", source = "usuario.roles", qualifiedByName = "mapRolesToStrings") // <-- CAMBIO AQUÍ
     @Mapping(target = "peso", ignore = true)
     @Mapping(target = "estatura", ignore = true)
     @Mapping(target = "imc", ignore = true)
@@ -73,9 +73,11 @@ public interface PerfilMapper {
      * @param roles el conjunto de roles del usuario
      * @return lista con los nombres de los roles
      */
-    @Named("mapRolesToStrings")
+   @Named("mapRolesToStrings")
     default List<String> mapRolesToStrings(Set<Role> roles) {
-        if (roles == null) return Collections.emptyList();
-        return roles.stream().map(Role::getName).collect(Collectors.toList());
+        if (roles == null || roles.isEmpty()) return Collections.emptyList();
+        return roles.stream()
+                .map(Role::getName) // Asegúrate que el método sea getNombre()
+                .collect(Collectors.toList());
     }
 }

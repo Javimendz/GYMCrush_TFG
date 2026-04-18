@@ -42,6 +42,8 @@ public interface IUsuarioService {
      */
     List<Usuario> getAllUsuarios();
 
+    void asignarRolEntrenador(Long id);
+
     // Boolean existsByCorreo(String correo);
 
     /**

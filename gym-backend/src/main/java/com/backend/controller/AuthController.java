@@ -94,7 +94,7 @@ public class AuthController {
         String nombreAMostrar = (usuario.getPerfil() != null) ? usuario.getPerfil().getNombre() : usuario.getUsername();
         log.debug("Usuario autenticado: {} - Perfil: {}", usuario.getUsername(), nombreAMostrar);
 
-        List<String> roles = usuario.getRol().stream().map(r -> r.getName()).toList();
+        List<String> roles = usuario.getRoles().stream().map(r -> r.getName()).toList();
 
         JwtAuthResponseDto data = JwtAuthResponseDto.builder()
                 .id(usuario.getId())

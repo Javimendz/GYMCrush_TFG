@@ -108,6 +108,16 @@ public class UsuarioController {
                         .build());
     }
 
+    @PatchMapping("/{id}/asignar-entrenador") 
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseDto<Void>> asignarRolEntrenador(@PathVariable Long id) {
+        usuarioService.asignarRolEntrenador(id);
+        return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                .mensaje("Usuario actualizado a rol ENTRENADOR con éxito")
+                .success(true)
+                .build());
+    }
+
     /**
      * Crea un nuevo usuario en el sistema.
      * <p>
@@ -146,7 +156,7 @@ public class UsuarioController {
                     .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_USUARIO no encontrado en la DB"));
             rolesReales.add(defaultRole);
         }
-        usuarioToSave.setRol(rolesReales);
+        usuarioToSave.setRoles(rolesReales);
 
         // Codificar la contraseña por seguridad
         usuarioToSave.setPassword(passwordEncoder.encode(usuarioDto.getPassword()));
@@ -240,7 +250,7 @@ public class UsuarioController {
                         .orElseThrow(() -> new RuntimeException("Error: El rol " + nombreRol + " no existe en la DB"));
                 rolesReales.add(roleBd);
             }
-            updatedUsuario.setRol(rolesReales);
+            updatedUsuario.setRoles(rolesReales);
         }
 
         if (usuarioDto.getPassword() != null && !usuarioDto.getPassword().isEmpty()) {

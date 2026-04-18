@@ -15,6 +15,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
 
+@Data
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,6 +47,10 @@ public class Usuario {
     // @Column(name = "direccion", length = 255)
     // private String direccion;
 
+
+    public Set<Role> getRoles() {
+        return this.roles;
+    }
     // @Column(name = "ciudad", length = 100)
     // private String ciudad;
 
@@ -58,7 +63,7 @@ public class Usuario {
     @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Role> rol = new HashSet<>();
+    private Set<Role> roles = new HashSet<>();
 
     @Column(name = "qr_token", length = 255)
     private String qrToken;
@@ -131,12 +136,12 @@ public class Usuario {
     }
 
     public void addRole(Role role) {
-        this.rol.add(role);
+        this.roles.add(role);
         role.getUsuarios().add(this);
     }
 
     public void removeRole(Role role) {
-        this.rol.remove(role);
+        this.roles.remove(role);
         role.getUsuarios().remove(this);
     }
 

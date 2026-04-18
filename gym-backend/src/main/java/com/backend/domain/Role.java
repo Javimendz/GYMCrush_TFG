@@ -50,7 +50,7 @@ public class Role {
      * ciclos infinitos durante la serialización.
      * </p>
      */
-    @ManyToMany(mappedBy = "rol")
+    @ManyToMany(mappedBy = "roles")
     @JsonIgnore
     private Set<Usuario> usuarios;
 

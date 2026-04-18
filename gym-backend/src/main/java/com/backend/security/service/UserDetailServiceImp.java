@@ -49,7 +49,7 @@ public class UserDetailServiceImp implements UserDetailsService {
         return new User(
                 usuario.getUsername(), 
                 usuario.getPassword(), 
-                mapRolesToAuthorities(usuario.getRol())
+                mapRolesToAuthorities(usuario.getRoles()) 
         );
     }
 

@@ -101,7 +101,7 @@ public class DataLoader implements CommandLineRunner {
             Set<Role> adminRoles = new HashSet<>();
             adminRoles.add(adminRole);
             adminRoles.add(usuarioRole);
-            admin.setRol(adminRoles);
+            admin.setRoles(adminRoles);
 
             usuarioRepository.save(admin);
             System.out.println("Usuario admin creado!!..");
@@ -119,7 +119,7 @@ public class DataLoader implements CommandLineRunner {
             Set<Role> usuarioRoles = new HashSet<>();
 
             usuarioRoles.add(usuarioRole);
-            usuario.setRol(usuarioRoles);
+            usuario.setRoles(usuarioRoles);
 
             usuarioRepository.save(usuario);
             System.out.println("Usuario creado!!..");

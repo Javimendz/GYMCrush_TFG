@@ -1,5 +1,6 @@
 //Paquete de repositorio
 package com.backend.repository;
+
 import java.util.Optional;
 
 //Imports
@@ -9,6 +10,7 @@ import com.backend.domain.Usuario;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;
+
 /**
  * Interfaz de repositorio para la entidad Usuario
  * <p>
@@ -17,30 +19,34 @@ import java.util.List;
  */
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-/**
- * Busca un usuario por su nombre de usuario.
- * <p>
- * Retorna el usuario con el nombre de usuario especificado o null si no existe.
- * </p>
- *
- * @param username Nombre de usuario a buscar
- * @return Usuario encontrado o null
- */
-    Optional<Usuario> findByUsername(String username);   
+    /**
+     * Busca un usuario por su nombre de usuario.
+     * <p>
+     * Retorna el usuario con el nombre de usuario especificado o null si no existe.
+     * </p>
+     *
+     * @param username Nombre de usuario a buscar
+     * @return Usuario encontrado o null
+     */
+    Optional<Usuario> findByUsername(String username);
+
     /**
      * Verifica si existe un usuario con el nombre de usuario especificado.
      * <p>
-     * Retorna true si existe un usuario con el nombre de usuario especificado, false en caso contrario.
+     * Retorna true si existe un usuario con el nombre de usuario especificado,
+     * false en caso contrario.
      * </p>
      *
      * @param username Nombre de usuario a verificar
      * @return true si existe, false en caso contrario
      */
     Boolean existsByUsername(String username);
+
     /**
      * Verifica si existe un usuario con el correo especificado.
      * <p>
-     * Retorna true si existe un usuario con el correo especificado, false en caso contrario.
+     * Retorna true si existe un usuario con el correo especificado, false en caso
+     * contrario.
      * </p>
      *
      * @param correo Correo a verificar
@@ -48,7 +54,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      */
     Boolean existsByCorreo(String correo);
 
-    @Query("SELECT u FROM Usuario u JOIN u.rol r WHERE r.name = 'ENTRENADOR'")
-List<Usuario> findEntrenadores();
+    @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r.name = 'ENTRENADOR'")
+    List<Usuario> findEntrenadores();
 
 }
