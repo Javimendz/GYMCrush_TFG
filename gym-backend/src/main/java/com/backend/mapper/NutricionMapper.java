@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j; 
-
+import com.backend.dto.FatSecretResponseDto; 
+import com.backend.dto.FatSecretRecipeDto; // Por si acaso
+import com.backend.dto.NutricionResponseDto;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -26,40 +27,39 @@ public class NutricionMapper {
     private final ObjectMapper objectMapper;
     private final ComidaDiariaMapper comidaMapper;
 
-    public NutricionResponseDto toResponseDto(Nutricion entity) {
-    if (entity == null) return null;
+  public NutricionResponseDto toResponseDto(Nutricion entity) {
+        if (entity == null) return null;
 
-    NutricionResponseDto dto = new NutricionResponseDto();
-    dto.setId(entity.getId());
-    dto.setCaloriasObjetivo(entity.getCaloriasObjetivo());
-    dto.setFechaGeneracion(entity.getFechaGeneracion());
-    
-    
-    dto.setNombreDieta(entity.getNombreDieta());
-    dto.setTipoDieta(entity.getTipoDieta());
-    
-    // Mapear la lista de comidas 
-    if (entity.getComidas() != null) {
-        dto.setComidas(entity.getComidas().stream()
-                .map(comidaMapper::toResponseDto)
-                .collect(Collectors.toList()));
-    }
-    // ---------------------------------------------------
-
-    
-    
-    if (entity.getMacronutrientesJson() != null && !entity.getMacronutrientesJson().isBlank()) {
-        try {
-            objectMapper.readTree(entity.getMacronutrientesJson()); 
-            dto.setMacronutrientes(entity.getMacronutrientesJson());
-        } catch (Exception e) {
-            log.error("JSON de macronutrientes inválido en Plan Nutrición ID {}: {}", entity.getId(), e.getMessage());
-            dto.setMacronutrientes(null);
+        NutricionResponseDto dto = new NutricionResponseDto();
+        dto.setId(entity.getId());
+        dto.setCaloriasObjetivo(entity.getCaloriasObjetivo());
+        dto.setFechaGeneracion(entity.getFechaGeneracion());
+        dto.setNombreDieta(entity.getNombreDieta());
+        dto.setTipoDieta(entity.getTipoDieta());
+        
+        // Mapear la lista de comidas individuales (Desayuno, Almuerzo, Cena)
+        if (entity.getComidas() != null) {
+            dto.setComidas(entity.getComidas().stream()
+                    .map(comidaMapper::toResponseDto)
+                    .collect(Collectors.toList()));
         }
-    }
 
-    return dto;
-}
+        // --- CONVERSIÓN DE JSON A OBJETO ---
+        if (entity.getMacronutrientesJson() != null && !entity.getMacronutrientesJson().isBlank()) {
+            try {
+                // Usamos el objectMapper inyectado para transformar el String de la DB en el DTO
+                FatSecretResponseDto fsDto = objectMapper.readValue(
+                    entity.getMacronutrientesJson(), 
+                    FatSecretResponseDto.class
+                );
+                dto.setMacronutrientes(fsDto);
+            } catch (Exception e) {
+                log.error("Error al deserializar JSON de FatSecret en Nutricion ID {}: {}", entity.getId(), e.getMessage());
+                dto.setMacronutrientes(null);
+            }
+        }
+        return dto;
+    }
 
     public List<NutricionResponseDto> toResponseDtoList(List<Nutricion> entities) {
         if (entities == null || entities.isEmpty()) {

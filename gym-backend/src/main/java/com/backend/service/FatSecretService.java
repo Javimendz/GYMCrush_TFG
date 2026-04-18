@@ -9,9 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import lombok.extern.slf4j.Slf4j;
+
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FatSecretService {
 
     @Value("${fatsecret.client.id}")
@@ -51,6 +54,43 @@ public class FatSecretService {
             
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener token con Jackson: " + e.getMessage());
+        }
+    }
+
+
+    /**
+     * Busca alimentos/recetas por nombre usando el método recipes.search de FatSecret
+     */
+    public String buscarAlimentosPorNombre(String query) {
+        String token = obtenerTokenAutenticacion();
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+
+        // Construimos la URL para búsqueda por expresión (search_expression)
+        // Usamos recipes.search para obtener resultados con fotos y macros
+        String url = apiUrl + "?method=recipes.search&format=json" +
+                     "&search_expression=" + query + 
+                     "&max_results=20"; // Limitamos a 20 resultados para el móvil
+
+        HttpEntity<?> request = new HttpEntity<>(headers);
+        
+        try {
+            log.info("Llamando a FatSecret para buscar: {}", query);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+            String body = response.getBody();
+
+            // Validamos errores en el JSON
+            JsonNode root = objectMapper.readTree(body);
+            if (root.has("error")) {
+                log.error("Error API FatSecret: {}", root.get("error").get("message").asText());
+                return "{\"recipes\": {\"recipe\": []}}"; 
+            }
+
+            return body; 
+        } catch (Exception e) {
+            log.error("Error en la búsqueda de alimentos: {}", e.getMessage());
+            return "{\"recipes\": {\"recipe\": []}}";
         }
     }
 

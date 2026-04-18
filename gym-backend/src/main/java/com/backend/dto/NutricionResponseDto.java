@@ -17,12 +17,13 @@ public class NutricionResponseDto {
     private Integer caloriasObjetivo;
 
     // convertimos el JSON en un objeto real para el Frontend
-    @JsonRawValue
-    private String macronutrientes;
+    
     @JsonProperty("dietas")
     private List<ComidaDiariaResponseDto> comidas;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaGeneracion;
+    private FatSecretResponseDto macronutrientes;
+
     
 }
