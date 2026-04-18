@@ -88,6 +88,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/ws/**").permitAll();
                     auth.requestMatchers("/ws-gym/**").permitAll();
                     auth.requestMatchers("/chats/**").permitAll();
+                    auth.requestMatchers("/api/chat/historial").permitAll();
                     auth.requestMatchers("/chats-sockjs/**").permitAll();
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/usuarios/entrenadores").hasAnyRole("ADMIN", "USUARIO");
                     auth.requestMatchers("/api/v1/admin/tutoriales/**").hasRole("ADMIN");

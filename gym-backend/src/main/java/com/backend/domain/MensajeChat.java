@@ -68,4 +68,6 @@ public class MensajeChat {
      */
     @Enumerated(EnumType.STRING)
     private EnumMessageType tipo;
+
+    private Long usuarioId;
 }

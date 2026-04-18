@@ -9,6 +9,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import lombok.Data;
+import com.backend.repository.ChatRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,33 +17,37 @@ import java.time.format.DateTimeFormatter;
 @Controller
 public class ChatController {
 
-   @Autowired
+    @Autowired
     private MensajeChatRepository mensajeRepository;
 
     /**
-     * DTO para la comunicación WebSocket. 
+     * DTO para la comunicación WebSocket.
      */
     @Data
     public static class ChatMessageDto {
-        private String id; 
+        private String id;
         private String remitente;
         private String contenido;
         private String hora;
+        private Long usuarioId;
+        
     }
 
     @Data
     public static class PeticionBorrado {
         private String id;
+        private Long usuarioId;
     }
 
     // GUARDAR Y ENVIAR MENSAJE
     @MessageMapping("/chat.enviar")
     @SendTo("/topic/sala-publica")
     public ChatMessageDto procesarMensaje(@Payload ChatMessageDto mensajeDto) {
-        
-        //  Creamos la ENTIDAD 
+
+        // Creamos la ENTIDAD
         MensajeChat entidad = MensajeChat.builder()
                 .emisor(mensajeDto.getRemitente())
+                .usuarioId(mensajeDto.getUsuarioId())
                 .contenido(mensajeDto.getContenido())
                 .fechaEnvio(LocalDateTime.now())
                 .tipo(EnumMessageType.CHAT)
@@ -51,26 +56,40 @@ public class ChatController {
         // Guardamos
         MensajeChat guardado = mensajeRepository.save(entidad);
 
-        //  Mapeamos de vuelta al DTO para el Frontend
+        // Mapeamos de vuelta al DTO para el Frontend
         mensajeDto.setId(String.valueOf(guardado.getId()));
         mensajeDto.setHora(guardado.getFechaEnvio().format(DateTimeFormatter.ofPattern("HH:mm")));
-        
+
         System.out.println("Mensaje guardado en BD con ID: " + guardado.getId());
-        
-        return mensajeDto; 
+
+        return mensajeDto;
     }
 
-    //  BORRAR MENSAJE
-    @MessageMapping("/chat.borrar")
-    @SendTo("/topic/chat.borrados") 
+    // BORRAR MENSAJE
+  @MessageMapping("/chat.borrar")
+    @SendTo("/topic/chat.borrados")
     public PeticionBorrado borrarMensaje(@Payload PeticionBorrado peticion) {
         try {
             Long idMensaje = Long.parseLong(peticion.getId());
-            mensajeRepository.deleteById(idMensaje);
-            System.out.println("Mensaje borrado definitivamente de la BD, ID: " + idMensaje);
+            
+            // 1. Buscamos el mensaje en la base de datos
+            mensajeRepository.findById(idMensaje).ifPresent(mensajeEnBD -> {
+                
+                // 2. COMPROBACIÓN DE SEGURIDAD:
+                // Solo borramos si el usuarioId del mensaje coincide con el que pide borrar
+                if (mensajeEnBD.getUsuarioId() != null && 
+                    mensajeEnBD.getUsuarioId().equals(peticion.getUsuarioId())) {
+                    
+                    mensajeRepository.deleteById(idMensaje);
+                    System.out.println("Mensaje borrado con éxito, ID: " + idMensaje);
+                } else {
+                    System.err.println("¡Intento de borrado no autorizado!");
+                }
+            });
+
         } catch (Exception e) {
             System.err.println("Error al borrar mensaje de BD: " + e.getMessage());
         }
-        return peticion; 
+        return peticion;
     }
 }
