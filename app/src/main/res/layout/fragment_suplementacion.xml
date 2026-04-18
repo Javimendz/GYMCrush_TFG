@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0A1128"
+    android:orientation="vertical">
+
+    <!-- Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:background="#0A1128">
+
+        <ImageView
+            android:id="@+id/btnBackSuple"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_back_arrow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#CD0277" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Suplementación deportiva"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="3"
+            android:alignmentMode="alignMargins"
+            android:padding="2dp">
+
+            <!-- PROTEINAS -->
+            <include android:id="@+id/prod_whey_choc" layout="@layout/item_producto_suplemento"  android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_whey_vain" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_iso_fresa" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_whey_monodosis" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_caseina" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_vegan_protein" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+
+            <!-- CREATINAS -->
+            <include android:id="@+id/prod_creatina_mono" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_creatina_creapure" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_creatina_hcl" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+
+            <!-- HARINAS Y CREMAS -->
+            <include android:id="@+id/prod_avena_brownie" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_avena_lotus" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_avena_vainilla" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_arroz_vain" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_arroz_choc" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_arroz_galleta" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_arroz_natural" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+
+            <!-- ACCESORIOS -->
+            <include android:id="@+id/prod_straps" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_muñequeras" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_shaker_pink" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_shaker_black" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_cinturon" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+
+            <!-- BARRITAS Y SNACKS -->
+            <include android:id="@+id/prod_barrita_oreo" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_barrita_caramel" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_barrita_jungli" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_snack_protein" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+
+            <!-- SALUD -->
+            <include android:id="@+id/prod_l_carnitina" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_magnesio" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_artiflex" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+
+            <include
+                android:id="@+id/prod_ashwagandha"
+                layout="@layout/item_producto_suplemento"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_multi" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_omega" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_zma" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_vit_c" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_glucosamina" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_melatonina" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+
+            <!-- RENDIMIENTO -->
+            <include android:id="@+id/prod_pre_apple" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_pre_blue" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_pre_pump" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_bcaa" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_glutamina" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_citrulina" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+            <include android:id="@+id/prod_beta_alanina" layout="@layout/item_producto_suplemento" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" />
+
+        </GridLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

@@ -169,18 +169,28 @@ public class NutricionServiceImpl implements INutricionService {
         }
     }
 
-    private int calcularCalorias(PerfilFisicoRequest request, int edad, String genero) {
-        boolean esHombre = genero.matches("(?i)HOMBRE|MASCULINO");
-
-        double tmb = (10 * request.getPeso()) + (6.25 * request.getAltura()) - (5 * edad) + (esHombre ? 5 : -161);
-        double tdee = tmb * request.getNivelActividad().getFactor();
-
-        return switch (request.getObjetivo()) {
-            case GANAR -> (int) (tdee * 1.10);
-            case PERDER -> (int) (tdee * 0.80);
-            case MANTENER -> (int) tdee;
-        };
+private int calcularCalorias(PerfilFisicoRequest request, int edad, String genero) {
+    boolean esHombre = genero.matches("(?i)HOMBRE|MASCULINO");
+    
+    // 1. CORRECCIÓN DE ALTURA: Si viene como 1.76, lo pasamos a 176.
+    double alturaEnCm = request.getAltura();
+    if (alturaEnCm < 3) { // Si es menor a 3, asumimos que viene en metros
+        alturaEnCm *= 100;
     }
+
+    // 2. Cálculo de TMB con altura corregida
+    double tmb = (10 * request.getPeso()) + (6.25 * alturaEnCm) - (5 * edad) + (esHombre ? 5 : -161);
+    
+    // 3. TDEE (Gasto energético total)
+    double tdee = tmb * request.getNivelActividad().getFactor();
+
+    // 4. Aplicar objetivo
+    return switch (request.getObjetivo()) {
+        case GANAR -> (int) (tdee * 1.10);    // Superávit del 10%
+        case PERDER -> (int) (tdee * 0.80);   // Déficit del 20%
+        case MANTENER -> (int) tdee;
+    };
+}
 
     private String resolverCategoria(EnumObjetivo objetivo) {
         return switch (objetivo) {
