@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 // --- REST CONTROLLER (Historial) ---
 // Ponlo en un archivo separado o fuera de la clase anterior
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 @RestController
-@RequestMapping("/api/chat")
-@CrossOrigin(origins = "*") // Para que Android no te dé problemas de CORS
-class ChatRestController {
+@RequestMapping("/api/v1/chat") // Para que Android no  dé problemas de CORS
+public class ChatRestController {
 
     
     @Autowired

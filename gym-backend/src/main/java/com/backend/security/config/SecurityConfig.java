@@ -90,6 +90,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/chats/**").permitAll();
                     auth.requestMatchers("/api/chat/historial").permitAll();
                     auth.requestMatchers("/chats-sockjs/**").permitAll();
+                    auth.requestMatchers("/api/v1/usuarios/**").hasAnyRole("ADMIN", "USUARIO");
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/usuarios/entrenadores").hasAnyRole("ADMIN", "USUARIO");
                     auth.requestMatchers("/api/v1/admin/tutoriales/**").hasRole("ADMIN");
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/tutoriales/**").permitAll(); // Para la App móvil

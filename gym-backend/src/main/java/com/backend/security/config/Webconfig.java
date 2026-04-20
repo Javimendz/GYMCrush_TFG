@@ -57,7 +57,7 @@ public class Webconfig {
                 // Aplica configuración CORS a todas las rutas de la API
                 registry.addMapping("/**")
                         // Orígenes permitidos (desde variable de entorno o properties)
-                        .allowedOriginPatterns(allowedOrigins)
+                        .allowedOriginPatterns("*")
                         // Métodos HTTP permitidos para CORS
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         // Permite cualquier cabecera (necesario para Authorization con JWT)
