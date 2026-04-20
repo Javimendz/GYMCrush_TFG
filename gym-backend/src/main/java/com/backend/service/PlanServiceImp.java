@@ -75,52 +75,61 @@ public class PlanServiceImp implements IPlanService {
         planRepo.deleteById(id);
     }
 
-    @Override
+   @Override
     @Transactional
     public void suscribirUsuarioAPlan(Long usuarioId, Long planId, String usernameLogueado, boolean esAdmin) {
         
-        //  Buscamos al usuario destino
+        // 1. Buscamos al usuario destino
         Usuario usuarioDestino = usuarioRepo.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
                 
-       
-        // Si NO es Admin, y el nombre del usuario destino NO coincide con el que está logueado, Bloqueo
         if (!esAdmin && !usuarioDestino.getUsername().equals(usernameLogueado)) {
             log.warn("Intento de suscripción no autorizada. Usuario logueado: {}, Intentó suscribir a: {}", usernameLogueado, usuarioDestino.getUsername());
             throw new RuntimeException("Acceso denegado: No tienes permiso para suscribir a otros usuarios.");
         }
 
-        //  Buscamos el plan maestro
-        PlanEntrenamiento plan = planRepo.findById(planId)
+        // CORRECCIÓN 1: Usamos el método con JOIN FETCH para traer los ejercicios obligatoriamente
+        PlanEntrenamiento plan = planRepo.findWithEjerciciosById(planId)
                 .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
 
         LocalDate hoy = LocalDate.now();
 
-        // Asignamos los ejercicios a la agenda del usuario
-        if (plan.getEjercicios() != null) {
-            for (DetallePlan detalle : plan.getEjercicios()) {
-                
-                // Calculamos el día de la semana
-                LocalDate fechaAsignacion = hoy.with(java.time.DayOfWeek.of(detalle.getDiaSemana()));
-                
-                // Si el día calculado ya pasó en esta semana, lo pasamos a la semana siguiente
-                if (fechaAsignacion.isBefore(hoy)) {
-                    fechaAsignacion = fechaAsignacion.plusWeeks(1); 
-                }
-
-                Rutina nuevaRutina = Rutina.builder()
-                        .usuario(usuarioDestino)
-                        .entrenamiento(detalle.getEntrenamiento())
-                        .fechaAsignacion(fechaAsignacion)
-                        .orden(detalle.getOrden())
-                        .completado(false)
-                        .build();
-
-                rutinaRepo.save(nuevaRutina);
-            }
+        // CORRECCIÓN 2: Comprobamos si está vacía (isEmpty), no solo null.
+        if (plan.getEjercicios() == null || plan.getEjercicios().isEmpty()) {
+            log.warn("ATENCIÓN: El plan '{}' no tiene ejercicios en DetallePlan. No hay rutinas que guardar.", plan.getNombre());
+            return; // Salimos silenciosamente porque no hay nada que crear
         }
-    }
 
+        log.info("Iniciando suscripción. Se van a generar {} ejercicios para {}", plan.getEjercicios().size(), usuarioDestino.getUsername());
+
+        // CORRECCIÓN 3: Creamos una lista para guardar todo de una sola vez
+        java.util.List<Rutina> rutinasAGuardar = new java.util.ArrayList<>();
+
+        for (DetallePlan detalle : plan.getEjercicios()) {
+            
+            // Ojo: getDiaSemana() debe ser un int de 1 (Lunes) a 7 (Domingo). Si pasas 0, fallará aquí.
+            LocalDate fechaAsignacion = hoy.with(java.time.DayOfWeek.of(detalle.getDiaSemana()));
+            
+            if (fechaAsignacion.isBefore(hoy)) {
+                fechaAsignacion = fechaAsignacion.plusWeeks(1); 
+            }
+
+            Rutina nuevaRutina = Rutina.builder()
+                    .usuario(usuarioDestino)
+                    .entrenamiento(detalle.getEntrenamiento())
+                    .fechaAsignacion(fechaAsignacion)
+                    .orden(detalle.getOrden())
+                    .completado(false)
+                    .build();
+
+            rutinasAGuardar.add(nuevaRutina);
+            log.info("Generando: {} para la fecha {}", detalle.getEntrenamiento().getNombre(), fechaAsignacion);
+        }
+
+        // CORRECCIÓN 4: saveAll es más eficiente en base de datos que hacer save() dentro de un bucle
+        rutinaRepo.saveAll(rutinasAGuardar);
+        log.info("¡Éxito! Se han guardado {} rutinas en la base de datos.", rutinasAGuardar.size());
+    }
     
     @Override
     @Transactional
