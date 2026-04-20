@@ -16,15 +16,27 @@ import java.util.List;
 public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAdapter.ViewHolder> {
 
     private List<RepositorioRutinas.RutinaModel> listaRutinas;
+    private boolean forViewPager = false;
 
     public RutinaGuardadaAdapter(List<RepositorioRutinas.RutinaModel> listaRutinas) {
         this.listaRutinas = listaRutinas;
+    }
+
+    public RutinaGuardadaAdapter(List<RepositorioRutinas.RutinaModel> listaRutinas, boolean forViewPager) {
+        this.listaRutinas = listaRutinas;
+        this.forViewPager = forViewPager;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rutina_item_lista, parent, false);
+        if (forViewPager) {
+            view.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            ));
+        }
         return new ViewHolder(view);
     }
 
@@ -67,6 +79,11 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
             intent.putExtra("NOMBRE_RUTINA", rutina.nombre);
             v.getContext().startActivity(intent);
         });
+    }
+
+    public void updateList(List<RepositorioRutinas.RutinaModel> newList) {
+        this.listaRutinas = newList;
+        notifyDataSetChanged();
     }
 
     @Override

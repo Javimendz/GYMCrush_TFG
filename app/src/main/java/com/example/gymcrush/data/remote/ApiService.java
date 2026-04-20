@@ -32,6 +32,12 @@ import com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto;
 import com.example.gymcrush.data.remote.dto.DietaResponseDto;
 import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilFisicoRequest;
+import com.example.gymcrush.data.remote.dto.RutinaRequestDto;
+import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
+import com.example.gymcrush.data.remote.dto.PlanResponseDto;
+import com.example.gymcrush.data.remote.dto.PlanRequestDto;
+import com.example.gymcrush.data.remote.dto.DetallePlanRequestDto;
+import com.example.gymcrush.data.remote.dto.DetallePlanResponseDto;
 
 import java.util.List;
 
@@ -196,6 +202,48 @@ public interface ApiService {
 
     @DELETE("api/v1/salas/{id}")
     Call<ApiResponseDto<Void>> eliminarSala(@Path("id") Long id);
+
+    // --- NUEVOS ENDPOINTS PARA RUTINAS ---
+    @POST("api/v1/rutinas")
+    @Headers("Content-Type: application/json")
+    Call<ApiResponseDto<RutinaResponseDto>> asignarEntrenamiento(@Body RutinaRequestDto dto);
+
+    @GET("api/v1/rutinas/usuario/{usuarioId}")
+    Call<ApiResponseDto<List<RutinaResponseDto>>> getRutinaDiaria(
+            @Path("usuarioId") Long usuarioId,
+            @Query("fecha") String fecha
+    );
+
+    @PATCH("api/v1/rutinas/{id}/completar")
+    Call<ApiResponseDto<RutinaResponseDto>> completarRutina(@Path("id") Long id);
+
+    @DELETE("api/v1/rutinas/{id}")
+    Call<ApiResponseDto<Void>> eliminarRutina(@Path("id") Long id);
+
+    // --- NUEVOS ENDPOINTS PARA PLANES DE ENTRENAMIENTO ---
+    @GET("api/v1/planes")
+    Call<ApiResponseDto<List<PlanResponseDto>>> getPlanes();
+
+    @GET("api/v1/planes/{id}")
+    Call<ApiResponseDto<PlanResponseDto>> getPlanPorId(@Path("id") Long id);
+
+    @POST("api/v1/planes/{planId}/suscribir/{usuarioId}")
+    Call<ApiResponseDto<Void>> suscribirUsuarioAPlan(@Path("planId") Long planId, @Path("usuarioId") Long usuarioId);
+
+    @GET("api/v1/planes/{planId}/ejercicios")
+    Call<ApiResponseDto<List<DetallePlanResponseDto>>> getEjerciciosDelPlan(@Path("planId") Long planId);
+
+    @POST("api/v1/planes")
+    Call<ApiResponseDto<PlanResponseDto>> crearPlan(@Body PlanRequestDto dto);
+
+    @DELETE("api/v1/planes/{id}")
+    Call<ApiResponseDto<Void>> eliminarPlanMaestro(@Path("id") Long id);
+
+    @POST("api/v1/planes/{planId}/ejercicios")
+    Call<ApiResponseDto<DetallePlanResponseDto>> añadirEjercicioAlPlan(@Path("planId") Long planId, @Body DetallePlanRequestDto dto);
+
+    @DELETE("api/v1/planes/ejercicios-detalle/{id}")
+    Call<ApiResponseDto<Void>> quitarEjercicioDelPlan(@Path("id") Long id);
 
     // --- NUEVOS ENDPOINTS PARA ENTRENAMIENTOS ---
     @GET("api/v1/entrenamientos/usuario/{usuarioId}")

@@ -1,6 +1,7 @@
 package com.example.gymcrush.ui.ejercicios;
 
 public class Ejercicio {
+    private Long id;
     private String nombre;
     private String categoria;
     private String descripcion;
@@ -15,13 +16,14 @@ public class Ejercicio {
     private String repeticiones = "0";
 
     // CONSTRUCTOR 1
-    public Ejercicio(String nombre) {
+    public Ejercicio(Long id, String nombre) {
+        this.id = id;
         this.nombre = nombre;
         this.seleccionado = false;
     }
 
-    // CONSTRUCTOR 2
-    public Ejercicio(String nombre, String categoria, String descripcion, String duracion, String urlVideo, int imagenResId, String dificultad) {
+    public Ejercicio(Long id, String nombre, String categoria, String descripcion, String duracion, String urlVideo, int imagenResId, String dificultad) {
+        this.id = id;
         this.nombre = nombre;
         this.categoria = categoria;
         this.descripcion = descripcion;
@@ -32,7 +34,13 @@ public class Ejercicio {
         this.seleccionado = false;
     }
 
+    public Ejercicio(String nombre, String categoria, String descripcion, String duracion, String urlVideo, int imagenResId, String dificultad) {
+        this(null, nombre, categoria, descripcion, duracion, urlVideo, imagenResId, dificultad);
+    }
+
     // --- GETTERS Y SETTERS ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getNombre() { return nombre; }
     public String getCategoria() { return categoria; }
     public String getDescripcion() { return descripcion; }

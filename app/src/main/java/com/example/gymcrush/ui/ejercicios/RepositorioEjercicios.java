@@ -1,15 +1,72 @@
 package com.example.gymcrush.ui.ejercicios;
 
 import com.example.gymcrush.R;
+import com.example.gymcrush.data.remote.RetrofitClient;
+import com.example.gymcrush.data.remote.dto.ApiResponseDto;
+import com.example.gymcrush.data.remote.dto.TutorialResponseDto;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class RepositorioEjercicios {
+
+    /**
+     * Interfaz para recibir los ejercicios de forma asíncrona desde el servidor.
+     */
+    public interface RepositorioCallback {
+        void onLoaded(List<Ejercicio> ejercicios);
+        void onError(String mensaje);
+    }
+
+    /**
+     * Obtiene el catálogo de ejercicios (Tutoriales) desde el backend.
+     * Convierte los TutorialResponseDto en objetos Ejercicio para la UI.
+     */
+    public static void getTodosAsync(RepositorioCallback callback) {
+        RetrofitClient.getApiService().getTutoriales().enqueue(new Callback<ApiResponseDto<List<TutorialResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<TutorialResponseDto>>> call, Response<ApiResponseDto<List<TutorialResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<TutorialResponseDto> datos = response.body().getDatos();
+                    List<Ejercicio> lista = new ArrayList<>();
+                    for (TutorialResponseDto t : datos) {
+                        lista.add(new Ejercicio(
+                                t.getId(),
+                                t.getTitulo(),
+                                t.getNombreCategoria(),
+                                t.getDescripcion(),
+                                t.getDuracionMin() + " min",
+                                t.getUrlVideo(),
+                                R.drawable.ic_launcher_background,
+                                t.getMusculoObjetivo() // Usamos músculo como dificultad/info extra
+                        ));
+                    }
+                    callback.onLoaded(lista);
+                } else {
+                    callback.onError("Error al obtener catálogo");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<TutorialResponseDto>>> call, Throwable t) {
+                callback.onError("Fallo de red: " + t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Mantiene compatibilidad con código antiguo que no sea asíncrono, 
+     * aunque lo ideal es migrar todo a getTodosAsync.
+     */
     public static List<Ejercicio> getTodos() {
         List<Ejercicio> lista = new ArrayList<>();
         
-        // PIERNAS
-        lista.add(new Ejercicio(
+        // ID 1: Sentadilla con Barra
+        lista.add(new Ejercicio(1L,
                 "Sentadilla con Barra", 
                 "Piernas", 
                 "La sentadilla con barra es el ejercicio estrella para ganar fuerza y masa muscular en el tren inferior.", 
@@ -19,7 +76,8 @@ public class RepositorioEjercicios {
                 "Media 🔥🔥"
         ));
         
-        lista.add(new Ejercicio(
+        // ID 2: Peso Muerto
+        lista.add(new Ejercicio(2L,
                 "Peso Muerto", 
                 "Piernas", 
                 "Levantamiento de potencia que trabaja toda la cadena posterior: glúteos, isquios y espalda baja.", 
@@ -29,7 +87,8 @@ public class RepositorioEjercicios {
                 "Alta 🔥🔥🔥"
         ));
 
-        lista.add(new Ejercicio(
+        // ID 3: Zancadas
+        lista.add(new Ejercicio(3L,
                 "Zancadas", 
                 "Piernas", 
                 "Excelente ejercicio unilateral para trabajar cuádriceps, glúteos y mejorar el equilibrio.", 
@@ -39,8 +98,8 @@ public class RepositorioEjercicios {
                 "Baja 🔥"
         ));
 
-        // PECHO
-        lista.add(new Ejercicio(
+        // ID 4: Press de Banca
+        lista.add(new Ejercicio(4L,
                 "Press de Banca", 
                 "Pecho", 
                 "Ejercicio básico multiarticular para el desarrollo de los pectorales, tríceps y deltoides anterior.", 
@@ -50,7 +109,8 @@ public class RepositorioEjercicios {
                 "Media 🔥🔥"
         ));
 
-        lista.add(new Ejercicio(
+        // ID 5: Flexiones
+        lista.add(new Ejercicio(5L,
                 "Flexiones", 
                 "Pecho", 
                 "Ejercicio de peso corporal clásico para fortalecer el pecho, hombros y tríceps.", 
@@ -60,8 +120,8 @@ public class RepositorioEjercicios {
                 "Baja 🔥"
         ));
 
-        // ESPALDA
-        lista.add(new Ejercicio(
+        // ID 6: Dominadas
+        lista.add(new Ejercicio(6L,
                 "Dominadas", 
                 "Espalda", 
                 "Ejercicio fundamental de tracción superior para trabajar el dorsal ancho y bíceps.", 
@@ -71,7 +131,8 @@ public class RepositorioEjercicios {
                 "Alta 🔥🔥🔥"
         ));
 
-        lista.add(new Ejercicio(
+        // ID 7: Jalón al Pecho
+        lista.add(new Ejercicio(7L,
                 "Jalón al Pecho", 
                 "Espalda", 
                 "Máquina de tracción que permite trabajar el dorsal ancho de forma controlada.", 
@@ -81,8 +142,8 @@ public class RepositorioEjercicios {
                 "Media 🔥🔥"
         ));
 
-        // HOMBROS
-        lista.add(new Ejercicio(
+        // ID 8: Press Militar
+        lista.add(new Ejercicio(8L,
                 "Press Militar", 
                 "Hombro", 
                 "Empuje vertical por encima de la cabeza para desarrollar la fuerza y tamaño del hombro.", 
@@ -92,8 +153,8 @@ public class RepositorioEjercicios {
                 "Alta 🔥🔥🔥"
         ));
 
-        // BRAZO
-        lista.add(new Ejercicio(
+        // ID 9: Curl de Bíceps
+        lista.add(new Ejercicio(9L,
                 "Curl de Bíceps", 
                 "Brazo", 
                 "Ejercicio de aislamiento para fortalecer y dar forma al bíceps braquial.", 
@@ -103,8 +164,8 @@ public class RepositorioEjercicios {
                 "Baja 🔥"
         ));
 
-        // CORE
-        lista.add(new Ejercicio(
+        // ID 10: Plancha Abdominal
+        lista.add(new Ejercicio(10L,
                 "Plancha Abdominal", 
                 "Core", 
                 "Mantén el cuerpo recto como una tabla apoyado en los antebrazos para fortalecer el abdomen.", 
@@ -114,8 +175,8 @@ public class RepositorioEjercicios {
                 "Baja 🔥"
         ));
 
-        // CARDIO
-        lista.add(new Ejercicio(
+        // ID 11: Burpees
+        lista.add(new Ejercicio(11L,
                 "Burpees", 
                 "Cardio", 
                 "Ejercicio de cuerpo completo explosivo que mejora la capacidad cardiovascular y quema grasa.", 

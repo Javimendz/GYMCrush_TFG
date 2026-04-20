@@ -31,6 +31,7 @@ import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
 import com.example.gymcrush.ui.auth.LoginActivity;
 import com.example.gymcrush.ui.clases.ClasesFragment;
 import com.example.gymcrush.ui.ejercicios.EjerciciosFragment;
+import com.example.gymcrush.ui.rutinas.PlanesFragment;
 import com.example.gymcrush.ui.rutinas.RutinasFragment;
 import com.example.gymcrush.ui.perfil.PerfilFragment;
 import com.example.gymcrush.ui.contacto.ContactoFragment;
@@ -145,6 +146,8 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 cargarFragmento(new SaludFragment());
             } else if (id == R.id.nav_rutinas_drawer) {
                 cargarFragmento(new RutinasFragment());
+            } else if (id == R.id.nav_planes_entrenamiento) {
+                cargarFragmento(new PlanesFragment());
             } else if (id == R.id.nav_contrataciones) {
                 cargarFragmento(new ContratacionesFragment());
             } else if (id == R.id.nav_equipo) {
@@ -306,6 +309,13 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     private void cargarFragmento(Fragment fragment) {
+        if (fragment instanceof PlanesFragment) {
+            ((PlanesFragment) fragment).setOnPlanSubscriptionListener(() -> {
+                // Cuando se suscribe a un plan, navegamos automáticamente a Rutinas
+                mostrarHome(); // Limpiar stack
+                cargarFragmento(new RutinasFragment());
+            });
+        }
         homeContent.setVisibility(View.GONE);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment)

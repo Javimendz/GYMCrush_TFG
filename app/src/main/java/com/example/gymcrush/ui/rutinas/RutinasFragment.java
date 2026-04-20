@@ -10,7 +10,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,15 +25,19 @@ import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto;
 import com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto;
+import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import retrofit2.Call;
@@ -40,74 +46,282 @@ import retrofit2.Response;
 
 public class RutinasFragment extends Fragment {
 
-    private RecyclerView rvRutinas, rvEjercicios;
-    private RutinaGuardadaAdapter rutinasAdapter;
+    private RecyclerView rvRutinas, rvEjercicios, rvRutinasGuardadas;
+    private androidx.viewpager2.widget.ViewPager2 vpRutinasFavoritas;
+    private com.google.android.material.tabs.TabLayout dotsIndicator;
+    private RutinaApiAdapter rutinasAdapter;
     private EntrenamientoAdapter ejerciciosAdapter;
+    private RutinaGuardadaAdapter rutinasGuardadasAdapter;
     private List<EntrenamientoResponseDto> listaEjerciciosCompleta = new ArrayList<>();
     
     private TabLayout tabLayoutPrincipal, tabLayoutCategorias;
-    private NestedScrollView containerRutinas, containerEjercicios;
-    private LinearLayout layoutVacio;
+    private NestedScrollView containerRutinas, containerEjercicios, containerRutinasGuardadas;
+    private FrameLayout containerPlanes;
+    private LinearLayout layoutVacio, layoutSelectorFecha;
+    private android.widget.EditText etBuscador;
+    private com.example.gymcrush.ui.salud.ProgressGraphView graphEvolucion;
+    private TextView tvFechaSeleccionada, tvRacha;
+    private MaterialButton btnCambiarFecha;
     private ExtendedFloatingActionButton fabAddEjercicio;
     private boolean isAdmin = false;
+    private long userId;
+    private LocalDate fechaSeleccionada = LocalDate.now();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View vista = inflater.inflate(R.layout.rutina_fragment_lista, container, false);
 
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        userId = prefs.getLong("user_id", -1);
+
         // Referencias
         rvRutinas = vista.findViewById(R.id.rvMisRutinas);
         rvEjercicios = vista.findViewById(R.id.rvEjerciciosRegistrados);
-        MaterialButton btnCrearRutina = vista.findViewById(R.id.btnIrACrear);
+        rvRutinasGuardadas = vista.findViewById(R.id.rvRutinasGuardadas);
+        vpRutinasFavoritas = vista.findViewById(R.id.vpRutinasFavoritas);
+        dotsIndicator = vista.findViewById(R.id.dotsIndicator);
+        
+        View btnCrearRutina = vista.findViewById(R.id.btnIrACrear);
+        // ... (el resto de inicializaciones se mantienen si existen en el layout)
+        if (btnCrearRutina == null) {
+            // Si reemplazamos la card del generador, este botón podría no existir
+        }
+
         tabLayoutPrincipal = vista.findViewById(R.id.tabLayoutRutinas);
         tabLayoutCategorias = vista.findViewById(R.id.tabLayoutCategorias);
         containerRutinas = vista.findViewById(R.id.containerRutinas);
         containerEjercicios = vista.findViewById(R.id.containerEntrenamientos);
+        containerPlanes = vista.findViewById(R.id.containerPlanes);
+        containerRutinasGuardadas = vista.findViewById(R.id.containerRutinasGuardadas);
         layoutVacio = vista.findViewById(R.id.layoutEjerciciosVacio);
         fabAddEjercicio = vista.findViewById(R.id.fabAddEjercicioAdmin);
+        
+        layoutSelectorFecha = vista.findViewById(R.id.layoutSelectorFecha);
+        tvFechaSeleccionada = vista.findViewById(R.id.tvFechaSeleccionada);
+        btnCambiarFecha = vista.findViewById(R.id.btnCambiarFecha);
+        etBuscador = vista.findViewById(R.id.etBuscarEjercicio);
+        graphEvolucion = vista.findViewById(R.id.graphEvolucionRutinas);
+        tvRacha = vista.findViewById(R.id.tvRacha);
 
         checkAdminRole();
 
-        // 1. Configurar Rutinas
+        // 1. Configurar Rutinas de la Agenda (RecyclerView inferior)
         rvRutinas.setLayoutManager(new LinearLayoutManager(getContext()));
         rvRutinas.setNestedScrollingEnabled(false);
-        rutinasAdapter = new RutinaGuardadaAdapter(RepositorioRutinas.getRutinas());
+        rutinasAdapter = new RutinaApiAdapter(new ArrayList<>(), new RutinaApiAdapter.OnRutinaClickListener() {
+            @Override
+            public void onCompletar(RutinaResponseDto rutina) {
+                marcarRutinaCompletada(rutina.getId());
+            }
+
+            @Override
+            public void onEliminar(RutinaResponseDto rutina) {
+                eliminarRutinaDeAgenda(rutina.getId());
+            }
+        });
         rvRutinas.setAdapter(rutinasAdapter);
 
-        // 2. Configurar Entrenamientos
+        // 2. Configurar Carrusel de Rutinas (ViewPager2 superior)
+        setupCarruselRutinas();
+
+        // 3. Configurar Entrenamientos
         rvEjercicios.setLayoutManager(new LinearLayoutManager(getContext()));
         rvEjercicios.setNestedScrollingEnabled(false);
         ejerciciosAdapter = new EntrenamientoAdapter(new ArrayList<>());
         ejerciciosAdapter.setAdmin(isAdmin);
-        ejerciciosAdapter.setOnItemClickListener(new EntrenamientoAdapter.OnItemClickListener() {
-            @Override
-            public void onStartWorkout(EntrenamientoResponseDto entrenamiento) {
-                // Aquí el usuario (y admin) puede ver los ejercicios o empezar el entreno
-                Toast.makeText(getContext(), "Viendo ejercicios de: " + entrenamiento.getNombre(), Toast.LENGTH_SHORT).show();
-                // TODO: Abrir pantalla de detalle de ejercicios
-            }
-
-            @Override
-            public void onManageExercises(EntrenamientoResponseDto entrenamiento) {
-                // Solo admin: Botón de la derecha para añadir/gestionar ejercicios
-                Toast.makeText(getContext(), "Admin: Gestionando ejercicios de " + entrenamiento.getNombre(), Toast.LENGTH_SHORT).show();
-                // TODO: Abrir pantalla de gestión de ejercicios para este entrenamiento
-            }
-        });
+        // ...
         rvEjercicios.setAdapter(ejerciciosAdapter);
 
-        btnCrearRutina.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), CrearRutinaActivity.class);
-            startActivity(intent);
-        });
+        // 4. Configurar Rutinas Guardadas (Pestaña "MIS RUTINAS")
+        rvRutinasGuardadas.setLayoutManager(new LinearLayoutManager(getContext()));
+        rutinasGuardadasAdapter = new RutinaGuardadaAdapter(RepositorioRutinas.getRutinas());
+        rvRutinasGuardadas.setAdapter(rutinasGuardadasAdapter);
+
+        setupBuscador();
+
+        if (btnCrearRutina != null) {
+            btnCrearRutina.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), CrearRutinaActivity.class);
+                startActivity(intent);
+            });
+        }
 
         setupTabs();
+        setupDatePicker();
         fabAddEjercicio.setOnClickListener(v -> mostrarDialogoNuevoEjercicio());
 
+        actualizarUIFecha();
+        cargarRutinaPorFecha();
         cargarEjerciciosDesdeServidor();
+        cargarEstadisticas();
 
         return vista;
+    }
+
+    private void setupCarruselRutinas() {
+        if (vpRutinasFavoritas == null) return;
+        
+        // Usamos las rutinas guardadas localmente para el carrusel
+        // Se añade true para indicar que es para ViewPager2 (y use match_parent)
+        RutinaGuardadaAdapter carruselAdapter = new RutinaGuardadaAdapter(RepositorioRutinas.getRutinas(), true);
+        vpRutinasFavoritas.setAdapter(carruselAdapter);
+        
+        // Conectar TabLayout (dots) con ViewPager2
+        new com.google.android.material.tabs.TabLayoutMediator(dotsIndicator, vpRutinasFavoritas, (tab, position) -> {}).attach();
+    }
+
+    private void eliminarRutinaDeAgenda(Long agendaId) {
+        RetrofitClient.getApiService().eliminarRutina(agendaId).enqueue(new Callback<ApiResponseDto<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Ejercicio eliminado de la agenda", Toast.LENGTH_SHORT).show();
+                    cargarRutinaPorFecha();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error al eliminar", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setupDatePicker() {
+        btnCambiarFecha.setOnClickListener(v -> {
+            android.app.DatePickerDialog datePicker = new android.app.DatePickerDialog(requireContext(),
+                    (view, year, month, dayOfMonth) -> {
+                        fechaSeleccionada = LocalDate.of(year, month + 1, dayOfMonth);
+                        actualizarUIFecha();
+                        cargarRutinaPorFecha();
+                    },
+                    fechaSeleccionada.getYear(),
+                    fechaSeleccionada.getMonthValue() - 1,
+                    fechaSeleccionada.getDayOfMonth());
+            datePicker.show();
+        });
+    }
+
+    private void actualizarUIFecha() {
+        if (fechaSeleccionada.equals(LocalDate.now())) {
+            tvFechaSeleccionada.setText(getString(R.string.fecha_hoy, fechaSeleccionada.toString()));
+        } else {
+            tvFechaSeleccionada.setText(getString(R.string.fecha_seleccionada, fechaSeleccionada.toString()));
+        }
+    }
+
+    private void cargarRutinaPorFecha() {
+        if (userId == -1) return;
+        String fechaStr = fechaSeleccionada.toString();
+        RetrofitClient.getApiService().getRutinaDiaria(userId, fechaStr).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    rutinasAdapter.updateList(response.body().getDatos());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error al cargar agenda", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void cargarRutinaDiaria() {
+        fechaSeleccionada = LocalDate.now();
+        actualizarUIFecha();
+        cargarRutinaPorFecha();
+    }
+
+    private void cargarEstadisticas() {
+        if (userId == -1) return;
+        
+        final Float[] puntos = new Float[7];
+        final String[] etiquetas = new String[7];
+        final AtomicInteger peticionesFinalizadas = new AtomicInteger(0);
+        LocalDate hoy = LocalDate.now();
+
+        for (int i = 0; i < 7; i++) {
+            final int index = i;
+            LocalDate dia = hoy.minusDays(6 - i);
+            etiquetas[index] = dia.getDayOfMonth() + "/" + dia.getMonthValue();
+            String fechaStr = dia.toString();
+            
+            RetrofitClient.getApiService().getRutinaDiaria(userId, fechaStr).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
+                    float completadas = 0;
+                    if (response.isSuccessful() && response.body() != null) {
+                        completadas = (float) response.body().getDatos().stream()
+                                .filter(RutinaResponseDto::getCompletado)
+                                .count();
+                    }
+                    puntos[index] = completadas;
+                    verificarYActualizar();
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
+                    puntos[index] = 0f;
+                    verificarYActualizar();
+                }
+
+                private void verificarYActualizar() {
+                    if (peticionesFinalizadas.incrementAndGet() == 7) {
+                        List<Float> puntosList = Arrays.asList(puntos);
+                        graphEvolucion.setData(puntosList, Arrays.asList(etiquetas));
+                        calcularYMostrarRacha(puntos);
+                    }
+                }
+            });
+        }
+    }
+
+    private void calcularYMostrarRacha(Float[] puntos) {
+        int racha = 0;
+        // El índice 6 es 'hoy'. Recorremos hacia atrás.
+        for (int i = 6; i >= 0; i--) {
+            if (puntos[i] > 0) {
+                racha++;
+            } else if (i == 6) {
+                // Si hoy es 0, la racha no se rompe aún (esperamos a que termine el día)
+                continue;
+            } else {
+                // Se rompió la racha en algún día anterior
+                break;
+            }
+        }
+        
+        String labelDia = (racha == 1) ? getString(R.string.dia) : getString(R.string.dias);
+        tvRacha.setText(getString(R.string.racha_dias, racha, labelDia));
+    }
+
+    private void marcarRutinaCompletada(Long rutinaId) {
+        // En lugar de llamar directamente a la API, primero verificamos el estado actual si fuera necesario,
+        // pero el endpoint PATCH /completar suele ser un toggle o una acción de "marcar como hecho".
+        // Si el backend lo trata como un toggle, servirá para ambas acciones.
+        RetrofitClient.getApiService().completarRutina(rutinaId).enqueue(new Callback<ApiResponseDto<RutinaResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<RutinaResponseDto>> call, Response<ApiResponseDto<RutinaResponseDto>> response) {
+                if (response.isSuccessful()) {
+                    String mensaje = "Estado de rutina actualizado";
+                    if (response.body() != null && response.body().getDatos() != null) {
+                        boolean completado = response.body().getDatos().getCompletado();
+                        mensaje = completado ? "¡Felicidades! Entrenamiento completado" : "Rutina marcada como pendiente";
+                    }
+                    Toast.makeText(getContext(), mensaje, Toast.LENGTH_SHORT).show();
+                    cargarRutinaPorFecha();
+                    cargarEstadisticas();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<RutinaResponseDto>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error al actualizar estado", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void checkAdminRole() {
@@ -118,17 +332,46 @@ public class RutinasFragment extends Fragment {
         actualizarVisibilidadFab(tabLayoutPrincipal.getSelectedTabPosition());
     }
 
+    private void setupBuscador() {
+        etBuscador.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filtrarPorNombre(s.toString());
+            }
+            @Override public void afterTextChanged(android.text.Editable s) {}
+        });
+    }
+
+    private void filtrarPorNombre(String query) {
+        List<EntrenamientoResponseDto> filtrada = listaEjerciciosCompleta.stream()
+                .filter(e -> e.getNombre().toLowerCase().contains(query.toLowerCase()))
+                .collect(Collectors.toList());
+        ejerciciosAdapter.updateLista(filtrada);
+    }
+
     private void setupTabs() {
         tabLayoutPrincipal.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
                 actualizarVisibilidadFab(position);
+                
+                containerRutinas.setVisibility(View.GONE);
+                containerPlanes.setVisibility(View.GONE);
+                containerEjercicios.setVisibility(View.GONE);
+                containerRutinasGuardadas.setVisibility(View.GONE);
+                layoutSelectorFecha.setVisibility(View.GONE);
+
                 if (position == 0) {
                     containerRutinas.setVisibility(View.VISIBLE);
-                    containerEjercicios.setVisibility(View.GONE);
+                    layoutSelectorFecha.setVisibility(View.VISIBLE);
+                } else if (position == 1) {
+                    containerRutinasGuardadas.setVisibility(View.VISIBLE);
+                    actualizarRutinasGuardadas();
+                } else if (position == 2) {
+                    containerPlanes.setVisibility(View.VISIBLE);
+                    mostrarFragmentPlanes();
                 } else {
-                    containerRutinas.setVisibility(View.GONE);
                     containerEjercicios.setVisibility(View.VISIBLE);
                 }
             }
@@ -146,8 +389,27 @@ public class RutinasFragment extends Fragment {
         });
     }
 
+    private void actualizarRutinasGuardadas() {
+        if (rutinasGuardadasAdapter != null) {
+            rutinasGuardadasAdapter.updateList(RepositorioRutinas.getRutinas());
+        }
+    }
+
+    private void mostrarFragmentPlanes() {
+        PlanesFragment fragment = new PlanesFragment();
+        fragment.setOnPlanSubscriptionListener(() -> {
+            // Cuando se suscribe a un plan, volvemos a la agenda y recargamos
+            tabLayoutPrincipal.getTabAt(0).select();
+            cargarRutinaPorFecha();
+        });
+        
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.containerPlanes, fragment)
+                .commit();
+    }
+
     private void actualizarVisibilidadFab(int tabPosition) {
-        if (isAdmin && tabPosition == 1) fabAddEjercicio.show();
+        if (isAdmin && tabPosition == 2) fabAddEjercicio.show();
         else fabAddEjercicio.hide();
     }
 

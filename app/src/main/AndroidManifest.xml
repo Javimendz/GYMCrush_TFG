@@ -65,6 +65,14 @@
             android:required="false" />
 
         <activity
+            android:name=".ui.rutinas.CrearPlanActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.rutinas.GestionarEjerciciosPlanActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.main.DesarrolloActivity"
             android:exported="false" />
 

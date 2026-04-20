@@ -19,12 +19,18 @@ public class RepositorioRutinas {
         public String dificultad;
         public int imagenResId;
         public boolean completada = false;
+        public List<Ejercicio> ejercicios;
 
         public RutinaModel(String nombre, String duracion, String dificultad, int imagenResId) {
+            this(nombre, duracion, dificultad, imagenResId, new ArrayList<>());
+        }
+
+        public RutinaModel(String nombre, String duracion, String dificultad, int imagenResId, List<Ejercicio> ejercicios) {
             this.nombre = nombre;
             this.duracion = duracion;
             this.dificultad = dificultad;
             this.imagenResId = imagenResId;
+            this.ejercicios = ejercicios;
         }
     }
 
@@ -34,24 +40,33 @@ public class RepositorioRutinas {
             List<Ejercicio> todos = RepositorioEjercicios.getTodos();
             
             List<Ejercicio> ejs1 = new ArrayList<>();
-            ejs1.add(todos.get(0)); ejs1.get(0).setSeries("4"); ejs1.get(0).setRepeticiones("10");
-            ejs1.add(todos.get(3)); ejs1.get(1).setSeries("3"); ejs1.get(1).setRepeticiones("8");
+            Ejercicio ej1_1 = todos.get(5); // Dominadas (ID 6 es índice 5 si están ordenados)
+            ej1_1.setSeries("4"); ej1_1.setRepeticiones("10");
+            ejs1.add(ej1_1);
+            
+            Ejercicio ej1_2 = todos.get(3); // Press de Banca (ID 4 es índice 3)
+            ej1_2.setSeries("3"); ej1_2.setRepeticiones("8");
+            ejs1.add(ej1_2);
+            
             agregarRutinaInicial("Upper Body Power", "30m", "🔥🔥", R.drawable.ic_launcher_background, ejs1);
             
             List<Ejercicio> ejs2 = new ArrayList<>();
-            ejs2.add(todos.get(2)); ejs2.get(0).setSeries("3"); ejs2.get(0).setRepeticiones("12");
+            Ejercicio ej2_1 = todos.get(2); // Zancadas (ID 3 es índice 2)
+            ej2_1.setSeries("3"); ej2_1.setRepeticiones("12");
+            ejs2.add(ej2_1);
+            
             agregarRutinaInicial("Flexibility Flow", "20m", "🔥", R.drawable.ic_launcher_background, ejs2);
         }
         return listaRutinas;
     }
 
     private static void agregarRutinaInicial(String nombre, String duracion, String dificultad, int img, List<Ejercicio> ejs) {
-        listaRutinas.add(new RutinaModel(nombre, duracion, dificultad, img));
+        listaRutinas.add(new RutinaModel(nombre, duracion, dificultad, img, ejs));
         datosRutinas.put(nombre, ejs);
     }
 
     public static void guardarRutinaCompleta(String nombre, List<Ejercicio> ejercicios) {
-        listaRutinas.add(new RutinaModel(nombre, "Personalizada", "Media", R.drawable.ic_launcher_background));
+        listaRutinas.add(new RutinaModel(nombre, "Personalizada", "Media", R.drawable.ic_launcher_background, ejercicios));
         datosRutinas.put(nombre, ejercicios);
     }
 

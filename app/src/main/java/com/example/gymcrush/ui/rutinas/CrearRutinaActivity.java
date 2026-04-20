@@ -14,10 +14,15 @@ import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto;
+import com.example.gymcrush.data.remote.dto.RutinaRequestDto;
+import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 import com.example.gymcrush.ui.ejercicios.Ejercicio;
+import com.example.gymcrush.ui.ejercicios.RepositorioEjercicios;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -56,36 +61,17 @@ public class CrearRutinaActivity extends AppCompatActivity {
     }
 
     private void cargarEjerciciosDelServidor() {
-        SharedPreferences prefs = getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
-        long userId = prefs.getLong("user_id", -1);
-        if (userId == -1) return;
-
-        RetrofitClient.getApiService().getEntrenamientosUsuario(userId).enqueue(new Callback<ApiResponseDto<List<EntrenamientoResponseDto>>>() {
+        RepositorioEjercicios.getTodosAsync(new RepositorioEjercicios.RepositorioCallback() {
             @Override
-            public void onResponse(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Response<ApiResponseDto<List<EntrenamientoResponseDto>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<EntrenamientoResponseDto> datos = response.body().getDatos();
-                    listaEjercicios.clear();
-                    for (EntrenamientoResponseDto dto : datos) {
-                        // Convertimos el DTO del servidor al objeto Ejercicio usado en la UI de selección
-                        Ejercicio ej = new Ejercicio(
-                                dto.getNombre(),
-                                "Personalizado",
-                                dto.getDescripcion(),
-                                String.valueOf(dto.getDuracion()),
-                                "", 
-                                R.drawable.ic_launcher_background, 
-                                dto.getIntensidad()
-                        );
-                        listaEjercicios.add(ej);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
+            public void onLoaded(List<Ejercicio> ejercicios) {
+                listaEjercicios.clear();
+                listaEjercicios.addAll(ejercicios);
+                adapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onFailure(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Throwable t) {
-                Toast.makeText(CrearRutinaActivity.this, "Error al cargar ejercicios del servidor", Toast.LENGTH_SHORT).show();
+            public void onError(String mensaje) {
+                Toast.makeText(CrearRutinaActivity.this, mensaje, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -98,22 +84,18 @@ public class CrearRutinaActivity extends AppCompatActivity {
             return;
         }
 
-        // Filtrar solo los ejercicios seleccionados y clonarlos para guardar sus series/reps
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        long userId = prefs.getLong("user_id", -1);
+        if (userId == -1) {
+            Toast.makeText(this, "Error: Usuario no identificado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 1. Filtrar solo los ejercicios seleccionados
         List<Ejercicio> seleccionados = new ArrayList<>();
         for (Ejercicio ej : listaEjercicios) {
-            if (ej.isSeleccionado()) {
-                Ejercicio nuevo = new Ejercicio(
-                        ej.getNombre(),
-                        ej.getCategoria(),
-                        ej.getDescripcion(),
-                        ej.getDuracion(),
-                        ej.getUrlVideo(),
-                        ej.getImagenResId(),
-                        ej.getDificultad()
-                );
-                nuevo.setSeries(ej.getSeries());
-                nuevo.setRepeticiones(ej.getRepeticiones());
-                seleccionados.add(nuevo);
+            if (ej.isSeleccionado() && ej.getId() != null) {
+                seleccionados.add(ej);
             }
         }
 
@@ -122,10 +104,58 @@ public class CrearRutinaActivity extends AppCompatActivity {
             return;
         }
 
-        // Guardar la lista de OBJETOS Ejercicio (con sus series/reps)
-        RepositorioRutinas.guardarRutinaCompleta(nombre, seleccionados);
+        // 2. Enviar cada ejercicio como una asignación individual (el backend parece estar diseñado así)
+        // O si el backend permitiera una lista, usaríamos otro endpoint.
+        // Dado que asignarEntrenamiento recibe un RutinaRequestDto con UN solo entrenamientoId:
+        
+        final int totalAAsignar = seleccionados.size();
+        final int[] completados = {0};
+        final boolean[] huboError = {false};
 
-        Toast.makeText(this, "Rutina '" + nombre + "' guardada con éxito", Toast.LENGTH_SHORT).show();
-        finish();
+        for (int i = 0; i < seleccionados.size(); i++) {
+            Ejercicio ej = seleccionados.get(i);
+            RutinaRequestDto request = new RutinaRequestDto(
+                    userId,
+                    ej.getId(),
+                    LocalDate.now().toString(),
+                    i + 1
+            );
+
+            RetrofitClient.getApiService().asignarEntrenamiento(request).enqueue(new Callback<ApiResponseDto<RutinaResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<RutinaResponseDto>> call, Response<ApiResponseDto<RutinaResponseDto>> response) {
+                    completados[0]++;
+                    if (!response.isSuccessful() || response.body() == null || !response.body().isSuccess()) {
+                        huboError[0] = true;
+                    }
+                    
+                    if (completados[0] == totalAAsignar) {
+                        // Guardar también en el repositorio local para que aparezca en "MIS RUTINAS"
+                        RepositorioRutinas.guardarRutinaCompleta(nombre, seleccionados);
+                        finalizarGuardado(huboError[0]);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponseDto<RutinaResponseDto>> call, Throwable t) {
+                    completados[0]++;
+                    huboError[0] = true;
+                    if (completados[0] == totalAAsignar) {
+                        // Guardar también en el repositorio local para que aparezca en "MIS RUTINAS"
+                        RepositorioRutinas.guardarRutinaCompleta(nombre, seleccionados);
+                        finalizarGuardado(huboError[0]);
+                    }
+                }
+            });
+        }
+    }
+
+    private void finalizarGuardado(boolean conErrores) {
+        if (conErrores) {
+            Toast.makeText(this, "Hubo errores al guardar algunos ejercicios", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Rutina guardada correctamente en el servidor", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 }
