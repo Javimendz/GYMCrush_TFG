@@ -689,7 +689,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
                 .show();
     }
 
-    interface OnNombreRecibidoListener {
+    public interface OnNombreRecibidoListener {
         void onNombreRecibido(String nombre);
     }
 

@@ -117,6 +117,12 @@ public interface ApiService {
     @POST("api/v1/tutoriales")
     Call<ApiResponseDto<TutorialResponseDto>> crearTutorial(@Body TutorialRequestDto tutorialRequestDto);
 
+    @PUT("api/v1/tutoriales/{id}")
+    Call<ApiResponseDto<TutorialResponseDto>> actualizarTutorial(@Path("id") Long id, @Body TutorialRequestDto tutorialRequestDto);
+
+    @DELETE("api/v1/tutoriales/{id}")
+    Call<ApiResponseDto<Void>> eliminarTutorial(@Path("id") Long id);
+
     // Endpoints de Visualizaciones (Progreso)
     @POST("api/v1/visualizaciones/progreso")
     Call<ApiResponseDto<VisualizacionResponseDto>> guardarProgreso(@Body VisualizacionRequestDto visualizacionRequestDto);

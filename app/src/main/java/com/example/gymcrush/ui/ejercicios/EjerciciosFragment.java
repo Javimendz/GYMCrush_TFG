@@ -47,6 +47,7 @@ public class EjerciciosFragment extends Fragment {
     private ChipGroup chipGroup;
     private FloatingActionButton fabAdd;
     private List<CategoriaTutorialResponseDto> categoriasBackend = new ArrayList<>();
+    private boolean isAdmin = false;
 
     @Nullable
     @Override
@@ -56,7 +57,20 @@ public class EjerciciosFragment extends Fragment {
         // 1. Configurar RecyclerView
         rv = root.findViewById(R.id.rvEjerciciosBiblio);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new EjercicioAdapter(listaFiltrada);
+        
+        checkAdminRole();
+        
+        adapter = new EjercicioAdapter(listaFiltrada, isAdmin, new EjercicioAdapter.OnEjercicioAdminListener() {
+            @Override
+            public void onEdit(TutorialResponseDto tutorial) {
+                mostrarDialogoEditarEjercicio(tutorial);
+            }
+
+            @Override
+            public void onDelete(TutorialResponseDto tutorial) {
+                confirmarEliminarEjercicio(tutorial);
+            }
+        });
         rv.setAdapter(adapter);
 
         // 2. Chips
@@ -64,8 +78,12 @@ public class EjerciciosFragment extends Fragment {
 
         // 3. FAB para Admin
         fabAdd = root.findViewById(R.id.fabAddExercise);
-        checkAdminRole();
-        fabAdd.setOnClickListener(v -> mostrarDialogoBusquedaExterna());
+        if (isAdmin) {
+            fabAdd.setVisibility(View.VISIBLE);
+            fabAdd.setOnClickListener(v -> mostrarOpcionesCrear());
+        } else {
+            fabAdd.setVisibility(View.GONE);
+        }
 
         // 4. Cargar datos desde el Backend
         cargarTutoriales();
@@ -77,9 +95,190 @@ public class EjerciciosFragment extends Fragment {
     private void checkAdminRole() {
         SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
         Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
-        if (roles.contains("ROLE_ADMIN") || roles.contains("ADMIN")) {
-            fabAdd.setVisibility(View.VISIBLE);
-        }
+        isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+    }
+
+    private void mostrarOpcionesCrear() {
+        String[] opciones = {"Buscar en Biblioteca Externa", "Crear Manualmente"};
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Nuevo Ejercicio")
+                .setItems(opciones, (dialog, which) -> {
+                    if (which == 0) mostrarDialogoBusquedaExterna();
+                    else mostrarDialogoNuevoEjercicioManual();
+                })
+                .show();
+    }
+
+    private void mostrarDialogoNuevoEjercicioManual() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_ejercicio, null);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme).setView(dialogView).create();
+
+        TextInputEditText etNombre = dialogView.findViewById(R.id.etNombreEjercicio);
+        TextInputEditText etDesc = dialogView.findViewById(R.id.etDescripcionEjercicio);
+        TextInputEditText etCat = dialogView.findViewById(R.id.etCategoriaEjercicio);
+        TextInputEditText etDur = dialogView.findViewById(R.id.etDuracionEjercicio);
+        TextInputEditText etEquipamiento = dialogView.findViewById(R.id.etIntensidadEjercicio); // Usamos el campo de intensidad para equipamiento
+        View btnGuardar = dialogView.findViewById(R.id.btnGuardarEjercicio);
+
+        btnGuardar.setOnClickListener(v -> {
+            String nombre = etNombre.getText().toString().trim();
+            String desc = etDesc.getText().toString().trim();
+            String catNombre = etCat.getText().toString().trim();
+            String durS = etDur.getText().toString().trim();
+            String equipamiento = etEquipamiento.getText().toString().trim();
+
+            if (nombre.isEmpty() || catNombre.isEmpty()) {
+                Toast.makeText(getContext(), "Nombre y categoría obligatorios", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int duracion = durS.isEmpty() ? 0 : Integer.parseInt(durS);
+
+            // Buscar si la categoría existe
+            CategoriaTutorialResponseDto categoriaEncontrada = null;
+            for (CategoriaTutorialResponseDto c : categoriasBackend) {
+                if (c.getNombre().equalsIgnoreCase(catNombre)) {
+                    categoriaEncontrada = c;
+                    break;
+                }
+            }
+
+            if (categoriaEncontrada != null) {
+                enviarTutorialBackend(nombre, desc, duracion, equipamiento, categoriaEncontrada.getId(), dialog);
+            } else {
+                // Crear categoría primero
+                crearCategoriaYGuardarTutorial(nombre, desc, duracion, equipamiento, catNombre, dialog);
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void mostrarDialogoEditarEjercicio(TutorialResponseDto t) {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_ejercicio, null);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme).setView(dialogView).create();
+
+        TextInputEditText etNombre = dialogView.findViewById(R.id.etNombreEjercicio);
+        TextInputEditText etDesc = dialogView.findViewById(R.id.etDescripcionEjercicio);
+        TextInputEditText etCat = dialogView.findViewById(R.id.etCategoriaEjercicio);
+        TextInputEditText etDur = dialogView.findViewById(R.id.etDuracionEjercicio);
+        TextInputEditText etEquipamiento = dialogView.findViewById(R.id.etIntensidadEjercicio);
+        com.google.android.material.button.MaterialButton btnGuardar = dialogView.findViewById(R.id.btnGuardarEjercicio);
+
+        etNombre.setText(t.getTitulo());
+        etDesc.setText(t.getDescripcion());
+        etCat.setText(t.getNombreCategoria());
+        etDur.setText(String.valueOf(t.getDuracionMin()));
+        etEquipamiento.setText(t.getEquipamiento() != null ? t.getEquipamiento() : "");
+        btnGuardar.setText("ACTUALIZAR EJERCICIO");
+
+        btnGuardar.setOnClickListener(v -> {
+            String nombre = etNombre.getText().toString().trim();
+            String desc = etDesc.getText().toString().trim();
+            String catNombre = etCat.getText().toString().trim();
+            String durS = etDur.getText().toString().trim();
+            String equipamiento = etEquipamiento.getText().toString().trim();
+
+            if (nombre.isEmpty() || catNombre.isEmpty()) return;
+
+            int duracion = durS.isEmpty() ? 0 : Integer.parseInt(durS);
+
+            TutorialRequestDto request = new TutorialRequestDto();
+            request.setTitulo(nombre);
+            request.setDescripcion(desc);
+            request.setDuracionMin(duracion);
+            request.setUrlVideo(t.getUrlVideo());
+            request.setEquipamiento(equipamiento);
+            request.setMusculoObjetivo(t.getMusculoObjetivo());
+
+            // Buscar categoría
+            Long catId = -1L;
+            for (CategoriaTutorialResponseDto c : categoriasBackend) {
+                if (c.getNombre().equalsIgnoreCase(catNombre)) {
+                    catId = c.getId();
+                    break;
+                }
+            }
+            request.setCategoriaId(catId);
+
+            if (catId != -1L) {
+                RetrofitClient.getApiService().actualizarTutorial(t.getId(), request).enqueue(new Callback<ApiResponseDto<TutorialResponseDto>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponseDto<TutorialResponseDto>> call, Response<ApiResponseDto<TutorialResponseDto>> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Actualizado", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            cargarTutoriales();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<ApiResponseDto<TutorialResponseDto>> call, Throwable th) {}
+                });
+            } else {
+                Toast.makeText(getContext(), "La categoría debe existir para editar", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void confirmarEliminarEjercicio(TutorialResponseDto t) {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Eliminar Ejercicio")
+                .setMessage("¿Estás seguro de que quieres eliminar '" + t.getTitulo() + "'?")
+                .setPositiveButton("Eliminar", (dialog, which) -> {
+                    RetrofitClient.getApiService().eliminarTutorial(t.getId()).enqueue(new Callback<ApiResponseDto<Void>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Eliminado", Toast.LENGTH_SHORT).show();
+                                cargarTutoriales();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<ApiResponseDto<Void>> call, Throwable th) {}
+                    });
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void crearCategoriaYGuardarTutorial(String nombre, String desc, int duracion, String equipamiento, String catNombre, AlertDialog dialog) {
+        CategoriaTutorialRequestDto catReq = new CategoriaTutorialRequestDto(catNombre, "Ejercicios de " + catNombre);
+        RetrofitClient.getApiService().crearCategoria(catReq).enqueue(new Callback<ApiResponseDto<CategoriaTutorialResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Response<ApiResponseDto<CategoriaTutorialResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    categoriasBackend.add(response.body().getDatos());
+                    enviarTutorialBackend(nombre, desc, duracion, equipamiento, response.body().getDatos().getId(), dialog);
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Throwable t) {}
+        });
+    }
+
+    private void enviarTutorialBackend(String nombre, String desc, int duracion, String equipamiento, Long catId, AlertDialog dialog) {
+        TutorialRequestDto request = new TutorialRequestDto();
+        request.setTitulo(nombre);
+        request.setDescripcion(desc);
+        request.setDuracionMin(duracion);
+        request.setCategoriaId(catId);
+        request.setEquipamiento(equipamiento);
+        request.setUrlVideo(""); // Manual no suele tener video al crear así
+
+        RetrofitClient.getApiService().crearTutorial(request).enqueue(new Callback<ApiResponseDto<TutorialResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<TutorialResponseDto>> call, Response<ApiResponseDto<TutorialResponseDto>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Ejercicio creado", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    cargarTutoriales();
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponseDto<TutorialResponseDto>> call, Throwable t) {}
+        });
     }
 
     private void cargarCategorias() {
@@ -250,12 +449,13 @@ public class EjerciciosFragment extends Fragment {
     }
 
     private void setupChips() {
+        if (getContext() == null) return;
         chipGroup.removeAllViews();
         List<String> categorias = new ArrayList<>();
         categorias.add("Todos");
         
         for (TutorialResponseDto t : listaCompleta) {
-            if (!categorias.contains(t.getNombreCategoria())) {
+            if (t.getNombreCategoria() != null && !categorias.contains(t.getNombreCategoria())) {
                 categorias.add(t.getNombreCategoria());
             }
         }

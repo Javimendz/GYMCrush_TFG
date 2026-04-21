@@ -20,9 +20,22 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
     private List<TutorialResponseDto> listaTutoriales;
     private List<Ejercicio> listaEjercicios;
     private boolean mostrarReps = false;
+    private boolean isAdmin = false;
+    private OnEjercicioAdminListener adminListener;
+
+    public interface OnEjercicioAdminListener {
+        void onEdit(TutorialResponseDto tutorial);
+        void onDelete(TutorialResponseDto tutorial);
+    }
 
     public EjercicioAdapter(List<TutorialResponseDto> listaTutoriales) {
         this.listaTutoriales = listaTutoriales;
+    }
+
+    public EjercicioAdapter(List<TutorialResponseDto> listaTutoriales, boolean isAdmin, OnEjercicioAdminListener listener) {
+        this.listaTutoriales = listaTutoriales;
+        this.isAdmin = isAdmin;
+        this.adminListener = listener;
     }
 
     public EjercicioAdapter(List<Ejercicio> listaEjercicios, boolean mostrarReps) {
@@ -85,6 +98,26 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         holder.txtCategoria.setText(categoria);
         holder.txtDescripcion.setText(descripcion);
         holder.txtDificultad.setText(duracion);
+
+        if (isAdmin && listaTutoriales != null) {
+            holder.imgMenu.setVisibility(View.VISIBLE);
+            holder.imgMenu.setOnClickListener(v -> {
+                android.widget.PopupMenu popup = new android.widget.PopupMenu(v.getContext(), v);
+                popup.getMenu().add("Editar");
+                popup.getMenu().add("Eliminar");
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getTitle().equals("Editar")) {
+                        if (adminListener != null) adminListener.onEdit(listaTutoriales.get(position));
+                    } else if (item.getTitle().equals("Eliminar")) {
+                        if (adminListener != null) adminListener.onDelete(listaTutoriales.get(position));
+                    }
+                    return true;
+                });
+                popup.show();
+            });
+        } else {
+            holder.imgMenu.setVisibility(View.GONE);
+        }
         
         if (urlVideo != null && (urlVideo.endsWith(".mp4") || urlVideo.contains("gif"))) {
             Glide.with(holder.itemView.getContext())
@@ -140,7 +173,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtNombre, txtCategoria, txtDescripcion, txtDificultad, txtRepsSeries;
-        ImageView imgFoto;
+        ImageView imgFoto, imgMenu;
         CheckBox cbCompletado;
 
         public ViewHolder(@NonNull View itemView) {
@@ -152,6 +185,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             txtRepsSeries = itemView.findViewById(R.id.tvRepsSeries);
             imgFoto = itemView.findViewById(R.id.imgEjercicioIcono);
             cbCompletado = itemView.findViewById(R.id.cbCompletado);
+            imgMenu = itemView.findViewById(R.id.imgMenuEjercicio);
         }
     }
 }
