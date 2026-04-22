@@ -28,10 +28,10 @@ public class ComidaDiariaResponseDto implements Serializable {
     @SerializedName("imagenUrl")
     private String imagenUrl;
 
-    @SerializedName("recipe_description")
+    @SerializedName(value = "recipeDescription", alternate = {"recipe_description", "descripcion"})
     private String descripcion;
 
-    @SerializedName("recipe_url")
+    @SerializedName(value = "recipeUrl", alternate = {"recipe_url", "url"})
     private String recipeUrl;
 
     // Getters y Setters

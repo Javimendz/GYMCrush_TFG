@@ -10,13 +10,13 @@ public class FatSecretRecipeDto implements Serializable {
     @SerializedName("recipe_name")
     private String recipeName;
 
-    @SerializedName("recipe_description")
+    @SerializedName(value = "recipe_description", alternate = {"recipeDescription", "description", "descripcion"})
     private String recipeDescription;
 
-    @SerializedName("recipe_image")
+    @SerializedName(value = "recipe_image", alternate = {"recipeImage", "image", "imagenUrl"})
     private String recipeImage;
 
-    @SerializedName("recipe_url")
+    @SerializedName(value = "recipe_url", alternate = {"recipeUrl", "url"})
     private String recipeUrl;
 
     @SerializedName("recipe_nutrition")

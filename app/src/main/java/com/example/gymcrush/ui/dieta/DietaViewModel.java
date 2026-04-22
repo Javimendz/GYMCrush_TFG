@@ -39,6 +39,7 @@ public class DietaViewModel extends ViewModel {
     private final MutableLiveData<List<ComidaDiariaRequestDto>> resultadosBusqueda = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
+    private final MutableLiveData<NutricionResponseDto> planGeneradoEvent = new MutableLiveData<>();
 
     private final PublishSubject<String> searchSubject = PublishSubject.create();
     private final CompositeDisposable disposables = new CompositeDisposable();
@@ -75,6 +76,11 @@ public class DietaViewModel extends ViewModel {
     public LiveData<List<ComidaDiariaRequestDto>> getResultadosBusqueda() { return resultadosBusqueda; }
     public LiveData<String> getError() { return error; }
     public LiveData<Boolean> getLoading() { return loading; }
+    public LiveData<NutricionResponseDto> getPlanGeneradoEvent() { return planGeneradoEvent; }
+
+    public void consumirEventoPlan() {
+        planGeneradoEvent.setValue(null);
+    }
 
     public void cargarDatosIniciales(Long usuarioId) {
         loading.setValue(true);
@@ -153,7 +159,9 @@ public class DietaViewModel extends ViewModel {
                 loading.setValue(false);
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().isSuccess()) {
-                        planActual.setValue(response.body().getDatos());
+                        NutricionResponseDto nuevoPlan = response.body().getDatos();
+                        planActual.setValue(nuevoPlan);
+                        planGeneradoEvent.setValue(nuevoPlan);
                         // Actualizar historial tras generar un nuevo plan
                         cargarHistorial(request.getUsuarioId());
                     } else {
@@ -287,45 +295,23 @@ public class DietaViewModel extends ViewModel {
 
     private void parsearResultadosFatSecret(String jsonString) {
         try {
-            if (jsonString == null || jsonString.trim().isEmpty()) {
-                resultadosBusqueda.setValue(new java.util.ArrayList<>());
-                return;
-            }
-
             com.google.gson.Gson gson = new com.google.gson.Gson();
             FatSecretResponseDto fsResponse = gson.fromJson(jsonString, FatSecretResponseDto.class);
             
             List<ComidaDiariaRequestDto> conversion = new java.util.ArrayList<>();
             if (fsResponse != null && fsResponse.getRecipes() != null && fsResponse.getRecipes().getRecipe() != null) {
                 for (FatSecretRecipeDto recipe : fsResponse.getRecipes().getRecipe()) {
-                    if (recipe == null) continue;
-                    
                     ComidaDiariaRequestDto dto = new ComidaDiariaRequestDto();
-                    dto.setNombreAlimento(recipe.getRecipeName() != null ? recipe.getRecipeName() : "Alimento sin nombre");
+                    dto.setNombreAlimento(recipe.getRecipeName());
                     dto.setImagenUrl(recipe.getRecipeImage());
                     
                     if (recipe.getRecipeNutrition() != null) {
                         try {
-                            String cals = recipe.getRecipeNutrition().getCalories();
-                            String prot = recipe.getRecipeNutrition().getProtein();
-                            String carb = recipe.getRecipeNutrition().getCarbohydrate();
-                            String fat = recipe.getRecipeNutrition().getFat();
-
-                            dto.setCalorias(cals != null ? Double.parseDouble(cals) : 0.0);
-                            dto.setProteina(prot != null ? Double.parseDouble(prot) : 0.0);
-                            dto.setCarbohidratos(carb != null ? Double.parseDouble(carb) : 0.0);
-                            dto.setGrasas(fat != null ? Double.parseDouble(fat) : 0.0);
-                        } catch (Exception ignored) {
-                            dto.setCalorias(0.0);
-                            dto.setProteina(0.0);
-                            dto.setCarbohidratos(0.0);
-                            dto.setGrasas(0.0);
-                        }
-                    } else {
-                        dto.setCalorias(0.0);
-                        dto.setProteina(0.0);
-                        dto.setCarbohidratos(0.0);
-                        dto.setGrasas(0.0);
+                            dto.setCalorias(Double.parseDouble(recipe.getRecipeNutrition().getCalories()));
+                            dto.setProteina(Double.parseDouble(recipe.getRecipeNutrition().getProtein()));
+                            dto.setCarbohidratos(Double.parseDouble(recipe.getRecipeNutrition().getCarbohydrate()));
+                            dto.setGrasas(Double.parseDouble(recipe.getRecipeNutrition().getFat()));
+                        } catch (Exception ignored) {}
                     }
                     conversion.add(dto);
                 }

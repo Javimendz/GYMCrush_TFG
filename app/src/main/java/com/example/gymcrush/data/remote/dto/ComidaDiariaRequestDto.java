@@ -25,6 +25,12 @@ public class ComidaDiariaRequestDto implements Serializable {
     @SerializedName("imagenUrl")
     private String imagenUrl;
 
+    @SerializedName(value = "recipeDescription", alternate = {"recipe_description", "descripcion"})
+    private String descripcion;
+
+    @SerializedName(value = "recipeUrl", alternate = {"recipe_url", "url"})
+    private String recipeUrl;
+
     @SerializedName("planNutricionalId")
     private Long planNutricionalId;
 
@@ -49,6 +55,12 @@ public class ComidaDiariaRequestDto implements Serializable {
 
     public String getImagenUrl() { return imagenUrl; }
     public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public String getRecipeUrl() { return recipeUrl; }
+    public void setRecipeUrl(String recipeUrl) { this.recipeUrl = recipeUrl; }
 
     public Long getPlanNutricionalId() { return planNutricionalId; }
     public void setPlanNutricionalId(Long planNutricionalId) { this.planNutricionalId = planNutricionalId; }

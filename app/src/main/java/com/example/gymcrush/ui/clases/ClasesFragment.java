@@ -1,5 +1,6 @@
 package com.example.gymcrush.ui.clases;
 
+import android.text.InputType;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -163,7 +164,9 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
 
     private void setupSearchActividades() {
         if (searchViewActividades != null) {
-            searchViewActividades.setSuggestionsAdapter(null); // Prevenir crash de OneSearchSuggestProvider
+            // Prevenir crash de OneSearchSuggestProvider
+            searchViewActividades.setSuggestionsAdapter(null);
+            searchViewActividades.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         }
         searchViewActividades.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

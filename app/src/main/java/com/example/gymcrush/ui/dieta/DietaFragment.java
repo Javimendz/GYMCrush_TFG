@@ -1,9 +1,9 @@
 package com.example.gymcrush.ui.dieta;
 
-import java.util.List;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +33,7 @@ public class DietaFragment extends Fragment {
 
     private DietaViewModel viewModel;
     private TextInputEditText etPeso, etAltura, etEdad;
-    private AutoCompleteTextView spinnerActividad, spinnerObjetivo, spinnerGenero;
+    private AutoCompleteTextView spinnerActividad, spinnerObjetivo;
     private MaterialButton btnActualizar, btnAddComida, btnBuscarComida;
     
     private MaterialCardView cardEmptySuggestion, cardSuggestion;
@@ -80,26 +80,6 @@ public class DietaFragment extends Fragment {
 
         btnActualizar.setOnClickListener(v -> {
             generarSugerencia();
-            // Evitamos la navegación inmediata con datos obsoletos comprobando si el plan es nuevo
-            viewModel.getPlanActual().observe(getViewLifecycleOwner(), new Observer<NutricionResponseDto>() {
-                private boolean isFirstObservation = true;
-                @Override
-                public void onChanged(NutricionResponseDto plan) {
-                    if (isFirstObservation) {
-                        isFirstObservation = false;
-                        return;
-                    }
-
-                    if (plan != null) {
-                        ResultadoDietaFragment fragment = ResultadoDietaFragment.newInstance(plan);
-                        getParentFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, fragment)
-                            .addToBackStack(null)
-                            .commit();
-                        viewModel.getPlanActual().removeObserver(this);
-                    }
-                }
-            });
         });
         btnAddComida.setOnClickListener(v -> mostrarDialogoAñadirComida());
         btnBuscarComida.setOnClickListener(v -> mostrarDialogoBusqueda());
@@ -138,7 +118,6 @@ public class DietaFragment extends Fragment {
         etEdad = v.findViewById(R.id.etEdad);
         spinnerActividad = v.findViewById(R.id.spinnerActividad);
         spinnerObjetivo = v.findViewById(R.id.spinnerObjetivo);
-        spinnerGenero = v.findViewById(R.id.spinnerGenero);
         btnActualizar = v.findViewById(R.id.btnActualizarDatos);
         btnAddComida = v.findViewById(R.id.btnAddComidaManual);
         btnBuscarComida = v.findViewById(R.id.btnBuscarComida);
@@ -206,6 +185,22 @@ public class DietaFragment extends Fragment {
 
         comidaAdapter = new ComidaAdapter();
         comidaAdapter.setOnComidaClickListener(comida -> {
+            // Intentar enriquecer con descripción e imagen del plan actual
+            NutricionResponseDto plan = viewModel.getPlanActual().getValue();
+            if (plan != null && plan.getMacronutrientes() != null &&
+                    plan.getMacronutrientes().getRecipes() != null) {
+                for (com.example.gymcrush.data.remote.dto.FatSecretRecipeDto recipe :
+                        plan.getMacronutrientes().getRecipes().getRecipe()) {
+                    if (recipe.getRecipeName().trim().equalsIgnoreCase(comida.getNombreAlimento().trim())) {
+                        comida.setDescripcion(recipe.getRecipeDescription());
+                        comida.setRecipeUrl(recipe.getRecipeUrl());
+                        if (recipe.getRecipeImage() != null) {
+                            comida.setImagenUrl(recipe.getRecipeImage());
+                        }
+                        break;
+                    }
+                }
+            }
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, DetalleComidaFragment.newInstance(comida))
                     .addToBackStack(null)
@@ -271,6 +266,11 @@ public class DietaFragment extends Fragment {
                 cardEmptySuggestion.setVisibility(View.GONE);
                 cardSuggestion.setVisibility(View.VISIBLE);
                 mostrarPlan(plan);
+                
+                // Cargar recetas de FatSecret si vienen en el plan
+                if (plan.getMacronutrientes() != null && plan.getMacronutrientes().getRecipes() != null) {
+                    recetaAdapter.setRecetas(plan.getMacronutrientes().getRecipes().getRecipe());
+                }
             } else {
                 cardEmptySuggestion.setVisibility(View.VISIBLE);
                 cardSuggestion.setVisibility(View.GONE);
@@ -289,35 +289,51 @@ public class DietaFragment extends Fragment {
             }
         });
 
+        viewModel.getPlanGeneradoEvent().observe(getViewLifecycleOwner(), plan -> {
+            if (plan != null) {
+                viewModel.consumirEventoPlan();
+                ResultadoDietaFragment fragment = ResultadoDietaFragment.newInstance(plan);
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
         viewModel.getError().observe(getViewLifecycleOwner(), error -> {
             if (error != null) Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
         });
     }
 
     private void mostrarPlan(NutricionResponseDto plan) {
+        // Usar nombreDieta si existe, si no tipoDieta
         String titulo = plan.getNombreDieta() != null && !plan.getNombreDieta().isEmpty()
                 ? plan.getNombreDieta()
                 : (plan.getTipoDieta() != null ? plan.getTipoDieta() : "PLAN PERSONALIZADO");
         tvNombreSugerida.setText(titulo);
         
-        NutricionResponseDto.ParsedMacros macros = plan.getParsedMacros();
-        float p = macros.getProteinasValue();
-        float c = macros.getCarbohidratosValue();
-        float g = macros.getGrasasValue();
+        float p = 0, c = 0, g = 0;
         int calObjetivo = plan.getCaloriasObjetivo() != null ? plan.getCaloriasObjetivo() : 2000;
 
-        tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg Prot", p));
-        tvCarbs.setText(String.format(java.util.Locale.getDefault(), "%.0fg Carbs", c));
-        tvGrasas.setText(String.format(java.util.Locale.getDefault(), "%.0fg Grasas", g));
+        // El backend devuelve en "dietas" las sugerencias diarias para completar los macros
+        if (plan.getDietas() != null) {
+            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : plan.getDietas()) {
+                if (item.getProteina() != null) p += item.getProteina();
+                if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
+                if (item.getGrasas() != null) g += item.getGrasas();
+            }
+            tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg Prot", p));
+            tvCarbs.setText(String.format(java.util.Locale.getDefault(), "%.0fg Carbs", c));
+            tvGrasas.setText(String.format(java.util.Locale.getDefault(), "%.0fg Grasas", g));
+        }
 
         donutChart.setData(p, c, g);
 
-        // Cálculo de progreso: Comidas registradas vs Objetivo diario
+        // Cálculo de calorías consumidas vs objetivo (de la lista 'comidas' que el usuario añade)
         double calConsumidas = 0;
-        List<ComidaDiariaResponseDto> sugerencias = plan.getSugerencias();
-        if (sugerencias != null) {
-            for (ComidaDiariaResponseDto item : sugerencias) {
-                if (item.getCalorias() != null) calConsumidas += item.getCalorias();
+        if (plan.getComidas() != null) {
+            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto comida : plan.getComidas()) {
+                if (comida.getCalorias() != null) calConsumidas += comida.getCalorias();
             }
         }
 
@@ -325,9 +341,9 @@ public class DietaFragment extends Fragment {
         int progress = calObjetivo > 0 ? (int) ((calConsumidas / calObjetivo) * 100) : 0;
         progressCalorias.setProgress(Math.min(progress, 100));
 
-        // En el RecyclerView de la pantalla principal de Dieta mostramos las SUGERENCIAS
-        if (sugerencias != null) {
-            comidaAdapter.setComidas(sugerencias);
+        // En rvComidas mostramos lo que YA ha comido el usuario
+        if (plan.getComidas() != null) {
+            comidaAdapter.setComidas(plan.getComidas());
         }
     }
 
@@ -338,12 +354,6 @@ public class DietaFragment extends Fragment {
             request.setPeso(Double.parseDouble(etPeso.getText().toString()));
             request.setAltura(Double.parseDouble(etAltura.getText().toString()));
             request.setEdad(Integer.parseInt(etEdad.getText().toString()));
-
-            if (spinnerGenero != null) {
-                request.setGenero(spinnerGenero.getText().toString());
-            } else {
-                request.setGenero("MASCULINO"); // Valor por defecto si no hay selector
-            }
 
             // Mapeo de Nivel de Actividad al formato que espera el Backend (Enum)
             String actividadSeleccionada = spinnerActividad.getText().toString();
@@ -444,7 +454,9 @@ public class DietaFragment extends Fragment {
 
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_search_food, null);
         androidx.appcompat.widget.SearchView searchView = dialogView.findViewById(R.id.searchViewFood);
-        searchView.setSuggestionsAdapter(null); // Previene crashes externos de OneSearchSuggestProvider
+        // Prevenir crash de OneSearchSuggestProvider en algunos dispositivos
+        searchView.setSuggestionsAdapter(null);
+        searchView.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         AutoCompleteTextView spinnerMomento = dialogView.findViewById(R.id.spinnerMomentoBusqueda);
         android.widget.ProgressBar progressBar = dialogView.findViewById(R.id.pbSearchLoading);
         RecyclerView rvResults = dialogView.findViewById(R.id.rvFoodSearchResults);
@@ -532,20 +544,12 @@ public class DietaFragment extends Fragment {
     private void configurarDropdowns() {
         String[] niveles = {"SEDENTARIO", "LIGERO", "MODERADO", "INTENSO", "ATLETA"};
         String[] objetivos = {"PERDER_GRASA", "MANTENER", "GANAR_MUSCULO"};
-        String[] generos = {"MASCULINO", "FEMENINO"};
 
         ArrayAdapter<String> adapterNiveles = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, niveles);
         spinnerActividad.setAdapter(adapterNiveles);
 
         ArrayAdapter<String> adapterObjetivos = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, objetivos);
         spinnerObjetivo.setAdapter(adapterObjetivos);
-
-        // Agregamos el spinner de género si existe en el XML o lo manejamos por defecto
-        if (spinnerGenero != null) {
-            ArrayAdapter<String> adapterGeneros = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, generos);
-            spinnerGenero.setAdapter(adapterGeneros);
-            spinnerGenero.setOnClickListener(v -> spinnerGenero.showDropDown());
-        }
         
         // Forzar que el dropdown se muestre al hacer click
         spinnerActividad.setOnClickListener(v -> spinnerActividad.showDropDown());

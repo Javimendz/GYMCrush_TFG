@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import android.text.InputType;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -197,7 +198,9 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
 
     private void setupSearch() {
         if (searchView != null) {
-            searchView.setSuggestionsAdapter(null); // Deshabilitar sugerencias del sistema para evitar OneSearchSuggestProvider crash
+            // Deshabilitar sugerencias del sistema para evitar OneSearchSuggestProvider crash
+            searchView.setSuggestionsAdapter(null);
+            searchView.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         }
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

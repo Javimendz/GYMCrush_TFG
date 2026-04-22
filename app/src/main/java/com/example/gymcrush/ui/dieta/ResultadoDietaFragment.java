@@ -1,6 +1,5 @@
 package com.example.gymcrush.ui.dieta;
 
-import java.util.List;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +58,27 @@ public class ResultadoDietaFragment extends Fragment {
         rvComidas.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ComidaAdapter();
         adapter.setOnComidaClickListener(comida -> {
+            if (planNutricional != null && planNutricional.getMacronutrientes() != null &&
+                    planNutricional.getMacronutrientes().getRecipes() != null &&
+                    planNutricional.getMacronutrientes().getRecipes().getRecipe() != null) {
+
+                for (com.example.gymcrush.data.remote.dto.FatSecretRecipeDto recipe :
+                        planNutricional.getMacronutrientes().getRecipes().getRecipe()) {
+                    
+                    String nombreRecipe = recipe.getRecipeName() != null ? recipe.getRecipeName().trim() : "";
+                    String nombreComida = comida.getNombreAlimento() != null ? comida.getNombreAlimento().trim() : "";
+
+                    if (!nombreRecipe.isEmpty() && nombreRecipe.equalsIgnoreCase(nombreComida)) {
+                        comida.setDescripcion(recipe.getRecipeDescription());
+                        comida.setRecipeUrl(recipe.getRecipeUrl());
+                        if (recipe.getRecipeImage() != null && !recipe.getRecipeImage().isEmpty()) {
+                            comida.setImagenUrl(recipe.getRecipeImage());
+                        }
+                        break;
+                    }
+                }
+            }
+
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, DetalleComidaFragment.newInstance(comida))
                     .addToBackStack(null)
@@ -103,6 +123,7 @@ public class ResultadoDietaFragment extends Fragment {
         TextView tvCarb = view.findViewById(R.id.tv_res_carb);
         TextView tvGras = view.findViewById(R.id.tv_res_gras);
 
+        // Usar nombreDieta si existe, si no tipoDieta
         String titulo = planNutricional.getNombreDieta() != null && !planNutricional.getNombreDieta().isEmpty()
                 ? planNutricional.getNombreDieta()
                 : (planNutricional.getTipoDieta() != null ? planNutricional.getTipoDieta() : "PLAN PERSONALIZADO");
@@ -112,14 +133,35 @@ public class ResultadoDietaFragment extends Fragment {
         int calObjetivo = planNutricional.getCaloriasObjetivo() != null ? planNutricional.getCaloriasObjetivo() : 0;
         tvObj.setText(String.format(java.util.Locale.getDefault(), "OBJETIVO: %d KCAL", calObjetivo));
 
-        NutricionResponseDto.ParsedMacros macros = planNutricional.getParsedMacros();
-        tvProt.setText(String.format(java.util.Locale.getDefault(), "%.1f g", macros.getProteinasValue()));
-        tvCarb.setText(String.format(java.util.Locale.getDefault(), "%.1f g", macros.getCarbohidratosValue()));
-        tvGras.setText(String.format(java.util.Locale.getDefault(), "%.1f g", macros.getGrasasValue()));
+        float p = 0, c = 0, g = 0;
+        if (planNutricional.getDietas() != null) {
+            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : planNutricional.getDietas()) {
+                if (item.getProteina() != null) p += item.getProteina();
+                if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
+                if (item.getGrasas() != null) g += item.getGrasas();
+            }
+        }
+        tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg", p));
+        tvCarb.setText(String.format(java.util.Locale.getDefault(), "%.0fg", c));
+        tvGras.setText(String.format(java.util.Locale.getDefault(), "%.0fg", g));
 
-        List<ComidaDiariaResponseDto> sugerencias = planNutricional.getSugerencias();
-        if (sugerencias != null && !sugerencias.isEmpty()) {
-            adapter.setComidas(sugerencias);
+        // En esta pantalla mostramos las sugerencias (dietas) que ya vienen en el plan
+        if (planNutricional.getDietas() != null) {
+            adapter.setComidas(planNutricional.getDietas());
+        }
+
+        // Mostrar recetas si vienen del backend (FatSecret)
+        if (planNutricional.getMacronutrientes() != null && 
+            planNutricional.getMacronutrientes().getRecipes() != null &&
+            planNutricional.getMacronutrientes().getRecipes().getRecipe() != null &&
+            !planNutricional.getMacronutrientes().getRecipes().getRecipe().isEmpty()) {
+            
+            tvLabelRecetas.setVisibility(View.VISIBLE);
+            rvRecetas.setVisibility(View.VISIBLE);
+            recetaAdapter.setRecetas(planNutricional.getMacronutrientes().getRecipes().getRecipe());
+        } else {
+            tvLabelRecetas.setVisibility(View.GONE);
+            rvRecetas.setVisibility(View.GONE);
         }
     }
 }
