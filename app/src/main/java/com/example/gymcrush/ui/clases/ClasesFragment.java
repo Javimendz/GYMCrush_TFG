@@ -162,6 +162,9 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
     }
 
     private void setupSearchActividades() {
+        if (searchViewActividades != null) {
+            searchViewActividades.setSuggestionsAdapter(null); // Prevenir crash de OneSearchSuggestProvider
+        }
         searchViewActividades.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

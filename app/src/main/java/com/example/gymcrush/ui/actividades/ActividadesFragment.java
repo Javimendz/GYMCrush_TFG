@@ -196,6 +196,9 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
     }
 
     private void setupSearch() {
+        if (searchView != null) {
+            searchView.setSuggestionsAdapter(null); // Deshabilitar sugerencias del sistema para evitar OneSearchSuggestProvider crash
+        }
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

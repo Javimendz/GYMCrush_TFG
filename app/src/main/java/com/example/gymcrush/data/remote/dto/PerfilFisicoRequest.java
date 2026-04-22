@@ -21,6 +21,9 @@ public class PerfilFisicoRequest {
     @SerializedName("objetivo")
     private String objetivo;
 
+    @SerializedName("genero")
+    private String genero;
+
     // Getters y Setters
     public Long getUsuarioId() { return usuarioId; }
     public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
@@ -34,4 +37,6 @@ public class PerfilFisicoRequest {
     public void setNivelActividad(String nivelActividad) { this.nivelActividad = nivelActividad; }
     public String getObjetivo() { return objetivo; }
     public void setObjetivo(String objetivo) { this.objetivo = objetivo; }
+    public String getGenero() { return genero; }
+    public void setGenero(String genero) { this.genero = genero; }
 }

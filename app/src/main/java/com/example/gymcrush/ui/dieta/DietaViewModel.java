@@ -287,23 +287,45 @@ public class DietaViewModel extends ViewModel {
 
     private void parsearResultadosFatSecret(String jsonString) {
         try {
+            if (jsonString == null || jsonString.trim().isEmpty()) {
+                resultadosBusqueda.setValue(new java.util.ArrayList<>());
+                return;
+            }
+
             com.google.gson.Gson gson = new com.google.gson.Gson();
             FatSecretResponseDto fsResponse = gson.fromJson(jsonString, FatSecretResponseDto.class);
             
             List<ComidaDiariaRequestDto> conversion = new java.util.ArrayList<>();
             if (fsResponse != null && fsResponse.getRecipes() != null && fsResponse.getRecipes().getRecipe() != null) {
                 for (FatSecretRecipeDto recipe : fsResponse.getRecipes().getRecipe()) {
+                    if (recipe == null) continue;
+                    
                     ComidaDiariaRequestDto dto = new ComidaDiariaRequestDto();
-                    dto.setNombreAlimento(recipe.getRecipeName());
+                    dto.setNombreAlimento(recipe.getRecipeName() != null ? recipe.getRecipeName() : "Alimento sin nombre");
                     dto.setImagenUrl(recipe.getRecipeImage());
                     
                     if (recipe.getRecipeNutrition() != null) {
                         try {
-                            dto.setCalorias(Double.parseDouble(recipe.getRecipeNutrition().getCalories()));
-                            dto.setProteina(Double.parseDouble(recipe.getRecipeNutrition().getProtein()));
-                            dto.setCarbohidratos(Double.parseDouble(recipe.getRecipeNutrition().getCarbohydrate()));
-                            dto.setGrasas(Double.parseDouble(recipe.getRecipeNutrition().getFat()));
-                        } catch (Exception ignored) {}
+                            String cals = recipe.getRecipeNutrition().getCalories();
+                            String prot = recipe.getRecipeNutrition().getProtein();
+                            String carb = recipe.getRecipeNutrition().getCarbohydrate();
+                            String fat = recipe.getRecipeNutrition().getFat();
+
+                            dto.setCalorias(cals != null ? Double.parseDouble(cals) : 0.0);
+                            dto.setProteina(prot != null ? Double.parseDouble(prot) : 0.0);
+                            dto.setCarbohidratos(carb != null ? Double.parseDouble(carb) : 0.0);
+                            dto.setGrasas(fat != null ? Double.parseDouble(fat) : 0.0);
+                        } catch (Exception ignored) {
+                            dto.setCalorias(0.0);
+                            dto.setProteina(0.0);
+                            dto.setCarbohidratos(0.0);
+                            dto.setGrasas(0.0);
+                        }
+                    } else {
+                        dto.setCalorias(0.0);
+                        dto.setProteina(0.0);
+                        dto.setCarbohidratos(0.0);
+                        dto.setGrasas(0.0);
                     }
                     conversion.add(dto);
                 }
