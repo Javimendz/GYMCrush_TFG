@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @Slf4j
 @Service
@@ -36,14 +38,13 @@ public class NutricionServiceImpl implements INutricionService {
 
     @Override
     @Transactional
-    public NutricionResponseDto generarPlanAutomatico(NutricionRequestDto request) { // 1. Validaciones previas
+    public NutricionResponseDto generarPlanAutomatico(NutricionRequestDto request) {
+
         validarDatosFisicos(request);
 
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("Usuario no encontrado con ID: " + request.getUsuarioId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        // 2. Determinar edad y género (fallback si el perfil no existe)
         int edad = (request.getEdad() != null) ? request.getEdad() : 25;
         String genero = (request.getGenero() != null) ? request.getGenero() : "MASCULINO";
 
@@ -56,69 +57,169 @@ public class NutricionServiceImpl implements INutricionService {
             }
         }
 
-        // 3. Cálculos Nutricionales (Cálculo de kcal con corrección de CM)
+        // 🔥 CÁLCULOS
         int kcalObjetivo = calcularCalorias(request, edad, genero);
-        String categoriaNombre = resolverCategoria(EnumObjetivo.valueOf(request.getObjetivo().toUpperCase()));
-        double proteinasGramos = request.getPeso() * 2.0;
-        double grasasGramos = request.getPeso() * 0.8;
-        double caloriasRestantes = kcalObjetivo - (proteinasGramos * 4) - (grasasGramos * 9);
-        double carbosGramos = Math.max(0, caloriasRestantes / 4.0);
+        double proteinas = request.getPeso() * 2.0;
+        double grasas = request.getPeso() * 0.8;
+        double carbs = Math.max(0, (kcalObjetivo - (proteinas * 4 + grasas * 9)) / 4);
 
-        // 4. Obtener sugerencia de la API externa (FatSecret)
-        String macrosJsonFallback = buildMacrosJson(proteinasGramos, carbosGramos, grasasGramos);
-        String menuJsonRaw = obtenerMenu(kcalObjetivo, proteinasGramos, carbosGramos, grasasGramos, macrosJsonFallback);
+        String jsonFatSecret = obtenerMenu(kcalObjetivo, proteinas, carbs, grasas, "{}");
 
-        // 5. Extraer nombre e imagen de la primera receta usando tus DTOs
-        String nombreSugerido = "Sugerencia según macros";
-        String imagenSugerida = "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=500";
+        List<FatSecretRecipeDto> recetas = List.of();
 
         try {
-            // Convertimos el String de FatSecret al objeto DTO para extraer datos
-            // fácilmente
-            FatSecretResponseDto fsData = objectMapper.readValue(menuJsonRaw, FatSecretResponseDto.class);
-            if (fsData.getRecipes() != null && fsData.getRecipes().getRecipe() != null
-                    && !fsData.getRecipes().getRecipe().isEmpty()) {
-                FatSecretRecipeDto primeraReceta = fsData.getRecipes().getRecipe().get(0);
-                nombreSugerido = primeraReceta.getRecipeName();
-                imagenSugerida = primeraReceta.getRecipeImage();
+            FatSecretResponseDto fs = objectMapper.readValue(jsonFatSecret, FatSecretResponseDto.class);
+            if (fs.getRecipes() != null) {
+                recetas = fs.getRecipes().getRecipe();
             }
         } catch (Exception e) {
-            log.warn("No se pudo mapear el DTO de FatSecret, usando valores por defecto: {}", e.getMessage());
+            log.warn("Error parseando recetas: {}", e.getMessage());
         }
 
-        // 6. Obtener la dieta base del catálogo (para el tipo de dieta)
-        Dieta dietaBase = dietaRepository.findByCategoriaDietaNombre(categoriaNombre)
-                .stream().findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Catálogo vacío para: " + categoriaNombre));
+Set<String> usadas = new HashSet<>();
+        FatSecretRecipeDto desayunoReceta = getRecetaAleatoria(recetas, usadas);
+        FatSecretRecipeDto almuerzoReceta = getRecetaAleatoria(recetas, usadas);
+        FatSecretRecipeDto cenaReceta = getRecetaAleatoria(recetas, usadas);
 
-        // 7. Construir y guardar el Plan de Nutrición
-        Nutricion nuevoPlan = Nutricion.builder()
+        Dieta dietaBase = dietaRepository.findByCategoriaDietaNombre(
+                resolverCategoria(EnumObjetivo.valueOf(request.getObjetivo().toUpperCase())))
+                .stream().findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("No hay dietas"));
+
+        Nutricion plan = Nutricion.builder()
                 .usuario(usuario)
-                .nombreDieta("Plan " + categoriaNombre)
+                .nombreDieta("Plan personalizado")
                 .tipoDieta(dietaBase.getNombre())
                 .caloriasObjetivo(kcalObjetivo)
-                .macronutrientesJson(menuJsonRaw) // Se guarda como String en la DB
+                .macronutrientesJson(jsonFatSecret)
                 .fechaGeneracion(LocalDateTime.now())
                 .build();
 
-        // 8. Crear las Comidas Diarias (Desayuno 30%, Almuerzo 40%, Cena 30%)
-        double pDesayunoCena = 0.30;
-        double pAlmuerzo = 0.40;
+        String defaultImg = "https://images.unsplash.com/photo-1490645935967-10de6ba17061";
 
-        ComidaDiaria desayuno = crearComida("Desayuno", nombreSugerido, imagenSugerida, kcalObjetivo, proteinasGramos,
-                carbosGramos, grasasGramos, pDesayunoCena, nuevoPlan);
-        ComidaDiaria almuerzo = crearComida("Almuerzo", nombreSugerido, imagenSugerida, kcalObjetivo, proteinasGramos,
-                carbosGramos, grasasGramos, pAlmuerzo, nuevoPlan);
-        ComidaDiaria cena = crearComida("Cena", nombreSugerido, imagenSugerida, kcalObjetivo, proteinasGramos,
-                carbosGramos, grasasGramos, pDesayunoCena, nuevoPlan);
+        ComidaDiaria desayuno = crearComida(
+                "Desayuno",
+                desayunoReceta != null ? desayunoReceta.getRecipeName() : "Desayuno saludable",
+                desayunoReceta != null ? desayunoReceta.getRecipeImage() : defaultImg,
+                kcalObjetivo, proteinas, carbs, grasas, 0.3, plan);
 
-        nuevoPlan.setComidas(List.of(desayuno, almuerzo, cena));
+        ComidaDiaria almuerzo = crearComida(
+                "Almuerzo",
+                almuerzoReceta != null ? almuerzoReceta.getRecipeName() : "Almuerzo equilibrado",
+                almuerzoReceta != null ? almuerzoReceta.getRecipeImage() : defaultImg,
+                kcalObjetivo, proteinas, carbs, grasas, 0.4, plan);
 
-        // 9. Persistir y Retornar
-        Nutricion planGuardado = nutricionRepository.save(nuevoPlan);
-        log.info("Plan generado y guardado ID: {} para usuario: {}", planGuardado.getId(), usuario.getId());
+        ComidaDiaria cena = crearComida(
+                "Cena",
+                cenaReceta != null ? cenaReceta.getRecipeName() : "Cena ligera",
+                cenaReceta != null ? cenaReceta.getRecipeImage() : defaultImg,
+                kcalObjetivo, proteinas, carbs, grasas, 0.3, plan);
 
-        return nutricionMapper.toResponseDto(planGuardado);
+        plan.setComidas(List.of(desayuno, almuerzo, cena));
+
+        return nutricionMapper.toResponseDto(nutricionRepository.save(plan));
+    }
+
+    public NutricionResponseDto generarPlanSemanal(NutricionRequestDto request) {
+
+        validarDatosFisicos(request);
+
+        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        int edad = (request.getEdad() != null) ? request.getEdad() : 25;
+        String genero = (request.getGenero() != null) ? request.getGenero() : "MASCULINO";
+
+        if (usuario.getPerfil() != null) {
+            if (usuario.getPerfil().getFechaNacimiento() != null) {
+                edad = Period.between(usuario.getPerfil().getFechaNacimiento(), LocalDate.now()).getYears();
+            }
+            if (usuario.getPerfil().getGenero() != null) {
+                genero = usuario.getPerfil().getGenero().name();
+            }
+        }
+
+        int kcal = calcularCalorias(request, edad, genero);
+
+        double proteinas = request.getPeso() * 2.0;
+        double grasas = request.getPeso() * 0.8;
+        double carbs = Math.max(0, (kcal - (proteinas * 4 + grasas * 9)) / 4);
+
+        // 🔥 Traemos MUCHAS recetas (clave para semana)
+        String json = fatSecretService.buscarRecetasPorMacros(kcal * 2, (int) proteinas, (int) carbs, (int) grasas);
+
+        List<FatSecretRecipeDto> recetas = List.of();
+
+        try {
+            FatSecretResponseDto fs = objectMapper.readValue(json, FatSecretResponseDto.class);
+            if (fs.getRecipes() != null) {
+                recetas = fs.getRecipes().getRecipe();
+            }
+        } catch (Exception e) {
+            log.warn("Error parseando recetas: {}", e.getMessage());
+        }
+
+        if (recetas.isEmpty()) {
+            throw new RuntimeException("No hay recetas suficientes para generar dieta semanal");
+        }
+
+Set<String> usadas = new HashSet<>();
+        Dieta dietaBase = dietaRepository.findByCategoriaDietaNombre(
+                resolverCategoria(EnumObjetivo.valueOf(request.getObjetivo().toUpperCase())))
+                .stream().findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("No hay dietas"));
+
+        Nutricion plan = Nutricion.builder()
+                .usuario(usuario)
+                .nombreDieta("Plan semanal personalizado")
+                .tipoDieta(dietaBase.getNombre())
+                .caloriasObjetivo(kcal)
+                .macronutrientesJson(json)
+                .fechaGeneracion(LocalDateTime.now())
+                .build();
+
+        String defaultImg = "https://images.unsplash.com/photo-1490645935967-10de6ba17061";
+
+        List<ComidaDiaria> comidas = new java.util.ArrayList<>();
+
+        String[] dias = { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
+
+        for (String dia : dias) {
+
+            FatSecretRecipeDto desayuno = getRecetaAleatoria(recetas, usadas);
+            FatSecretRecipeDto almuerzo = getRecetaAleatoria(recetas, usadas);
+            FatSecretRecipeDto cena = getRecetaAleatoria(recetas, usadas);
+
+            comidas.add(crearComida(
+                    dia + " - Desayuno",
+                    getNombre(desayuno, "Desayuno saludable"),
+                    getImagen(desayuno, defaultImg),
+                    kcal, proteinas, carbs, grasas, 0.3, plan));
+
+            comidas.add(crearComida(
+                    dia + " - Almuerzo",
+                    getNombre(almuerzo, "Almuerzo equilibrado"),
+                    getImagen(almuerzo, defaultImg),
+                    kcal, proteinas, carbs, grasas, 0.4, plan));
+
+            comidas.add(crearComida(
+                    dia + " - Cena",
+                    getNombre(cena, "Cena ligera"),
+                    getImagen(cena, defaultImg),
+                    kcal, proteinas, carbs, grasas, 0.3, plan));
+        }
+
+        plan.setComidas(comidas);
+
+        return nutricionMapper.toResponseDto(nutricionRepository.save(plan));
+    }
+
+    private String getNombre(FatSecretRecipeDto r, String def) {
+        return (r != null && r.getRecipeName() != null) ? r.getRecipeName() : def;
+    }
+
+    private String getImagen(FatSecretRecipeDto r, String def) {
+        return (r != null && r.getRecipeImage() != null) ? r.getRecipeImage() : def;
     }
 
     // Método auxiliar para no repetir código al crear las 3 comidas
@@ -216,4 +317,25 @@ public class NutricionServiceImpl implements INutricionService {
             return fallback;
         }
     }
+
+   private FatSecretRecipeDto getRecetaAleatoria(List<FatSecretRecipeDto> recetas, Set<String> usadas) {
+
+    if (recetas == null || recetas.isEmpty()) return null;
+
+    List<FatSecretRecipeDto> disponibles = recetas.stream()
+            .filter(r -> r.getRecipeId() != null && !usadas.contains(r.getRecipeId()))
+            .toList();
+
+    if (disponibles.isEmpty()) {
+        disponibles = recetas;
+    }
+
+    FatSecretRecipeDto receta = disponibles.get(new java.util.Random().nextInt(disponibles.size()));
+
+    if (receta.getRecipeId() != null) {
+        usadas.add(receta.getRecipeId());
+    }
+
+    return receta;
+}
 }
