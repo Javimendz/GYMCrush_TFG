@@ -15,6 +15,8 @@ public class EntrenamientoResponseDto {
     private String intensidad;
     @SerializedName("categoria")
     private String categoria;
+    @SerializedName("urlVideo")
+    private String urlVideo;
 
     public Long getId() { return id; }
     public String getNombre() { return nombre; }
@@ -22,4 +24,5 @@ public class EntrenamientoResponseDto {
     public Integer getDuracion() { return duracion; }
     public String getIntensidad() { return intensidad; }
     public String getCategoria() { return categoria; }
+    public String getUrlVideo() { return urlVideo; }
 }

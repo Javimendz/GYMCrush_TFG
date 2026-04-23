@@ -37,9 +37,9 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
         holder.tvDetalles.setText(rutina.getDuracion() + " min | Intensidad: " + rutina.getIntensidad());
         
         // Cargar imagen con Glide
-        if (rutina.getUrlGif() != null && !rutina.getUrlGif().isEmpty()) {
+        if (rutina.getUrlVideo() != null && !rutina.getUrlVideo().isEmpty()) {
             Glide.with(holder.itemView.getContext())
-                    .load(rutina.getUrlGif())
+                    .load(rutina.getUrlVideo())
                     .placeholder(R.drawable.ic_launcher_foreground)
                     .into(holder.imgRutina);
         } else {

@@ -51,9 +51,14 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         holder.tvDetalles.setText(categoria + " | " + item.getDuracion() + " min | " + item.getIntensidad());
 
         // Cargar imagen con Glide
-        Glide.with(holder.itemView.getContext())
-                .load(R.drawable.ic_launcher_foreground) // Placeholder
-                .into(holder.imgRutina);
+        if (item.getUrlVideo() != null && !item.getUrlVideo().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(item.getUrlVideo())
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .into(holder.imgRutina);
+        } else {
+            holder.imgRutina.setImageResource(R.drawable.ic_launcher_foreground);
+        }
 
         // El botón de la derecha (tres líneas/menú) servirá para que el admin gestione ejercicios
         holder.btnMasOpciones.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
