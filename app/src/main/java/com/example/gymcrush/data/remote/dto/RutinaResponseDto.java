@@ -20,6 +20,8 @@ public class RutinaResponseDto {
     private Integer duracion;
     @SerializedName("intensidad")
     private String intensidad;
+    @SerializedName("urlGif")
+    private String urlGif;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -38,4 +40,6 @@ public class RutinaResponseDto {
     public void setDuracion(Integer duracion) { this.duracion = duracion; }
     public String getIntensidad() { return intensidad; }
     public void setIntensidad(String intensidad) { this.intensidad = intensidad; }
+    public String getUrlGif() { return urlGif; }
+    public void setUrlGif(String urlGif) { this.urlGif = urlGif; }
 }

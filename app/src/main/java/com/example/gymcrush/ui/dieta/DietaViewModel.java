@@ -304,6 +304,8 @@ public class DietaViewModel extends ViewModel {
                     ComidaDiariaRequestDto dto = new ComidaDiariaRequestDto();
                     dto.setNombreAlimento(recipe.getRecipeName());
                     dto.setImagenUrl(recipe.getRecipeImage());
+                    dto.setRecipeUrl(recipe.getRecipeUrl());
+                    dto.setDescripcion(recipe.getRecipeDescription());
                     
                     if (recipe.getRecipeNutrition() != null) {
                         try {

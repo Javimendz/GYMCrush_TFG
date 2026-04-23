@@ -95,31 +95,52 @@ public class DetalleComidaFragment extends Fragment {
             View tvLabelRecetaWeb = view.findViewById(R.id.tvLabelRecetaWeb);
 
             if (comida.getRecipeUrl() != null && !comida.getRecipeUrl().isEmpty()) {
-                // Opción 1: Botón para abrir en navegador externo (la mantenemos por si acaso)
+                String recipeUrl = comida.getRecipeUrl();
+                // Forzar HTTPS para evitar redirecciones del servidor a la home
+                if (recipeUrl.startsWith("http://")) {
+                    recipeUrl = recipeUrl.replace("http://", "https://");
+                }
+
                 btnReceta.setVisibility(View.VISIBLE);
                 btnReceta.setOnClickListener(v -> {
                     android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(comida.getRecipeUrl()));
                     startActivity(intent);
                 });
 
-                // Opción 2: Mostrar dentro de la app con WebView (la manera "correcta" para mejor UX)
                 tvLabelRecetaWeb.setVisibility(View.VISIBLE);
                 webViewContainer.setVisibility(View.VISIBLE);
-                
+
                 WebSettings webSettings = webView.getSettings();
                 webSettings.setJavaScriptEnabled(true);
                 webSettings.setDomStorageEnabled(true);
+                webSettings.setDatabaseEnabled(true);
                 webSettings.setLoadWithOverviewMode(true);
                 webSettings.setUseWideViewPort(true);
                 webSettings.setBuiltInZoomControls(true);
                 webSettings.setDisplayZoomControls(false);
-                
-                webView.setWebViewClient(new WebViewClient());
-                
-                // IMPORTANTE: Para que el WebView se ajuste al contenido y permita el scroll del padre
-                webView.setNestedScrollingEnabled(false); 
 
-                webView.loadUrl(comida.getRecipeUrl());
+                // Usar UserAgent de Desktop para evitar la redirección móvil a la home
+                webSettings.setUserAgentString("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+
+                // Aceptar cookies (necesario para algunos sitios de recetas)
+                android.webkit.CookieManager.getInstance().setAcceptCookie(true);
+                android.webkit.CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
+
+                webView.setWebViewClient(new WebViewClient());
+                webView.setNestedScrollingEnabled(false);
+
+                // BYPASS: Añadir view=print para evitar la redirección de FatSecret a la Home
+                if (recipeUrl.contains("fatsecret") && !recipeUrl.contains("view=print")) {
+                    recipeUrl += (recipeUrl.contains("?") ? "&" : "?") + "view=print";
+                }
+
+                // Cargamos con un mapa de encabezados para mayor seguridad y evitar redirecciones
+                java.util.Map<String, String> extraHeaders = new java.util.HashMap<>();
+                // Ocultar rastro de Android App para el servidor
+                extraHeaders.put("X-Requested-With", "XMLHttpRequest"); 
+                
+                webView.clearCache(true);
+                webView.loadUrl(recipeUrl, extraHeaders);
             } else {
                 btnReceta.setVisibility(View.GONE);
                 tvLabelRecetaWeb.setVisibility(View.GONE);

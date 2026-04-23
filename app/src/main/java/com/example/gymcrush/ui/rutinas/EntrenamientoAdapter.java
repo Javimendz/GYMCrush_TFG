@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto;
+import com.bumptech.glide.Glide;
 import java.util.List;
 
 public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdapter.ViewHolder> {
@@ -49,6 +50,11 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         String categoria = item.getCategoria() != null ? item.getCategoria() : "Sin categoría";
         holder.tvDetalles.setText(categoria + " | " + item.getDuracion() + " min | " + item.getIntensidad());
 
+        // Cargar imagen con Glide
+        Glide.with(holder.itemView.getContext())
+                .load(R.drawable.ic_launcher_foreground) // Placeholder
+                .into(holder.imgRutina);
+
         // El botón de la derecha (tres líneas/menú) servirá para que el admin gestione ejercicios
         holder.btnMasOpciones.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
         holder.btnMasOpciones.setOnClickListener(v -> {
@@ -73,13 +79,14 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvDetalles, tvEstado;
-        ImageView btnMasOpciones;
+        ImageView btnMasOpciones, imgRutina;
         public ViewHolder(@NonNull View v) {
             super(v);
             tvNombre = v.findViewById(R.id.tvNombreRutina);
             tvDetalles = v.findViewById(R.id.tvDetallesRutina);
             tvEstado = v.findViewById(R.id.tvEstadoRutina);
             btnMasOpciones = v.findViewById(R.id.btnMasOpciones);
+            imgRutina = v.findViewById(R.id.imgRutina);
         }
     }
 }

@@ -25,9 +25,14 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         void onComidaLongClick(ComidaDiariaResponseDto comida);
     }
 
+    public interface OnHechaClickListener {
+        void onHechaClick(ComidaDiariaResponseDto comida, boolean isChecked);
+    }
+
     private List<ComidaDiariaResponseDto> comidas = new ArrayList<>();
     private OnComidaClickListener clickListener;
     private OnComidaLongClickListener longClickListener;
+    private OnHechaClickListener hechaClickListener;
 
     public void setComidas(List<ComidaDiariaResponseDto> comidas) {
         this.comidas = comidas;
@@ -42,6 +47,10 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         this.longClickListener = listener;
     }
 
+    public void setOnHechaClickListener(OnHechaClickListener listener) {
+        this.hechaClickListener = listener;
+    }
+
     @NonNull
     @Override
     public ComidaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -52,7 +61,7 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
     @Override
     public void onBindViewHolder(@NonNull ComidaViewHolder holder, int position) {
         ComidaDiariaResponseDto comida = comidas.get(position);
-        holder.bind(comida, clickListener, longClickListener);
+        holder.bind(comida, clickListener, longClickListener, hechaClickListener);
     }
 
     @Override
@@ -75,7 +84,7 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
             cbHecha = itemView.findViewById(R.id.cbComidaHecha);
         }
 
-        public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener, OnComidaLongClickListener longClickListener) {
+        public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener, OnComidaLongClickListener longClickListener, OnHechaClickListener hechaClickListener) {
             tvTitulo.setText(comida.getNombreAlimento() != null ? comida.getNombreAlimento() : comida.getMomento());
             tvDesc.setText(comida.getMomento()); // Invertimos para que el plato sea el título
             
@@ -99,13 +108,26 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
 
             // Lógica del Checkbox para engagement
             cbHecha.setOnCheckedChangeListener(null); // Reset
-            // Aquí se podría guardar el estado en SharedPreferences o Base de Datos
+            
+            // Si el ID es nulo, es una sugerencia (no persistida aún)
+            // Si tiene ID, es una comida ya registrada en el consumo diario
+            boolean esConsumoReal = (comida.getId() != null);
+            cbHecha.setChecked(esConsumoReal);
+            itemView.setAlpha(esConsumoReal ? 0.6f : 1.0f);
+            
+            // Si ya está marcada, la deshabilitamos para evitar duplicados accidentales desde esta vista de plan
+            cbHecha.setEnabled(!esConsumoReal);
+
             cbHecha.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // Actualizar estado visual
                 if (isChecked) {
                     itemView.setAlpha(0.6f);
+                    cbHecha.setEnabled(false); // Una vez marcada como "hecha", se envía al backend y se deshabilita
                 } else {
                     itemView.setAlpha(1.0f);
+                }
+                
+                if (hechaClickListener != null) {
+                    hechaClickListener.onHechaClick(comida, isChecked);
                 }
             });
 

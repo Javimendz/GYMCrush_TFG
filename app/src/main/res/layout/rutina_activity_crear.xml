@@ -69,6 +69,42 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:hintEnabled="false"
+                    app:boxStrokeWidth="0dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etBuscarBiblioteca"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Buscar en biblioteca (ExerciseDB)..."
+                        android:textColor="@color/white"
+                        android:textColorHint="#66FFFFFF"
+                        android:background="@drawable/bg_search_view"
+                        android:padding="12dp"
+                        android:inputType="text"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBuscarBiblioteca"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BUSCAR"
+                    android:textColor="#E91E63"
+                    android:layout_marginStart="8dp"
+                    app:icon="@android:drawable/ic_menu_search"
+                    app:iconTint="#E91E63"/>
+            </LinearLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvSeleccionEjercicios"
                 android:layout_width="match_parent"

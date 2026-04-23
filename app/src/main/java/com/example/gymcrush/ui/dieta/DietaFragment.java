@@ -53,7 +53,7 @@ public class DietaFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dieta, container, false);
 
-        viewModel = new ViewModelProvider(this).get(DietaViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(DietaViewModel.class);
         
         SharedPreferences prefs = requireActivity().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
         usuarioId = prefs.getLong("user_id", -1L);
@@ -150,11 +150,32 @@ public class DietaFragment extends Fragment {
             java.util.List<ComidaDiariaResponseDto> dietasSimuladas = new java.util.ArrayList<>();
 
             String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
-            for (String momento : momentos) {
+            String[] platosEjemplo = {"Bol de Avena y Frutas", "Sándwich Integral de Pavo", "Pollo con Arroz y Verduras", "Batido de Proteínas y Nueces", "Salmón a la Plancha con Ensalada"};
+            String[] urlsEjemplo = {
+                "https://www.fatsecret.es/recetas/bol-de-avena-con-frutas/Default.aspx",
+                "https://www.fatsecret.es/recetas/sandwich-de-pavo/Default.aspx",
+                "https://www.fatsecret.es/recetas/pollo-con-arroz-y-verduras/Default.aspx",
+                "https://www.fatsecret.es/recetas/batido-de-proteinas/Default.aspx",
+                "https://www.fatsecret.es/recetas/salmon-a-la-plancha/Default.aspx"
+            };
+            String[] imagenesEjemplo = {
+                "https://images.unsplash.com/photo-1517673400267-0251440c45dc?q=80&w=500&auto=format&fit=crop", // Avena
+                "https://images.unsplash.com/photo-1528733918455-5a59687cedf0?q=80&w=500&auto=format&fit=crop", // Sandwich
+                "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=500&auto=format&fit=crop", // Pollo
+                "https://images.unsplash.com/photo-1574783756247-29f6c244a51d?q=80&w=500&auto=format&fit=crop", // Batido
+                "https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=500&auto=format&fit=crop"  // Salmon
+            };
+            
+            for (int i = 0; i < momentos.length; i++) {
+                String momento = momentos[i];
                 ComidaDiariaResponseDto item = new ComidaDiariaResponseDto();
                 item.setMomento(momento);
-                item.setNombreAlimento("Sugerencia de " + momento.toLowerCase());
-                // Repartimos macros aproximados para que no salga 0g
+                item.setNombreAlimento(platosEjemplo[i]);
+                item.setRecipeUrl(urlsEjemplo[i]);
+                item.setImagenUrl(imagenesEjemplo[i]);
+                item.setDescripcion("Una opción saludable y equilibrada diseñada para tu dieta " + dieta.getTipo().toLowerCase() + ".");
+                
+                // Repartimos macros aproximados
                 item.setProteina(dieta.getCantidadProteinas() / 5);
                 item.setCarbohidratos(dieta.getCantidadCarbohidratos() / 5);
                 item.setGrasas(dieta.getCantidadGrasas().doubleValue() / 5);

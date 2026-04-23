@@ -61,10 +61,13 @@ public class RutinasFragment extends Fragment {
     private android.widget.EditText etBuscador;
     private com.example.gymcrush.ui.salud.ProgressGraphView graphEvolucion;
     private TextView tvFechaSeleccionada, tvRacha;
-    private MaterialButton btnCambiarFecha;
-    private ExtendedFloatingActionButton fabAddEjercicio;
-    private boolean isAdmin = false;
+    private MaterialButton btnCambiarFecha, btnGenerarIA;
+    private com.google.android.material.floatingactionbutton.FloatingActionButton btnIrACrear;
+    private View overlayIA;
+    private TextView tvEstadoIA;
     private long userId;
+    private boolean isAdmin;
+    private ExtendedFloatingActionButton fabAddEjercicio;
     private LocalDate fechaSeleccionada = LocalDate.now();
 
     @Nullable
@@ -81,13 +84,12 @@ public class RutinasFragment extends Fragment {
         rvRutinasGuardadas = vista.findViewById(R.id.rvRutinasGuardadas);
         vpRutinasFavoritas = vista.findViewById(R.id.vpRutinasFavoritas);
         dotsIndicator = vista.findViewById(R.id.dotsIndicator);
+        btnGenerarIA = vista.findViewById(R.id.btnGenerarIA);
+        overlayIA = vista.findViewById(R.id.overlayIA);
+        tvEstadoIA = vista.findViewById(R.id.tvEstadoIA);
         
-        View btnCrearRutina = vista.findViewById(R.id.btnIrACrear);
-        // ... (el resto de inicializaciones se mantienen si existen en el layout)
-        if (btnCrearRutina == null) {
-            // Si reemplazamos la card del generador, este botón podría no existir
-        }
-
+        btnIrACrear = vista.findViewById(R.id.btnIrACrear);
+        
         tabLayoutPrincipal = vista.findViewById(R.id.tabLayoutRutinas);
         tabLayoutCategorias = vista.findViewById(R.id.tabLayoutCategorias);
         containerRutinas = vista.findViewById(R.id.containerRutinas);
@@ -98,11 +100,14 @@ public class RutinasFragment extends Fragment {
         fabAddEjercicio = vista.findViewById(R.id.fabAddEjercicioAdmin);
         
         layoutSelectorFecha = vista.findViewById(R.id.layoutSelectorFecha);
-        tvFechaSeleccionada = vista.findViewById(R.id.tvFechaSeleccionada);
-        btnCambiarFecha = vista.findViewById(R.id.btnCambiarFecha);
-        etBuscador = vista.findViewById(R.id.etBuscarEjercicio);
         graphEvolucion = vista.findViewById(R.id.graphEvolucionRutinas);
         tvRacha = vista.findViewById(R.id.tvRacha);
+        etBuscador = vista.findViewById(R.id.etBuscarEjercicio);
+
+        // Nuevo: Barra de progreso y Calendario Horizontal
+        com.google.android.material.progressindicator.LinearProgressIndicator progressRutina = vista.findViewById(R.id.progressRutina);
+        RecyclerView rvCalendario = vista.findViewById(R.id.rvCalendarioHorizontal);
+        setupCalendarioHorizontal(rvCalendario);
 
         checkAdminRole();
 
@@ -140,8 +145,8 @@ public class RutinasFragment extends Fragment {
 
         setupBuscador();
 
-        if (btnCrearRutina != null) {
-            btnCrearRutina.setOnClickListener(v -> {
+        if (btnIrACrear != null) {
+            btnIrACrear.setOnClickListener(v -> {
                 Intent intent = new Intent(getActivity(), CrearRutinaActivity.class);
                 startActivity(intent);
             });
@@ -149,6 +154,11 @@ public class RutinasFragment extends Fragment {
 
         setupTabs();
         setupDatePicker();
+        
+        if (btnGenerarIA != null) {
+            btnGenerarIA.setOnClickListener(v -> generarRutinaIA());
+        }
+
         fabAddEjercicio.setOnClickListener(v -> mostrarDialogoNuevoEjercicio());
 
         actualizarUIFecha();
@@ -189,6 +199,7 @@ public class RutinasFragment extends Fragment {
     }
 
     private void setupDatePicker() {
+        if (btnCambiarFecha == null) return;
         btnCambiarFecha.setOnClickListener(v -> {
             android.app.DatePickerDialog datePicker = new android.app.DatePickerDialog(requireContext(),
                     (view, year, month, dayOfMonth) -> {
@@ -204,11 +215,32 @@ public class RutinasFragment extends Fragment {
     }
 
     private void actualizarUIFecha() {
-        if (fechaSeleccionada.equals(LocalDate.now())) {
-            tvFechaSeleccionada.setText(getString(R.string.fecha_hoy, fechaSeleccionada.toString()));
-        } else {
-            tvFechaSeleccionada.setText(getString(R.string.fecha_seleccionada, fechaSeleccionada.toString()));
+        if (tvFechaSeleccionada != null) {
+            String fechaStr = fechaSeleccionada.equals(LocalDate.now()) ? "Hoy" : 
+                fechaSeleccionada.getDayOfMonth() + " " + 
+                fechaSeleccionada.getMonth().getDisplayName(java.time.format.TextStyle.SHORT, new java.util.Locale("es", "ES"));
+            tvFechaSeleccionada.setText(fechaStr);
         }
+    }
+
+    private void setupCalendarioHorizontal(RecyclerView rv) {
+        List<LocalDate> dias = new ArrayList<>();
+        LocalDate hoy = LocalDate.now();
+        // Generar 14 días (semana pasada y semana que viene)
+        for (int i = -7; i <= 7; i++) {
+            dias.add(hoy.plusDays(i));
+        }
+
+        CalendarioAdapter adapter = new CalendarioAdapter(dias, fechaSeleccionada, date -> {
+            fechaSeleccionada = date;
+            actualizarUIFecha();
+            cargarRutinaPorFecha();
+        });
+
+        rv.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rv.setAdapter(adapter);
+        // Hacer scroll hasta el día de hoy (posición 7)
+        rv.scrollToPosition(7);
     }
 
     private void cargarRutinaPorFecha() {
@@ -333,6 +365,7 @@ public class RutinasFragment extends Fragment {
     }
 
     private void setupBuscador() {
+        if (etBuscador == null) return;
         etBuscador.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -366,9 +399,6 @@ public class RutinasFragment extends Fragment {
                     containerRutinas.setVisibility(View.VISIBLE);
                     layoutSelectorFecha.setVisibility(View.VISIBLE);
                 } else if (position == 1) {
-                    containerRutinasGuardadas.setVisibility(View.VISIBLE);
-                    actualizarRutinasGuardadas();
-                } else if (position == 2) {
                     containerPlanes.setVisibility(View.VISIBLE);
                     mostrarFragmentPlanes();
                 } else {
@@ -387,6 +417,94 @@ public class RutinasFragment extends Fragment {
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
+    }
+
+    private void generarRutinaIA() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Personalizar con IA");
+        
+        String[] opciones = {"Todo el cuerpo (Gym)", "Torso/Pierna", "En casa (Sin equipo)", "Solo Cardio/Resistencia"};
+        builder.setItems(opciones, (dialog, which) -> {
+            String seleccion = opciones[which];
+            ejecutarGeneracionIA(seleccion);
+        });
+        builder.show();
+    }
+
+    private void ejecutarGeneracionIA(String preferencia) {
+        if (overlayIA != null) overlayIA.setVisibility(View.VISIBLE);
+        if (tvEstadoIA != null) tvEstadoIA.setText("Analizando catálogo para: " + preferencia);
+
+        // 1. Obtener todos los entrenamientos disponibles
+        RetrofitClient.getApiService().getEntrenamientosUsuario(userId).enqueue(new Callback<ApiResponseDto<List<EntrenamientoResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Response<ApiResponseDto<List<EntrenamientoResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (tvEstadoIA != null) tvEstadoIA.setText("IA: Seleccionando mejores ejercicios...");
+                    List<EntrenamientoResponseDto> todos = response.body().getDatos();
+                    List<EntrenamientoResponseDto> seleccionados = filtrarEjerciciosIA(todos, preferencia);
+                    asignarEjerciciosIA(seleccionados);
+                } else {
+                    if (overlayIA != null) overlayIA.setVisibility(View.GONE);
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Throwable t) {
+                if (overlayIA != null) overlayIA.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private List<EntrenamientoResponseDto> filtrarEjerciciosIA(List<EntrenamientoResponseDto> lista, String preferencia) {
+        // Lógica de "IA" simplificada basada en categorías
+        switch (preferencia) {
+            case "En casa (Sin equipo)":
+                return lista.stream()
+                        .filter(e -> "Cardio".equalsIgnoreCase(e.getCategoria()) || "Flexibilidad".equalsIgnoreCase(e.getCategoria()))
+                        .limit(5).collect(Collectors.toList());
+            case "Solo Cardio/Resistencia":
+                return lista.stream()
+                        .filter(e -> "Cardio".equalsIgnoreCase(e.getCategoria()))
+                        .limit(4).collect(Collectors.toList());
+            default:
+                // Aleatorio inteligente para Gym
+                java.util.Collections.shuffle(lista);
+                return lista.stream().limit(6).collect(Collectors.toList());
+        }
+    }
+
+    private void asignarEjerciciosIA(List<EntrenamientoResponseDto> ejercicios) {
+        if (ejercicios.isEmpty()) {
+            if (overlayIA != null) overlayIA.setVisibility(View.GONE);
+            Toast.makeText(getContext(), "No hay suficientes ejercicios en la base de datos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (tvEstadoIA != null) tvEstadoIA.setText("IA: Asignando a tu agenda...");
+        String hoy = LocalDate.now().toString();
+        AtomicInteger count = new AtomicInteger(0);
+        
+        for (int i = 0; i < ejercicios.size(); i++) {
+            com.example.gymcrush.data.remote.dto.RutinaRequestDto request = new com.example.gymcrush.data.remote.dto.RutinaRequestDto(
+                userId, ejercicios.get(i).getId(), hoy, i + 1
+            );
+
+            RetrofitClient.getApiService().asignarEntrenamiento(request).enqueue(new Callback<ApiResponseDto<RutinaResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<RutinaResponseDto>> call, Response<ApiResponseDto<RutinaResponseDto>> response) {
+                    if (count.incrementAndGet() == ejercicios.size()) {
+                        if (overlayIA != null) overlayIA.setVisibility(View.GONE);
+                        Toast.makeText(getContext(), "¡Tu nueva rutina de IA está lista!", Toast.LENGTH_SHORT).show();
+                        cargarRutinaPorFecha(); // Recargar la agenda
+                    }
+                }
+                @Override public void onFailure(Call<ApiResponseDto<RutinaResponseDto>> call, Throwable t) {
+                    if (count.incrementAndGet() == ejercicios.size()) {
+                        if (overlayIA != null) overlayIA.setVisibility(View.GONE);
+                        cargarRutinaPorFecha();
+                    }
+                }
+            });
+        }
     }
 
     private void actualizarRutinasGuardadas() {
@@ -409,13 +527,19 @@ public class RutinasFragment extends Fragment {
     }
 
     private void actualizarVisibilidadFab(int tabPosition) {
-        if (isAdmin && tabPosition == 2) fabAddEjercicio.show();
-        else fabAddEjercicio.hide();
+        if (tabPosition == 2) {
+            if (btnIrACrear != null) btnIrACrear.hide();
+            if (isAdmin && fabAddEjercicio != null) fabAddEjercicio.show();
+            else if (fabAddEjercicio != null) fabAddEjercicio.hide();
+        } else {
+            if (fabAddEjercicio != null) fabAddEjercicio.hide();
+            if (btnIrACrear != null) btnIrACrear.show();
+        }
     }
 
     private void cargarEjerciciosDesdeServidor() {
         SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
-        long userId = prefs.getLong("user_id", -1);
+        userId = prefs.getLong("user_id", -1);
         if (userId == -1) return;
 
         RetrofitClient.getApiService().getEntrenamientosUsuario(userId).enqueue(new Callback<ApiResponseDto<List<EntrenamientoResponseDto>>>() {
@@ -520,6 +644,7 @@ public class RutinasFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (rutinasAdapter != null) rutinasAdapter.notifyDataSetChanged();
+        cargarRutinaPorFecha();
+        cargarEstadisticas();
     }
 }

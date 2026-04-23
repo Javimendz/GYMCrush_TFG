@@ -19,6 +19,11 @@ import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 import com.example.gymcrush.ui.ejercicios.Ejercicio;
 import com.example.gymcrush.ui.ejercicios.RepositorioEjercicios;
 
+import com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto;
+import com.example.gymcrush.data.remote.dto.TutorialRequestDto;
+import com.example.gymcrush.data.remote.dto.TutorialResponseDto;
+import com.google.android.material.textfield.TextInputEditText;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +36,9 @@ import retrofit2.Response;
 public class CrearRutinaActivity extends AppCompatActivity {
 
     private EditText etNombreRutina;
+    private TextInputEditText etBuscarBiblioteca;
+    private Button btnGuardar, btnBuscarBiblioteca;
     private RecyclerView rvEjercicios;
-    private Button btnGuardar;
     private EjercicioSeleccionAdapter adapter;
     private List<Ejercicio> listaEjercicios = new ArrayList<>();
 
@@ -45,6 +51,8 @@ public class CrearRutinaActivity extends AppCompatActivity {
         etNombreRutina = findViewById(R.id.etNombreRutina);
         rvEjercicios = findViewById(R.id.rvSeleccionEjercicios);
         btnGuardar = findViewById(R.id.btnGuardarRutina);
+        etBuscarBiblioteca = findViewById(R.id.etBuscarBiblioteca);
+        btnBuscarBiblioteca = findViewById(R.id.btnBuscarBiblioteca);
 
         // 2. Configurar el RecyclerView con el Adapter (vacío inicialmente)
         rvEjercicios.setLayoutManager(new LinearLayoutManager(this));
@@ -54,9 +62,61 @@ public class CrearRutinaActivity extends AppCompatActivity {
         // 3. Cargar ejercicios desde el servidor (los que el admin añadió)
         cargarEjerciciosDelServidor();
 
-        // 4. Configurar el botón Guardar
+        // 4. Configurar búsqueda en biblioteca externa
+        btnBuscarBiblioteca.setOnClickListener(v -> buscarEnBibliotecaExterna());
+
+        // 5. Configurar el botón Guardar
         btnGuardar.setOnClickListener(v -> {
             guardarRutina();
+        });
+    }
+
+    private void buscarEnBibliotecaExterna() {
+        String query = etBuscarBiblioteca.getText().toString().trim();
+        if (query.isEmpty()) {
+            Toast.makeText(this, "Escribe algo para buscar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RetrofitClient.getApiService().buscarEnBiblioteca(query).enqueue(new Callback<ApiResponseDto<List<ExerciseApiRequestDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<ExerciseApiRequestDto>>> call, Response<ApiResponseDto<List<ExerciseApiRequestDto>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                    List<ExerciseApiRequestDto> resultados = response.body().getDatos();
+                    if (resultados.isEmpty()) {
+                        Toast.makeText(CrearRutinaActivity.this, "No se encontraron ejercicios", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Convertir resultados de la API a objetos Ejercicio y añadirlos a la lista
+                        for (ExerciseApiRequestDto dto : resultados) {
+                            // Verificamos si ya está en la lista para no duplicar (comparación segura)
+                            boolean existe = listaEjercicios.stream()
+                                    .anyMatch(e -> dto.getName() != null && dto.getName().equalsIgnoreCase(e.getNombre()));
+                            if (!existe) {
+                                Ejercicio nuevo = new Ejercicio(
+                                        null, // No tiene ID de nuestro server aún
+                                        dto.getName(),
+                                        dto.getBodyPart(),
+                                        dto.getTarget() + " - " + dto.getEquipment(),
+                                        "N/A",
+                                        dto.getGifUrl(),
+                                        R.drawable.ic_launcher_foreground, // Placeholder
+                                        dto.getDifficulty() != null ? dto.getDifficulty() : "Media"
+                                );
+                                listaEjercicios.add(0, nuevo); // Añadir al principio
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                        Toast.makeText(CrearRutinaActivity.this, "Se añadieron " + resultados.size() + " ejercicios de la biblioteca", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(CrearRutinaActivity.this, "Error en la búsqueda", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<ExerciseApiRequestDto>>> call, Throwable t) {
+                Toast.makeText(CrearRutinaActivity.this, "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -94,7 +154,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
         // 1. Filtrar solo los ejercicios seleccionados
         List<Ejercicio> seleccionados = new ArrayList<>();
         for (Ejercicio ej : listaEjercicios) {
-            if (ej.isSeleccionado() && ej.getId() != null) {
+            if (ej.isSeleccionado()) {
                 seleccionados.add(ej);
             }
         }
@@ -104,10 +164,73 @@ public class CrearRutinaActivity extends AppCompatActivity {
             return;
         }
 
-        // 2. Enviar cada ejercicio como una asignación individual (el backend parece estar diseñado así)
-        // O si el backend permitiera una lista, usaríamos otro endpoint.
-        // Dado que asignarEntrenamiento recibe un RutinaRequestDto con UN solo entrenamientoId:
-        
+        // 2. Procesar ejercicios: Si no tienen ID, hay que crearlos en el servidor primero
+        procesarEjerciciosYGuardar(userId, nombre, seleccionados);
+    }
+
+    private void procesarEjerciciosYGuardar(long userId, String nombreRutina, List<Ejercicio> seleccionados) {
+        List<Ejercicio> listosParaAsignar = new ArrayList<>();
+        List<Ejercicio> pendientesDeCrear = seleccionados.stream()
+                .filter(e -> e.getId() == null)
+                .collect(Collectors.toList());
+
+        listosParaAsignar.addAll(seleccionados.stream()
+                .filter(e -> e.getId() != null)
+                .collect(Collectors.toList()));
+
+        if (pendientesDeCrear.isEmpty()) {
+            enviarAsignacionesAlServidor(userId, nombreRutina, listosParaAsignar);
+        } else {
+            // Crear los ejercicios que vienen de ExerciseDB en nuestro backend
+            crearEjerciciosFaltantes(userId, nombreRutina, pendientesDeCrear, listosParaAsignar);
+        }
+    }
+
+    private void crearEjerciciosFaltantes(long userId, String nombreRutina, List<Ejercicio> pendientes, List<Ejercicio> listos) {
+        final int total = pendientes.size();
+        final int[] creados = {0};
+
+        for (Ejercicio ej : pendientes) {
+            TutorialRequestDto dto = new TutorialRequestDto(
+                    ej.getNombre(),
+                    ej.getDescripcion(),
+                    ej.getUrlVideo(),
+                    10, // duracionMin por defecto (ahora 10 para evitar error de validación)
+                    1L, // categoriaId por defecto
+                    ej.getCategoria(), // musculoObjetivo
+                    "N/A" // equipamiento
+            );
+
+            RetrofitClient.getApiService().crearTutorial(dto).enqueue(new Callback<ApiResponseDto<TutorialResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<TutorialResponseDto>> call, Response<ApiResponseDto<TutorialResponseDto>> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                        ej.setId(response.body().getDatos().getId());
+                        listos.add(ej);
+                    }
+                    creados[0]++;
+                    if (creados[0] == total) {
+                        enviarAsignacionesAlServidor(userId, nombreRutina, listos);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponseDto<TutorialResponseDto>> call, Throwable t) {
+                    creados[0]++;
+                    if (creados[0] == total) {
+                        enviarAsignacionesAlServidor(userId, nombreRutina, listos);
+                    }
+                }
+            });
+        }
+    }
+
+    private void enviarAsignacionesAlServidor(long userId, String nombreRutina, List<Ejercicio> seleccionados) {
+        if (seleccionados.isEmpty()) {
+            Toast.makeText(this, "No se pudieron preparar los ejercicios", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         final int totalAAsignar = seleccionados.size();
         final int[] completados = {0};
         final boolean[] huboError = {false};
@@ -130,8 +253,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     }
                     
                     if (completados[0] == totalAAsignar) {
-                        // Guardar también en el repositorio local para que aparezca en "MIS RUTINAS"
-                        RepositorioRutinas.guardarRutinaCompleta(nombre, seleccionados);
+                        RepositorioRutinas.guardarRutinaCompleta(nombreRutina, seleccionados);
                         finalizarGuardado(huboError[0]);
                     }
                 }
@@ -141,8 +263,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     completados[0]++;
                     huboError[0] = true;
                     if (completados[0] == totalAAsignar) {
-                        // Guardar también en el repositorio local para que aparezca en "MIS RUTINAS"
-                        RepositorioRutinas.guardarRutinaCompleta(nombre, seleccionados);
+                        RepositorioRutinas.guardarRutinaCompleta(nombreRutina, seleccionados);
                         finalizarGuardado(huboError[0]);
                     }
                 }

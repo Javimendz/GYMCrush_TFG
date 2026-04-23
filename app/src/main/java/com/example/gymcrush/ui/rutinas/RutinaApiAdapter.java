@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 import com.google.android.material.button.MaterialButton;
+import com.bumptech.glide.Glide;
 import java.util.List;
 
 public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.ViewHolder> {
@@ -35,6 +36,16 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
         holder.tvNombre.setText(rutina.getNombreEntrenamiento());
         holder.tvDetalles.setText(rutina.getDuracion() + " min | Intensidad: " + rutina.getIntensidad());
         
+        // Cargar imagen con Glide
+        if (rutina.getUrlGif() != null && !rutina.getUrlGif().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(rutina.getUrlGif())
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .into(holder.imgRutina);
+        } else {
+            holder.imgRutina.setImageResource(R.drawable.ic_launcher_foreground);
+        }
+
         if (rutina.getCompletado()) {
             holder.tvEstado.setText("COMPLETADA ✓");
             holder.tvEstado.setTextColor(0xFF4CAF50); // Verde

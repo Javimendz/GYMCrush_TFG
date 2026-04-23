@@ -43,49 +43,90 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MIS RUTINAS" />
+                android:text="EXPLORAR" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tab_descubrir" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="BIBLIOTECA" />
+                android:text="EJERCICIOS" />
         </com.google.android.material.tabs.TabLayout>
 
-        <!-- Selector de Fecha (Solo para Mi Agenda) -->
+        <!-- Overlay de Carga IA (Invisible por defecto) -->
+        <FrameLayout
+            android:id="@+id/overlayIA"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#E60A1128"
+            android:elevation="10dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:gravity="center">
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieIA"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    app:lottie_rawRes="@raw/stationary_biking"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true"
+                    app:lottie_speed="1.5"/>
+                <TextView
+                    android:id="@+id/tvEstadoIA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="IA Optimizando tu rutina..."
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:layout_marginTop="16dp"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Progreso de la Rutina -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressRutina"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="10dp"
+            app:indicatorColor="#CD0277"
+            app:trackColor="#33FFFFFF"
+            app:trackCornerRadius="4dp"
+            android:progress="0" />
+
+        <!-- Selector de Fecha Horizontal (Burbujas) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCalendarioHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="10dp"
+            android:background="#0A1128"
+            android:clipToPadding="false"
+            android:orientation="horizontal" />
+
+        <!-- Selector de Fecha Antiguo (Oculto) -->
         <LinearLayout
             android:id="@+id/layoutSelectorFecha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingHorizontal="20dp"
-            android:paddingVertical="10dp"
+            android:paddingVertical="5dp"
             android:gravity="center_vertical"
-            android:background="#16213E">
-
-            <TextView
+            android:background="#16213E"
+            android:visibility="gone">
+             <TextView
                 android:id="@+id/tvFechaSeleccionada"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Hoy: 24 May"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold"
-                android:textSize="16sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCambiarFecha"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CAMBIAR"
-                android:textColor="#CD0277"
-                app:icon="@android:drawable/ic_menu_my_calendar"
-                app:iconTint="#CD0277" />
+                android:text="Hoy"
+                android:textColor="#FFFFFF" />
         </LinearLayout>
 
         <FrameLayout
@@ -158,6 +199,60 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
+                    <!-- BOTÓN IA -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardIA"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginTop="12dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardBackgroundColor="#2D1B4E"
+                        app:strokeColor="#CD0277"
+                        app:strokeWidth="1dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="12dp"
+                            android:gravity="center_vertical">
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:src="@android:drawable/ic_menu_manage"
+                                app:tint="#CD0277"/>
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical"
+                                android:layout_marginStart="12dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="¡Generar con IA!"
+                                    android:textColor="#FFFFFF"
+                                    android:textStyle="bold"
+                                    android:textSize="14sp"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Crea una rutina basada en tu perfil"
+                                    android:textColor="#99FFFFFF"
+                                    android:textSize="11sp"/>
+                            </LinearLayout>
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnGenerarIA"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="MAGIA"
+                                android:textSize="10sp"
+                                app:backgroundTint="#CD0277"
+                                app:cornerRadius="20dp"
+                                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
                     <!-- Carrusel de Rutinas (ViewPager2) -->
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vpRutinasFavoritas"
@@ -176,9 +271,6 @@
                         app:tabIndicatorHeight="0dp"
                         app:tabMaxWidth="12dp"
                         app:tabRippleColor="@null" />
-
-                    <!-- El resto del contenido (Gráfica, etc.) se mantiene debajo si se desea,
-                         o se oculta la tarjeta estática de Generador si ya hay contenido dinámico -->
 
 
                     <androidx.recyclerview.widget.RecyclerView
