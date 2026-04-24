@@ -205,6 +205,27 @@ public class DietaFragment extends Fragment {
         rvHistorial.setAdapter(historialAdapter);
 
         comidaAdapter = new ComidaAdapter();
+        comidaAdapter.setOnHechaClickListener((comida, isChecked) -> {
+            if (isChecked && comida.getId() == null) {
+                // Si se marca una sugerencia, se añade al consumo real
+                com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto request = new com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto();
+                request.setMomento(comida.getMomento());
+                request.setNombreAlimento(comida.getNombreAlimento());
+                request.setCalorias(comida.getCalorias());
+                request.setProteina(comida.getProteina());
+                request.setCarbohidratos(comida.getCarbohidratos());
+                request.setGrasas(comida.getGrasas());
+                
+                NutricionResponseDto plan = viewModel.getPlanActual().getValue();
+                if (plan != null) {
+                    request.setPlanNutricionalId(plan.getId());
+                    viewModel.añadirComida(request, usuarioId);
+                }
+            } else if (!isChecked && comida.getId() != null) {
+                // Si se desmarca una comida real, se elimina
+                viewModel.eliminarComida(comida.getId(), usuarioId);
+            }
+        });
         comidaAdapter.setOnComidaClickListener(comida -> {
             // Intentar enriquecer con descripción e imagen del plan actual
             NutricionResponseDto plan = viewModel.getPlanActual().getValue();
@@ -334,10 +355,13 @@ public class DietaFragment extends Fragment {
         tvNombreSugerida.setText(titulo);
         
         float p = 0, c = 0, g = 0;
-        int calObjetivo = plan.getCaloriasObjetivo() != null ? plan.getCaloriasObjetivo() : 2000;
+
+        // Lista combinada para mostrar tanto lo sugerido como lo consumido
+        java.util.List<com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto> todasLasComidas = new java.util.ArrayList<>();
 
         // El backend devuelve en "dietas" las sugerencias diarias para completar los macros
         if (plan.getDietas() != null) {
+            todasLasComidas.addAll(plan.getDietas());
             for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : plan.getDietas()) {
                 if (item.getProteina() != null) p += item.getProteina();
                 if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
@@ -350,8 +374,9 @@ public class DietaFragment extends Fragment {
 
         donutChart.setData(p, c, g);
 
-        // Cálculo de calorías consumidas vs objetivo (de la lista 'comidas' que el usuario añade)
+        // Cálculo de calorías consumidas vs objetivo (basado en lo que ya tiene ID)
         double calConsumidas = 0;
+        int calObjetivo = plan.getCaloriasObjetivo() != null ? plan.getCaloriasObjetivo() : 2000;
         if (plan.getComidas() != null) {
             for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto comida : plan.getComidas()) {
                 if (comida.getCalorias() != null) calConsumidas += comida.getCalorias();
@@ -362,10 +387,7 @@ public class DietaFragment extends Fragment {
         int progress = calObjetivo > 0 ? (int) ((calConsumidas / calObjetivo) * 100) : 0;
         progressCalorias.setProgress(Math.min(progress, 100));
 
-        // En rvComidas mostramos lo que YA ha comido el usuario
-        if (plan.getComidas() != null) {
-            comidaAdapter.setComidas(plan.getComidas());
-        }
+        comidaAdapter.setComidas(todasLasComidas);
     }
 
     private void generarSugerencia() {

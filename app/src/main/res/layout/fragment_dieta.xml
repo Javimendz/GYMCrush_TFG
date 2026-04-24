@@ -345,7 +345,7 @@
                                 android:id="@+id/tvCaloriasSugeridas"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="2108 kcal de 2500"
+                                android:text="0 kcal de 2000"
                                 android:textColor="@color/white"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
@@ -360,7 +360,7 @@
                             app:trackColor="#33FFFFFF"
                             app:trackThickness="8dp"
                             app:trackCornerRadius="4dp"
-                            android:progress="80" />
+                            android:progress="0" />
                     </LinearLayout>
 
                     <View
