@@ -155,27 +155,57 @@ public class ResultadoDietaFragment extends Fragment {
     }
 
     private void actualizarResumenMacros() {
-        if (planNutricional == null || getView() == null) return;
+        actualizarResumenMacros(getView());
+    }
 
-        TextView tvProt = getView().findViewById(R.id.tv_res_prot);
-        TextView tvCarb = getView().findViewById(R.id.tv_res_carb);
-        TextView tvGras = getView().findViewById(R.id.tv_res_gras);
+    private void actualizarResumenMacros(View view) {
+        if (planNutricional == null || view == null) return;
+
+        TextView tvProt = view.findViewById(R.id.tv_res_prot);
+        TextView tvCarb = view.findViewById(R.id.tv_res_carb);
+        TextView tvGras = view.findViewById(R.id.tv_res_gras);
 
         float p = 0, c = 0, g = 0;
-        if (planNutricional.getDietas() != null) {
-            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : planNutricional.getDietas()) {
+
+        // Intentar sumar de las dietas planificadas
+        if (planNutricional.getDietas() != null && !planNutricional.getDietas().isEmpty()) {
+            for (ComidaDiariaResponseDto item : planNutricional.getDietas()) {
                 if (item.getProteina() != null) p += item.getProteina();
                 if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
                 if (item.getGrasas() != null) g += item.getGrasas();
             }
         }
-        
-        // Si los macros sumados son 0, quizás los datos están en 'comidas' o el plan es nuevo
-        if (p == 0 && planNutricional.getCaloriasObjetivo() != null) {
-            // Estimación base para que no salga vacío en dietas recién asignadas
-            p = (float) (planNutricional.getCaloriasObjetivo() * 0.3 / 4);
-            c = (float) (planNutricional.getCaloriasObjetivo() * 0.4 / 4);
-            g = (float) (planNutricional.getCaloriasObjetivo() * 0.3 / 9);
+
+        // Si no hay macros en dietas, probar con comidas consumidas
+        if (p == 0 && c == 0 && planNutricional.getComidas() != null) {
+            for (ComidaDiariaResponseDto item : planNutricional.getComidas()) {
+                if (item.getProteina() != null) p += item.getProteina();
+                if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
+                if (item.getGrasas() != null) g += item.getGrasas();
+            }
+        }
+
+        // Si sigue siendo 0 (plan nuevo o sin datos), calcular según el objetivo calórico y tipo de dieta
+        if (p == 0 && c == 0 && planNutricional.getCaloriasObjetivo() != null) {
+            int cal = planNutricional.getCaloriasObjetivo();
+            String tipo = (planNutricional.getTipoDieta() != null) ? planNutricional.getTipoDieta().toUpperCase() : "";
+
+            if (tipo.contains("HIPER") || tipo.contains("VOLUMEN")) {
+                // Hipercalórica: 22% Prot, 48% Carb, 30% Gras
+                p = (float) (cal * 0.22 / 4);
+                c = (float) (cal * 0.48 / 4);
+                g = (float) (cal * 0.30 / 9);
+            } else if (tipo.contains("DEFINI") || tipo.contains("BAJA") || tipo.contains("PERDIDA")) {
+                // Definición: 35% Prot, 30% Carb, 35% Gras
+                p = (float) (cal * 0.35 / 4);
+                c = (float) (cal * 0.30 / 4);
+                g = (float) (cal * 0.35 / 9);
+            } else {
+                // Estándar/Mantenimiento: 25% Prot, 40% Carb, 35% Gras
+                p = (float) (cal * 0.25 / 4);
+                c = (float) (cal * 0.40 / 4);
+                g = (float) (cal * 0.35 / 9);
+            }
         }
 
         tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg", p));
@@ -202,7 +232,7 @@ public class ResultadoDietaFragment extends Fragment {
         int calObjetivo = planNutricional.getCaloriasObjetivo() != null ? planNutricional.getCaloriasObjetivo() : 0;
         tvObj.setText(String.format(java.util.Locale.getDefault(), "OBJETIVO: %d KCAL", calObjetivo));
 
-        actualizarResumenMacros();
+        actualizarResumenMacros(view);
 
         // En esta pantalla mostramos las sugerencias (dietas) que ya vienen en el plan
         if (planNutricional.getDietas() != null) {
@@ -241,6 +271,8 @@ public class ResultadoDietaFragment extends Fragment {
                 }
             }
             adapter.setComidas(dietasActualizadas);
+            // Recalcular macros tras enriquecer con datos reales de FatSecret
+            actualizarResumenMacros(view);
         }
 
         // Mostrar recetas si vienen del backend (FatSecret)

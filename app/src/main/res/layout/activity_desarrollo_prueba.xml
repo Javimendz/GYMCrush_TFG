@@ -553,18 +553,20 @@
     <!-- Navigation Drawer Modernizado -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
-        android:layout_width="280dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
-        android:layout_gravity="left"
-        android:background="#0A1128"
+        android:layout_gravity="start"
+        android:background="#0F1733"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/nav_desplegable"
-        app:itemTextColor="#CCFFFFFF"
-        app:itemIconTint="#CCFFFFFF"
-        app:itemHorizontalPadding="24dp"
-        app:itemIconPadding="20dp"
-        app:itemShapeFillColor="#1AFFFFFF"
+        app:itemTextColor="#E6FFFFFF"
+        app:itemIconTint="#CD0277"
+        app:itemHorizontalPadding="16dp"
+        app:itemIconSize="22dp"
+        app:itemIconPadding="16dp"
+        app:itemBackground="@drawable/bg_nav_item"
         app:itemShapeAppearanceOverlay="@style/ShapeAppearance.App.RoundedSquare"
-        app:itemVerticalPadding="12dp" />
+        android:paddingTop="0dp"
+        android:clipToPadding="false" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -5,14 +5,6 @@
         <item android:id="@+id/nav_qr"
             android:icon="@drawable/ic_qr_code"
             android:title="Mi QR" />
-
-        <item android:id="@+id/nav_contrataciones"
-            android:icon="@drawable/ic_contrataciones"
-            android:title="Mis contrataciones" />
-
-        <item android:id="@+id/nav_bonos"
-            android:icon="@drawable/ic_bonos"
-            android:title="Mis bonos" />
     </group>
 
     <group android:checkableBehavior="none">

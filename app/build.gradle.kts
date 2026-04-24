@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.glide.okhttp)
     annotationProcessor(libs.glide.compiler)
     implementation(libs.lottie)
+    implementation(libs.sliding.root.nav)
     
     implementation(libs.gridlayout)
     implementation(libs.fragment)

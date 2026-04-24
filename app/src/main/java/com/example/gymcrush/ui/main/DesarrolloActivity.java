@@ -45,6 +45,8 @@ import com.example.gymcrush.ui.servicios.ContratacionesFragment;
 import com.example.gymcrush.ui.equipo.EquipoFragment;
 import com.example.gymcrush.ui.servicios.SuplementacionFragment;
 import com.example.gymcrush.ui.dieta.DietaFragment;
+import com.yarolegovich.slidingrootnav.SlidingRootNav;
+import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 import com.example.gymcrush.ui.social.SocialFragment;
 import com.example.gymcrush.ui.notificaciones.NotificacionesFragment;
 import com.example.gymcrush.ui.salud.SaludFragment;
@@ -97,6 +99,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private TextView tvNombrePlanWidget, tvCaloriasWidget;
     private TextView tvIANewsTitle, tvIANewsContent;
     private com.google.android.material.progressindicator.LinearProgressIndicator progressProt, progressCarb, progressGras;
+    private SlidingRootNav slidingRootNav;
 
     // Carrusel
     private androidx.viewpager2.widget.ViewPager2 viewPagerCarousel, viewPagerExerciseCarousel;
@@ -131,14 +134,31 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         
         cardNutricionWidget.setOnClickListener(v -> cargarFragmento(new DietaFragment()));
 
-        // 3. Configurar Menú Lateral (Drawer)
+        // 3. Configurar Menú Lateral Moderno con SlidingRootNav
         ImageView btnMenu = findViewById(R.id.btnMenuLateral);
-        drawer = findViewById(R.id.drawer_layout_root);
-        btnMenu.setOnClickListener(v -> drawer.openDrawer(GravityCompat.START));
+        
+        slidingRootNav = new SlidingRootNavBuilder(this)
+                .withMenuLayout(R.layout.menu_left_drawer) // Crearemos este layout
+                .withMenuLocked(false)
+                .withMenuOpened(false)
+                .withContentClickableWhenMenuOpened(false)
+                .withSavedState(savedInstanceState)
+                .inject();
+
+        btnMenu.setOnClickListener(v -> {
+            if (slidingRootNav.isMenuOpened()) {
+                slidingRootNav.closeMenu();
+            } else {
+                slidingRootNav.openMenu();
+            }
+        });
+
+        // Configurar clics y datos en el nuevo menú
+        setupModernMenu();
 
         NavigationView navigationView = findViewById(R.id.navigation_view);
-        View headerView = navigationView.getHeaderView(0);
-        ivHeaderPhoto = headerView.findViewById(R.id.img_logo_header);
+        // Ocultamos el NavigationView viejo pero lo dejamos por si acaso o lo borramos después
+        navigationView.setVisibility(View.GONE);
         
         cargarDatosYFotoPerfil();
 
@@ -167,8 +187,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 cargarFragmento(new RutinasFragment());
             } else if (id == R.id.nav_planes_entrenamiento) {
                 cargarFragmento(new PlanesFragment());
-            } else if (id == R.id.nav_contrataciones) {
-                cargarFragmento(new ContratacionesFragment());
             } else if (id == R.id.nav_equipo) {
                 cargarFragmento(new EquipoFragment());
             } else if (id == R.id.nav_contacto) {
@@ -506,6 +524,62 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             if (carouselAdapter != null) {
                 carouselAdapter.updateItems(new ArrayList<>(items));
             }
+        });
+    }
+
+    private void setupModernMenu() {
+        View menuView = slidingRootNav.getLayout().findViewById(R.id.menu_items_container).getRootView();
+        
+        ivHeaderPhoto = menuView.findViewById(R.id.img_logo_header_modern);
+        TextView tvNombre = menuView.findViewById(R.id.tv_nombre_header_modern);
+        
+        // Actualizar datos del header en el menú
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
+        tvNombre.setText(prefs.getString("nombre_usuario", "Usuario GymCrush"));
+
+        menuView.findViewById(R.id.menu_qr).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            mostrarDialogoQR();
+        });
+        menuView.findViewById(R.id.menu_rutinas).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new RutinasFragment());
+        });
+        menuView.findViewById(R.id.menu_dieta).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new DietaFragment());
+        });
+        menuView.findViewById(R.id.menu_clases).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new ClasesFragment());
+        });
+        menuView.findViewById(R.id.menu_reservas).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new ReservasFragment());
+        });
+        menuView.findViewById(R.id.menu_salud).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new SaludFragment());
+        });
+        menuView.findViewById(R.id.menu_suplementacion).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new SuplementacionFragment());
+        });
+        menuView.findViewById(R.id.menu_equipo).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new EquipoFragment());
+        });
+        menuView.findViewById(R.id.menu_contacto).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new ContactoFragment());
+        });
+        menuView.findViewById(R.id.menu_espacio).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            cargarFragmento(new EspacioFragment());
+        });
+        menuView.findViewById(R.id.menu_salir).setOnClickListener(v -> {
+            slidingRootNav.closeMenu();
+            mostrarDialogoCerrarSesion();
         });
     }
 

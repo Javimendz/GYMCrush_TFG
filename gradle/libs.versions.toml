@@ -22,6 +22,7 @@ zxing = "4.3.0"
 zxingCore = "3.5.3"
 media3 = "1.5.1"
 youtubePlayer = "12.1.0"
+slidingRootNav = "v1.1.1"
 stomp = "1.6.6"
 rxjava2 = "2.2.21"
 rxandroid2 = "2.1.1"
@@ -56,6 +57,7 @@ zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxingCo
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
 media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 youtube-player-view = { group = "com.pierfrancescosoffritti.androidyoutubeplayer", name = "core", version.ref = "youtubePlayer" }
+sliding-root-nav = { group = "com.github.yarolegovich", name = "SlidingRootNav", version.ref = "slidingRootNav" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
