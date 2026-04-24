@@ -317,6 +317,14 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         ));
         
         exerciseCarouselAdapter = new CarouselAdapter(exerciseCarouselItemsList);
+        exerciseCarouselAdapter.setOnItemClickListener(item -> {
+            cargarFragmento(ReproductorFragment.newInstance(
+                    item.getId(),
+                    item.getImageUrl(),
+                    item.getTitle(),
+                    item.getFullDescription() != null ? item.getFullDescription() : item.getDescription()
+            ));
+        });
         viewPagerExerciseCarousel.setAdapter(exerciseCarouselAdapter);
 
         viewPagerExerciseCarousel.setOffscreenPageLimit(3);
@@ -345,6 +353,22 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                     
                     for (int i = 0; i < Math.min(exercises.size(), 8); i++) {
                         ExerciseApiRequestDto ex = exercises.get(i);
+                        long id = 0;
+                        try {
+                            id = Long.parseLong(ex.getId());
+                        } catch (Exception e) {
+                            id = Math.abs(ex.getId().hashCode());
+                        }
+
+                        String detail = "Equipo: " + ex.getEquipment() + " | " + ex.getTarget();
+                        if (ex.getInstructions() != null && !ex.getInstructions().isEmpty()) {
+                            StringBuilder sb = new StringBuilder();
+                            for (String s : ex.getInstructions()) {
+                                sb.append(s).append(" ");
+                            }
+                            detail = sb.toString().trim();
+                        }
+
                         exerciseCarouselItemsList.add(new CarouselAdapter.CarouselItem(
                                 ex.getBodyPart().toUpperCase(),
                                 ex.getName(),
@@ -353,7 +377,9 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                                 null, // URL de receta no aplica
                                 R.drawable.ic_workout,
                                 R.drawable.bg_login_modern,
-                                100
+                                100,
+                                id,
+                                detail
                         ));
                     }
                     runOnUiThread(() -> {
