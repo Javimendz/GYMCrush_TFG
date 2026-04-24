@@ -136,6 +136,124 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
+                    <!-- SECCIÓN DE ESTADÍSTICAS NEÓN -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tu Rendimiento Semanal"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="24dp"
+                        android:weightSum="2">
+
+                        <!-- Card de Entrenamiento -->
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="0dp"
+                            android:layout_height="160dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_stat_glow"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:id="@+id/tvStatTitle1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Actividad"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="12sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <com.google.android.material.progressindicator.CircularProgressIndicator
+                                android:id="@+id/progressCircularStat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:indicatorSize="70dp"
+                                app:trackThickness="8dp"
+                                app:indicatorColor="#CD0277"
+                                app:trackColor="#1AFFFFFF"
+                                app:trackCornerRadius="10dp"
+                                android:progress="75"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvStatTitle1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="75%"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                app:layout_constraintBottom_toBottomOf="@id/progressCircularStat"
+                                app:layout_constraintEnd_toEndOf="@id/progressCircularStat"
+                                app:layout_constraintStart_toStartOf="@id/progressCircularStat"
+                                app:layout_constraintTop_toTopOf="@id/progressCircularStat" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <!-- Card de Peso/Calorías -->
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="0dp"
+                            android:layout_height="160dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_stat_glow"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:id="@+id/tvStatTitle2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Calorías"
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="12sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/tvStatValue2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="1,250"
+                                android:textColor="@color/white"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvStatTitle2" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="kcal quemadas"
+                                android:textColor="#4FC3F7"
+                                android:textSize="12sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvStatValue2" />
+
+                            <com.google.android.material.progressindicator.LinearProgressIndicator
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:indicatorColor="#4FC3F7"
+                                app:trackColor="#1AFFFFFF"
+                                app:trackCornerRadius="4dp"
+                                android:progress="60"
+                                app:layout_constraintBottom_toBottomOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+
                     <!-- Imagen de Entrenamiento Semitransparente -->
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivWorkoutImage"
@@ -266,60 +384,110 @@
                     </com.google.android.material.card.MaterialCardView>
 
 
-                    <!-- Card de Próxima Clase con Estilo Neumórfico -->
+                    <!-- Carrusel de Información en Tiempo Real -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sugerencias para ti"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/viewPagerCarousel"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginBottom="24dp"
+                        android:clipToPadding="false"
+                        android:clipChildren="false" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ejercicios recomendados"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/viewPagerExerciseCarousel"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"
+                        android:layout_marginBottom="24dp"
+                        android:clipToPadding="false"
+                        android:clipChildren="false" />
+
+                    <!-- Sección de Noticias IA -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="IA Fitness Insights"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                        <com.airbnb.lottie.LottieAnimationView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            app:lottie_rawRes="@raw/notification_bell"
+                            app:lottie_autoPlay="true"
+                            app:lottie_loop="true" />
+                    </LinearLayout>
+
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardIANews"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
-                        app:cardCornerRadius="28dp"
-                        app:cardElevation="20dp"
-                        app:strokeWidth="0dp">
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp"
+                        app:strokeColor="#33FFFFFF"
+                        app:strokeWidth="1dp">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/bg_login_modern"
-                            android:padding="24dp">
+                            android:orientation="vertical"
+                            android:background="#121B3A"
+                            android:padding="16dp">
 
                             <TextView
-                                android:id="@+id/lblNextClass"
-                                android:layout_width="wrap_content"
+                                android:id="@+id/tvIANewsTitle"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="RETO DEL DÍA"
-                                android:textColor="@color/accent_color"
-                                android:textSize="13sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.1"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
+                                android:text="Generando noticia del día..."
+                                android:textColor="#CD0277"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
 
                             <TextView
-                                android:id="@+id/tvNombreClase"
+                                android:id="@+id/tvIANewsContent"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Analizando tendencias de entrenamiento con inteligencia artificial..."
+                                android:textColor="#B3FFFFFF"
+                                android:textSize="14sp"
+                                android:lineSpacingExtra="4dp" />
+
+                            <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:text="Full Body Blast"
-                                android:textColor="@color/white"
-                                android:textSize="22sp"
-                                android:textStyle="bold"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/lblNextClass" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnEmpezar"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:text="¡EMPEZAR AHORA!"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                android:backgroundTint="@color/accent_color"
-                                android:textColor="@color/white"
-                                app:cornerRadius="12dp"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/tvNombreClase" />
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
+                                android:layout_marginTop="12dp"
+                                android:layout_gravity="end"
+                                android:text="Powered by GymCrush IA"
+                                android:textColor="#66FFFFFF"
+                                android:textSize="10sp"
+                                android:textStyle="italic" />
+                        </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- Mapa con estilo nocturno -->

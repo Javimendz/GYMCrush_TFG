@@ -27,7 +27,12 @@ import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.ApiService;
 import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
+import com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto;
+import com.example.gymcrush.data.remote.dto.FatSecretRecipeDto;
+import com.example.gymcrush.data.remote.dto.FatSecretResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
+import com.example.gymcrush.ui.ejercicios.ReproductorFragment;
+import com.google.gson.Gson;
 import com.example.gymcrush.ui.auth.LoginActivity;
 import com.example.gymcrush.ui.clases.ClasesFragment;
 import com.example.gymcrush.ui.ejercicios.EjerciciosFragment;
@@ -45,6 +50,7 @@ import com.example.gymcrush.ui.notificaciones.NotificacionesFragment;
 import com.example.gymcrush.ui.salud.SaludFragment;
 import com.example.gymcrush.ui.actividades.ActividadesFragment;
 import com.example.gymcrush.ui.staff.StaffFragment;
+import java.util.Collections;
 import com.example.gymcrush.ui.view.EspacioFragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -64,9 +70,13 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import retrofit2.Call;
@@ -85,7 +95,14 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     // Widget Nutrición
     private View cardNutricionWidget;
     private TextView tvNombrePlanWidget, tvCaloriasWidget;
+    private TextView tvIANewsTitle, tvIANewsContent;
     private com.google.android.material.progressindicator.LinearProgressIndicator progressProt, progressCarb, progressGras;
+
+    // Carrusel
+    private androidx.viewpager2.widget.ViewPager2 viewPagerCarousel, viewPagerExerciseCarousel;
+    private CarouselAdapter carouselAdapter, exerciseCarouselAdapter;
+    private List<CarouselAdapter.CarouselItem> carouselItemsList = new ArrayList<>();
+    private List<CarouselAdapter.CarouselItem> exerciseCarouselItemsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +123,8 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         cardNutricionWidget = findViewById(R.id.cardNutricionWidget);
         tvNombrePlanWidget = findViewById(R.id.tvNombrePlanWidget);
         tvCaloriasWidget = findViewById(R.id.tvCaloriasWidget);
+        tvIANewsTitle = findViewById(R.id.tvIANewsTitle);
+        tvIANewsContent = findViewById(R.id.tvIANewsContent);
         progressProt = findViewById(R.id.progressProt);
         progressCarb = findViewById(R.id.progressCarb);
         progressGras = findViewById(R.id.progressGras);
@@ -125,7 +144,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
 
         // Configurar roles y listener del menú
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
-        java.util.Set<String> roles = prefs.getStringSet("roles", new java.util.HashSet<>());
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
         boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
         
         if (isAdmin) {
@@ -182,9 +201,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             } else if (id == R.id.nav_social) {
                 cargarFragmento(new SocialFragment());
                 return true;
-            } else if (id == R.id.nav_clases) {
-                cargarFragmento(new ClasesFragment());
-                return true;
             } else if (id == R.id.nav_perfil) {
                 cargarFragmento(new PerfilFragment());
                 return true;
@@ -193,111 +209,316 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         });
 
         // 5. Google Maps
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) mapFragment.getMapAsync(this);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
 
+        LottieAnimationView notificationsAnim = findViewById(R.id.btnNotificationsAnim);
+        notificationsAnim.setOnClickListener(v -> {
+            notificationsAnim.playAnimation();
+            cargarFragmento(new NotificacionesFragment());
+        });
+
+        // Configurar el carrusel
+        setupCarousel();
+        setupExerciseCarousel();
+        cargarNoticiasIA();
+
+        // Listener para manejar la visibilidad del Home al volver de fragmentos
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
                 homeContent.setVisibility(View.VISIBLE);
-                cargarDatosYFotoPerfil(); // Recargar datos al volver al home
+                bottomNav.setSelectedItemId(R.id.nav_home);
+            }
+        });
+    }
+
+    private void cargarNoticiasIA() {
+        // En una app real, aquí llamarías a un endpoint que use GPT o similar.
+        // Simulamos la respuesta de la IA basada en el contexto del usuario.
+        new android.os.Handler().postDelayed(() -> {
+            if (isFinishing()) return;
+
+            String[] titulos = {
+                    "Optimización de Hipertrofia",
+                    "Tendencias en Biohacking",
+                    "Recuperación Inteligente",
+                    "IA en el Levantamiento"
+            };
+            
+            String[] noticias = {
+                    "Nuevos estudios sugieren que la fase excéntrica lenta (3s) incrementa la síntesis proteica un 15% más que el ritmo convencional.",
+                    "El uso de luz roja tras entrenamientos de alta intensidad podría reducir el DOMS en un 20%. ¡Pruébalo esta semana!",
+                    "Tu ritmo de entrenamiento indica que hoy es un día óptimo para series de aproximación pesadas. Enfócate en la técnica del peso muerto.",
+                    "La inteligencia artificial predice que tu mejor rendimiento hoy será en la ventana de las 18:00. Hidrátate bien."
+            };
+
+            int random = new java.util.Random().nextInt(titulos.length);
+            tvIANewsTitle.setText(titulos[random]);
+            tvIANewsContent.setText(noticias[random]);
+            
+            // Animación suave de aparición
+            findViewById(R.id.cardIANews).setAlpha(0);
+            findViewById(R.id.cardIANews).animate().alpha(1).setDuration(800).start();
+
+        }, 2000);
+    }
+
+    private void setupCarousel() {
+        viewPagerCarousel = findViewById(R.id.viewPagerCarousel);
+        
+        // 1. Inicializar con datos de carga para que no se vea vacío
+        carouselItemsList.clear();
+        carouselItemsList.add(new CarouselAdapter.CarouselItem(
+                "CONSEJO DEL DÍA", 
+                "Cargando sugerencias...", 
+                "Estamos preparando las mejores recetas para ti", 
+                R.drawable.ic_dieta, 
+                R.drawable.bg_login_modern, 
+                -1
+        ));
+        
+        carouselAdapter = new CarouselAdapter(carouselItemsList);
+        viewPagerCarousel.setAdapter(carouselAdapter);
+
+        // 2. Configuración visual de carrusel (Tarjetas laterales visibles)
+        viewPagerCarousel.setOffscreenPageLimit(3);
+        viewPagerCarousel.setClipToPadding(false);
+        viewPagerCarousel.setClipChildren(false);
+        
+        // Añadir espacio entre tarjetas y efecto de escala
+        float nextItemVisiblePx = getResources().getDimension(R.dimen.viewpager_next_item_visible);
+        float currentItemHorizontalMarginPx = getResources().getDimension(R.dimen.viewpager_current_item_horizontal_margin);
+        float pageTranslationX = nextItemVisiblePx + currentItemHorizontalMarginPx;
+        
+        androidx.viewpager2.widget.CompositePageTransformer compositePageTransformer = new androidx.viewpager2.widget.CompositePageTransformer();
+        compositePageTransformer.addTransformer(new androidx.viewpager2.widget.MarginPageTransformer(10));
+        compositePageTransformer.addTransformer((page, position) -> {
+            float r = 1 - Math.abs(position);
+            page.setScaleY(0.95f + r * 0.05f);
+        });
+        viewPagerCarousel.setPageTransformer(compositePageTransformer);
+
+        cargarDatosDinamicosCarrusel();
+    }
+
+    private void setupExerciseCarousel() {
+        viewPagerExerciseCarousel = findViewById(R.id.viewPagerExerciseCarousel);
+        
+        exerciseCarouselItemsList.add(new CarouselAdapter.CarouselItem(
+                "ENTRENAMIENTO", 
+                "Cargando ejercicios...", 
+                "Buscando las mejores rutinas para ti", 
+                R.drawable.ic_workout,
+                R.drawable.bg_login_modern, 
+                -1
+        ));
+        
+        exerciseCarouselAdapter = new CarouselAdapter(exerciseCarouselItemsList);
+        viewPagerExerciseCarousel.setAdapter(exerciseCarouselAdapter);
+
+        viewPagerExerciseCarousel.setOffscreenPageLimit(3);
+        viewPagerExerciseCarousel.setClipToPadding(false);
+        viewPagerExerciseCarousel.setClipChildren(false);
+
+        androidx.viewpager2.widget.CompositePageTransformer compositePageTransformer = new androidx.viewpager2.widget.CompositePageTransformer();
+        compositePageTransformer.addTransformer(new androidx.viewpager2.widget.MarginPageTransformer(10));
+        compositePageTransformer.addTransformer((page, position) -> {
+            float r = 1 - Math.abs(position);
+            page.setScaleY(0.95f + r * 0.05f);
+        });
+        viewPagerExerciseCarousel.setPageTransformer(compositePageTransformer);
+
+        cargarEjerciciosRecomendados();
+    }
+
+    private void cargarEjerciciosRecomendados() {
+        ApiService apiService = RetrofitClient.getApiService();
+        apiService.buscarEnBiblioteca("chest").enqueue(new Callback<ApiResponseDto<List<ExerciseApiRequestDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<ExerciseApiRequestDto>>> call, Response<ApiResponseDto<List<ExerciseApiRequestDto>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null && !response.body().getDatos().isEmpty()) {
+                    List<ExerciseApiRequestDto> exercises = response.body().getDatos();
+                    exerciseCarouselItemsList.clear();
+                    
+                    for (int i = 0; i < Math.min(exercises.size(), 8); i++) {
+                        ExerciseApiRequestDto ex = exercises.get(i);
+                        exerciseCarouselItemsList.add(new CarouselAdapter.CarouselItem(
+                                ex.getBodyPart().toUpperCase(),
+                                ex.getName(),
+                                "Equipo: " + ex.getEquipment() + " | " + ex.getTarget(),
+                                ex.getGifUrl(),
+                                null, // URL de receta no aplica
+                                R.drawable.ic_workout,
+                                R.drawable.bg_login_modern,
+                                100
+                        ));
+                    }
+                    runOnUiThread(() -> {
+                        if (exerciseCarouselAdapter != null) {
+                            exerciseCarouselAdapter.updateItems(new ArrayList<>(exerciseCarouselItemsList));
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<ExerciseApiRequestDto>>> call, Throwable t) {
+                // Fallback silencioso
+            }
+        });
+    }
+
+    private void cargarDatosDinamicosCarrusel() {
+        ApiService apiService = RetrofitClient.getApiService();
+        
+        // Cargar Recetas de FatSecret para el Carrusel
+        apiService.buscarAlimentos("diet").enqueue(new Callback<ApiResponseDto<String>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<String>> call, Response<ApiResponseDto<String>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                    try {
+                        String jsonString = response.body().getDatos();
+                        FatSecretResponseDto fatSecretData = new Gson().fromJson(jsonString, FatSecretResponseDto.class);
+                        
+                        if (fatSecretData != null && fatSecretData.getRecipes() != null && fatSecretData.getRecipes().getRecipe() != null) {
+                            carouselItemsList.clear();
+                            List<FatSecretRecipeDto> recipes = fatSecretData.getRecipes().getRecipe();
+                            
+                            // Ordenar: primero las que tienen imagen, luego las que no
+                            Collections.sort(recipes, (r1, r2) -> {
+                                boolean hasImg1 = r1.getRecipeImage() != null && !r1.getRecipeImage().isEmpty();
+                                boolean hasImg2 = r2.getRecipeImage() != null && !r2.getRecipeImage().isEmpty();
+                                if (hasImg1 && !hasImg2) return -1;
+                                if (!hasImg1 && hasImg2) return 1;
+                                return 0;
+                            });
+
+                            for (int i = 0; i < Math.min(recipes.size(), 8); i++) {
+                                FatSecretRecipeDto recipe = recipes.get(i);
+                                String macros = "";
+                                if (recipe.getRecipeNutrition() != null) {
+                                    macros = recipe.getRecipeNutrition().getCalories() + " kcal | P:" + 
+                                             recipe.getRecipeNutrition().getProtein() + "g C:" + 
+                                             recipe.getRecipeNutrition().getCarbohydrate() + "g";
+                                }
+
+                                carouselItemsList.add(new CarouselAdapter.CarouselItem(
+                                        "RECETA SALUDABLE",
+                                        recipe.getRecipeName(),
+                                        macros.isEmpty() ? recipe.getRecipeDescription() : macros,
+                                        recipe.getRecipeImage(), // Usamos la URL tal cual viene
+                                        recipe.getRecipeUrl(),
+                                        R.drawable.ic_dieta,
+                                        R.drawable.bg_login_modern,
+                                        100
+                                ));
+                            }
+                            actualizarAdaptador(carouselItemsList);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<String>> call, Throwable t) {
+                runOnUiThread(() -> {
+                    carouselItemsList.clear();
+                    carouselItemsList.add(new CarouselAdapter.CarouselItem(
+                            "SIN CONEXIÓN",
+                            "Recetas no disponibles",
+                            "No se pudo conectar con el servidor de nutrición",
+                            R.drawable.ic_dieta,
+                            R.drawable.bg_login_modern,
+                            0
+                    ));
+                    actualizarAdaptador(carouselItemsList);
+                });
+            }
+        });
+
+        // Actualizar el Widget de Nutrición (mantenemos la lógica de tu plan)
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
+        long usuarioId = prefs.getLong("usuario_id", -1);
+        if (usuarioId != -1) {
+            apiService.obtenerUltimoPlan(usuarioId).enqueue(new Callback<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> call, Response<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                        com.example.gymcrush.data.remote.dto.NutricionResponseDto plan = response.body().getDatos();
+                        tvNombrePlanWidget.setText(plan.getNombreDieta());
+                        tvCaloriasWidget.setText(plan.getCaloriasObjetivo() + " kcal");
+                        actualizarProgresoMacros(plan);
+                    }
+                }
+                @Override public void onFailure(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> call, Throwable t) {}
+            });
+        }
+    }
+
+    private void actualizarProgresoMacros(com.example.gymcrush.data.remote.dto.NutricionResponseDto plan) {
+        double p = 0, c = 0, g = 0;
+        if (plan.getComidas() != null) {
+            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : plan.getComidas()) {
+                p += (item.getProteina() != null) ? item.getProteina() : 0;
+                c += (item.getCarbohidratos() != null) ? item.getCarbohidratos() : 0;
+                g += (item.getGrasas() != null) ? item.getGrasas() : 0;
+            }
+        }
+        progressProt.setProgress((int) p);
+        progressCarb.setProgress((int) c);
+        progressGras.setProgress((int) g);
+    }
+
+
+    private void actualizarAdaptador(List<CarouselAdapter.CarouselItem> items) {
+        runOnUiThread(() -> {
+            if (carouselAdapter != null) {
+                carouselAdapter.updateItems(new ArrayList<>(items));
             }
         });
     }
 
     private void cargarDatosYFotoPerfil() {
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
-        long userId = prefs.getLong("user_id", -1);
-        String nombreLocal = prefs.getString("nombre_usuario", "Usuario");
-
-        // Mostrar nombre local mientras carga del servidor
+        String nombre = prefs.getString("nombre_usuario", "Usuario");
         TextView tvSaludo = findViewById(R.id.tvSaludo);
-        if (tvSaludo != null) tvSaludo.setText("¡HOLA, " + nombreLocal.toUpperCase() + "!");
-        
-        NavigationView navigationView = findViewById(R.id.navigation_view);
-        View headerView = navigationView.getHeaderView(0);
-        TextView tvNombreHeader = headerView.findViewById(R.id.tv_nombre_header);
-        if (tvNombreHeader != null) tvNombreHeader.setText(nombreLocal);
+        tvSaludo.setText("¡A tope, " + nombre + "!");
 
-        if (userId == -1) return;
+        String token = prefs.getString("auth_token", "");
+        if (token.isEmpty()) return;
 
         ApiService apiService = RetrofitClient.getApiService();
-        
-        // Cargar Plan Nutricional para el Widget
-        apiService.obtenerUltimoPlan(userId).enqueue(new Callback<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>>() {
-            @Override
-            public void onResponse(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> call, Response<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
-                    com.example.gymcrush.data.remote.dto.NutricionResponseDto plan = response.body().getDatos();
-                    cardNutricionWidget.setVisibility(View.VISIBLE);
-                    tvNombrePlanWidget.setText(plan.getNombreDieta());
-                    tvCaloriasWidget.setText(plan.getCaloriasObjetivo() + " kcal");
-                    
-                    if (plan.getDietas() != null) {
-                        // Simulación de progreso basada en el objetivo
-                        progressProt.setProgress(75); 
-                        progressCarb.setProgress(40);
-                        progressGras.setProgress(60);
-                    }
-                } else {
-                    // En lugar de ocultar, mostramos estado por defecto para todos
-                    tvNombrePlanWidget.setText("Sin plan activo");
-                    tvCaloriasWidget.setText("Consulta con tu nutricionista");
-                    progressProt.setProgress(0);
-                    progressCarb.setProgress(0);
-                    progressGras.setProgress(0);
-                }
-            }
+        long usuarioId = prefs.getLong("usuario_id", -1);
+        if (usuarioId == -1) return;
 
-            @Override
-            public void onFailure(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> call, Throwable t) {
-                // En caso de error, también lo dejamos visible con info por defecto
-                tvNombrePlanWidget.setText("Plan no disponible");
-                tvCaloriasWidget.setText("Revisa tu conexión");
-            }
-        });
-
-        apiService.getPerfilById(userId).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
+        apiService.getPerfilById(usuarioId).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<PerfilResponseDto>> call, Response<ApiResponseDto<PerfilResponseDto>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                if (response.isSuccessful() && response.body() != null) {
                     PerfilResponseDto perfil = response.body().getDatos();
-                    String fotoBase64 = perfil.getFoto();
-                    String nombreReal = perfil.getNombre();
-
-                    if (nombreReal != null && !nombreReal.isEmpty()) {
-                        if (tvSaludo != null) tvSaludo.setText("¡HOLA, " + nombreReal.toUpperCase() + "!");
-                        if (tvNombreHeader != null) tvNombreHeader.setText(nombreReal);
-                    }
-
-                    if (fotoBase64 != null && !fotoBase64.isEmpty()) {
-                        byte[] decodedString = Base64.decode(fotoBase64, Base64.DEFAULT);
+                    if (perfil.getFoto() != null) {
+                        byte[] decodedString = Base64.decode(perfil.getFoto(), Base64.DEFAULT);
+                        Glide.with(DesarrolloActivity.this)
+                                .load(decodedString)
+                                .placeholder(R.drawable.logo)
+                                .into(profileImage);
                         
-                        // Cargar en imagen principal
-                        if (profileImage != null) {
-                            Glide.with(DesarrolloActivity.this)
-                                    .asBitmap()
-                                    .load(decodedString)
-                                    .circleCrop()
-                                    .placeholder(R.drawable.logo)
-                                    .into(profileImage);
-                        }
-                        
-                        // Cargar en imagen del header
-                        if (ivHeaderPhoto != null) {
-                            Glide.with(DesarrolloActivity.this)
-                                    .asBitmap()
-                                    .load(decodedString)
-                                    .circleCrop()
-                                    .placeholder(R.drawable.logo)
-                                    .into(ivHeaderPhoto);
-                        }
+                        Glide.with(DesarrolloActivity.this)
+                                .load(decodedString)
+                                .circleCrop()
+                                .into(ivHeaderPhoto);
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseDto<PerfilResponseDto>> call, Throwable t) {
-                // Si falla la red, ya tenemos los datos básicos de SharedPreferences cargados por defecto
+                Toast.makeText(DesarrolloActivity.this, "Error al cargar perfil", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -309,18 +530,12 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     private void cargarFragmento(Fragment fragment) {
-        if (fragment instanceof PlanesFragment) {
-            ((PlanesFragment) fragment).setOnPlanSubscriptionListener(() -> {
-                // Cuando se suscribe a un plan, navegamos automáticamente a Rutinas
-                mostrarHome(); // Limpiar stack
-                cargarFragmento(new RutinasFragment());
-            });
-        }
         homeContent.setVisibility(View.GONE);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit();
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fragment_container, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
     private void mostrarHome() {
@@ -331,27 +546,22 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private void mostrarDialogoQR() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_qr_gym);
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
-        String username = prefs.getString("nombre_usuario", "Usuario");
-        String userId = String.valueOf(prefs.getLong("user_id", -1));
-        String qrContent = "GYMCRUSH_" + username + "_" + userId + "_" + UUID.randomUUID().toString();
+        ImageView ivQR = dialog.findViewById(R.id.ivQrCode);
+        String userId = UUID.randomUUID().toString();
 
-        ImageView ivQr = dialog.findViewById(R.id.ivQrCode);
         try {
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(qrContent, BarcodeFormat.QR_CODE, 500, 500);
+            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+            BitMatrix bitMatrix = multiFormatWriter.encode(userId, BarcodeFormat.QR_CODE, 500, 500);
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-            ivQr.setImageBitmap(bitmap);
+            ivQR.setImageBitmap(bitmap);
         } catch (WriterException e) {
             e.printStackTrace();
         }
 
-        View btnCerrar = dialog.findViewById(R.id.btnCerrarQr);
-        if (btnCerrar != null) {
-            btnCerrar.setOnClickListener(v -> dialog.dismiss());
-        }
+        dialog.findViewById(R.id.btnCerrarQr).setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
     }
@@ -359,26 +569,24 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private void mostrarDialogoCerrarSesion() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_custom_exit);
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        dialog.findViewById(R.id.btn_cancelar_exit).setOnClickListener(v -> dialog.dismiss());
         dialog.findViewById(R.id.btn_confirmar_exit).setOnClickListener(v -> {
             SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
             prefs.edit().clear().apply();
-            
-            Intent intent = new Intent(DesarrolloActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
         });
+
+        dialog.findViewById(R.id.btn_cancelar_exit).setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
     }
 
     @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
+    public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        LatLng gymLocation = new LatLng(39.4699, -0.3763); // Valencia centro (ejemplo)
+        LatLng gymLocation = new LatLng(39.4699, -0.3763);
         map.addMarker(new MarkerOptions().position(gymLocation).title("GYMCrush Valencia"));
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(gymLocation, 15f));
     }

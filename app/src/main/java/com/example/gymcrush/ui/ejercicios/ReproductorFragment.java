@@ -69,7 +69,7 @@ public class ReproductorFragment extends Fragment {
             descripcion = getArguments().getString("descripcion");
         }
         SharedPreferences prefs = requireActivity().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
-        userId = prefs.getLong("user_id", -1L);
+        userId = prefs.getLong("usuario_id", -1L);
     }
 
     @Nullable
