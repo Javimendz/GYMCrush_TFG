@@ -34,7 +34,12 @@ public class ComidaDiariaResponseDto implements Serializable {
     @SerializedName(value = "recipeUrl", alternate = {"recipe_url", "url"})
     private String recipeUrl;
 
+    private boolean selected = false;
+
     // Getters y Setters
+    public boolean isSelected() { return selected; }
+    public void setSelected(boolean selected) { this.selected = selected; }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getMomento() { return momento; }

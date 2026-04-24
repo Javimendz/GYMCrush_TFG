@@ -11,13 +11,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 import com.bumptech.glide.Glide;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto;
 import java.util.Locale;
 
-public class DetalleComidaFragment extends Fragment {
+public class DetalleComidaFragment extends DialogFragment {
 
     private ComidaDiariaResponseDto comida;
 

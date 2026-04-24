@@ -44,6 +44,10 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         notifyDataSetChanged();
     }
 
+    public List<ComidaDiariaResponseDto> getComidas() {
+        return comidas;
+    }
+
     public void setOnComidaClickListener(OnComidaClickListener listener) {
         this.clickListener = listener;
     }
@@ -124,24 +128,14 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
                 });
             }
 
-            // Lógica del Checkbox para engagement
-            cbHecha.setOnCheckedChangeListener(null); // Reset
-            
-            // Si el ID es nulo, es una sugerencia (no persistida aún)
-            // Si tiene ID, es una comida ya registrada en el consumo diario
-            boolean esConsumoReal = (comida.getId() != null);
-            cbHecha.setChecked(esConsumoReal);
-            itemView.setAlpha(esConsumoReal ? 0.6f : 1.0f);
-            
-            // Ahora permitimos marcar y desmarcar
-            // cbHecha.setEnabled(!esConsumoReal); 
+            // Lógica del Checkbox para selección de consumo
+            cbHecha.setOnCheckedChangeListener(null);
+            cbHecha.setChecked(comida.isSelected());
+            itemView.setAlpha(comida.isSelected() ? 0.6f : 1.0f);
 
             cbHecha.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    itemView.setAlpha(0.6f);
-                } else {
-                    itemView.setAlpha(1.0f);
-                }
+                comida.setSelected(isChecked);
+                itemView.setAlpha(isChecked ? 0.6f : 1.0f);
                 
                 if (hechaClickListener != null) {
                     hechaClickListener.onHechaClick(comida, isChecked);
