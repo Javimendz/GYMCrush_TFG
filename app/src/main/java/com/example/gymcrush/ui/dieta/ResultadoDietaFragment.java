@@ -99,19 +99,40 @@ public class ResultadoDietaFragment extends Fragment {
         });
 
         adapter.setOnHechaClickListener((comida, isChecked) -> {
-            if (isChecked && usuarioId != -1L && planNutricional != null) {
-                ComidaDiariaRequestDto request = new ComidaDiariaRequestDto();
-                request.setNombreAlimento(comida.getNombreAlimento());
-                request.setMomento(comida.getMomento());
-                request.setCalorias(comida.getCalorias());
-                request.setProteina(comida.getProteina());
-                request.setCarbohidratos(comida.getCarbohidratos());
-                request.setGrasas(comida.getGrasas());
-                request.setPlanNutricionalId(planNutricional.getId());
-                
-                viewModel.añadirComida(request, usuarioId);
-                Toast.makeText(getContext(), "Añadido a tu consumo diario", Toast.LENGTH_SHORT).show();
+            // Actualizar localmente para el cálculo de la barra
+            if (isChecked) {
+                // Simular que tiene un ID temporal si es necesario, o usar una lista de "seleccionados"
+                comida.setId(-1L); 
+            } else {
+                comida.setId(null);
             }
+            actualizarResumenMacros(getView());
+        });
+
+        adapter.setOnMenuClickListener((v, comida) -> {
+            android.widget.PopupMenu popup = new android.widget.PopupMenu(requireContext(), v);
+            popup.getMenu().add("Desmarcar").setEnabled(comida.getId() != null);
+            popup.getMenu().add("Eliminar");
+            popup.getMenu().add("Generar otra nueva");
+            
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getTitle().equals("Desmarcar")) {
+                    comida.setId(null);
+                    adapter.notifyDataSetChanged();
+                    actualizarResumenMacros(getView());
+                } else if (item.getTitle().equals("Eliminar")) {
+                    if (planNutricional.getDietas() != null) {
+                        planNutricional.getDietas().remove(comida);
+                        adapter.setComidas(new ArrayList<>(planNutricional.getDietas()));
+                        actualizarResumenMacros(getView());
+                    }
+                } else if (item.getTitle().equals("Generar otra nueva")) {
+                    Toast.makeText(getContext(), "Buscando alternativa...", Toast.LENGTH_SHORT).show();
+                    // Aquí se podría llamar a una función del viewmodel para buscar otra receta
+                }
+                return true;
+            });
+            popup.show();
         });
         rvComidas.setAdapter(adapter);
 
@@ -164,48 +185,32 @@ public class ResultadoDietaFragment extends Fragment {
         TextView tvProt = view.findViewById(R.id.tv_res_prot);
         TextView tvCarb = view.findViewById(R.id.tv_res_carb);
         TextView tvGras = view.findViewById(R.id.tv_res_gras);
+        TextView tvResumenCal = view.findViewById(R.id.tv_resumen_calorias);
+        com.google.android.material.progressindicator.LinearProgressIndicator progress = view.findViewById(R.id.progress_resultado_calorias);
 
         float p = 0, c = 0, g = 0;
+        double calConsumidas = 0;
+        int calObjetivo = planNutricional.getCaloriasObjetivo() != null ? planNutricional.getCaloriasObjetivo() : 2000;
 
-        // Intentar sumar de las dietas planificadas
-        if (planNutricional.getDietas() != null && !planNutricional.getDietas().isEmpty()) {
+        // Sumar solo lo marcado (ID != null) de la lista de dietas (sugerencias)
+        if (planNutricional.getDietas() != null) {
             for (ComidaDiariaResponseDto item : planNutricional.getDietas()) {
-                if (item.getProteina() != null) p += item.getProteina();
-                if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
-                if (item.getGrasas() != null) g += item.getGrasas();
+                if (item.getId() != null) {
+                    if (item.getProteina() != null) p += item.getProteina();
+                    if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
+                    if (item.getGrasas() != null) g += item.getGrasas();
+                    if (item.getCalorias() != null) calConsumidas += item.getCalorias();
+                }
             }
         }
 
-        // Si no hay macros en dietas, probar con comidas consumidas
-        if (p == 0 && c == 0 && planNutricional.getComidas() != null) {
-            for (ComidaDiariaResponseDto item : planNutricional.getComidas()) {
-                if (item.getProteina() != null) p += item.getProteina();
-                if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
-                if (item.getGrasas() != null) g += item.getGrasas();
-            }
+        if (tvResumenCal != null) {
+            tvResumenCal.setText(String.format(java.util.Locale.getDefault(), "%.0f kcal de %d", calConsumidas, calObjetivo));
         }
 
-        // Si sigue siendo 0 (plan nuevo o sin datos), calcular según el objetivo calórico y tipo de dieta
-        if (p == 0 && c == 0 && planNutricional.getCaloriasObjetivo() != null) {
-            int cal = planNutricional.getCaloriasObjetivo();
-            String tipo = (planNutricional.getTipoDieta() != null) ? planNutricional.getTipoDieta().toUpperCase() : "";
-
-            if (tipo.contains("HIPER") || tipo.contains("VOLUMEN")) {
-                // Hipercalórica: 22% Prot, 48% Carb, 30% Gras
-                p = (float) (cal * 0.22 / 4);
-                c = (float) (cal * 0.48 / 4);
-                g = (float) (cal * 0.30 / 9);
-            } else if (tipo.contains("DEFINI") || tipo.contains("BAJA") || tipo.contains("PERDIDA")) {
-                // Definición: 35% Prot, 30% Carb, 35% Gras
-                p = (float) (cal * 0.35 / 4);
-                c = (float) (cal * 0.30 / 4);
-                g = (float) (cal * 0.35 / 9);
-            } else {
-                // Estándar/Mantenimiento: 25% Prot, 40% Carb, 35% Gras
-                p = (float) (cal * 0.25 / 4);
-                c = (float) (cal * 0.40 / 4);
-                g = (float) (cal * 0.35 / 9);
-            }
+        if (progress != null) {
+            int pct = calObjetivo > 0 ? (int) ((calConsumidas / calObjetivo) * 100) : 0;
+            progress.setProgress(Math.min(pct, 100));
         }
 
         tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg", p));
@@ -248,6 +253,8 @@ public class ResultadoDietaFragment extends Fragment {
                 
                 for (int i = 0; i < dietasActualizadas.size(); i++) {
                     ComidaDiariaResponseDto comida = dietasActualizadas.get(i);
+                    // IMPORTANTE: Ponemos ID a null para que salgan desmarcadas al principio
+                    comida.setId(null);
                     
                     // Enriquecemos con datos reales de FatSecret si están disponibles por índice
                     if (i < recetasFS.size()) {

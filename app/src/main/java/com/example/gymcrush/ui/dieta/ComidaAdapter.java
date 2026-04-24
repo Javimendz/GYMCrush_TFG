@@ -29,10 +29,15 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         void onHechaClick(ComidaDiariaResponseDto comida, boolean isChecked);
     }
 
+    public interface OnMenuClickListener {
+        void onMenuClick(View view, ComidaDiariaResponseDto comida);
+    }
+
     private List<ComidaDiariaResponseDto> comidas = new ArrayList<>();
     private OnComidaClickListener clickListener;
     private OnComidaLongClickListener longClickListener;
     private OnHechaClickListener hechaClickListener;
+    private OnMenuClickListener menuClickListener;
 
     public void setComidas(List<ComidaDiariaResponseDto> comidas) {
         this.comidas = comidas;
@@ -51,6 +56,10 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         this.hechaClickListener = listener;
     }
 
+    public void setOnMenuClickListener(OnMenuClickListener listener) {
+        this.menuClickListener = listener;
+    }
+
     @NonNull
     @Override
     public ComidaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -61,7 +70,7 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
     @Override
     public void onBindViewHolder(@NonNull ComidaViewHolder holder, int position) {
         ComidaDiariaResponseDto comida = comidas.get(position);
-        holder.bind(comida, clickListener, longClickListener, hechaClickListener);
+        holder.bind(comida, clickListener, longClickListener, hechaClickListener, menuClickListener);
     }
 
     @Override
@@ -71,7 +80,7 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
 
     static class ComidaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDesc, tvHora, tvMacros;
-        ImageView ivIcono;
+        ImageView ivIcono, ivMenu;
         CheckBox cbHecha;
 
         public ComidaViewHolder(@NonNull View itemView) {
@@ -81,10 +90,11 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
             tvHora = itemView.findViewById(R.id.tvHoraComida);
             tvMacros = itemView.findViewById(R.id.tvMacrosComida);
             ivIcono = itemView.findViewById(R.id.ivIconoComida);
+            ivMenu = itemView.findViewById(R.id.ivMenuComida);
             cbHecha = itemView.findViewById(R.id.cbComidaHecha);
         }
 
-        public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener, OnComidaLongClickListener longClickListener, OnHechaClickListener hechaClickListener) {
+        public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener, OnComidaLongClickListener longClickListener, OnHechaClickListener hechaClickListener, OnMenuClickListener menuClickListener) {
             tvTitulo.setText(comida.getNombreAlimento() != null ? comida.getNombreAlimento() : comida.getMomento());
             tvDesc.setText(comida.getMomento()); // Invertimos para que el plato sea el título
             
@@ -106,6 +116,14 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
                 }
             });
 
+            if (ivMenu != null) {
+                ivMenu.setOnClickListener(v -> {
+                    if (menuClickListener != null) {
+                        menuClickListener.onMenuClick(v, comida);
+                    }
+                });
+            }
+
             // Lógica del Checkbox para engagement
             cbHecha.setOnCheckedChangeListener(null); // Reset
             
@@ -115,13 +133,12 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
             cbHecha.setChecked(esConsumoReal);
             itemView.setAlpha(esConsumoReal ? 0.6f : 1.0f);
             
-            // Si ya está marcada, la deshabilitamos para evitar duplicados accidentales desde esta vista de plan
-            cbHecha.setEnabled(!esConsumoReal);
+            // Ahora permitimos marcar y desmarcar
+            // cbHecha.setEnabled(!esConsumoReal); 
 
             cbHecha.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
                     itemView.setAlpha(0.6f);
-                    cbHecha.setEnabled(false); // Una vez marcada como "hecha", se envía al backend y se deshabilita
                 } else {
                     itemView.setAlpha(1.0f);
                 }

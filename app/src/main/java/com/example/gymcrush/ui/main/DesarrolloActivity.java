@@ -219,6 +219,9 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             } else if (id == R.id.nav_social) {
                 cargarFragmento(new SocialFragment());
                 return true;
+            } else if (id == R.id.nav_clases) {
+                cargarFragmento(new ClasesFragment());
+                return true;
             } else if (id == R.id.nav_perfil) {
                 cargarFragmento(new PerfilFragment());
                 return true;
