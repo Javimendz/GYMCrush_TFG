@@ -23,7 +23,6 @@ public class RutinaResponseDto {
     @Schema(description = "Si ya se ha realizado")
     private Boolean completado;
 
-    // --- Datos que vienen de la relación con Entrenamiento ---
     
     @Schema(description = "ID del entrenamiento base")
     private Long entrenamientoId;

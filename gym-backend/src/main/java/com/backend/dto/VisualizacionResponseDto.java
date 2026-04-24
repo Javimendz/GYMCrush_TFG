@@ -26,7 +26,6 @@ public class VisualizacionResponseDto {
     // Datos del Usuario
     private Long usuarioId;
 
-    // Datos "Aplanados" del Tutorial (Vital para la UI)
     @Schema(description = "ID del video")
     private Long tutorialId;
 

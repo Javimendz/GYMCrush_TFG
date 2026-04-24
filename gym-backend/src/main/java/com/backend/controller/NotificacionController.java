@@ -3,8 +3,6 @@ package com.backend.controller;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 
-
-
 import com.backend.dto.NotificacionRequestDto;
 import com.backend.dto.NotificacionResponseDto;
 import com.backend.service.NotificacionService;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/notificaciones")
 @RequiredArgsConstructor
@@ -27,19 +24,17 @@ public class NotificacionController {
 
     private final NotificacionService notificacionService;
 
-
- //aplicacon del servidor
-    //app/notificaciones
+    // aplicacon del servidor
+    // app/notificaciones
     @MessageMapping("/sendMessage") // Ruta a la que los clientes enviarán mensajes
     @SendTo("/topic/notificacion") // Ruta a la que se enviarán las notificaciones a los clientes suscritos
-    public String sendMessage(String message){
+    public String sendMessage(String message) {
 
         System.out.println("Mensaje recibido: " + message);
-        // Aquí podrías agregar lógica para procesar el mensaje o enviarlo a otros clientes a través de WebSocket
+        // clientes a través de WebSocket
         return "Mensaje procesado: " + message;
 
     }
-
 
     /**
      * Obtener todas las notificaciones de un usuario.
@@ -81,7 +76,7 @@ public class NotificacionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-    notificacionService.eliminar(id);
-    return ResponseEntity.noContent().build(); // Devuelve 204 OK (vacío)
-}
+        notificacionService.eliminar(id);
+        return ResponseEntity.noContent().build(); // Devuelve 204 OK (vacío)
+    }
 }

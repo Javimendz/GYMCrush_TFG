@@ -16,10 +16,9 @@ import com.backend.exceptions.ResourceNotFoundException;
  * @version 1.0
  * @since 2026
  */
-public interface IReservaService  {
-    
+public interface IReservaService {
 
-     /**
+    /**
      * Crea una nueva reserva para un usuario en un horario específico.
      * <p>
      * Valida que el usuario no tenga una reserva activa para el mismo día,
@@ -30,9 +29,11 @@ public interface IReservaService  {
      * @param horarioId ID del horario a reservar
      * @return DTO con los datos de la reserva creada
      * @throws ResourceNotFoundException si el horario no existe
-     * @throws RuntimeException si el usuario ya tiene reserva activa o no hay cupo
+     * @throws RuntimeException          si el usuario ya tiene reserva activa o no
+     *                                   hay cupo
      */
     ReservaResponseDto crearReserva(Long usuarioId, Long horarioId);
+
     /**
      * Obtiene el listado de reservas de un usuario.
      * <p>
@@ -44,6 +45,7 @@ public interface IReservaService  {
      * @return Lista de DTO con las reservas activas del usuario
      */
     List<ReservaResponseDto> obtenerReservasUsuario(Long usuarioId);
+
     /**
      * Cancela una reserva existente cambiando su estado a CANCELADA.
      * <p>
@@ -55,6 +57,7 @@ public interface IReservaService  {
      * @throws ResourceNotFoundException si la reserva no existe
      */
     void cancelarReserva(Long reservaId);
+
     /**
      * Verifica si hay cupo disponible para un horario específico.
      * <p>
@@ -80,5 +83,6 @@ public interface IReservaService  {
     void confirmarAsistencia(Long reservaId);
 
     List<ReservaResponseDto> obtenerAsistentesPorHorario(Long horarioId);
+
     String obtenerResumenAforo(Long horarioId);
 }

@@ -19,29 +19,29 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Información incluida:</b>
  * <ul>
- *   <li><b>Datos del tutorial:</b> ID, título, descripción, URL del video</li>
- *   <li><b>Metadata:</b> duración en minutos</li>
- *   <li><b>Datos de categoría:</b> ID y nombre de la categoría asociada</li>
+ * <li><b>Datos del tutorial:</b> ID, título, descripción, URL del video</li>
+ * <li><b>Metadata:</b> duración en minutos</li>
+ * <li><b>Datos de categoría:</b> ID y nombre de la categoría asociada</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Consulta de tutoriales disponibles</li>
- *   <li>Listado de tutoriales por categoría</li>
- *   <li>Búsqueda y filtrado de contenido</li>
- *   <li>Visualización de detalles de tutorial específico</li>
- *   <li>Documentación automática de API con Swagger</li>
+ * <li>Consulta de tutoriales disponibles</li>
+ * <li>Listado de tutoriales por categoría</li>
+ * <li>Búsqueda y filtrado de contenido</li>
+ * <li>Visualización de detalles de tutorial específico</li>
+ * <li>Documentación automática de API con Swagger</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Notas:</b>
  * <ul>
- *   <li>La URL del video debe ser válida y accesible</li>
- *   <li>La duración se expresa en minutos para facilitar cálculos</li>
- *   <li>Los datos de categoría permiten mostrar información contextual</li>
+ * <li>La URL del video debe ser válida y accesible</li>
+ * <li>La duración se expresa en minutos para facilitar cálculos</li>
+ * <li>Los datos de categoría permiten mostrar información contextual</li>
  * </ul>
  * </p>
  *
@@ -67,9 +67,9 @@ public class TutorialResponseDto {
      * <p>
      * <b>Usos:</b>
      * <ul>
-     *   <li>Consultas específicas del tutorial</li>
-     *   <li>Operaciones de actualización y eliminación</li>
-     *   <li>Referencias en relaciones con otras entidades</li>
+     * <li>Consultas específicas del tutorial</li>
+     * <li>Operaciones de actualización y eliminación</li>
+     * <li>Referencias en relaciones con otras entidades</li>
      * </ul>
      * </p>
      */
@@ -87,9 +87,9 @@ public class TutorialResponseDto {
      * <p>
      * <b>Características:</b>
      * <ul>
-     *   <li>Debe ser claro y conciso</li>
-     *   <li>Se utiliza para SEO y búsquedas</li>
-     *   <li>Aparece en vistas previas y listados</li>
+     * <li>Debe ser claro y conciso</li>
+     * <li>Se utiliza para SEO y búsquedas</li>
+     * <li>Aparece en vistas previas y listados</li>
      * </ul>
      * </p>
      */
@@ -107,10 +107,10 @@ public class TutorialResponseDto {
      * <p>
      * <b>Contenido típico:</b>
      * <ul>
-     *   <li>Objetivos de aprendizaje</li>
-     *   <li>Prerrequisitos necesarios</li>
-     *   <li>Tecnologías o herramientas utilizadas</li>
-     *   <li>Nivel de dificultad</li>
+     * <li>Objetivos de aprendizaje</li>
+     * <li>Prerrequisitos necesarios</li>
+     * <li>Tecnologías o herramientas utilizadas</li>
+     * <li>Nivel de dificultad</li>
      * </ul>
      * </p>
      */
@@ -128,9 +128,9 @@ public class TutorialResponseDto {
      * <p>
      * <b>Formatos soportados:</b>
      * <ul>
-     *   <li>YouTube: https://youtube.com/watch?v=...</li>
-     *   <li>Vimeo: https://vimeo.com/...</li>
-     *   <li>Directo: https://dominio.com/video.mp4</li>
+     * <li>YouTube: https://youtube.com/watch?v=...</li>
+     * <li>Vimeo: https://vimeo.com/...</li>
+     * <li>Directo: https://dominio.com/video.mp4</li>
      * </ul>
      * </p>
      * 
@@ -152,10 +152,10 @@ public class TutorialResponseDto {
      * <p>
      * <b>Usos:</b>
      * <ul>
-     *   <li>Mostrar duración en listados</li>
-     *   <li>Calcular tiempo total de cursos</li>
-     *   <li>Filtrar por duración preferida</li>
-     *   <li>Estadísticas de consumo de contenido</li>
+     * <li>Mostrar duración en listados</li>
+     * <li>Calcular tiempo total de cursos</li>
+     * <li>Filtrar por duración preferida</li>
+     * <li>Estadísticas de consumo de contenido</li>
      * </ul>
      * </p>
      * 
@@ -177,10 +177,10 @@ public class TutorialResponseDto {
      * <p>
      * <b>Usos:</b>
      * <ul>
-     *   <li>Filtrar tutoriales por categoría</li>
-     *   <li>Mostrar tutoriales relacionados</li>
-     *   <li>Navegación por categorías</li>
-     *   <li>Estadísticas por tema</li>
+     * <li>Filtrar tutoriales por categoría</li>
+     * <li>Mostrar tutoriales relacionados</li>
+     * <li>Navegación por categorías</li>
+     * <li>Estadísticas por tema</li>
      * </ul>
      * </p>
      * 
@@ -202,19 +202,19 @@ public class TutorialResponseDto {
      * <p>
      * <b>Ejemplos de categorías:</b>
      * <ul>
-     *   <li>Programación Web</li>
-     *   <li>Bases de Datos</li>
-     *   <li>Desarrollo Móvil</li>
-     *   <li>Inteligencia Artificial</li>
+     * <li>Programación Web</li>
+     * <li>Bases de Datos</li>
+     * <li>Desarrollo Móvil</li>
+     * <li>Inteligencia Artificial</li>
      * </ul>
      * </p>
      * 
      * <p>
      * <b>Beneficios:</b>
      * <ul>
-     *   <li>Mejora la experiencia de usuario</li>
-     *   <li>Reduce consultas adicionales al servidor</li>
-     *   <li>Facilita el filtrado y búsqueda</li>
+     * <li>Mejora la experiencia de usuario</li>
+     * <li>Reduce consultas adicionales al servidor</li>
+     * <li>Facilita el filtrado y búsqueda</li>
      * </ul>
      * </p>
      */

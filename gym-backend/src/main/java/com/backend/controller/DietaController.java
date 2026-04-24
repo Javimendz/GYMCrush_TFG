@@ -26,29 +26,29 @@ public class DietaController {
     private final IDietaService dietaService;
 
     @PostMapping
-@PreAuthorize("hasRole('ADMIN')")
-public ResponseEntity<ApiResponseDto<DietaResponseDto>> crear(@Valid @RequestBody DietaRequestDto dto) {
-    DietaResponseDto nuevaDieta = dietaService.crearDieta(dto);
-    return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponseDto.success("Dieta creada exitosamente en el catálogo", nuevaDieta));
-}
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseDto<DietaResponseDto>> crear(@Valid @RequestBody DietaRequestDto dto) {
+        DietaResponseDto nuevaDieta = dietaService.crearDieta(dto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponseDto.success("Dieta creada exitosamente en el catálogo", nuevaDieta));
+    }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ApiResponseDto<List<DietaResponseDto>>> listar() {
         log.info("Solicitud para listar todas las dietas del catálogo");
         List<DietaResponseDto> dietas = dietaService.listarTodas();
         return ResponseEntity.ok(
-                ApiResponseDto.success("Listado de dietas obtenido correctamente", dietas)
-        );
+                ApiResponseDto.success("Listado de dietas obtenido correctamente", dietas));
     }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     public ResponseEntity<ApiResponseDto<DietaResponseDto>> obtenerPorId(@PathVariable("id") Long id) {
         log.info("Solicitud para obtener la dieta con ID: {}", id);
         DietaResponseDto dieta = dietaService.obtenerPorId(id);
         return ResponseEntity.ok(
-                ApiResponseDto.success("Detalle de la dieta encontrado", dieta)
-        );
+                ApiResponseDto.success("Detalle de la dieta encontrado", dieta));
     }
 
     @DeleteMapping("/{id}")
@@ -56,9 +56,8 @@ public ResponseEntity<ApiResponseDto<DietaResponseDto>> crear(@Valid @RequestBod
     public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) {
         log.info("Solicitud para eliminar la dieta con ID: {}", id);
         dietaService.eliminar(id);
-        
+
         return ResponseEntity.ok(
-                ApiResponseDto.success("La dieta ha sido eliminada del catálogo", null)
-        );
+                ApiResponseDto.success("La dieta ha sido eliminada del catálogo", null));
     }
 }

@@ -128,11 +128,11 @@ public class AuthController {
     @io.swagger.v3.oas.annotations.Operation(summary = "Registro de usuario", description = "Registra un nuevo usuario en el sistema")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario registrado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de registro inválidos (username o correo ya existen)")
-    public ResponseEntity<ApiResponseDto<UsuarioResponseDto>> registerUser(@Valid @RequestBody  RegisterDto registerDto) {
+    public ResponseEntity<ApiResponseDto<UsuarioResponseDto>> registerUser(
+            @Valid @RequestBody RegisterDto registerDto) {
         log.info("Intento de registro de usuario: {} con correo: {}", registerDto.getUsername(),
                 registerDto.getCorreo());
 
-        // 1. VALIDACIÓN DE USERNAME (Ya la tenías)
         if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
             log.warn("Registro fallido - Username ya existe: {}", registerDto.getUsername());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -140,8 +140,6 @@ public class AuthController {
                             .error("El nombre de usuario '" + registerDto.getUsername() + "' ya está en uso"));
         }
 
-        // 2. CORRECCIÓN: VALIDACIÓN DE CORREO (Añadido)
-        // Esto evita que la base de datos lance el error de "unique constraint"
         if (usuarioRepository.existsByCorreo(registerDto.getCorreo())) {
             log.warn("Registro fallido - Correo ya existe: {}", registerDto.getCorreo());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -170,15 +168,15 @@ public class AuthController {
 
             try {
                 notificacionService.enviarNotificacionRapida(
-                    savedUser.getId(),
-                    "¡Bienvenido a la App!",
-                    "Hola " + savedUser.getUsername() + ", tu cuenta ha sido creada con éxito. ¡Ya puedes reservar tus clases!",
-                    TipoNotificacion.CONFIRMACION
-                );
+                        savedUser.getId(),
+                        "¡Bienvenido a la App!",
+                        "Hola " + savedUser.getUsername()
+                                + ", tu cuenta ha sido creada con éxito. ¡Ya puedes reservar tus clases!",
+                        TipoNotificacion.CONFIRMACION);
                 log.info("Notificación de bienvenida enviada al usuario: {}", savedUser.getId());
             } catch (Exception e) {
-                // Capturamos el error solo para la notificación, no tumbamos el registro completo
-                log.error("Error al enviar notificación de bienvenida al usuario {}: {}", savedUser.getId(), e.getMessage());
+                log.error("Error al enviar notificación de bienvenida al usuario {}: {}", savedUser.getId(),
+                        e.getMessage());
             }
 
             // Respuesta de éxito

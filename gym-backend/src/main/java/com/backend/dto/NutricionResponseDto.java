@@ -2,7 +2,6 @@ package com.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 
 import lombok.Data;
 
@@ -17,7 +16,7 @@ public class NutricionResponseDto {
     private Integer caloriasObjetivo;
 
     // convertimos el JSON en un objeto real para el Frontend
-    
+
     @JsonProperty("dietas")
     private List<ComidaDiariaResponseDto> comidas;
 
@@ -25,5 +24,4 @@ public class NutricionResponseDto {
     private LocalDateTime fechaGeneracion;
     private FatSecretResponseDto macronutrientes;
 
-    
 }

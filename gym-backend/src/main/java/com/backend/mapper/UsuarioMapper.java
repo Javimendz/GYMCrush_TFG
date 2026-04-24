@@ -22,10 +22,7 @@ import com.backend.exceptions.*;
 import com.backend.repository.RoleRepository;
 import com.backend.security.dto.RegisterDto;
 
-@Mapper(componentModel = "spring",
-        unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE,
-        uses = RoleMapper.class,
-        builder = @org.mapstruct.Builder(disableBuilder = true))
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE, uses = RoleMapper.class, builder = @org.mapstruct.Builder(disableBuilder = true))
 public abstract class UsuarioMapper {
 
     @Autowired
@@ -101,7 +98,8 @@ public abstract class UsuarioMapper {
 
     @Named("mapRegisterDtoToPerfil")
     protected Perfil mapRegisterDtoToPerfil(RegisterDto dto) {
-        if (dto == null) return null;
+        if (dto == null)
+            return null;
         Perfil perfil = new Perfil();
         perfil.setNombre(dto.getNombre());
         perfil.setApellidos(dto.getApellidos());
@@ -118,7 +116,8 @@ public abstract class UsuarioMapper {
 
     @Named("mapRequestDtoToPerfil")
     protected Perfil mapToPerfil(UsuarioRequestDto dto) {
-        if (dto == null) return null;
+        if (dto == null)
+            return null;
         Perfil perfil = new Perfil();
         perfil.setNombre(dto.getNombre());
         perfil.setApellidos(dto.getApellidos());
@@ -148,7 +147,8 @@ public abstract class UsuarioMapper {
 
     @Named("stringToEnumGenero")
     public EnumGenero stringToEnumGenero(String genero) {
-        if (genero == null) return null;
+        if (genero == null)
+            return null;
         try {
             return EnumGenero.valueOf(genero.toUpperCase());
         } catch (IllegalArgumentException e) {

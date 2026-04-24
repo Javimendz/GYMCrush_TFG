@@ -16,13 +16,14 @@ public interface SalaMapper {
      * @return la nueva entidad Sala
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "horarios", ignore = true) 
+    @Mapping(target = "horarios", ignore = true)
     @Mapping(target = "nombre", source = "nombre")
     Sala toEntity(SalaRequestDto requestDTO);
 
     /**
      * Convierte una entidad Sala a DTO de respuesta.
      * * @param sala la entidad con los datos
+     * 
      * @return el DTO para el frontend
      */
     SalaResponseDto toResponse(Sala sala);

@@ -18,7 +18,7 @@ public interface DetallePlanRepository extends JpaRepository<DetallePlan, Long> 
 
     /**
      * Busca en qué planes está incluido un ejercicio específico.
-     * Útil si vas a borrar un Entrenamiento y quieres avisar: 
+     * Útil si vas a borrar un Entrenamiento y quieres avisar:
      * "Ojo, este ejercicio se usa en 3 planes".
      */
     List<DetallePlan> findByEntrenamientoId(Long entrenamientoId);
@@ -29,7 +29,7 @@ public interface DetallePlanRepository extends JpaRepository<DetallePlan, Long> 
     long countByPlanId(Long planId);
 
     /**
-     * Borra todos los ejercicios de un plan. 
+     * Borra todos los ejercicios de un plan.
      * Útil si el admin decide resetear la composición de un plan.
      */
     void deleteByPlanId(Long planId);

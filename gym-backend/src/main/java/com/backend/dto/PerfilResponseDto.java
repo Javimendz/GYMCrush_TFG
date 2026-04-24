@@ -21,21 +21,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Secciones de información:</b>
  * <ul>
- *   <li><b>Datos personales:</b> nombre, apellidos, DNI, fecha de nacimiento</li>
- *   <li><b>Contacto:</b> teléfono, dirección completa, correo electrónico</li>
- *   <li><b>Salud:</b> peso, estatura, nivel de actividad, IMC</li>
- *   <li><b>Cuenta:</b> username, roles asignados</li>
- *   <li><b>Social:</b> foto de perfil, biografía</li>
+ * <li><b>Datos personales:</b> nombre, apellidos, DNI, fecha de nacimiento</li>
+ * <li><b>Contacto:</b> teléfono, dirección completa, correo electrónico</li>
+ * <li><b>Salud:</b> peso, estatura, nivel de actividad, IMC</li>
+ * <li><b>Cuenta:</b> username, roles asignados</li>
+ * <li><b>Social:</b> foto de perfil, biografía</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Visualización completa del perfil propio</li>
- *   <li>Consulta de perfiles de otros usuarios (con permisos)</li>
- *   <li>Exportación de datos del usuario</li>
- *   <li>Actualización masiva de información</li>
+ * <li>Visualización completa del perfil propio</li>
+ * <li>Consulta de perfiles de otros usuarios (con permisos)</li>
+ * <li>Exportación de datos del usuario</li>
+ * <li>Actualización masiva de información</li>
  * </ul>
  * </p>
  *
@@ -49,7 +49,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "DTO para representar la respuesta de un perfil de usuario")
 @JsonInclude(JsonInclude.Include.NON_NULL) // No incluye campos null en JSON
 public class PerfilResponseDto {
-    
+
     /**
      * Identificador único del perfil en la base de datos.
      * <p>
@@ -59,7 +59,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "ID único del perfil", example = "123")
     private Long id;
-    
+
     /**
      * Nombre del usuario.
      * <p>
@@ -69,7 +69,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Nombre del usuario", example = "Juan")
     private String nombre;
-    
+
     /**
      * Apellidos del usuario.
      * <p>
@@ -79,7 +79,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Apellidos del usuario", example = "Pérez")
     private String apellidos;
-    
+
     /**
      * Número de teléfono del usuario.
      * <p>
@@ -89,7 +89,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Teléfono del usuario", example = "600123456")
     private String telefono;
-    
+
     /**
      * DNI (Documento Nacional de Identidad) del usuario.
      * <p>
@@ -99,7 +99,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "DNI del usuario", example = "12345678A")
     private String dni;
-    
+
     /**
      * Fecha de nacimiento del usuario.
      * <p>
@@ -109,7 +109,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Fecha de nacimiento del usuario", example = "2000-01-01")
     private LocalDate fechaNacimiento;
-    
+
     /**
      * Género del usuario.
      * <p>
@@ -119,7 +119,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Género del usuario", example = "MASCULINO")
     private EnumGenero genero;
-    
+
     /**
      * Fotografía de perfil del usuario.
      * <p>
@@ -129,7 +129,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Foto del usuario", example = "base64encodedstring")
     private String foto;
-    
+
     /**
      * Dirección postal completa del usuario.
      * <p>
@@ -139,7 +139,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Dirección del usuario", example = "Calle Falsa 123")
     private String direccion;
-    
+
     /**
      * Ciudad de residencia del usuario.
      * <p>
@@ -149,7 +149,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Ciudad del usuario", example = "Madrid")
     private String ciudad;
-    
+
     /**
      * País de residencia del usuario.
      * <p>
@@ -159,7 +159,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "País del usuario", example = "España")
     private String pais;
-    
+
     /**
      * Código postal de la dirección del usuario.
      * <p>
@@ -169,7 +169,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Código postal del usuario", example = "28001")
     private String codigoPostal;
-    
+
     /**
      * Biografía o descripción personal del usuario.
      * <p>
@@ -181,7 +181,7 @@ public class PerfilResponseDto {
     private String bio;
 
     // Datos de salud del usuario
-    
+
     /**
      * Peso actual del usuario en kilogramos.
      * <p>
@@ -191,7 +191,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Peso del usuario", example = "70.5")
     private Double peso;
-    
+
     /**
      * Estatura del usuario en metros.
      * <p>
@@ -201,7 +201,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Estatura del usuario", example = "1.75")
     private Double estatura;
-    
+
     /**
      * Nivel de actividad física del usuario.
      * <p>
@@ -215,7 +215,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Nivel de actividad del usuario", example = "ALTA")
     private String nivelActividad;
-    
+
     /**
      * Índice de Masa Corporal (IMC) del usuario.
      * <p>
@@ -226,10 +226,10 @@ public class PerfilResponseDto {
      * <p>
      * <b>Clasificación:</b>
      * <ul>
-     *   <li>&lt;18.5: Bajo peso</li>
-     *   <li>18.5-24.9: Normal</li>
-     *   <li>25-29.9: Sobrepeso</li>
-     *   <li>≥30: Obesidad</li>
+     * <li>&lt;18.5: Bajo peso</li>
+     * <li>18.5-24.9: Normal</li>
+     * <li>25-29.9: Sobrepeso</li>
+     * <li>≥30: Obesidad</li>
      * </ul>
      * </p>
      */
@@ -237,7 +237,7 @@ public class PerfilResponseDto {
     private Double imc;
 
     // Campos de la cuenta de usuario
-    
+
     /**
      * Nombre de usuario para inicio de sesión.
      * <p>
@@ -247,7 +247,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Nombre de usuario del usuario", example = "juanperez")
     private String username;
-    
+
     /**
      * Correo electrónico del usuario.
      * <p>
@@ -257,7 +257,7 @@ public class PerfilResponseDto {
      */
     @Schema(description = "Correo electrónico del usuario", example = "juanperez@example.com")
     private String correo;
-    
+
     /**
      * Lista de roles asignados al usuario.
      * <p>
@@ -269,9 +269,9 @@ public class PerfilResponseDto {
      * <p>
      * <b>Roles comunes:</b>
      * <ul>
-     *   <li><b>ROLE_USER</b>: Usuario básico</li>
-     *   <li><b>ROLE_ADMIN</b>: Administrador del sistema</li>
-     *   <li><b>ROLE_TRAINER</b>: Entrenador</li>
+     * <li><b>ROLE_USER</b>: Usuario básico</li>
+     * <li><b>ROLE_ADMIN</b>: Administrador del sistema</li>
+     * <li><b>ROLE_TRAINER</b>: Entrenador</li>
      * </ul>
      * </p>
      */

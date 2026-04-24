@@ -29,7 +29,8 @@ public interface NotificacionMapper {
     // Lógica personalizada para formatear la fecha de LocalDateTime a String
     @Named("mapFecha")
     default String mapFecha(LocalDateTime fecha) {
-        if (fecha == null) return null;
+        if (fecha == null)
+            return null;
         return fecha.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 }

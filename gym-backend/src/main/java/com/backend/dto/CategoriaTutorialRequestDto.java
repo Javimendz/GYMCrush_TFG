@@ -6,7 +6,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * Data Transfer Object (DTO) para solicitudes de creación de categorías de tutoriales.
+ * Data Transfer Object (DTO) para solicitudes de creación de categorías de
+ * tutoriales.
  * <p>
  * Esta clase representa la estructura de datos necesaria para crear una nueva
  * categoría que agrupará tutoriales relacionados en el sistema GYM Crush.
@@ -17,8 +18,8 @@ import lombok.Data;
  * <p>
  * <b>Validaciones aplicadas:</b>
  * <ul>
- *   <li>Nombre: obligatorio, máximo 50 caracteres</li>
- *   <li>Descripción: opcional, máximo 255 caracteres</li>
+ * <li>Nombre: obligatorio, máximo 50 caracteres</li>
+ * <li>Descripción: opcional, máximo 255 caracteres</li>
  * </ul>
  * </p>
  *
@@ -29,7 +30,7 @@ import lombok.Data;
 @Data // Genera automáticamente getters, setters, toString, equals y hashCode
 @Schema(description = "DTO para la solicitud de creación de una categoría de tutorial")
 public class CategoriaTutorialRequestDto {
-    
+
     /**
      * Nombre de la categoría de tutorial.
      * <p>

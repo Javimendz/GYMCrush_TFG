@@ -9,21 +9,23 @@ import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Data Transfer Object (DTO) para respuestas de acceso al chat mediante token QR.
+ * Data Transfer Object (DTO) para respuestas de acceso al chat mediante token
+ * QR.
  * <p>
  * Esta clase representa la estructura de datos devuelta al cliente después
  * de procesar una solicitud de acceso al chat. Contiene información sobre
- * el resultado del intento de acceso, incluyendo datos del usuario y timestamps.
+ * el resultado del intento de acceso, incluyendo datos del usuario y
+ * timestamps.
  * </p>
  * 
  * <p>
  * <b>Información incluida:</b>
  * <ul>
- *   <li>Identificador único del registro de acceso</li>
- *   <li>Información del usuario que accedió</li>
- *   <li>Timestamps de entrada y salida del chat</li>
- *   <li>Tipo de acceso (ENTRADA o SALIDA)</li>
- *   <li>Mensaje descriptivo del resultado</li>
+ * <li>Identificador único del registro de acceso</li>
+ * <li>Información del usuario que accedió</li>
+ * <li>Timestamps de entrada y salida del chat</li>
+ * <li>Tipo de acceso (ENTRADA o SALIDA)</li>
+ * <li>Mensaje descriptivo del resultado</li>
  * </ul>
  * </p>
  *
@@ -37,7 +39,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @NoArgsConstructor // Genera constructor sin parámetros
 @Schema(description = "DTO para la respuesta del acceso al chat mediante un token QR")
 public class AccesoResponseDto {
-    
+
     /**
      * Identificador único del registro de acceso.
      * <p>
@@ -47,7 +49,7 @@ public class AccesoResponseDto {
      */
     @Schema(description = "ID único del acceso", example = "1001")
     private Long id;
-    
+
     /**
      * Nombre de usuario que realizó el acceso al chat.
      * <p>
@@ -57,7 +59,7 @@ public class AccesoResponseDto {
      */
     @Schema(description = "Nombre de usuario que accedió al chat", example = "usuario123")
     private String username;
-    
+
     /**
      * Fecha y hora en que el usuario ingresó al chat.
      * <p>
@@ -67,7 +69,7 @@ public class AccesoResponseDto {
      */
     @Schema(description = "Fecha y hora de entrada al chat", example = "2023-12-01T10:00:00")
     private LocalDateTime fechaHoraEntrada;
-    
+
     /**
      * Fecha y hora en que el usuario salió del chat.
      * <p>
@@ -78,20 +80,20 @@ public class AccesoResponseDto {
      */
     @Schema(description = "Fecha y hora de salida del chat", example = "2023-12-01T12:00:00")
     private LocalDateTime fechaHoraSalida;
-    
+
     /**
      * Tipo de acceso registrado.
      * <p>
      * Puede ser:
      * <ul>
-     *   <li><b>ENTRADA</b>: Cuando el usuario se conecta al chat</li>
-     *   <li><b>SALIDA</b>: Cuando el usuario se desconecta del chat</li>
+     * <li><b>ENTRADA</b>: Cuando el usuario se conecta al chat</li>
+     * <li><b>SALIDA</b>: Cuando el usuario se desconecta del chat</li>
      * </ul>
      * </p>
      */
     @Schema(description = "Tipo de acceso (ENTRADA o SALIDA)", example = "ENTRADA")
     private String tipo; // ENTRADA o SALIDA
-    
+
     /**
      * Mensaje descriptivo sobre el resultado del acceso.
      * <p>

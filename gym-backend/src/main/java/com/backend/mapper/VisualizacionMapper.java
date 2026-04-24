@@ -22,7 +22,7 @@ public interface VisualizacionMapper {
     /**
      * Convierte un DTO de solicitud a la entidad Visualizacion.
      * <p>
-     * Ignoramos las entidades completas y el ID, ya que se gestionan 
+     * Ignoramos las entidades completas y el ID, ya que se gestionan
      * en la lógica del Service tras buscar en la base de datos.
      * </p>
      */
@@ -35,7 +35,7 @@ public interface VisualizacionMapper {
     /**
      * Convierte la entidad a un DTO de respuesta detallado.
      * <p>
-     * Extrae información clave del Tutorial (título, url, duración) 
+     * Extrae información clave del Tutorial (título, url, duración)
      * para que la UI no necesite hacer más peticiones.
      * </p>
      */

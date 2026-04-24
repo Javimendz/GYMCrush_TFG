@@ -14,12 +14,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "Respuesta con los datos completos de un Plan Maestro y sus ejercicios")
 public class PlanResponseDto {
-    
+
     private Long id;
     private String nombre;
-    private String objetivo; 
-    private String nivel; 
-    
+    private String objetivo;
+    private String nivel;
+
     @Schema(description = "Lista de ejercicios asignados a este plan, ordenados por día y orden")
     private List<DetallePlanResponseDto> ejercicios;
 }

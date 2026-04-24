@@ -7,9 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data 
+@Data
 @AllArgsConstructor
-@NoArgsConstructor 
+@NoArgsConstructor
 @Builder
 @Schema(description = "Datos requeridos para crear un nuevo Plan Maestro")
 public class PlanRequestDto {

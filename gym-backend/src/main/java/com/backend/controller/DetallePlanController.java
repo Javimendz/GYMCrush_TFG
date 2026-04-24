@@ -30,8 +30,6 @@ public class DetallePlanController {
 
     private final IDetallePlanService detalleService;
 
-    // ❌ EL POST PARA AÑADIR EJERCICIOS HA SIDO MOVIDO A PlanController ❌
-
     @GetMapping("/{planId}/ejercicios")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @Operation(summary = "Listar ejercicios del plan", description = "Obtiene la lista completa de ejercicios ordenados")
@@ -55,7 +53,7 @@ public class DetallePlanController {
             @PathVariable Long id,
             @RequestParam Integer nuevoDia,
             @RequestParam Integer nuevoOrden) {
-        
+
         DetallePlanResponseDto response = detalleService.actualizarOrden(id, nuevoDia, nuevoOrden);
         return ResponseEntity.ok(ApiResponseDto.success("Orden actualizado correctamente", response));
     }

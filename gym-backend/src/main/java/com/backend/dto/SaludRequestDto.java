@@ -16,20 +16,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Métricas incluidas:</b>
  * <ul>
- *   <li><b>Peso:</b> Masa corporal en kilogramos</li>
- *   <li><b>Estatura:</b> Altura en metros</li>
- *   <li><b>Nivel de actividad:</b> Clasificación del ejercicio regular</li>
- *   <li><b>Comentarios:</b> Observaciones adicionales</li>
+ * <li><b>Peso:</b> Masa corporal en kilogramos</li>
+ * <li><b>Estatura:</b> Altura en metros</li>
+ * <li><b>Nivel de actividad:</b> Clasificación del ejercicio regular</li>
+ * <li><b>Comentarios:</b> Observaciones adicionales</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Validaciones aplicadas:</b>
  * <ul>
- *   <li>Peso: obligatorio, debe ser positivo</li>
- *   <li>Estatura: obligatoria, debe ser positiva</li>
- *   <li>Nivel de actividad: opcional, máximo 50 caracteres</li>
- *   <li>Comentario: opcional, sin límite específico</li>
+ * <li>Peso: obligatorio, debe ser positivo</li>
+ * <li>Estatura: obligatoria, debe ser positiva</li>
+ * <li>Nivel de actividad: opcional, máximo 50 caracteres</li>
+ * <li>Comentario: opcional, sin límite específico</li>
  * </ul>
  * </p>
  * 
@@ -44,10 +44,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Registro inicial de datos de salud</li>
- *   <li>Seguimiento periódico del progreso</li>
- *   <li>Actualización de métricas corporales</li>
- *   <li>Evaluación de estado físico</li>
+ * <li>Registro inicial de datos de salud</li>
+ * <li>Seguimiento periódico del progreso</li>
+ * <li>Actualización de métricas corporales</li>
+ * <li>Evaluación de estado físico</li>
  * </ul>
  * </p>
  *
@@ -70,8 +70,8 @@ public class SaludRequestDto {
      * <p>
      * <b>Rango saludable típico:</b>
      * <ul>
-     *   <li>IMC 18.5-24.9: Peso normal</li>
-     *   <li>Varía según estatura y complexión</li>
+     * <li>IMC 18.5-24.9: Peso normal</li>
+     * <li>Varía según estatura y complexión</li>
      * </ul>
      * </p>
      * 
@@ -117,11 +117,11 @@ public class SaludRequestDto {
      * <p>
      * <b>Categorías comunes:</b>
      * <ul>
-     *   <li><b>SEDENTARIO</b>: Poco o ningún ejercicio regular</li>
-     *   <li><b>LIGERO</b>: Ejercicio ligero 1-3 días/semana</li>
-     *   <li><b>MODERADO</b>: Ejercicio moderado 3-5 días/semana</li>
-     *   <li><b>ACTIVO</b>: Ejercicio intenso 6-7 días/semana</li>
-     *   <li><b>ATLETA</b>: Entrenamiento profesional diario</li>
+     * <li><b>SEDENTARIO</b>: Poco o ningún ejercicio regular</li>
+     * <li><b>LIGERO</b>: Ejercicio ligero 1-3 días/semana</li>
+     * <li><b>MODERADO</b>: Ejercicio moderado 3-5 días/semana</li>
+     * <li><b>ACTIVO</b>: Ejercicio intenso 6-7 días/semana</li>
+     * <li><b>ATLETA</b>: Entrenamiento profesional diario</li>
      * </ul>
      * </p>
      * 
@@ -145,10 +145,10 @@ public class SaludRequestDto {
      * <p>
      * <b>Ejemplos de contenido:</b>
      * <ul>
-     *   <li>"Restricción de rodilla, evitar ejercicios de impacto"</li>
-     *   <li>"Objetivo: perder 5kg en 3 meses"</li>
-     *   <li>"Hipertensión controlada, monitorizar frecuencia cardíaca"</li>
-     *   <li>"Prefiero entrenamientos matutinos"</li>
+     * <li>"Restricción de rodilla, evitar ejercicios de impacto"</li>
+     * <li>"Objetivo: perder 5kg en 3 meses"</li>
+     * <li>"Hipertensión controlada, monitorizar frecuencia cardíaca"</li>
+     * <li>"Prefiero entrenamientos matutinos"</li>
      * </ul>
      * </p>
      * 

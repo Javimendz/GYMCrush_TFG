@@ -52,7 +52,7 @@ public interface IActividadService {
      * existente con la información proporcionada.
      * </p>
      *
-     * @param id Identificador único de la actividad a actualizar
+     * @param id  Identificador único de la actividad a actualizar
      * @param dto DTO con los datos actualizados de la actividad
      * @return DTO con los datos de la actividad actualizada
      * @throws ResourceNotFoundException si la actividad no existe

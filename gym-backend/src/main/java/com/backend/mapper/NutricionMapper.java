@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
-import com.backend.dto.FatSecretResponseDto; 
-import com.backend.dto.FatSecretRecipeDto; // Por si acaso
-import com.backend.dto.NutricionResponseDto;
+import com.backend.dto.FatSecretResponseDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -27,8 +25,9 @@ public class NutricionMapper {
     private final ObjectMapper objectMapper;
     private final ComidaDiariaMapper comidaMapper;
 
-  public NutricionResponseDto toResponseDto(Nutricion entity) {
-        if (entity == null) return null;
+    public NutricionResponseDto toResponseDto(Nutricion entity) {
+        if (entity == null)
+            return null;
 
         NutricionResponseDto dto = new NutricionResponseDto();
         dto.setId(entity.getId());
@@ -36,7 +35,7 @@ public class NutricionMapper {
         dto.setFechaGeneracion(entity.getFechaGeneracion());
         dto.setNombreDieta(entity.getNombreDieta());
         dto.setTipoDieta(entity.getTipoDieta());
-        
+
         // Mapear la lista de comidas individuales (Desayuno, Almuerzo, Cena)
         if (entity.getComidas() != null) {
             dto.setComidas(entity.getComidas().stream()
@@ -44,17 +43,17 @@ public class NutricionMapper {
                     .collect(Collectors.toList()));
         }
 
-        // --- CONVERSIÓN DE JSON A OBJETO ---
         if (entity.getMacronutrientesJson() != null && !entity.getMacronutrientesJson().isBlank()) {
             try {
-                // Usamos el objectMapper inyectado para transformar el String de la DB en el DTO
+                // Usamos el objectMapper inyectado para transformar el String de la DB en el
+                // DTO
                 FatSecretResponseDto fsDto = objectMapper.readValue(
-                    entity.getMacronutrientesJson(), 
-                    FatSecretResponseDto.class
-                );
+                        entity.getMacronutrientesJson(),
+                        FatSecretResponseDto.class);
                 dto.setMacronutrientes(fsDto);
             } catch (Exception e) {
-                log.error("Error al deserializar JSON de FatSecret en Nutricion ID {}: {}", entity.getId(), e.getMessage());
+                log.error("Error al deserializar JSON de FatSecret en Nutricion ID {}: {}", entity.getId(),
+                        e.getMessage());
                 dto.setMacronutrientes(null);
             }
         }

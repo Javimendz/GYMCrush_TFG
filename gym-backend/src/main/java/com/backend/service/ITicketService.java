@@ -25,7 +25,7 @@ public interface ITicketService {
      * y la asocia al usuario que reporta el problema.
      * </p>
      *
-     * @param dto DTO con los datos del ticket (asunto, mensaje)
+     * @param dto       DTO con los datos del ticket (asunto, mensaje)
      * @param usuarioId ID del usuario que crea el ticket
      * @return DTO con los datos del ticket creado incluyendo su ID
      * @throws ResourceNotFoundException si el usuario no existe
@@ -75,7 +75,7 @@ public interface ITicketService {
      * útil para seguimiento del ciclo de vida del ticket.
      * </p>
      *
-     * @param ticketId Identificador único del ticket a actualizar
+     * @param ticketId    Identificador único del ticket a actualizar
      * @param nuevoEstado Nuevo estado a asignar al ticket
      * @return DTO con los datos actualizados del ticket
      * @throws ResourceNotFoundException si el ticket no existe

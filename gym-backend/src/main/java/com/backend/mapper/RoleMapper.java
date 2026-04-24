@@ -37,7 +37,7 @@ public interface RoleMapper {
      * @param roleDto el DTO a convertir
      * @return la entidad Role
      */
-   @Mapping(target = "name", source = "name")
+    @Mapping(target = "name", source = "name")
     @Mapping(target = "usuarios", ignore = true)
     Role toEntity(RoleDto roleDto);
 

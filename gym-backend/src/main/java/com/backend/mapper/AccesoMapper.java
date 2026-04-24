@@ -25,10 +25,12 @@ public class AccesoMapper {
      * Extrae el username del usuario asociado al acceso.
      *
      * @param acceso la entidad Acceso a convertir
-     * @return el DTO de respuesta con los datos del acceso, o null si la entidad es null
+     * @return el DTO de respuesta con los datos del acceso, o null si la entidad es
+     *         null
      */
     public AccesoResponseDto toDto(Acceso acceso) {
-        if (acceso == null) return null;
+        if (acceso == null)
+            return null;
 
         return AccesoResponseDto.builder()
                 .id(acceso.getId())

@@ -22,21 +22,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Validaciones aplicadas:</b>
  * <ul>
- *   <li>Nombre: obligatorio, entre 2-80 caracteres</li>
- *   <li>Apellidos: obligatorios, entre 2-150 caracteres</li>
- *   <li>Teléfono: obligatorio, formato internacional válido</li>
- *   <li>DNI/NIE: obligatorio, formato español válido</li>
- *   <li>Fecha de nacimiento: obligatoria, debe ser pasada</li>
- *   <li>Dirección completa: obligatoria</li>
- *   <li>Género: obligatorio, del enum EnumGenero</li>
+ * <li>Nombre: obligatorio, entre 2-80 caracteres</li>
+ * <li>Apellidos: obligatorios, entre 2-150 caracteres</li>
+ * <li>Teléfono: obligatorio, formato internacional válido</li>
+ * <li>DNI/NIE: obligatorio, formato español válido</li>
+ * <li>Fecha de nacimiento: obligatoria, debe ser pasada</li>
+ * <li>Dirección completa: obligatoria</li>
+ * <li>Género: obligatorio, del enum EnumGenero</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Campos opcionales:</b>
  * <ul>
- *   <li>Biografía: descripción personal del usuario</li>
- *   <li>Foto: imagen de perfil en base64</li>
+ * <li>Biografía: descripción personal del usuario</li>
+ * <li>Foto: imagen de perfil en base64</li>
  * </ul>
  * </p>
  *
@@ -48,7 +48,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @JsonInclude(JsonInclude.Include.NON_NULL) // No incluye campos null en JSON
 @Schema(description = "DTO para la solicitud de perfil")
 public class PerfilRequestDto {
-    
+
     /**
      * Nombre del usuario.
      * <p>
@@ -61,7 +61,7 @@ public class PerfilRequestDto {
     @NotBlank(message = "El nombre es obligatorio")
     @Size(min = 2, max = 80, message = "El nombre debe tener entre 2 y 80 caracteres")
     private String nombre;
-    
+
     /**
      * Apellidos del usuario.
      * <p>
@@ -103,8 +103,8 @@ public class PerfilRequestDto {
      * <p>
      * <b>Formatos aceptados:</b>
      * <ul>
-     *   <li><b>DNI:</b> 12345678A (8 números + 1 letra)</li>
-     *   <li><b>NIE:</b> X1234567A, Y1234567Z (letra + 7 números + letra)</li>
+     * <li><b>DNI:</b> 12345678A (8 números + 1 letra)</li>
+     * <li><b>NIE:</b> X1234567A, Y1234567Z (letra + 7 números + letra)</li>
      * </ul>
      * </p>
      */
@@ -216,7 +216,7 @@ public class PerfilRequestDto {
      */
     @Schema(description = "Biografía del usuario", example = "Soy un desarrollador backend")
     private String bio;
-    
+
     /**
      * Fotografía de perfil del usuario.
      * <p>

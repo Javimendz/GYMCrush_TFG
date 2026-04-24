@@ -14,7 +14,7 @@ public interface RutinaMapper {
     @Mapping(target = "entrenamiento", ignore = true)
     Rutina toEntity(RutinaRequestDto dto);
 
-    // Mapeo de salida: Entidad Rutina -> RutinaResponseDto
+    // Entidad Rutina -> RutinaResponseDto
     @Mapping(target = "entrenamientoId", source = "entrenamiento.id")
     @Mapping(target = "nombreEntrenamiento", source = "entrenamiento.nombre")
     @Mapping(target = "intensidad", source = "entrenamiento.intensidad")

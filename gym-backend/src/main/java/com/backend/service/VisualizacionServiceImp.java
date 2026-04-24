@@ -30,17 +30,17 @@ public class VisualizacionServiceImp implements IVisualizacionService {
     @Override
     @Transactional
     public VisualizacionResponseDto guardarProgreso(VisualizacionRequestDto dto) {
-        // 1. Buscar si ya existe el registro (Upsert Logic)
+        // Buscar si ya existe el registro
         Visualizacion visualizacion = visualizacionRepository
                 .findByUsuarioIdAndTutorialId(dto.getUsuarioId(), dto.getTutorialId())
                 .orElseGet(() -> crearNuevaVisualizacion(dto));
 
-        // 2. Actualizar datos de progreso
+        // Actualizar datos de progreso
         visualizacion.setProgresoSegundos(dto.getProgresoSegundos());
         visualizacion.setFechaVisualizacion(LocalDateTime.now());
 
         // Si el DTO dice que está completado o si los segundos superan el 95% del video
-        // (opcional)
+
         if (dto.getCompletado() != null) {
             visualizacion.setCompletado(dto.getCompletado());
         }
@@ -59,8 +59,6 @@ public class VisualizacionServiceImp implements IVisualizacionService {
         // Solicitamos los 3 mejores (página 0, tamaño 3)
         List<Tutorial> populares = visualizacionRepository.findPopularTutorials(PageRequest.of(0, 3));
 
-        // Mapeamos a DTO (Asumiendo que tienes un tutorialMapper o convirtiendo
-        // manualmente)
         return populares.stream()
                 .map(t -> TutorialResponseDto.builder()
                         .id(t.getId())

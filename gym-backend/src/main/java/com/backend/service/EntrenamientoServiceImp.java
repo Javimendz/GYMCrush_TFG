@@ -25,11 +25,11 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
     @Transactional
     public EntrenamientoResponseDto crear(EntrenamientoRequestDto dto) {
         log.info("Creando nuevo entrenamiento maestro en el catálogo: {}", dto.getNombre());
-        
-        // Simplemente mapeamos y guardamos. Ya no hay que validar fechas ni usuarios.
+
+        // Simplemente mapeamos y guardamos.
         Entrenamiento entrenamiento = entrenamientoMapper.toEntity(dto);
         Entrenamiento guardado = entrenamientoRepository.save(entrenamiento);
-        
+
         log.info("Entrenamiento guardado exitosamente con ID: {}", guardado.getId());
         return entrenamientoMapper.toResponseDto(guardado);
     }
@@ -42,7 +42,6 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Entrenamiento maestro no encontrado"));
     }
 
-   
     @Override
     @Transactional(readOnly = true)
     public List<EntrenamientoResponseDto> listarTodos() { // Ojo: Cambia el nombre en tu interfaz IEntrenamientoService
@@ -57,9 +56,10 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
         log.info("Actualizando entrenamiento maestro ID: {}", id);
 
         Entrenamiento existente = entrenamientoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: Entrenamiento no encontrado"));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("No se puede actualizar: Entrenamiento no encontrado"));
 
-        // Actualizamos los datos genéricos del ejercicio
+        // Actualizamos los datos del ejercicio
         existente.setNombre(dto.getNombre());
         existente.setDescripcion(dto.getDescripcion());
         existente.setDuracion(dto.getDuracion());

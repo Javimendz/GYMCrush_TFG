@@ -1,5 +1,6 @@
 //Paquete
 package com.backend.mapper;
+
 //Imports
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,7 +12,8 @@ import com.backend.dto.ReservaResponseDto;
  * Mapper de MapStruct para la entidad {@link Reserva}.
  * <p>
  * Convierte entre la entidad Reserva y sus DTOs de respuesta.
- * Incluye mapeos personalizados para extraer información del usuario y horario asociados.
+ * Incluye mapeos personalizados para extraer información del usuario y horario
+ * asociados.
  * </p>
  *
  * @author Backend Team

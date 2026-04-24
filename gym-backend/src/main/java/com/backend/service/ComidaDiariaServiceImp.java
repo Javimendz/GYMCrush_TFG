@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -25,52 +26,58 @@ public class ComidaDiariaServiceImp implements IComidaDiariaService {
     private final NutricionRepository nutricionRepository;
     private final ComidaDiariaMapper comidaMapper;
 
-  @Override
-@Transactional
-public void guardarComidas(List<ComidaDiariaRequestDto> comidasRequest, Long planId) {
-    log.info("Iniciando guardado masivo para el plan ID: {}", planId);
+    @Override
+    @Transactional
+    public void guardarComidas(List<ComidaDiariaRequestDto> comidasRequest, Long planId) {
+        log.info("Iniciando guardado masivo para el plan ID: {}", planId);
 
-    Nutricion plan = nutricionRepository.findById(planId)
-            .orElseThrow(() -> new ResourceNotFoundException("No se pueden guardar las comidas: Plan no encontrado con ID: " + planId));
+        Nutricion plan = nutricionRepository.findById(planId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No se pueden guardar las comidas: Plan no encontrado con ID: " + planId));
 
-    List<ComidaDiaria> entidades = comidasRequest.stream()
-            // Filtramos los que ya existen para no duplicar
-            .filter(dto -> !comidaRepository.existsByPlanIdAndMomentoIgnoreCaseAndNombreAlimentoIgnoreCase(
-                    planId, dto.getMomento(), dto.getNombreAlimento()))
-            // Ahora 'plan' existe, el mapper funciona y el compilador ya sabe que devuelve ComidaDiaria
-            .map(dto -> comidaMapper.toEntity(dto, plan)) 
-            .toList();
+        List<ComidaDiaria> entidades = comidasRequest.stream()
+                .filter(dto -> !comidaRepository.existsByPlanIdAndMomentoIgnoreCaseAndNombreAlimentoIgnoreCase(
+                        planId, dto.getMomento(), dto.getNombreAlimento()))
+                .map(dto -> comidaMapper.toEntity(dto, plan))
+                .toList();
 
-    // GUARDAR
-    if (!entidades.isEmpty()) {
-        comidaRepository.saveAll(entidades);
-        log.info("Se han insertado {} nuevas comidas al plan {}", entidades.size(), planId);
-    } else {
-        log.info("No hay comidas nuevas para insertar (todas estaban duplicadas)");
+        // GUARDAR
+        if (!entidades.isEmpty()) {
+            comidaRepository.saveAll(entidades);
+            log.info("Se han insertado {} nuevas comidas al plan {}", entidades.size(), planId);
+        } else {
+            log.info("No hay comidas nuevas para insertar (todas estaban duplicadas)");
+        }
     }
-}
+
     @Override
     @Transactional
     public ComidaDiariaResponseDto añadirComida(ComidaDiariaRequestDto request) {
-        log.info("Validando duplicados para '{}' en el momento '{}'", request.getNombreAlimento(), request.getMomento());
+        log.info("Validando duplicados para '{}' en el momento '{}'", request.getNombreAlimento(),
+                request.getMomento());
 
-        //  Verificar si ya existe en este plan
+        // Verificar si ya existe en este plan
         boolean existe = comidaRepository.existsByPlanIdAndMomentoIgnoreCaseAndNombreAlimentoIgnoreCase(
-                request.getPlanNutricionalId(), 
-                request.getMomento(), 
-                request.getNombreAlimento()
-        );
+                request.getPlanNutricionalId(),
+                request.getMomento(),
+                request.getNombreAlimento());
 
         if (existe) {
-            log.warn("Intento de duplicado detectado: {} ya existe en {}", request.getNombreAlimento(), request.getMomento());
-            throw new IllegalArgumentException("Ya tienes registrado '" + request.getNombreAlimento() + "' en el " + request.getMomento());
+            log.warn("Intento de duplicado detectado: {} ya existe en {}", request.getNombreAlimento(),
+                    request.getMomento());
+            throw new IllegalArgumentException(
+                    "Ya tienes registrado '" + request.getNombreAlimento() + "' en el " + request.getMomento());
         }
 
-        //  Si no existe, seguimos con el proceso normal
+        // Si no existe, seguimos con el proceso normal
         Nutricion plan = nutricionRepository.findById(request.getPlanNutricionalId())
                 .orElseThrow(() -> new ResourceNotFoundException("Plan no encontrado"));
 
         ComidaDiaria nuevaComida = comidaMapper.toEntity(request, plan);
+
+        if (nuevaComida.getFecha() == null) {
+            nuevaComida.setFecha(LocalDate.now());
+        }
         return comidaMapper.toResponseDto(comidaRepository.save(nuevaComida));
     }
 
@@ -86,5 +93,4 @@ public void guardarComidas(List<ComidaDiariaRequestDto> comidasRequest, Long pla
         log.info("Comida ID {} eliminada correctamente", id);
     }
 
-   
 }

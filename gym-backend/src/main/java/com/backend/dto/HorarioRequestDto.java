@@ -18,21 +18,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Validaciones aplicadas:</b>
  * <ul>
- *   <li>Día de la semana: obligatorio</li>
- *   <li>Horas de inicio y fin: obligatorias</li>
- *   <li>Aforo máximo: obligatorio y positivo</li>
- *   <li>Sala: obligatoria</li>
- *   <li>ID de actividad: obligatorio</li>
+ * <li>Día de la semana: obligatorio</li>
+ * <li>Horas de inicio y fin: obligatorias</li>
+ * <li>Aforo máximo: obligatorio y positivo</li>
+ * <li>Sala: obligatoria</li>
+ * <li>ID de actividad: obligatorio</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Programación de clases y actividades</li>
- *   <li>Configuración de disponibilidad de instalaciones</li>
- *   <li>Gestión de capacidad y reservas</li>
- *   <li>Organización del calendario semanal</li>
+ * <li>Programación de clases y actividades</li>
+ * <li>Configuración de disponibilidad de instalaciones</li>
+ * <li>Gestión de capacidad y reservas</li>
+ * <li>Organización del calendario semanal</li>
  * </ul>
  * </p>
  *
@@ -43,7 +43,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Data // Genera automáticamente getters, setters, toString, equals y hashCode
 @Schema(description = "DTO para la solicitud de horario")
 public class HorarioRequestDto {
-    
+
     /**
      * Día de la semana en que se realizará la actividad.
      * <p>
@@ -109,9 +109,9 @@ public class HorarioRequestDto {
      * <p>
      * <b>Consideraciones:</b>
      * <ul>
-     *   <li>Depende del tamaño de la sala</li>
-     *   <li>Varía según el tipo de actividad</li>
-     *   <li>Influye en la gestión de reservas</li>
+     * <li>Depende del tamaño de la sala</li>
+     * <li>Varía según el tipo de actividad</li>
+     * <li>Influye en la gestión de reservas</li>
      * </ul>
      * </p>
      */

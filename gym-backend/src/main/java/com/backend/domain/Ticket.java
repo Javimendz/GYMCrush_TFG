@@ -20,7 +20,7 @@ import lombok.*; //Importar todos los paquetes de Lombok
  */
 @Entity // Indica que esta clase es una entidad JPA
 @Table(name = "tickets") // Nombre de la tabla en la base de datos
-@Data //Lombok para generar getters, setters, toString, equals, y hashCode
+@Data // Lombok para generar getters, setters, toString, equals, y hashCode
 @AllArgsConstructor // Lombok para generar un constructor con todos los argumentos
 @NoArgsConstructor // Lombok para generar un constructor sin argumentos
 @Builder // Lombok para generar un constructor con argumentos usando el patrón Builder
@@ -61,7 +61,7 @@ public class Ticket {
      * </p>
      */
     @Column(name = "estado", length = 50, nullable = false)
-    @Enumerated(EnumType.STRING) //Indicamos que es un enum de tipo string
+    @Enumerated(EnumType.STRING) // Indicamos que es un enum de tipo string
     private EnumEstadoTicket estado;
 
     /**
@@ -80,8 +80,7 @@ public class Ticket {
      * </p>
      */
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
-    private LocalDateTime fechaCreacion; 
-
+    private LocalDateTime fechaCreacion;
 
     /**
      * Usuario que crea el ticket.
@@ -95,21 +94,20 @@ public class Ticket {
     @ToString.Exclude
     private Usuario usuario;
 
-
     /**
      * Método callback que se ejecuta antes de persistir el ticket.
      * <p>
      * Establece la fecha de creación actual y el estado por defecto.
      * </p>
      */
-    @PrePersist //Automatizacion de fecha con la fecha actual
+    @PrePersist // Automatizacion de fecha con la fecha actual
     public void onCreate() {
         // Automatizar la fecha de creación
         this.fechaCreacion = LocalDateTime.now();
-        
+
         // Establecer estado por defecto si no se especifica
-        if(this.estado == null) {
-            this.estado = EnumEstadoTicket.ABIERTO; //Estado por defecto
+        if (this.estado == null) {
+            this.estado = EnumEstadoTicket.ABIERTO; // Estado por defecto
         }
     }
 }

@@ -13,7 +13,7 @@ public interface IPlanService {
     PlanResponseDto crearPlan(PlanRequestDto dto);
     void eliminarPlan(Long id);
 
-    // Para el Usuario (Catálogo)
+    // Para el Usuario 
     List<PlanResponseDto> listarTodos();
     PlanResponseDto obtenerPorId(Long id);
 

@@ -16,9 +16,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Características especiales:</b>
  * <ul>
- *   <li>Incluye el campo {@code cantidadVideos} calculado dinámicamente</li>
- *   <li>Utiliza el patrón Builder para construcción flexible</li>
- *   <li>Se usa en listados y consultas individuales de categorías</li>
+ * <li>Incluye el campo {@code cantidadVideos} calculado dinámicamente</li>
+ * <li>Utiliza el patrón Builder para construcción flexible</li>
+ * <li>Se usa en listados y consultas individuales de categorías</li>
  * </ul>
  * </p>
  *
@@ -30,7 +30,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Builder // Permite la construcción fluida de objetos
 @Schema(description = "DTO para la respuesta de una categoría de tutorial")
 public class CategoriaTutorialResponseDto {
-    
+
     /**
      * Identificador único de la categoría en la base de datos.
      * <p>
@@ -40,7 +40,7 @@ public class CategoriaTutorialResponseDto {
      */
     @Schema(description = "ID único de la categoría de tutorial", example = "1")
     private Long id;
-    
+
     /**
      * Nombre de la categoría de tutorial.
      * <p>
@@ -50,7 +50,7 @@ public class CategoriaTutorialResponseDto {
      */
     @Schema(description = "Nombre de la categoría de tutorial", example = "Deportes")
     private String nombre;
-    
+
     /**
      * Descripción detallada de la categoría de tutorial.
      * <p>
@@ -60,7 +60,7 @@ public class CategoriaTutorialResponseDto {
      */
     @Schema(description = "Descripción detallada de la categoría de tutorial", example = "Categoría que contiene tutoriales sobre deportes")
     private String descripcion;
-    
+
     /**
      * Cantidad de videos tutoriales asociados a esta categoría.
      * <p>

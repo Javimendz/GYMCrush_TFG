@@ -20,29 +20,29 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Flujo de reserva:</b>
  * <ol>
- *   <li>Usuario selecciona un horario disponible</li>
- *   <li>Se envía este DTO con los IDs necesarios</li>
- *   <li>Sistema valida disponibilidad y crea reserva</li>
- *   <li>Se devuelve confirmación con ReservaResponseDto</li>
+ * <li>Usuario selecciona un horario disponible</li>
+ * <li>Se envía este DTO con los IDs necesarios</li>
+ * <li>Sistema valida disponibilidad y crea reserva</li>
+ * <li>Se devuelve confirmación con ReservaResponseDto</li>
  * </ol>
  * </p>
  * 
  * <p>
  * <b>Validaciones aplicadas:</b>
  * <ul>
- *   <li>ID de usuario: obligatorio</li>
- *   <li>ID de horario: obligatorio</li>
- *   <li>Fecha: opcional, si no se especifica usa fecha actual</li>
+ * <li>ID de usuario: obligatorio</li>
+ * <li>ID de horario: obligatorio</li>
+ * <li>Fecha: opcional, si no se especifica usa fecha actual</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Reserva inmediata de clases</li>
- *   <li>Reserva programada para fechas futuras</li>
- *   <li>Sistema de espera para actividades completas</li>
- *   <li>Gestión de cancelaciones y modificaciones</li>
+ * <li>Reserva inmediata de clases</li>
+ * <li>Reserva programada para fechas futuras</li>
+ * <li>Sistema de espera para actividades completas</li>
+ * <li>Gestión de cancelaciones y modificaciones</li>
  * </ul>
  * </p>
  *
@@ -85,10 +85,10 @@ public class ReservaRequestDto {
      * <p>
      * <b>Validaciones:</b>
      * <ul>
-     *   <li>El horario debe existir</li>
-     *   <li>Debe tener disponibilidad</li>
-     *   <li>No debe estar en el pasado</li>
-     *   <li>El usuario no debe tener reserva conflictiva</li>
+     * <li>El horario debe existir</li>
+     * <li>Debe tener disponibilidad</li>
+     * <li>No debe estar en el pasado</li>
+     * <li>El usuario no debe tener reserva conflictiva</li>
      * </ul>
      * </p>
      */
@@ -107,9 +107,9 @@ public class ReservaRequestDto {
      * <p>
      * <b>Casos de uso:</b>
      * <ul>
-     *   <li><b>Null/omitido:</b> Reserva para el día actual</li>
-     *   <li><b>Fecha futura:</b> Reserva programada</li>
-     *   <li><b>Fecha pasada:</b> Rechazado por validación</li>
+     * <li><b>Null/omitido:</b> Reserva para el día actual</li>
+     * <li><b>Fecha futura:</b> Reserva programada</li>
+     * <li><b>Fecha pasada:</b> Rechazado por validación</li>
      * </ul>
      * </p>
      * 

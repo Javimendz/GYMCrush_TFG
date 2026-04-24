@@ -59,7 +59,7 @@ public class AccesoController {
         log.info("Solicitud de generación de token QR para el usuario: {}", auth.getName());
         String tokenQr = jwtGenerator.generateQrToken(auth.getName(), null);
         log.info("Token QR generado para el usuario {}: {}", auth.getName(), tokenQr);
-        
+
         return ResponseEntity.ok(ApiResponseDto.<String>builder()
                 .mensaje("Token QR generado. Válido por 30 segundos.")
                 .datos(tokenQr)
@@ -68,18 +68,19 @@ public class AccesoController {
     }
 
     /**
-     * Valida la entrada de un usuario al gimnasio mediante el escaneo de su token QR.
+     * Valida la entrada de un usuario al gimnasio mediante el escaneo de su token
+     * QR.
      */
     @PostMapping("/validar-entrada")
     @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Validar entrada", description = "Registra la entrada de un usuario por su token QR")
     public ResponseEntity<ApiResponseDto<Void>> validarEntrada(
             @Valid @RequestBody AccesoRequestDto dto) {
-            
+
         log.info("Solicitud de validación de entrada para el token QR: {}", dto.getToken());
         accesoService.registrarEntrada(dto.getToken());
         log.info("Entrada registrada con éxito para el token QR: {}", dto.getToken());
-        
+
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
                 .mensaje("Entrada registrada con éxito")
                 .success(true)
@@ -87,18 +88,19 @@ public class AccesoController {
     }
 
     /**
-     * Valida la salida de un usuario del gimnasio mediante el escaneo de su token QR.
+     * Valida la salida de un usuario del gimnasio mediante el escaneo de su token
+     * QR.
      */
     @PostMapping("/validar-salida")
     @PreAuthorize("hasRole('ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Validar salida", description = "Registra la salida de un usuario por su token QR")
     public ResponseEntity<ApiResponseDto<Void>> validarSalida(
             @Valid @RequestBody AccesoRequestDto dto) {
-            
+
         log.info("Solicitud de validación de salida para el token QR: {}", dto.getToken());
         accesoService.registrarSalida(dto.getToken());
         log.info("Salida registrada con éxito para el token QR: {}", dto.getToken());
-        
+
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
                 .mensaje("Salida registrada con éxito. ¡Buen descanso!")
                 .success(true)
@@ -133,7 +135,7 @@ public class AccesoController {
         log.info("Solicitud de ver historial de accesos para el usuario: {}", auth.getName());
         List<AccesoResponseDto> historial = accesoService.obtenerHistorialUsuario(auth.getName());
         log.info("Historial de accesos recuperado para el usuario {}: {}", auth.getName(), historial);
-        
+
         return ResponseEntity.ok(ApiResponseDto.<List<AccesoResponseDto>>builder()
                 .mensaje("Historial de accesos recuperado correctamente")
                 .datos(historial)

@@ -20,40 +20,40 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Flujo de creación de ticket:</b>
  * <ol>
- *   <li>Usuario describe su problema o consulta</li>
- *   <li>Se envía este DTO con los datos del ticket</li>
- *   <li>Sistema valida y crea el ticket</li>
- *   <li>Se asigna un ID único y se notifica al equipo de soporte</li>
+ * <li>Usuario describe su problema o consulta</li>
+ * <li>Se envía este DTO con los datos del ticket</li>
+ * <li>Sistema valida y crea el ticket</li>
+ * <li>Se asigna un ID único y se notifica al equipo de soporte</li>
  * </ol>
  * </p>
  * 
  * <p>
  * <b>Validaciones aplicadas:</b>
  * <ul>
- *   <li>Asunto: obligatorio, entre 5-100 caracteres</li>
- *   <li>Mensaje: obligatorio, mínimo 10 caracteres, máximo 2000</li>
+ * <li>Asunto: obligatorio, entre 5-100 caracteres</li>
+ * <li>Mensaje: obligatorio, mínimo 10 caracteres, máximo 2000</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Reporte de incidencias técnicas</li>
- *   <li>Consultas sobre facturación</li>
- *   <li>Solicitudes de información general</li>
- *   <li>Reporte de problemas con reservas</li>
- *   <li>Sugerencias y mejoras para el sistema</li>
+ * <li>Reporte de incidencias técnicas</li>
+ * <li>Consultas sobre facturación</li>
+ * <li>Solicitudes de información general</li>
+ * <li>Reporte de problemas con reservas</li>
+ * <li>Sugerencias y mejoras para el sistema</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Categorías comunes de tickets:</b>
  * <ul>
- *   <li><b>Soporte Técnico:</b> Problemas con la aplicación</li>
- *   <li><b>Facturación:</b> Dudas sobre pagos y facturas</li>
- *   <li><b>Reservas:</b> Incidencias con clases y horarios</li>
- *   <li><b>Sugerencias:</b> Mejoras y nuevas funcionalidades</li>
- *   <li><b>Información General:</b> Consultas sobre servicios</li>
+ * <li><b>Soporte Técnico:</b> Problemas con la aplicación</li>
+ * <li><b>Facturación:</b> Dudas sobre pagos y facturas</li>
+ * <li><b>Reservas:</b> Incidencias con clases y horarios</li>
+ * <li><b>Sugerencias:</b> Mejoras y nuevas funcionalidades</li>
+ * <li><b>Información General:</b> Consultas sobre servicios</li>
  * </ul>
  * </p>
  *
@@ -79,19 +79,19 @@ public class TicketRequestDto {
      * <p>
      * <b>Buenas prácticas:</b>
      * <ul>
-     *   <li>Ser específico y conciso</li>
-     *   <li>Incluir palabras clave relevantes</li>
-     *   <li>Evitar títulos genéricos como "Ayuda" o "Problema"</li>
+     * <li>Ser específico y conciso</li>
+     * <li>Incluir palabras clave relevantes</li>
+     * <li>Evitar títulos genéricos como "Ayuda" o "Problema"</li>
      * </ul>
      * </p>
      * 
      * <p>
      * <b>Ejemplos:</b>
      * <ul>
-     *   <li>"Error al reservar clase de spinning"</li>
-     *   <li>"No puedo acceder a mi perfil"</li>
-     *   <li>"Duda sobre facturación de diciembre"</li>
-     *   <li>"Sugerencia para mejorar el calendario"</li>
+     * <li>"Error al reservar clase de spinning"</li>
+     * <li>"No puedo acceder a mi perfil"</li>
+     * <li>"Duda sobre facturación de diciembre"</li>
+     * <li>"Sugerencia para mejorar el calendario"</li>
      * </ul>
      * </p>
      */
@@ -111,11 +111,11 @@ public class TicketRequestDto {
      * <p>
      * <b>Contenido recomendado:</b>
      * <ul>
-     *   <li>Descripción clara del problema</li>
-     *   <li>Pasos para reproducir el error (si aplica)</li>
-     *   <li>Mensajes de error exactos</li>
-     *   <li>Información de contexto (dispositivo, navegador, etc.)</li>
-     *   <li>Expectativas o resultado deseado</li>
+     * <li>Descripción clara del problema</li>
+     * <li>Pasos para reproducir el error (si aplica)</li>
+     * <li>Mensajes de error exactos</li>
+     * <li>Información de contexto (dispositivo, navegador, etc.)</li>
+     * <li>Expectativas o resultado deseado</li>
      * </ul>
      * </p>
      * 

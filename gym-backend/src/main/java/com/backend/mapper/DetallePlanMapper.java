@@ -23,7 +23,7 @@ public interface DetallePlanMapper {
 
     /**
      * De Request DTO a Entidad
-     * El entrenamiento y el plan se asignan manualmente en el Service 
+     * El entrenamiento y el plan se asignan manualmente en el Service
      * mediante sus IDs, por eso los ignoramos aquí.
      */
     @Mapping(target = "id", ignore = true)

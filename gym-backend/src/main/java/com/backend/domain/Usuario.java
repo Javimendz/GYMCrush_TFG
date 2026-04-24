@@ -11,7 +11,6 @@ import java.util.Set;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
 
@@ -46,7 +45,6 @@ public class Usuario {
 
     // @Column(name = "direccion", length = 255)
     // private String direccion;
-
 
     public Set<Role> getRoles() {
         return this.roles;
@@ -95,8 +93,6 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Reserva> reservas = new ArrayList<>(); // Un usuario realiza N reservas
-
-    
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

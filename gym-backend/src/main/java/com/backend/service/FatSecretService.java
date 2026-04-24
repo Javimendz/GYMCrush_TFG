@@ -11,10 +11,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
-import java.util.ArrayList;
 import com.backend.dto.FatSecretRecipeDto;
 import com.backend.dto.FatSecretResponseDto;
-
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +47,6 @@ public class FatSecretService {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
-            // USANDO JACKSON CORRECTAMENTE:
             JsonNode root = objectMapper.readTree(response.getBody());
             if (root.has("access_token")) {
                 return root.get("access_token").asText();
@@ -71,8 +68,6 @@ public class FatSecretService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
 
-        // Construimos la URL para búsqueda por expresión (search_expression)
-        // Usamos recipes.search para obtener resultados con fotos y macros
         String url = apiUrl + "?method=recipes.search&format=json" +
                 "&search_expression=" + query +
                 "&max_results=20"; // Limitamos a 20 resultados para el móvil
@@ -106,7 +101,6 @@ public class FatSecretService {
 
         int calPorPlato = calorias / 3;
 
-        // 🔥 Categorías para variedad real
         String[] categorias = { "chicken", "fish", "salad", "rice", "pasta", "vegan" };
         String categoria = categorias[new java.util.Random().nextInt(categorias.length)];
 
@@ -137,21 +131,22 @@ public class FatSecretService {
 
     public List<FatSecretRecipeDto> buscarMuchasRecetas(int kcal) {
 
-    List<FatSecretRecipeDto> todas = new java.util.ArrayList<>();
+        List<FatSecretRecipeDto> todas = new java.util.ArrayList<>();
 
-    String[] categorias = {"chicken", "fish", "rice", "pasta", "salad", "vegan"};
+        String[] categorias = { "chicken", "fish", "rice", "pasta", "salad", "vegan" };
 
-    for (String cat : categorias) {
-        String json = buscarAlimentosPorNombre(cat);
+        for (String cat : categorias) {
+            String json = buscarAlimentosPorNombre(cat);
 
-        try {
-            FatSecretResponseDto fs = objectMapper.readValue(json, FatSecretResponseDto.class);
-            if (fs.getRecipes() != null) {
-                todas.addAll(fs.getRecipes().getRecipe());
+            try {
+                FatSecretResponseDto fs = objectMapper.readValue(json, FatSecretResponseDto.class);
+                if (fs.getRecipes() != null) {
+                    todas.addAll(fs.getRecipes().getRecipe());
+                }
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {}
-    }
+        }
 
-    return todas;
-}
+        return todas;
+    }
 }

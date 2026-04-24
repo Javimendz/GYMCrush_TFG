@@ -10,15 +10,15 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor // Obligatorio para Jackson
 @AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true) // MAGIA: Ignora campos extra
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExerciseApiRequestDto {
-    
+
     private String id;
     private String name;
     private String bodyPart;
     private String equipment;
     private String target;
-    
+
     @JsonProperty("gifUrl")
     private String gifUrl;
 

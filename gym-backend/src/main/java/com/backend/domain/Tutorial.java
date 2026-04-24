@@ -33,8 +33,6 @@ public class Tutorial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-
 
     /**
      * Título del tutorial.
@@ -44,7 +42,7 @@ public class Tutorial {
      */
     @Column(nullable = false)
     private String titulo;
-    
+
     /**
      * Descripción detallada del tutorial.
      * <p>
@@ -60,7 +58,6 @@ public class Tutorial {
     @Column(name = "equipamiento")
     private String equipamiento;
 
-
     /**
      * URL del video del tutorial.
      * <p>
@@ -68,7 +65,7 @@ public class Tutorial {
      * </p>
      */
     private String urlVideo;
-    
+
     /**
      * Duración del tutorial en minutos.
      * <p>

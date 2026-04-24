@@ -22,13 +22,11 @@ public class DetallePlanServiceImp implements IDetallePlanService {
     private final DetallePlanRepository detalleRepository;
     private final DetallePlanMapper detalleMapper;
 
-    // ❌ EL MÉTODO DE AÑADIR YA NO ESTÁ AQUÍ. AHORA VIVE EN PlanServiceImp. ❌
-
     @Override
     @Transactional(readOnly = true)
     public List<DetallePlanResponseDto> listarPorPlan(Long planId) {
         log.info("Obteniendo todos los ejercicios del plan {}", planId);
-        
+
         return detalleRepository.findByPlanIdOrderByDiaSemanaAscOrdenAsc(planId)
                 .stream()
                 .map(detalleMapper::toResponseDto)
@@ -49,7 +47,7 @@ public class DetallePlanServiceImp implements IDetallePlanService {
     @Transactional
     public DetallePlanResponseDto actualizarOrden(Long detalleId, Integer nuevoDia, Integer nuevoOrden) {
         log.info("Actualizando orden del detalle {}: Día {}, Orden {}", detalleId, nuevoDia, nuevoOrden);
-        
+
         DetallePlan detalle = detalleRepository.findById(detalleId)
                 .orElseThrow(() -> new RuntimeException("Detalle no encontrado"));
 

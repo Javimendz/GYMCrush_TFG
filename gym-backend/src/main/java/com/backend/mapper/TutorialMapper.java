@@ -10,7 +10,8 @@ import org.mapstruct.Mapping;
  * Mapper de MapStruct para la entidad {@link Tutorial}.
  * <p>
  * Convierte entre la entidad Tutorial y sus DTOs de request/response.
- * Incluye mapeos personalizados para extraer información de la categoría asociada.
+ * Incluye mapeos personalizados para extraer información de la categoría
+ * asociada.
  * </p>
  *
  * @author Backend Team
@@ -42,4 +43,4 @@ public interface TutorialMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "visualizaciones", ignore = true)
     Tutorial toEntity(TutorialRequestDto dto);
-}   
+}

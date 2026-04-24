@@ -14,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Implementación del servicio para gestionar las categorías de actividades del gimnasio.
+ * Implementación del servicio para gestionar las categorías de actividades del
+ * gimnasio.
  * (Cardio, Fuerza, Yoga, etc.)
  */
 @Service
@@ -29,8 +30,8 @@ public class CategoriaServiceImp implements ICategoriaService {
     @Transactional
     public CategoriaResponseDto crear(CategoriaRequestDto dto) {
         log.info("Iniciando creación de categoría: {}", dto.getNombre());
-        
-        // Validación: Evitar nombres duplicados (ignorando mayúsculas)
+
+        // Evitar nombres duplicados (ignorando mayúsculas)
         if (categoriaRepository.existsByNombreIgnoreCase(dto.getNombre())) {
             log.warn("La categoría '{}' ya existe", dto.getNombre());
             throw new IllegalArgumentException("Ya existe una categoría con el nombre: " + dto.getNombre());
@@ -38,10 +39,10 @@ public class CategoriaServiceImp implements ICategoriaService {
 
         // Convertir DTO a Entidad
         Categoria entidad = categoriaMapper.toEntity(dto);
-        
+
         // Guardar en la Base de Datos
         Categoria guardada = categoriaRepository.save(entidad);
-        
+
         log.info("Categoría creada con éxito. ID asignado: {}", guardada.getId());
         return categoriaMapper.toResponseDto(guardada);
     }
@@ -70,14 +71,11 @@ public class CategoriaServiceImp implements ICategoriaService {
     @Transactional
     public void eliminar(Long id) {
         log.info("Solicitud para eliminar categoría ID: {}", id);
-        
+
         if (!categoriaRepository.existsById(id)) {
             throw new ResourceNotFoundException("No se puede eliminar: Categoría no encontrada");
         }
 
-        // Importante: Aquí podrías añadir una validación para no borrar 
-        // si hay actividades asociadas (Integridad referencial).
-        
         categoriaRepository.deleteById(id);
         log.info("Categoría ID {} eliminada correctamente", id);
     }

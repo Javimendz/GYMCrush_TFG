@@ -16,10 +16,9 @@ public interface CategoriaDietaMapper {
     CategoriaDietaResponseDto toResponseDto(CategoriaDieta categoria);
 
     List<CategoriaDietaResponseDto> toResponseDtoList(List<CategoriaDieta> categorias);
-    
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "dietas", ignore = true)
-    CategoriaDieta toEntity(CategoriaDietaRequestDto dto); 
+    CategoriaDieta toEntity(CategoriaDietaRequestDto dto);
 
-    
 }

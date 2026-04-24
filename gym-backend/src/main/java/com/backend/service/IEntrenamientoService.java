@@ -6,8 +6,12 @@ import java.util.List;
 
 public interface IEntrenamientoService {
     EntrenamientoResponseDto crear(EntrenamientoRequestDto dto);
+
     EntrenamientoResponseDto actualizar(Long id, EntrenamientoRequestDto dto);
+
     EntrenamientoResponseDto obtenerPorId(Long id);
-List<EntrenamientoResponseDto> listarTodos();
+
+    List<EntrenamientoResponseDto> listarTodos();
+
     void eliminar(Long id);
 }

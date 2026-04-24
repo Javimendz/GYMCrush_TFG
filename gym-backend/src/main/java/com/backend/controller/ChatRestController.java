@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// --- REST CONTROLLER (Historial) ---
-// Ponlo en un archivo separado o fuera de la clase anterior
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/v1/chat") // Para que Android no  dé problemas de CORS
@@ -33,8 +31,7 @@ public class ChatRestController {
         // Trae los últimos 50 mensajes de forma eficiente
         Page<MensajeChat> pagina = mensajeRepository.findAllByOrderByFechaEnvioDesc(pageable);
         
-        //  Al usar Descendente para traer los últimos, 
-        // la lista viene al revés. En Android le daras la vuelta .
+       
         return pagina.getContent(); 
     }
 }

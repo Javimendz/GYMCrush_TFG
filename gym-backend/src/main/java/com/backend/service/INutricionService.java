@@ -1,16 +1,19 @@
 package com.backend.service;
 
-import java.util.List;
 import com.backend.dto.NutricionRequestDto;
 import com.backend.dto.NutricionResponseDto;
-import com.backend.dto.PerfilFisicoRequest;
+import org.springframework.data.domain.Page;
 
 public interface INutricionService {
-
     NutricionResponseDto generarPlanAutomatico(NutricionRequestDto request);
+
+    NutricionResponseDto generarPlanSemanal(NutricionRequestDto request);
+
+    NutricionResponseDto actualizarNombrePlan(Long id, String nuevoNombre);
 
     NutricionResponseDto obtenerUltimoPlanPorUsuario(Long usuarioId);
 
-    List<NutricionResponseDto> obtenerHistorial(Long usuarioId);
+    Page<NutricionResponseDto> obtenerHistorial(Long usuarioId, int page, int size);
 
+    NutricionResponseDto obtenerPlanPorId(Long id);
 }

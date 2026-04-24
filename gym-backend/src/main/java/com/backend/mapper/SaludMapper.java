@@ -31,10 +31,11 @@ public interface SaludMapper {
      */
     @Mapping(target = "username", source = "usuario.username")
     SaludResponseDto toDto(Salud salud);
-    
+
     /**
      * Convierte un DTO de request a entidad Salud.
-     * Ignora el usuario, ID, fecha de medición e IMC (se calculan/calculan en el servicio).
+     * Ignora el usuario, ID, fecha de medición e IMC (se calculan/calculan en el
+     * servicio).
      *
      * @param dto el DTO con los datos de salud
      * @return la nueva entidad Salud

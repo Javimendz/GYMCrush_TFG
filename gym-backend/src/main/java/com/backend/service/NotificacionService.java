@@ -17,7 +17,7 @@ public interface NotificacionService {
     
     void marcarComoLeida(Long id);
     
-    // Útil para enviar avisos rápidos desde otros servicios (ej. Login o Pagos)
+   
     void enviarNotificacionRapida(Long usuarioId, String titulo, String mensaje, TipoNotificacion tipo);
     
 

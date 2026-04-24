@@ -10,7 +10,7 @@ import lombok.*;
 @Schema(description = "DTO de respuesta para una categoría de dieta")
 public class CategoriaResponseDto {
     @Schema(description = "ID de la categoría")
-    private Long id; 
+    private Long id;
     @Schema(description = "Nombre de la categoría")
     private String nombre;
     @Schema(description = "Descripción de la categoría")

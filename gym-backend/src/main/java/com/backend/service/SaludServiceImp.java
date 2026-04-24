@@ -16,7 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Implementación del servicio para la gestión de datos de salud y progreso físico.
+ * Implementación del servicio para la gestión de datos de salud y progreso
+ * físico.
  * <p>
  * Esta clase maneja el registro y seguimiento de métricas de salud
  * de los usuarios, incluyendo peso, estatura, IMC y objetivos fitness.
@@ -35,10 +36,10 @@ public class SaludServiceImp implements ISaludService {
 
     /** Repositorio para el acceso a datos de salud */
     private final SaludRepository saludRepository;
-    
+
     /** Repositorio para el acceso a datos de usuarios */
     private final UsuarioRepository usuarioRepository;
-    
+
     /** Mapper para convertir entre entidades y DTOs de salud */
     private final SaludMapper saludMapper;
 
@@ -49,7 +50,7 @@ public class SaludServiceImp implements ISaludService {
      * calcula automáticamente el IMC y lo asocia al usuario.
      * </p>
      *
-     * @param dto DTO con los datos de la medición (peso, estatura, etc.)
+     * @param dto       DTO con los datos de la medición (peso, estatura, etc.)
      * @param usuarioId ID del usuario al que pertenece la medición
      * @return DTO con los datos de la medición guardada
      * @throws ResourceNotFoundException si el usuario no existe
@@ -57,11 +58,11 @@ public class SaludServiceImp implements ISaludService {
     @Override
     public SaludResponseDto registrarProgreso(SaludRequestDto dto, Long usuarioId) {
         log.info("Registrando progreso de salud para usuario ID: {}", usuarioId);
-        
+
         // Buscar al usuario o lanzar excepción si no existe
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + usuarioId));
-        
+
         log.debug("Usuario encontrado: {}", usuario.getUsername());
 
         // Convertir DTO a entidad y asignar usuario
@@ -88,11 +89,11 @@ public class SaludServiceImp implements ISaludService {
     @Override
     public List<SaludResponseDto> obtenerHistorialPorUsuario(Long usuarioId) {
         log.info("Obteniendo historial de salud para usuario ID: {}", usuarioId);
-        
+
         // Buscar al usuario o lanzar excepción si no existe
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + usuarioId));
-        
+
         // Obtener historial ordenado por fecha descendente
         List<Salud> historial = saludRepository.findByUsuarioOrderByFechaMedicionDesc(usuario);
         return saludMapper.toDtoList(historial);
@@ -112,15 +113,15 @@ public class SaludServiceImp implements ISaludService {
     @Override
     public SaludResponseDto obtenerProgresoActual(Long usuarioId) {
         log.info("Obteniendo progreso actual de salud para usuario ID: {}", usuarioId);
-        
+
         // Buscar al usuario
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + usuarioId));
-        
+
         // Buscar la última medición o lanzar excepción si no tiene registros
         Salud actual = saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(usuario)
                 .orElseThrow(() -> new ResourceNotFoundException("El usuario aún no tiene registros de salud"));
-        
+
         // Retornar la medición más reciente
         return saludMapper.toDto(actual);
     }
@@ -152,12 +153,12 @@ public class SaludServiceImp implements ISaludService {
     @Override
     public void eliminarRegistro(Long id) {
         log.info("Eliminando registro de salud con ID: {}", id);
-        
+
         // Verificar que el registro exista antes de eliminar
-        if(!saludRepository.existsById(id)) {
+        if (!saludRepository.existsById(id)) {
             throw new ResourceNotFoundException("Registro no encontrado con id: " + id);
         }
-        
+
         saludRepository.deleteById(id);
         log.info("Registro de salud eliminado exitosamente", id);
     }

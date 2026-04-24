@@ -26,7 +26,7 @@ public class DietaServiceImp implements IDietaService {
 
     @Override
     @Transactional
-   public DietaResponseDto crearDieta(DietaRequestDto dto) {
+    public DietaResponseDto crearDieta(DietaRequestDto dto) {
         log.info("Iniciando creación de dieta base: {}", dto.getNombre());
 
         // Evitar dietas con nombre duplicado en el catálogo
@@ -38,24 +38,25 @@ public class DietaServiceImp implements IDietaService {
         // Convertimos el DTO a la entidad inicial
         Dieta dieta = dietaMapper.toEntity(dto);
 
-        //  Asignación  de Categoría
+        // Asignación de Categoría
         if (dto.getCategoriaDietaId() != null) {
             log.debug("Asociando categoría ID {} a la nueva dieta", dto.getCategoriaDietaId());
             CategoriaDieta categoria = categoriaRepository.findById(dto.getCategoriaDietaId())
-                    .orElseThrow(() -> new ResourceNotFoundException("No se puede crear la dieta: Categoría no encontrada con ID: " 
-                            + dto.getCategoriaDietaId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "No se puede crear la dieta: Categoría no encontrada con ID: "
+                                    + dto.getCategoriaDietaId()));
             dieta.setCategoriaDieta(categoria);
         }
 
         Dieta guardada = dietaRepository.save(dieta);
         log.info("Dieta base '{}' creada exitosamente con ID: {}", guardada.getNombre(), guardada.getId());
-        
+
         return dietaMapper.toResponseDto(guardada);
     }
 
     @Override
     @Transactional(readOnly = true)
-   public List<DietaResponseDto> listarTodas() {
+    public List<DietaResponseDto> listarTodas() {
         log.info("Recuperando todas las dietas del catálogo maestro");
         List<Dieta> dietas = dietaRepository.findAll();
         log.debug("Se encontraron {} dietas en total", dietas.size());

@@ -24,9 +24,9 @@ public class CategoriaDietaServiceImp implements ICategoriaDietaService {
 
     @Override
     @Transactional
-   public CategoriaDietaResponseDto crear(CategoriaDietaRequestDto dto) {
+    public CategoriaDietaResponseDto crear(CategoriaDietaRequestDto dto) {
         log.info("Solicitud para crear nueva categoría de dieta: {}", dto.getNombre());
-        
+
         if (categoriaRepository.existsByNombreIgnoreCase(dto.getNombre())) {
             log.warn("Intento de creación duplicada: {}", dto.getNombre());
             throw new IllegalArgumentException("La categoría '" + dto.getNombre() + "' ya existe en el sistema.");
@@ -34,10 +34,11 @@ public class CategoriaDietaServiceImp implements ICategoriaDietaService {
 
         CategoriaDieta entidad = categoriaMapper.toEntity(dto);
         CategoriaDieta guardada = categoriaRepository.save(entidad);
-        
+
         log.info("Categoría creada exitosamente con ID: {}", guardada.getId());
         return categoriaMapper.toResponseDto(guardada);
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<CategoriaDietaResponseDto> listarTodas() {
@@ -59,16 +60,16 @@ public class CategoriaDietaServiceImp implements ICategoriaDietaService {
                     return new ResourceNotFoundException("Categoría no encontrada con ID: " + id);
                 });
     }
+
     @Override
     @Transactional
-   public void eliminar(Long id) {
+    public void eliminar(Long id) {
         log.info("Solicitud para eliminar categoría ID: {}", id);
-        
+
         if (!categoriaRepository.existsById(id)) {
             log.error("Error al eliminar: ID {} no existe", id);
             throw new ResourceNotFoundException("No se puede eliminar: Categoría no encontrada");
         }
-
 
         categoriaRepository.deleteById(id);
         log.info("Categoría ID {} eliminada correctamente", id);

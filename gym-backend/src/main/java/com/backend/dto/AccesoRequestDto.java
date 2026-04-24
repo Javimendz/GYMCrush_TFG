@@ -7,7 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Data Transfer Object (DTO) para solicitudes de acceso al gimnasio mediante token QR.
+ * Data Transfer Object (DTO) para solicitudes de acceso al gimnasio mediante
+ * token QR.
  * <p>
  * Esta clase representa la estructura de datos necesaria para que un cliente
  * solicite acceso al gimnasio utilizando un token QR generado previamente.
@@ -18,9 +19,9 @@ import lombok.NoArgsConstructor;
  * <p>
  * <b>Flujo de uso:</b>
  * <ol>
- *   <li>El cliente escanea un código QR y obtiene un token</li>
- *   <li>Envía este DTO al endpoint de acceso</li>
- *   <li>El servidor valida el token y concede acceso</li>
+ * <li>El cliente escanea un código QR y obtiene un token</li>
+ * <li>Envía este DTO al endpoint de acceso</li>
+ * <li>El servidor valida el token y concede acceso</li>
  * </ol>
  * </p>
  *

@@ -106,7 +106,7 @@ public class Salud {
         if (this.fechaMedicion == null) {
             this.fechaMedicion = LocalDateTime.now();
         }
-        
+
         // Calcular el IMC automáticamente
         if (this.peso != null && this.estatura != null && this.estatura > 0) {
             // Fórmula: peso / (estatura * estatura)

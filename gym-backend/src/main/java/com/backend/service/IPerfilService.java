@@ -28,6 +28,7 @@ public interface IPerfilService {
      * @return Lista de DTOs con todos los perfiles enriquecidos
      */
     List<PerfilResponseDto> findAll();
+
     /**
      * Guarda un nuevo perfil de usuario en la base de datos.
      * <p>
@@ -38,7 +39,8 @@ public interface IPerfilService {
      * @param perfil Entidad Perfil con los datos a guardar
      * @return Entidad Perfil guardada con ID asignado
      */
-    Perfil save(Perfil perfil);     
+    Perfil save(Perfil perfil);
+
     /**
      * Busca un perfil específico por su identificador único.
      * <p>
@@ -51,6 +53,7 @@ public interface IPerfilService {
      * @throws ResourceNotFoundException si el perfil no existe
      */
     PerfilResponseDto findById(Long id);
+
     /**
      * Elimina un perfil del sistema por su identificador.
      * <p>
@@ -62,6 +65,7 @@ public interface IPerfilService {
      * @throws ResourceNotFoundException si el perfil no existe
      */
     void deleteById(Long id);
+
     /**
      * Actualiza un perfil existente en el sistema.
      * <p>
@@ -69,10 +73,10 @@ public interface IPerfilService {
      * con los proporcionados en el DTO.
      * </p>
      *
-     * @param id Identificador único del perfil a actualizar
+     * @param id  Identificador único del perfil a actualizar
      * @param dto DTO con los datos actualizados del perfil
      * @return DTO con los datos del perfil actualizado
      * @throws ResourceNotFoundException si el perfil no existe
      */
-    PerfilResponseDto update(Long id, PerfilRequestDto dto);    
+    PerfilResponseDto update(Long id, PerfilRequestDto dto);
 }

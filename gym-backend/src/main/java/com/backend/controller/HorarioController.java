@@ -173,7 +173,7 @@ public class HorarioController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Horario eliminado con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Horario no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-   public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) {
         horarioService.eliminar(id);
 
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()

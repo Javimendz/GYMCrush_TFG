@@ -8,7 +8,7 @@ import com.backend.dto.NotificacionResponseDto;
 import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.mapper.NotificacionMapper;
 import com.backend.repository.NotificacionRepository;
-import com.backend.repository.UsuarioRepository; // Necesitarás este
+import com.backend.repository.UsuarioRepository; 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,8 +50,7 @@ public class NotificacionServiceImpl implements NotificacionService {
     public void marcarComoLeida(Long id) {
         notificacionRepository.findById(id).ifPresent(n -> {
             n.setLeido(true);
-            notificacionRepository.saveAndFlush(n); // Fuerza el UPDATE inmediato en DB
-            // Log para que veas en consola que ha pasado por aquí
+            notificacionRepository.saveAndFlush(n); 
             System.out.println("DEBUG: Notificación " + id + " marcada como leída.");
         });
     }

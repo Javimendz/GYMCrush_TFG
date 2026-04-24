@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/categorias") // <--- ESTA ES LA URL QUE DEBES USAR
+@RequestMapping("/api/v1/categorias")
 @RequiredArgsConstructor
 @Slf4j
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Categorías de Actividad", description = "Gestión de familias de ejercicios (Cardio, Fuerza, etc.)")

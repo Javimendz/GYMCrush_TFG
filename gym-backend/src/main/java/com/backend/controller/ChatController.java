@@ -9,8 +9,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import lombok.Data;
-import com.backend.repository.ChatRepository;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -72,10 +70,9 @@ public class ChatController {
         try {
             Long idMensaje = Long.parseLong(peticion.getId());
             
-            // 1. Buscamos el mensaje en la base de datos
+            //  Buscamos el mensaje en la base de datos
             mensajeRepository.findById(idMensaje).ifPresent(mensajeEnBD -> {
                 
-                // 2. COMPROBACIÓN DE SEGURIDAD:
                 // Solo borramos si el usuarioId del mensaje coincide con el que pide borrar
                 if (mensajeEnBD.getUsuarioId() != null && 
                     mensajeEnBD.getUsuarioId().equals(peticion.getUsuarioId())) {

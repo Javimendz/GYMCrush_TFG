@@ -35,19 +35,19 @@ public class RutinaServiceImp implements IRutinaService {
     public RutinaResponseDto asignarEntrenamiento(RutinaRequestDto dto) {
         log.info("Asignando entrenamiento ID {} al usuario ID {}", dto.getEntrenamientoId(), dto.getUsuarioId());
 
-        // 1. Buscar Usuario y Entrenamiento
+        // Buscar Usuario y Entrenamiento
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        
+
         Entrenamiento entrenamiento = entrenamientoRepository.findById(dto.getEntrenamientoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Entrenamiento no encontrado"));
 
-        // 2. Mapear DTO a Entidad y setear relaciones manualmente
+        // Mapear DTO a Entidad y setear relaciones manualmente
         Rutina rutina = rutinaMapper.toEntity(dto);
         rutina.setUsuario(usuario);
         rutina.setEntrenamiento(entrenamiento);
 
-        // 3. Guardar y retornar
+        // Guardar y retornar
         Rutina guardada = rutinaRepository.save(rutina);
         return rutinaMapper.toResponseDto(guardada);
     }
@@ -56,7 +56,7 @@ public class RutinaServiceImp implements IRutinaService {
     @Transactional(readOnly = true)
     public List<RutinaResponseDto> obtenerRutinaDiaria(Long usuarioId, LocalDate fecha) {
         log.info("Obteniendo rutina para usuario {} en fecha {}", usuarioId, fecha);
-        
+
         return rutinaRepository.findByUsuarioIdAndFechaAsignacionOrderByOrdenAsc(usuarioId, fecha)
                 .stream()
                 .map(rutinaMapper::toResponseDto)
@@ -67,10 +67,10 @@ public class RutinaServiceImp implements IRutinaService {
     @Transactional
     public RutinaResponseDto marcarComoCompletada(Long id) {
         log.info("Marcando rutina ID {} como completada", id);
-        
+
         Rutina rutina = rutinaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Asignación de rutina no encontrada"));
-        
+
         rutina.setCompletado(true);
         return rutinaMapper.toResponseDto(rutinaRepository.save(rutina));
     }

@@ -13,7 +13,7 @@ import org.mapstruct.Mapping;
 public interface DietaMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "planes", ignore = true)
-    @Mapping(target = "categoriaDieta", ignore = true) 
+    @Mapping(target = "categoriaDieta", ignore = true)
     Dieta toEntity(DietaRequestDto requestDto);
 
     List<DietaResponseDto> toResponseDtoList(List<Dieta> dietas);
@@ -22,6 +22,5 @@ public interface DietaMapper {
     @Mapping(target = "nombreCategoria", source = "categoriaDieta.nombre")
     DietaResponseDto toResponseDto(Dieta dieta);
 
-    // Añade esto para que el Service pueda listar
-    
+
 }

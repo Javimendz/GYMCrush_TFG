@@ -12,6 +12,6 @@ public interface IDetallePlanService {
     // Elimina un ejercicio de la composición del plan
     void eliminarEjercicio(Long detalleId);
     
-    // (Opcional) Permite cambiar el orden o el día de un ejercicio ya asignado
+    // Permite cambiar el orden o el día de un ejercicio ya asignado
     DetallePlanResponseDto actualizarOrden(Long detalleId, Integer nuevoDia, Integer nuevoOrden);
 }

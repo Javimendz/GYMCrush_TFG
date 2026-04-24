@@ -16,7 +16,6 @@ public class DetallePlanResponseDto {
     @Schema(description = "ID interno de la relación (DetallePlan)")
     private Long id;
 
-    // --- DATOS APLANADOS DEL OBJETO 'ENTRENAMIENTO' ---
     @Schema(description = "ID del entrenamiento físico real")
     private Long entrenamientoId;
 
@@ -26,7 +25,6 @@ public class DetallePlanResponseDto {
     @Schema(description = "Descripción de cómo hacer el ejercicio")
     private String descripcionEntrenamiento;
 
-    // --- DATOS PROPIOS DEL DETALLE ---
     @Schema(description = "Día en el que toca hacerlo")
     private Integer diaSemana;
 

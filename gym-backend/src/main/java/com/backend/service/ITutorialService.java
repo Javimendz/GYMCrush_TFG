@@ -27,6 +27,7 @@ public interface ITutorialService {
      * @return Lista de DTOs con todos los tutoriales
      */
     List<TutorialResponseDto> obtenerTodos();
+
     /**
      * Obtiene los tutoriales filtrados por categoría específica.
      * <p>
@@ -38,6 +39,7 @@ public interface ITutorialService {
      * @return Lista de DTOs con los tutoriales de la categoría
      */
     List<TutorialResponseDto> obtenerPorCategoria(Long categoriaId);
+
     /**
      * Crea un nuevo tutorial en el sistema.
      * <p>
@@ -49,6 +51,7 @@ public interface ITutorialService {
      * @return DTO con los datos del tutorial creado incluyendo su ID
      */
     TutorialResponseDto crear(TutorialRequestDto dto);
+
     /**
      * Elimina un tutorial del sistema por su identificador.
      * <p>
@@ -59,6 +62,7 @@ public interface ITutorialService {
      * @param id Identificador único del tutorial a eliminar
      */
     void eliminar(Long id);
+
     /**
      * Obtiene todas las categorías de tutoriales disponibles.
      * <p>
@@ -69,7 +73,6 @@ public interface ITutorialService {
      * @return Lista de DTOs con todas las categorías
      */
     List<CategoriaTutorialResponseDto> listarCategorias();
-
 
     List<TutorialResponseDto> buscarPorTitulo(String titulo);
 }

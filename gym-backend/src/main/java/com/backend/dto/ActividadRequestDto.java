@@ -21,11 +21,11 @@ import lombok.NoArgsConstructor;
  * <p>
  * <b>Validaciones aplicadas:</b>
  * <ul>
- *   <li>Nombre: obligatorio, entre 3 y 50 caracteres</li>
- *   <li>Descripción: opcional, máximo 500 caracteres</li>
- *   <li>Duración: obligatoria, mínimo 1 minuto</li>
- *   <li>Lugar: obligatorio</li>
- *   <li>Precio: obligatorio, no puede ser negativo</li>
+ * <li>Nombre: obligatorio, entre 3 y 50 caracteres</li>
+ * <li>Descripción: opcional, máximo 500 caracteres</li>
+ * <li>Duración: obligatoria, mínimo 1 minuto</li>
+ * <li>Lugar: obligatorio</li>
+ * <li>Precio: obligatorio, no puede ser negativo</li>
  * </ul>
  * </p>
  *
@@ -100,7 +100,7 @@ public class ActividadRequestDto {
     @NotNull(message = "El precio es obligatorio")
     @Min(value = 0, message = "El precio no puede ser negativo")
     @Schema(description = "Precio de la actividad", example = "50.00")
-    private Integer precio; 
+    private Integer precio;
 
     @NotNull(message = "El ID de la categoría es obligatorio")
     private Long categoriaId;

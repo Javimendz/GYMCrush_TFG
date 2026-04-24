@@ -15,5 +15,5 @@ public class PerfilFisicoRequest {
 
     private EnumObjetivo objetivo;
     private EnumNivelActividad nivelActividad;
-    
+
 }

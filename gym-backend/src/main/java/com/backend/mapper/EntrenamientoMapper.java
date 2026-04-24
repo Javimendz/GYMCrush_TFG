@@ -13,16 +13,16 @@ public interface EntrenamientoMapper {
 
     /**
      * De DTO a Entidad
-     * Ignoramos 'usuario' y 'rutinas' porque se gestionan en la lógica del Service
      */
-  @Mapping(target = "id", ignore = true)
+    @Mapping(target = "id", ignore = true)
     Entrenamiento toEntity(EntrenamientoRequestDto dto);
-    
+
     EntrenamientoResponseDto toResponseDto(Entrenamiento entrenamiento);
 
     /**
-     * Método de utilidad para convertir LocalDateTime a LocalTime 
-     * (Evita el error de compilación si el DTO enviara un LocalDateTime en el campo hora)
+     * Método de utilidad para convertir LocalDateTime a LocalTime
+     * (Evita el error de compilación si el DTO enviara un LocalDateTime en el campo
+     * hora)
      */
     default LocalTime map(LocalDateTime value) {
         return value != null ? value.toLocalTime() : null;

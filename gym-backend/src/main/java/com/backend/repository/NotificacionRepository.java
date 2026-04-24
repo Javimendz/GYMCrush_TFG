@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import com.backend.domain.Notificacion;
 
-
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Long> {
 
@@ -20,8 +19,7 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
      */
     List<Notificacion> findByUsuarioIdOrderByFechaCreacionDesc(Long usuarioId);
 
-
-     /**
+    /**
      * Obtiene SOLO las notificaciones que el usuario aún no ha leído.
      * Ideal para mostrar un filtro de "Nuevas".
      *
@@ -36,8 +34,6 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
      */
     long countByUsuarioIdAndLeidoFalse(Long usuarioId);
 
-
-    
     /**
      * Obtiene solo las notificaciones no leídas de un usuario.
      */

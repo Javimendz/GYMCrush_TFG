@@ -24,31 +24,32 @@ import lombok.Setter;
 @Table(name = "planes_nutricionales")
 @Getter
 @Setter
-@Builder 
-@NoArgsConstructor 
-@AllArgsConstructor 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Nutricion {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String tipoDieta;
     private LocalDateTime fechaGeneracion;
-    private String nombreDieta; 
+    private String nombreDieta;
     private Integer caloriasObjetivo;
-    
+
     @Column(columnDefinition = "TEXT")
-    private String macronutrientesJson; 
+    private String macronutrientesJson;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
-    private Usuario usuario; 
+    private Usuario usuario;
 
     @ManyToOne
     @JoinColumn(name = "dieta_id")
     private Dieta dieta;
-    
+
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComidaDiaria> comidas; 
+    private List<ComidaDiaria> comidas;
+
 }

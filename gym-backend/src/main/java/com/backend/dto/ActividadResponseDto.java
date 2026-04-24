@@ -15,10 +15,10 @@ import lombok.Data;
  * <p>
  * <b>Usos típicos:</b>
  * <ul>
- *   <li>Respuesta a consultas de actividades por ID</li>
- *   <li>Listado de actividades disponibles</li>
- *   <li>Confirmación después de crear una actividad</li>
- *   <li>Respuesta a actualizaciones de actividades</li>
+ * <li>Respuesta a consultas de actividades por ID</li>
+ * <li>Listado de actividades disponibles</li>
+ * <li>Confirmación después de crear una actividad</li>
+ * <li>Respuesta a actualizaciones de actividades</li>
  * </ul>
  * </p>
  *
@@ -29,7 +29,7 @@ import lombok.Data;
 @Data // Genera automáticamente getters, setters, toString, equals y hashCode
 @Schema(description = "DTO para la respuesta de una actividad")
 public class ActividadResponseDto {
-    
+
     /**
      * Identificador único de la actividad en la base de datos.
      * <p>
@@ -90,7 +90,6 @@ public class ActividadResponseDto {
      */
     @Schema(description = "Precio de la actividad", example = "50.00")
     private Integer precio;
-    
 
     private CategoriaResponseDto categoria;
 }

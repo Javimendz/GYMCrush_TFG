@@ -19,20 +19,20 @@ import lombok.NoArgsConstructor;
  * <p>
  * <b>Características especiales:</b>
  * <ul>
- *   <li>Campos "aplanados" de la relación con Actividad</li>
- *   <li>Optimizado para RecyclerView en Android</li>
- *   <li>Incluye nombre de actividad para mostrar directamente</li>
- *   <li>Evita consultas adicionales en el cliente</li>
+ * <li>Campos "aplanados" de la relación con Actividad</li>
+ * <li>Optimizado para RecyclerView en Android</li>
+ * <li>Incluye nombre de actividad para mostrar directamente</li>
+ * <li>Evita consultas adicionales en el cliente</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Listado de horarios disponibles</li>
- *   <li>Confirmación de reservas</li>
- *   <li>Calendario semanal de actividades</li>
- *   <li>Gestión de disponibilidad</li>
+ * <li>Listado de horarios disponibles</li>
+ * <li>Confirmación de reservas</li>
+ * <li>Calendario semanal de actividades</li>
+ * <li>Gestión de disponibilidad</li>
  * </ul>
  * </p>
  *
@@ -46,7 +46,7 @@ import lombok.NoArgsConstructor;
 @Builder // Permite la construcción fluida de objetos
 @Schema(description = "DTO para la respuesta de horario")
 public class HorarioResponseDto {
-    
+
     /**
      * Identificador único del horario en la base de datos.
      * <p>
@@ -56,7 +56,7 @@ public class HorarioResponseDto {
      */
     @Schema(description = "ID único del horario", example = "1")
     private Long id;
-    
+
     /**
      * Día de la semana en que se realiza la actividad.
      * <p>
@@ -66,7 +66,7 @@ public class HorarioResponseDto {
      */
     @Schema(description = "Día de la semana (lunes, martes, etc.)", example = "Lunes")
     private String diaSemana;
-    
+
     /**
      * Hora de inicio de la actividad.
      * <p>
@@ -76,7 +76,7 @@ public class HorarioResponseDto {
      */
     @Schema(description = "Hora de inicio del horario", example = "08:00")
     private LocalTime horaInicio;
-    
+
     /**
      * Hora de fin de la actividad.
      * <p>
@@ -86,7 +86,7 @@ public class HorarioResponseDto {
      */
     @Schema(description = "Hora de fin del horario", example = "12:00")
     private LocalTime horaFin;
-    
+
     /**
      * Aforo máximo permitido para la actividad.
      * <p>
@@ -96,7 +96,7 @@ public class HorarioResponseDto {
      */
     @Schema(description = "Aforo máximo permitido en el horario", example = "30")
     private Integer aforoMax;
-    
+
     /**
      * Sala o instalación donde se realiza la actividad.
      * <p>
@@ -106,11 +106,11 @@ public class HorarioResponseDto {
      */
     @Schema(description = "Nombre de la sala", example = "Sala Zen")
     private String nombreSala;
-    
+
     // Campos "aplanados" de la relación con Actividad
     // Esto es vital para que el RecyclerView en Android muestre el nombre
     // directamente sin necesidad de consultas adicionales
-    
+
     /**
      * Identificador único de la actividad asociada a este horario.
      * <p>
@@ -121,7 +121,7 @@ public class HorarioResponseDto {
      */
     @Schema(description = "ID de la actividad asociada al horario", example = "1")
     private Long actividadId;
-    
+
     /**
      * Nombre de la actividad asociada a este horario.
      * <p>
@@ -138,7 +138,6 @@ public class HorarioResponseDto {
      */
     @Schema(description = "Nombre de la actividad asociada al horario", example = "Clase de Fútbol")
     private String nombreActividad;
-
 
     @Schema(description = "ID de la sala física", example = "1")
     private Long salaId;

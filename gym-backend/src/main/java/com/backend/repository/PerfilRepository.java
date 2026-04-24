@@ -33,10 +33,8 @@ public interface PerfilRepository extends JpaRepository<Perfil, Long> {
     // Contar perfiles por genero
     long countByGenero(EnumGenero genero);
 
-        Perfil findByUsuario(Usuario usuario);
+    Perfil findByUsuario(Usuario usuario);
 
-    // Selecciono quien cumple años hoy, comparando que la fecha de nacimiento es
-    // igual a la actual
     @Query("SELECT p FROM Perfil p WHERE MONTH(p.fechaNacimiento) = :mes")
     List<Perfil> findByMesNacimiento(@Param("mes") Integer mes);
 

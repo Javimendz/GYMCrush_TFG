@@ -18,31 +18,31 @@ import lombok.*;
  * <p>
  * <b>Características especiales:</b>
  * <ul>
- *   <li>Campos "aplanados" para evitar consultas adicionales</li>
- *   <li>Información optimizada para Android RecyclerView</li>
- *   <li>Incluye estado actual de la reserva</li>
- *   <li>Datos de actividad para mostrar directamente en UI</li>
+ * <li>Campos "aplanados" para evitar consultas adicionales</li>
+ * <li>Información optimizada para Android RecyclerView</li>
+ * <li>Incluye estado actual de la reserva</li>
+ * <li>Datos de actividad para mostrar directamente en UI</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Estados posibles de reserva:</b>
  * <ul>
- *   <li><b>CONFIRMADA</b>: Reserva activa y confirmada</li>
- *   <li><b>PENDIENTE</b>: Esperando confirmación o pago</li>
- *   <li><b>CANCELADA</b>: Cancelada por el usuario</li>
- *   <li><b>COMPLETADA</b>: Actividad realizada</li>
- *   <li><b>NO_ASISTIO</b>: Usuario no asistió</li>
+ * <li><b>CONFIRMADA</b>: Reserva activa y confirmada</li>
+ * <li><b>PENDIENTE</b>: Esperando confirmación o pago</li>
+ * <li><b>CANCELADA</b>: Cancelada por el usuario</li>
+ * <li><b>COMPLETADA</b>: Actividad realizada</li>
+ * <li><b>NO_ASISTIO</b>: Usuario no asistió</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Confirmación de reservas realizadas</li>
- *   <li>Listado de reservas del usuario</li>
- *   <li>Gestión de cancelaciones</li>
- *   <li>Historial de actividades</li>
+ * <li>Confirmación de reservas realizadas</li>
+ * <li>Listado de reservas del usuario</li>
+ * <li>Gestión de cancelaciones</li>
+ * <li>Historial de actividades</li>
  * </ul>
  * </p>
  *
@@ -67,7 +67,7 @@ public class ReservaResponseDto {
      */
     @Schema(description = "Identificador único de la reserva")
     private Long id;
-    
+
     /**
      * Fecha en que está programada la reserva.
      * <p>
@@ -78,7 +78,7 @@ public class ReservaResponseDto {
      */
     @Schema(description = "Fecha de la reserva")
     private LocalDate fecha;
-    
+
     /**
      * Estado actual de la reserva.
      * <p>
@@ -96,7 +96,7 @@ public class ReservaResponseDto {
     private String estado;
 
     // Datos del Usuario (aplanados para optimización)
-    
+
     /**
      * Nombre de usuario del usuario que realizó la reserva.
      * <p>
@@ -112,9 +112,9 @@ public class ReservaResponseDto {
      */
     @Schema(description = "Nombre de usuario del usuario que realizó la reserva")
     private String username;
-    
+
     // CAMPOS NUEVOS PARA ANDROID (aplanados de la relación)
-    
+
     /**
      * Nombre de la actividad que ha sido reservada.
      * <p>
@@ -135,7 +135,7 @@ public class ReservaResponseDto {
      */
     @Schema(description = "Nombre de la actividad reservada")
     private String nombreActividad;
-    
+
     /**
      * Día de la semana en que se realiza la actividad reservada.
      * <p>
@@ -150,7 +150,7 @@ public class ReservaResponseDto {
      */
     @Schema(description = "Día de la semana de la reserva")
     private String diaSemana;
-    
+
     /**
      * Hora de inicio de la actividad reservada.
      * <p>
@@ -161,9 +161,9 @@ public class ReservaResponseDto {
      * <p>
      * <b>Usos:</b>
      * <ul>
-     *   <li>Mostrar en calendarios y agendas</li>
-     *   <li>Calcular tiempo restante hasta la actividad</li>
-     *   <li>Organizar recordatorios y notificaciones</li>
+     * <li>Mostrar en calendarios y agendas</li>
+     * <li>Calcular tiempo restante hasta la actividad</li>
+     * <li>Organizar recordatorios y notificaciones</li>
      * </ul>
      * </p>
      */

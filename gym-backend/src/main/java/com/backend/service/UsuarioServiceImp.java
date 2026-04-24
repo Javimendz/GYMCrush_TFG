@@ -29,7 +29,6 @@ public class UsuarioServiceImp implements IUsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
 
-    // En UsuarioServiceImp.java lo implementas:
     @Override
     @Transactional(readOnly = true)
     public List<Usuario> listarEntrenadores() {
@@ -45,20 +44,20 @@ public class UsuarioServiceImp implements IUsuarioService {
         Usuario usuario = usuarioMapper.toEntity(dto);
         usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // 2. Búsqueda del Rol
+        //  Búsqueda del Rol
         Role role = roleRepository.findByName(nombreRol.name())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Error: El rol " + nombreRol + " no existe en la base de datos"));
 
-        // 3. Asignación del Rol
+        //  Asignación del Rol
         usuario.getRoles().add(role);
 
-        // 4. Guardado
+        //  Guardado
         Usuario guardado = usuarioRepository.save(usuario);
 
         log.info("Usuario {} creado exitosamente con ID: {}", guardado.getUsername(), guardado.getId());
 
-        // 5. Retorno mapeado
+        //  Retorno mapeado
         return usuarioMapper.toUsuarioResponseDto(guardado);
     }
 
@@ -89,15 +88,12 @@ public class UsuarioServiceImp implements IUsuarioService {
    @Override
 @Transactional
 public void asignarRolEntrenador(Long id) {
-    // 1. Asegúrate de usar 'usuarioRepository' o 'usuarioRepo' según lo hayas declarado arriba
     Usuario usuario = usuarioRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
     
-    // 2. Aquí usa el nombre EXACTO de tu Enum (probablemente ENTRENADOR)
    Role rolEntrenador = roleRepository.findByName(EnumRol.ENTRENADOR.name()) 
                 .orElseThrow(() -> new RuntimeException("Error: El rol ENTRENADOR no existe en la DB"));
 
-    // 3. getRoles() ahora funcionará si pusiste @Data en Usuario.java
     usuario.getRoles().add(rolEntrenador);
     
     usuarioRepository.save(usuario);

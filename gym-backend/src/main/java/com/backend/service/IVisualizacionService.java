@@ -7,8 +7,11 @@ import java.util.List;
 
 public interface IVisualizacionService {
     VisualizacionResponseDto guardarProgreso(VisualizacionRequestDto dto);
+
     List<VisualizacionResponseDto> obtenerHistorial(Long usuarioId);
+
     List<VisualizacionResponseDto> obtenerContinuarViendo(Long usuarioId);
+
     void borrarDeHistorial(Long id);
 
     List<TutorialResponseDto> obtenerPopulares();

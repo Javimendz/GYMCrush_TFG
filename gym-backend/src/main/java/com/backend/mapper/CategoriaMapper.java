@@ -12,7 +12,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CategoriaMapper {
 
-   CategoriaResponseDto toResponseDto(Categoria categoria);
+    CategoriaResponseDto toResponseDto(Categoria categoria);
 
     List<CategoriaResponseDto> toResponseDtoList(List<Categoria> categorias);
 

@@ -34,13 +34,13 @@ import lombok.extern.slf4j.Slf4j;
 public class AccesoServiceImp implements IAccesoService {
     /** Repositorio para el acceso a datos de accesos */
     private final AccesoRepository accesoRepository;
-    
+
     /** Repositorio para el acceso a datos de usuarios */
     private final UsuarioRepository usuarioRepository;
-    
+
     /** Generador de tokens para validación QR */
     private final JwtGenerator jwtGenerator;
-    
+
     /** Mapper para convertir entidades a DTOs */
     private final AccesoMapper accesoMapper;
 
@@ -58,7 +58,7 @@ public class AccesoServiceImp implements IAccesoService {
     @Transactional
     public void registrarEntrada(String token) {
         log.info("Registrando entrada con token QR");
-        
+
         // Validar que el token QR sea correcto
         if (!jwtGenerator.validateToken(token)) {
             log.warn("Token QR inválido proporcionado");
@@ -68,11 +68,11 @@ public class AccesoServiceImp implements IAccesoService {
         // Extraer el nombre de usuario desde el token
         String username = jwtGenerator.getUsernameFromToken(token);
         log.debug("Token válido para usuario: {}", username);
-        
+
         // Buscar al usuario en la base de datos
         Usuario usuario = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        
+
         // Crear y guardar el registro de entrada
         Acceso entrada = Acceso.builder()
                 .usuario(usuario)
@@ -96,15 +96,16 @@ public class AccesoServiceImp implements IAccesoService {
         // Obtener username del token
         String username = jwtGenerator.getUsernameFromToken(token);
         log.debug("Token válido para usuario: {}", username);
-        
-        //  último registro de entrada que no tenga salida aún
-        Acceso ultimaEntrada = accesoRepository.findFirstByUsuarioUsernameAndFechaHoraSalidaIsNullOrderByFechaHoraEntradaDesc(username)
+
+        // último registro de entrada que no tenga salida aún
+        Acceso ultimaEntrada = accesoRepository
+                .findFirstByUsuarioUsernameAndFechaHoraSalidaIsNullOrderByFechaHoraEntradaDesc(username)
                 .orElseThrow(() -> new RuntimeException("No se encontró una entrada activa para este usuario"));
 
         // Actualizar la salida
         ultimaEntrada.setFechaHoraSalida(LocalDateTime.now());
         ultimaEntrada.setTipo("SALIDA");
-        
+
         accesoRepository.save(ultimaEntrada);
         log.info("Salida registrada exitosamente para usuario: {}", username);
     }
@@ -114,13 +115,13 @@ public class AccesoServiceImp implements IAccesoService {
         log.info("Obteniendo historial de accesos para usuario: {}", username);
         List<Acceso> listaEntidades = accesoRepository.findByUsuarioUsernameOrderByFechaHoraEntradaDesc(username);
         log.debug("Total de registros de acceso encontrados: {}", listaEntidades.size());
-        
+
         // conversión para el mapper
         return accesoMapper.toDtoList(listaEntidades);
     }
 
     @Override
-    public long obtenerAforoActual(){
+    public long obtenerAforoActual() {
         long aforo = accesoRepository.countByFechaHoraSalidaIsNull();
         log.debug("Aforo actual: {} usuarios en el gimnasio", aforo);
         return aforo;

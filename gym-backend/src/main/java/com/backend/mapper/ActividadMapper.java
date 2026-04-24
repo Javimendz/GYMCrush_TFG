@@ -16,8 +16,9 @@ import com.backend.dto.ActividadResponseDto;
  * <p>
  * Configuración:
  * <ul>
- *   <li>componentModel = "spring": Permite inyección con @Autowired</li>
- *   <li>unmappedTargetPolicy = IGNORE: Ignora campos no mapeados (como la lista de horarios)</li>
+ * <li>componentModel = "spring": Permite inyección con @Autowired</li>
+ * <li>unmappedTargetPolicy = IGNORE: Ignora campos no mapeados (como la lista
+ * de horarios)</li>
  * </ul>
  * </p>
  *
@@ -61,7 +62,7 @@ public interface ActividadMapper {
      * Actualiza una entidad Actividad existente con datos del DTO.
      * Ignora el ID para preservar el identificador original.
      *
-     * @param dto el DTO con los datos actualizados
+     * @param dto       el DTO con los datos actualizados
      * @param actividad la entidad a actualizar
      */
     @Mapping(target = "id", ignore = true)

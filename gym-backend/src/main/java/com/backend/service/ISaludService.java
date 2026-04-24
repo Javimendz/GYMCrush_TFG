@@ -16,7 +16,7 @@ import com.backend.dto.SaludResponseDto;
  * @since 2026
  */
 public interface ISaludService {
-    
+
     /**
      * Registra una nueva medición de salud para un usuario.
      * <p>
@@ -24,12 +24,13 @@ public interface ISaludService {
      * calcula automáticamente el IMC y lo asocia al usuario.
      * </p>
      *
-     * @param dto DTO con los datos de la medición (peso, estatura, etc.)
+     * @param dto       DTO con los datos de la medición (peso, estatura, etc.)
      * @param usuarioId ID del usuario al que pertenece la medición
      * @return DTO con los datos de la medición guardada
      * @throws ResourceNotFoundException si el usuario no existe
      */
     SaludResponseDto registrarProgreso(SaludRequestDto dto, Long usuarioId);
+
     /**
      * Obtiene el historial completo de mediciones de salud de un usuario.
      * <p>
@@ -42,6 +43,7 @@ public interface ISaludService {
      * @throws ResourceNotFoundException si el usuario no existe
      */
     List<SaludResponseDto> obtenerHistorialPorUsuario(Long usuarioId);
+
     /**
      * Obtiene la medición de salud más reciente de un usuario.
      * <p>
@@ -54,6 +56,7 @@ public interface ISaludService {
      * @throws ResourceNotFoundException si el usuario no tiene mediciones
      */
     SaludResponseDto obtenerProgresoActual(Long usuarioId);
+
     /**
      * Obtiene todos los registros de salud de todos los usuarios.
      * <p>
@@ -64,6 +67,7 @@ public interface ISaludService {
      * @return Lista de DTOs con todos los registros de salud
      */
     List<SaludResponseDto> obtenerTodosLosRegistros();
+
     /**
      * Elimina un registro de salud por su identificador.
      * <p>

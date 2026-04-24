@@ -5,9 +5,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * Entidad que representa la visualización de un tutorial por parte de un usuario.
+ * Entidad que representa la visualización de un tutorial por parte de un
+ * usuario.
  * <p>
- * Actúa como tabla intermedia con datos extra (payload) entre Usuario y Tutorial,
+ * Actúa como tabla intermedia con datos extra (payload) entre Usuario y
+ * Tutorial,
  * permitiendo guardar el progreso exacto del vídeo y si se ha completado.
  * </p>
  *

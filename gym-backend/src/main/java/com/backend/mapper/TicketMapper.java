@@ -32,7 +32,7 @@ public interface TicketMapper {
     @Mapping(target = "usuarioEmail", source = "usuario.correo")
     @Mapping(target = "username", source = "usuario.username")
     @Mapping(target = "nombreCompletoUsuario", source = "ticket")
-        
+
     TicketResponseDto toDto(Ticket ticket);
 
     /**
@@ -46,10 +46,10 @@ public interface TicketMapper {
         if (ticket.getUsuario() == null || ticket.getUsuario().getPerfil() == null) {
             return "Sin perfil configurado";
         }
-        
+
         String nombre = ticket.getUsuario().getPerfil().getNombre();
         String apellidos = ticket.getUsuario().getPerfil().getApellidos();
-        
+
         String resultado = (nombre != null ? nombre : "") + " " + (apellidos != null ? apellidos : "");
         return resultado.trim().isEmpty() ? "Nombre no definido" : resultado.trim();
     }

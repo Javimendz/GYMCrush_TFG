@@ -32,8 +32,7 @@ public interface IUsuarioService {
      */
     Usuario save(Usuario usuario);
 
-        List<Usuario> listarEntrenadores();
-
+    List<Usuario> listarEntrenadores();
 
     /**
      * Obtiene una lista de todos los usuarios registrados en el sistema.
@@ -43,8 +42,6 @@ public interface IUsuarioService {
     List<Usuario> getAllUsuarios();
 
     void asignarRolEntrenador(Long id);
-
-    // Boolean existsByCorreo(String correo);
 
     /**
      * Genera un token QR temporal para acceso físico al gimnasio.
@@ -86,7 +83,7 @@ public interface IUsuarioService {
      * </p>
      *
      * @param usuarioRequestDto Entidad con los datos actualizados
-     * @param id Identificador único del usuario a actualizar
+     * @param id                Identificador único del usuario a actualizar
      */
     void update(UsuarioRequestDto usuarioRequestDto, Long id);
 
@@ -97,10 +94,11 @@ public interface IUsuarioService {
      * útil para control de acceso en la entrada del gimnasio.
      * </p>
      *
-     * @param token Token QR a validar
+     * @param token  Token QR a validar
      * @param userId ID del usuario propietario del token
      * @return true si el token es válido y no ha expirado, false en caso contrario
      */
     boolean validarTokenQR(String token, Long userId);
+
     UsuarioResponseDto crearUsuarioConRol(UsuarioRequestDto dto, EnumRol nombreRol);
 }

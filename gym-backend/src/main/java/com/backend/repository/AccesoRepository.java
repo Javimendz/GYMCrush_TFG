@@ -15,6 +15,6 @@ public interface AccesoRepository extends JpaRepository<Acceso, Long> {
 
     List<Acceso> findByUsuarioUsernameOrderByFechaHoraEntradaDesc(String username);
 
-    //para contar usuarios para el aforo
+    // para contar usuarios para el aforo
     long countByFechaHoraSalidaIsNull();
 }

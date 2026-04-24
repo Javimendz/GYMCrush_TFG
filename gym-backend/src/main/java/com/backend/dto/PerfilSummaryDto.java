@@ -18,21 +18,21 @@ import lombok.NoArgsConstructor;
  * <p>
  * <b>Características principales:</b>
  * <ul>
- *   <li>Payload reducido para optimizar rendimiento</li>
- *   <li>Campos esenciales para identificación visual</li>
- *   <li>Ideal para RecyclerView y listados grandes</li>
- *   <li>Evita exposición de datos sensibles</li>
+ * <li>Payload reducido para optimizar rendimiento</li>
+ * <li>Campos esenciales para identificación visual</li>
+ * <li>Ideal para RecyclerView y listados grandes</li>
+ * <li>Evita exposición de datos sensibles</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos recomendados:</b>
  * <ul>
- *   <li>Listados de usuarios en búsquedas</li>
- *   <li>Vistas previas de perfiles</li>
- *   <li>Selección de usuarios en formularios</li>
- *   <li>Notificaciones y menciones</li>
- *   <li>Componentes de UI con información limitada</li>
+ * <li>Listados de usuarios en búsquedas</li>
+ * <li>Vistas previas de perfiles</li>
+ * <li>Selección de usuarios en formularios</li>
+ * <li>Notificaciones y menciones</li>
+ * <li>Componentes de UI con información limitada</li>
  * </ul>
  * </p>
  * 
@@ -51,7 +51,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor // Genera constructor sin parámetros
 @Tag(name = "PerfilSummaryDto", description = "Resumen de información del perfil de un usuario")
 public class PerfilSummaryDto {
-    
+
     /**
      * Identificador único del perfil en la base de datos.
      * <p>
@@ -61,7 +61,7 @@ public class PerfilSummaryDto {
      */
     @Schema(description = "Identificador único del perfil")
     private Long id;
-    
+
     /**
      * Nombre de usuario para inicio de sesión.
      * <p>
@@ -71,7 +71,7 @@ public class PerfilSummaryDto {
      */
     @Schema(description = "Nombre de usuario")
     private String username;
-    
+
     /**
      * Nombre del usuario.
      * <p>
@@ -81,7 +81,7 @@ public class PerfilSummaryDto {
      */
     @Schema(description = "Nombre del usuario")
     private String nombre;
-    
+
     /**
      * Apellidos del usuario.
      * <p>
@@ -91,7 +91,7 @@ public class PerfilSummaryDto {
      */
     @Schema(description = "Apellidos del usuario")
     private String apellidos;
-    
+
     /**
      * URL de la fotografía de perfil del usuario.
      * <p>
@@ -107,7 +107,7 @@ public class PerfilSummaryDto {
      */
     @Schema(description = "URL de la foto de perfil")
     private String foto;
-    
+
     /**
      * Ubicación geográfica del usuario.
      * <p>
@@ -128,7 +128,5 @@ public class PerfilSummaryDto {
      */
     @Schema(description = "Ubicación del usuario")
     private String location;
-    
-    
 
 }

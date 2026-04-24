@@ -13,7 +13,7 @@ public interface PlanMapper {
 
     PlanResponseDto toResponseDto(PlanEntrenamiento entity);
 
-    @Mapping(target = "id", ignore = true) 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "ejercicios", ignore = true)
     PlanEntrenamiento toEntity(PlanRequestDto dto);
 

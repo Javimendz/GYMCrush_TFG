@@ -1,7 +1,6 @@
 package com.backend.controller;
 
 import com.backend.dto.NutricionResponseDto;
-import com.backend.dto.PerfilFisicoRequest;
 import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.INutricionService;
 
@@ -9,12 +8,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.backend.dto.NutricionRequestDto;
-import java.util.List;
 import com.backend.service.FatSecretService;
 
 @RestController
@@ -72,25 +71,55 @@ public class NutricionController {
         }
 
         // -----------------------------------------------------------------------
+        // PATCH /api/v1/nutricion/plan/{id}/nombre
+        // Actualiza el nombre de un plan existente
+        // -----------------------------------------------------------------------
+        @PatchMapping("/plan/{id}/nombre")
+        @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+        @io.swagger.v3.oas.annotations.Operation(summary = "Actualizar nombre del plan", description = "Permite renombrar un plan nutricional guardado")
+        public ResponseEntity<ApiResponseDto<NutricionResponseDto>> actualizarNombre(
+                        @PathVariable("id") Long id,
+                        @RequestParam("nombre") String nombre) {
+
+                log.info("Petición para renombrar plan ID: {} a '{}'", id, nombre);
+
+                NutricionResponseDto actualizado = nutricionService.actualizarNombrePlan(id, nombre);
+
+                return ResponseEntity.ok(
+                                ApiResponseDto.<NutricionResponseDto>builder()
+                                                .mensaje("Nombre del plan actualizado correctamente")
+                                                .success(true)
+                                                .datos(actualizado)
+                                                .build());
+        }
+
+        // -----------------------------------------------------------------------
         // GET /api/v1/nutricion/historial/{usuarioId}
         // Recupera el historial completo de planes de un usuario
         // -----------------------------------------------------------------------
         @GetMapping("/historial/{usuarioId}")
         @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
-        @io.swagger.v3.oas.annotations.Operation(summary = "Obtener historial de planes", description = "Recupera todos los planes generados históricamente para el usuario")
-        public ResponseEntity<ApiResponseDto<List<NutricionResponseDto>>> obtenerHistorial(
-                        @PathVariable("usuarioId") Long usuarioId) {
+        public ResponseEntity<ApiResponseDto<Page<NutricionResponseDto>>> obtenerHistorial(
+                        @PathVariable("usuarioId") Long usuarioId,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
 
-                log.info("Consultando historial nutricional del usuario ID: {}", usuarioId);
+                log.info("Consultando historial paginado del usuario ID: {}", usuarioId);
 
-                List<NutricionResponseDto> historial = nutricionService.obtenerHistorial(usuarioId);
+                Page<NutricionResponseDto> historial = nutricionService.obtenerHistorial(usuarioId, page, size);
 
                 return ResponseEntity.ok(
-                                ApiResponseDto.<List<NutricionResponseDto>>builder()
-                                                .mensaje("Historial de planes recuperado correctamente")
+                                ApiResponseDto.<Page<NutricionResponseDto>>builder()
+                                                .mensaje("Historial recuperado")
                                                 .success(true)
                                                 .datos(historial)
                                                 .build());
+        }
+
+        @GetMapping("/plan/{id}")
+        public ResponseEntity<ApiResponseDto<NutricionResponseDto>> obtenerPlanPorId(@PathVariable Long id) {
+                NutricionResponseDto plan = nutricionService.obtenerPlanPorId(id);
+                return ResponseEntity.ok(new ApiResponseDto<>("Plan encontrado", plan, true));
         }
 
         @GetMapping("/buscar")

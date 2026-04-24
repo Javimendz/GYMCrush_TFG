@@ -74,15 +74,16 @@ public class TutorialServiceImp implements ITutorialService {
         return tutoriales;
     }
 
-   @Override
+    @Override
     @Transactional(readOnly = true)
     public List<TutorialResponseDto> buscarPorTitulo(String titulo) {
         log.info("Buscando tutoriales locales que contengan: {}", titulo);
-        
+
         return tutorialRepository.findByTituloContainingIgnoreCase(titulo).stream()
                 .map(tutorialMapper::toDto)
                 .toList();
     }
+
     /**
      * Obtiene los tutoriales filtrados por categoría específica.
      * <p>
@@ -120,18 +121,18 @@ public class TutorialServiceImp implements ITutorialService {
     public TutorialResponseDto crear(TutorialRequestDto dto) {
         log.info("Iniciando validaciones para nuevo tutorial: {}", dto.getTitulo());
 
-        // 1. VALIDACIÓN: Evitar títulos duplicados (Normalizado)
+        // Evitar títulos duplicados
         String tituloLimpio = dto.getTitulo().trim();
         if (tutorialRepository.existsByTituloIgnoreCase(tituloLimpio)) {
             throw new BusinessException("Ya existe un tutorial con el nombre: " + tituloLimpio);
         }
 
-        // 2. VALIDACIÓN: Evitar videos/GIFs duplicados
+        // Evitar videos/GIFs duplicados
         if (tutorialRepository.existsByUrlVideo(dto.getUrlVideo())) {
             throw new BusinessException("Este ejercicio (GIF) ya está registrado en la plataforma.");
         }
 
-        // 3. VALIDACIÓN: Categoría existente
+        // Categoría existente
         CategoriaTutorial categoria = categoriaRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new BusinessException("La categoría seleccionada no es válida."));
 

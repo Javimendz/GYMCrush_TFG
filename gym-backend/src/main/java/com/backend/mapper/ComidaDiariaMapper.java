@@ -12,8 +12,9 @@ public class ComidaDiariaMapper {
     /**
      * De Entidad a Response DTO (Para mostrar en el Frontend)
      */
-   public ComidaDiariaResponseDto toResponseDto(ComidaDiaria entity) {
-        if (entity == null) return null;
+    public ComidaDiariaResponseDto toResponseDto(ComidaDiaria entity) {
+        if (entity == null)
+            return null;
 
         ComidaDiariaResponseDto dto = new ComidaDiariaResponseDto();
 
@@ -21,12 +22,11 @@ public class ComidaDiariaMapper {
         dto.setMomento(entity.getMomento());
         dto.setNombreAlimento(entity.getNombreAlimento());
         dto.setCalorias(entity.getCalorias());
-        
-        // Ahora esto compila perfectamente porque ambos son Double
+
         dto.setProteina(entity.getProteina());
         dto.setCarbohidratos(entity.getCarbohidratos());
         dto.setGrasas(entity.getGrasas());
-
+        dto.setFecha(entity.getFecha());
         dto.setImagenUrl(
                 (entity.getImagenUrl() == null || entity.getImagenUrl().isBlank())
                         ? "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=500"
@@ -40,7 +40,8 @@ public class ComidaDiariaMapper {
      * Requiere la entidad Nutricion para establecer la relación jerárquica
      */
     public ComidaDiaria toEntity(ComidaDiariaRequestDto request, Nutricion plan) {
-        if (request == null) return null;
+        if (request == null)
+            return null;
 
         ComidaDiaria entity = new ComidaDiaria();
         entity.setMomento(request.getMomento());
@@ -48,10 +49,11 @@ public class ComidaDiariaMapper {
         entity.setCalorias(request.getCalorias());
         entity.setImagenUrl(request.getImagenUrl());
         // Mapeo directo de número a número
+        entity.setFecha(java.time.LocalDate.now());
         entity.setProteina(request.getProteina());
         entity.setCarbohidratos(request.getCarbohidratos());
         entity.setGrasas(request.getGrasas());
-        
+
         entity.setPlan(plan);
         return entity;
     }

@@ -17,32 +17,32 @@ import lombok.*;
  * <p>
  * <b>Información incluida:</b>
  * <ul>
- *   <li><b>Datos del ticket:</b> ID, asunto, mensaje, estado</li>
- *   <li><b>Timestamps:</b> creación y resolución</li>
- *   <li><b>Datos del usuario:</b> ID, email, nombre completo</li>
+ * <li><b>Datos del ticket:</b> ID, asunto, mensaje, estado</li>
+ * <li><b>Timestamps:</b> creación y resolución</li>
+ * <li><b>Datos del usuario:</b> ID, email, nombre completo</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Estados posibles del ticket:</b>
  * <ul>
- *   <li><b>ABIERTO</b>: Ticket creado y pendiente de atención</li>
- *   <li><b>EN_PROGRESO</b>: Siendo atendido por el equipo de soporte</li>
- *   <li><b>ESPERA_RESPUESTA</b>: Esperando respuesta del usuario</li>
- *   <li><b>RESUELTO</b>: Problema solucionado satisfactoriamente</li>
- *   <li><b>CERRADO</b>: Cerrado sin resolución</li>
- *   <li><b>REABIERTO</b>: Reabierto por nueva información</li>
+ * <li><b>ABIERTO</b>: Ticket creado y pendiente de atención</li>
+ * <li><b>EN_PROGRESO</b>: Siendo atendido por el equipo de soporte</li>
+ * <li><b>ESPERA_RESPUESTA</b>: Esperando respuesta del usuario</li>
+ * <li><b>RESUELTO</b>: Problema solucionado satisfactoriamente</li>
+ * <li><b>CERRADO</b>: Cerrado sin resolución</li>
+ * <li><b>REABIERTO</b>: Reabierto por nueva información</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Consulta de tickets creados por el usuario</li>
- *   <li>Listado de tickets asignados al equipo de soporte</li>
- *   <li>Seguimiento del estado de incidencias</li>
- *   <li>Análisis de tiempos de respuesta y resolución</li>
- *   <li>Exportación de historial de soporte</li>
+ * <li>Consulta de tickets creados por el usuario</li>
+ * <li>Listado de tickets asignados al equipo de soporte</li>
+ * <li>Seguimiento del estado de incidencias</li>
+ * <li>Análisis de tiempos de respuesta y resolución</li>
+ * <li>Exportación de historial de soporte</li>
  * </ul>
  * </p>
  *
@@ -54,7 +54,7 @@ import lombok.*;
 @Builder // Permite la construcción fluida de objetos
 @Tag(name = "TicketResponseDto", description = "Respuesta de un ticket")
 public class TicketResponseDto {
-    
+
     /**
      * Identificador único del ticket en la base de datos.
      * <p>
@@ -65,7 +65,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Identificador único del ticket")
     private Long id;
-    
+
     /**
      * Asunto o título del ticket.
      * <p>
@@ -75,7 +75,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Asunto del ticket")
     private String asunto;
-    
+
     /**
      * Mensaje detallado del ticket.
      * <p>
@@ -86,7 +86,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Mensaje del ticket")
     private String mensaje;
-    
+
     /**
      * Estado actual del ticket.
      * <p>
@@ -102,7 +102,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Estado del ticket (e.g., abierto, cerrado)")
     private String estado;
-    
+
     /**
      * Fecha y hora en que se resolvió el ticket.
      * <p>
@@ -118,7 +118,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Fecha en la que se resolvió el ticket")
     private LocalDateTime fechaResolucion;
-    
+
     /**
      * Fecha y hora en que se creó el ticket.
      * <p>
@@ -134,7 +134,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Fecha en la que se creó el ticket")
     private LocalDateTime fechaCreacion;
-    
+
     /**
      * Nombre de usuario del creador del ticket.
      * <p>
@@ -145,7 +145,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Nombre de usuario del creador del ticket")
     private String username;
-    
+
     /**
      * Identificador único del usuario creador.
      * <p>
@@ -156,7 +156,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Identificador único del usuario")
     private Long usuarioId;
-    
+
     /**
      * Correo electrónico del usuario creador.
      * <p>
@@ -172,7 +172,7 @@ public class TicketResponseDto {
      */
     @Schema(description = "Email del usuario")
     private String usuarioEmail;
-    
+
     /**
      * Nombre completo del usuario creador.
      * <p>
@@ -183,7 +183,5 @@ public class TicketResponseDto {
      */
     @Schema(description = "Nombre completo del usuario")
     private String nombreCompletoUsuario;
-
-    
 
 }

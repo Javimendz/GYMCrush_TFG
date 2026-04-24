@@ -15,20 +15,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Información nutricional incluida:</b>
  * <ul>
- *   <li>Proteínas: fundamentales para el desarrollo muscular</li>
- *   <li>Carbohidratos: fuente principal de energía</li>
- *   <li>Grasas: esenciales para funciones hormonales y vitamínicas</li>
- *   <li>Calorías totales: balance energético completo</li>
+ * <li>Proteínas: fundamentales para el desarrollo muscular</li>
+ * <li>Carbohidratos: fuente principal de energía</li>
+ * <li>Grasas: esenciales para funciones hormonales y vitamínicas</li>
+ * <li>Calorías totales: balance energético completo</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos típicos:</b>
  * <ul>
- *   <li>Planes nutricionales personalizados</li>
- *   <li>Seguimiento de objetivos fitness</li>
- *   <li>Recomendaciones dietéticas</li>
- *   <li>Integración con planes de entrenamiento</li>
+ * <li>Planes nutricionales personalizados</li>
+ * <li>Seguimiento de objetivos fitness</li>
+ * <li>Recomendaciones dietéticas</li>
+ * <li>Integración con planes de entrenamiento</li>
  * </ul>
  * </p>
  *
@@ -39,7 +39,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Data // Genera automáticamente getters, setters, toString, equals y hashCode
 @Schema(description = "DTO para la respuesta de dieta")
 public class DietaResponseDto {
-    
+
     /**
      * Identificador único de la dieta en la base de datos.
      * <p>
@@ -49,17 +49,18 @@ public class DietaResponseDto {
      */
     @Schema(description = "ID único de la dieta", example = "1")
     private Long id;
-    
+
     /**
      * Nombre descriptivo de la dieta.
      * <p>
      * Identifica el propósito o característica principal de la dieta.
-     * Ejemplos: "Dieta para perder peso", "Dieta de volumen", "Dieta de mantenimiento".
+     * Ejemplos: "Dieta para perder peso", "Dieta de volumen", "Dieta de
+     * mantenimiento".
      * </p>
      */
     @Schema(description = "Nombre de la dieta", example = "Dieta para perder peso")
     private String nombre;
-    
+
     /**
      * Tipo o frecuencia de la dieta.
      * <p>
@@ -69,7 +70,7 @@ public class DietaResponseDto {
      */
     @Schema(description = "Tipo de dieta (diaria, semanal, etc.)", example = "Diaria")
     private String tipo;
-    
+
     /**
      * Cantidad de proteínas en la dieta (en gramos).
      * <p>
@@ -85,7 +86,7 @@ public class DietaResponseDto {
      */
     @Schema(description = "Cantidad de proteínas en la dieta", example = "50")
     private Integer cantidadProteinas;
-    
+
     /**
      * Cantidad de carbohidratos en la dieta (en gramos).
      * <p>
@@ -100,7 +101,7 @@ public class DietaResponseDto {
      */
     @Schema(description = "Cantidad de carbohidratos en la dieta", example = "200")
     private Integer cantidadCarbohidratos;
-    
+
     /**
      * Cantidad de grasas en la dieta (en gramos).
      * <p>
@@ -115,7 +116,7 @@ public class DietaResponseDto {
      */
     @Schema(description = "Cantidad de grasas en la dieta", example = "50")
     private Integer cantidadGrasas;
-    
+
     /**
      * Cantidad total de calorías en la dieta.
      * <p>
@@ -127,21 +128,19 @@ public class DietaResponseDto {
      * <p>
      * <b>Referencias comunes:</b>
      * <ul>
-     *   <li><b>Pérdida de peso:</b> 1500-2000 kcal/día</li>
-     *   <li><b>Mantenimiento:</b> 2000-2500 kcal/día</li>
-     *   <li><b>Volumen:</b> 2500-4000+ kcal/día</li>
+     * <li><b>Pérdida de peso:</b> 1500-2000 kcal/día</li>
+     * <li><b>Mantenimiento:</b> 2000-2500 kcal/día</li>
+     * <li><b>Volumen:</b> 2500-4000+ kcal/día</li>
      * </ul>
      * </p>
      */
     @Schema(description = "Calorías totales objetivo", example = "2000")
     private Integer objetivoCalorico;
-    
-   
-    
-    //Datos para la categoria
-   @Schema(description = "ID de la categoría")
+
+    // Datos para la categoria
+    @Schema(description = "ID de la categoría")
     private Long categoriaDietaId;
-    
+
     @Schema(description = "Nombre de la categoría")
     private String nombreCategoria;
 

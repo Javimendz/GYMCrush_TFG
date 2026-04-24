@@ -52,7 +52,7 @@ public class SalaServiceImp implements ISalaService {
     public SalaResponseDto crear(SalaRequestDto dto) {
         log.info("Creando nueva sala: {}", dto.getNombre());
 
-        // Regla de Negocio: No permitir nombres duplicados
+        // No permitir nombres duplicados
         if (salaRepository.existsByNombreIgnoreCase(dto.getNombre())) {
             throw new RuntimeException("Ya existe una sala registrada con el nombre: " + dto.getNombre());
         }
@@ -68,13 +68,13 @@ public class SalaServiceImp implements ISalaService {
     @Transactional
     public SalaResponseDto actualizar(Long id, SalaRequestDto dto) {
         log.info("Actualizando datos de la sala ID: {}", id);
-        
+
         Sala existente = salaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se puede actualizar: Sala no encontrada"));
 
         // Validar si el nuevo nombre ya lo tiene OTRA sala
-        if (!existente.getNombre().equalsIgnoreCase(dto.getNombre()) && 
-            salaRepository.existsByNombreIgnoreCase(dto.getNombre())) {
+        if (!existente.getNombre().equalsIgnoreCase(dto.getNombre()) &&
+                salaRepository.existsByNombreIgnoreCase(dto.getNombre())) {
             throw new RuntimeException("El nombre '" + dto.getNombre() + "' ya está en uso por otra sala.");
         }
 
@@ -93,7 +93,7 @@ public class SalaServiceImp implements ISalaService {
         Sala sala = salaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se puede eliminar: Sala no encontrada"));
 
-        // Regla de Integridad: No eliminar si tiene clases programadas
+        // No eliminar si tiene clases programadas
         if (!sala.getHorarios().isEmpty()) {
             throw new RuntimeException("No se puede eliminar la sala porque tiene horarios de clases asignados. " +
                     "Pruebe a desactivarla en su lugar.");
@@ -108,7 +108,7 @@ public class SalaServiceImp implements ISalaService {
     public void cambiarEstado(Long id, Boolean activa) {
         Sala sala = salaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sala no encontrada"));
-        
+
         sala.setActiva(activa);
         salaRepository.save(sala);
         log.info("Sala '{}' marcada como {}", sala.getNombre(), activa ? "ACTIVA" : "INACTIVA (Mantenimiento)");

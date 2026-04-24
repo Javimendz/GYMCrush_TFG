@@ -36,10 +36,10 @@ public class TicketServiceImp implements ITicketService {
 
     /** Repositorio para el acceso a datos de tickets */
     private final TicketRepository ticketRepository;
-    
+
     /** Repositorio para el acceso a datos de usuarios */
     private final UsuarioRepository usuarioRepository;
-    
+
     /** Mapper para convertir entre entidades y DTOs de tickets */
     private final TicketMapper ticketMapper;
 
@@ -50,7 +50,7 @@ public class TicketServiceImp implements ITicketService {
      * y la asocia al usuario que reporta el problema.
      * </p>
      *
-     * @param dto DTO con los datos del ticket (asunto, mensaje)
+     * @param dto       DTO con los datos del ticket (asunto, mensaje)
      * @param usuarioId ID del usuario que crea el ticket
      * @return DTO con los datos del ticket creado incluyendo su ID
      * @throws ResourceNotFoundException si el usuario no existe
@@ -58,11 +58,11 @@ public class TicketServiceImp implements ITicketService {
     @Override
     public TicketResponseDto crearTicket(TicketRequestDto dto, Long usuarioId) {
         log.info("Creando ticket para usuario ID: {}", usuarioId);
-        
+
         // Buscar al usuario o lanzar excepción si no existe
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
-        
+
         log.debug("Usuario encontrado: {}", usuario.getUsername());
 
         // Crear el ticket con estado ABIERTO
@@ -78,6 +78,7 @@ public class TicketServiceImp implements ITicketService {
         log.info("Ticket creado exitosamente con ID: {}", resultado.getId());
         return resultado;
     }
+
     /**
      * Obtiene todos los tickets creados por un usuario específico.
      * <p>
@@ -99,6 +100,7 @@ public class TicketServiceImp implements ITicketService {
         log.debug("Total de tickets encontrados para usuario {}: {}", usuarioId, tickets.size());
         return tickets;
     }
+
     /**
      * Obtiene todos los tickets existentes en el sistema.
      * <p>
@@ -118,6 +120,7 @@ public class TicketServiceImp implements ITicketService {
         log.debug("Total de tickets encontrados: {}", tickets.size());
         return tickets;
     }
+
     /**
      * Obtiene un ticket específico por su ID.
      * <p>
@@ -144,7 +147,7 @@ public class TicketServiceImp implements ITicketService {
      * Cuando se cierra un ticket, se registra la fecha de resolución.
      * </p>
      *
-     * @param ticketId ID del ticket a actualizar
+     * @param ticketId    ID del ticket a actualizar
      * @param nuevoEstado Nuevo estado del ticket
      * @return DTO con los datos actualizados del ticket
      * @throws ResourceNotFoundException si el ticket no existe

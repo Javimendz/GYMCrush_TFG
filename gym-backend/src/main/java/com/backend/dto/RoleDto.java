@@ -17,20 +17,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>
  * <b>Jerarquía de roles típicos:</b>
  * <ul>
- *   <li><b>ROLE_USER</b>: Usuario básico con acceso limitado</li>
- *   <li><b>ROLE_TRAINER</b>: Entrenador con permisos de gestión</li>
- *   <li><b>ROLE_ADMIN</b>: Administrador con acceso completo</li>
- *   <li><b>ROLE_SUPER_ADMIN</b>: Super administrador del sistema</li>
+ * <li><b>ROLE_USER</b>: Usuario básico con acceso limitado</li>
+ * <li><b>ROLE_TRAINER</b>: Entrenador con permisos de gestión</li>
+ * <li><b>ROLE_ADMIN</b>: Administrador con acceso completo</li>
+ * <li><b>ROLE_SUPER_ADMIN</b>: Super administrador del sistema</li>
  * </ul>
  * </p>
  * 
  * <p>
  * <b>Usos principales:</b>
  * <ul>
- *   <li>Asignación de roles a usuarios</li>
- *   <li>Gestión de permisos del sistema</li>
- *   <li>Validación de accesos en endpoints</li>
- *   <li>Auditoría de privilegios</li>
+ * <li>Asignación de roles a usuarios</li>
+ * <li>Gestión de permisos del sistema</li>
+ * <li>Validación de accesos en endpoints</li>
+ * <li>Auditoría de privilegios</li>
  * </ul>
  * </p>
  * 
@@ -50,7 +50,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @NoArgsConstructor // Genera constructor sin parámetros
 @Schema(description = "DTO para representar un rol en el sistema")
 public class RoleDto {
-    
+
     /**
      * Identificador único del rol en la base de datos.
      * <p>
@@ -66,7 +66,7 @@ public class RoleDto {
      */
     @Schema(description = "Identificador único del rol")
     private Long id;
-    
+
     /**
      * Nombre descriptivo del rol.
      * <p>
@@ -78,18 +78,18 @@ public class RoleDto {
      * <p>
      * <b>Convención de nomenclatura:</b>
      * <ul>
-     *   <li>Prefijo: ROLE_ (obligatorio para Spring Security)</li>
-     *   <li>Nombre: descriptivo y en mayúsculas</li>
-     *   <li>Ejemplos: ROLE_USER, ROLE_ADMIN, ROLE_TRAINER</li>
+     * <li>Prefijo: ROLE_ (obligatorio para Spring Security)</li>
+     * <li>Nombre: descriptivo y en mayúsculas</li>
+     * <li>Ejemplos: ROLE_USER, ROLE_ADMIN, ROLE_TRAINER</li>
      * </ul>
      * </p>
      * 
      * <p>
      * <b>Validaciones:</b>
      * <ul>
-     *   <li>Debe ser único en el sistema</li>
-     *   <li>No debe contener caracteres especiales</li>
-     *   <li>Longitud recomendada: 3-50 caracteres</li>
+     * <li>Debe ser único en el sistema</li>
+     * <li>No debe contener caracteres especiales</li>
+     * <li>Longitud recomendada: 3-50 caracteres</li>
      * </ul>
      * </p>
      */
