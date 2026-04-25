@@ -490,7 +490,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
 
         // Actualizar el Widget de Nutrición (mantenemos la lógica de tu plan)
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
-        long usuarioId = prefs.getLong("usuario_id", -1);
+        long usuarioId = prefs.getLong("user_id", -1);
         if (usuarioId != -1) {
             apiService.obtenerUltimoPlan(usuarioId).enqueue(new Callback<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>>() {
                 @Override
@@ -596,7 +596,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         if (token.isEmpty()) return;
 
         ApiService apiService = RetrofitClient.getApiService();
-        long usuarioId = prefs.getLong("usuario_id", -1);
+        long usuarioId = prefs.getLong("user_id", -1);
         if (usuarioId == -1) return;
 
         apiService.getPerfilById(usuarioId).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
@@ -630,6 +630,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     protected void onRestart() {
         super.onRestart();
         cargarDatosYFotoPerfil();
+        cargarDatosDinamicosCarrusel();
     }
 
     private void cargarFragmento(Fragment fragment) {
