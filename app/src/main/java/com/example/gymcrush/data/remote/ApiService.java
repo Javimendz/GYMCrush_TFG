@@ -259,6 +259,9 @@ public interface ApiService {
     @POST("api/v1/entrenamientos")
     Call<ApiResponseDto<EntrenamientoResponseDto>> crearEntrenamiento(@Body EntrenamientoRequestDto request);
 
+    @DELETE("api/v1/entrenamientos/{id}")
+    Call<ApiResponseDto<Void>> eliminarEntrenamiento(@Path("id") Long id);
+
     // --- NUEVOS ENDPOINTS PARA DIETAS (CATÁLOGO) ---
     @GET("api/v1/dietas")
     Call<ApiResponseDto<List<DietaResponseDto>>> listarDietas();
@@ -273,6 +276,8 @@ public interface ApiService {
     @GET("api/v1/nutricion/ultimo-plan/{usuarioId}")
     Call<ApiResponseDto<NutricionResponseDto>> obtenerUltimoPlan(@Path("usuarioId") Long usuarioId);
 
+    @GET("api/v1/perfil/usuario/{usuarioId}")
+    Call<ApiResponseDto<PerfilResponseDto>> getPerfilByUsuarioId(@Path("usuarioId") Long usuarioId);
     @GET("api/v1/nutricion/plan/{id}")
     Call<ApiResponseDto<NutricionResponseDto>> obtenerPlanPorId(@Path("id") Long id);
 

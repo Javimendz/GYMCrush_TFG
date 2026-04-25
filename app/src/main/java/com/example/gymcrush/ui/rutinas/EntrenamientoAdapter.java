@@ -21,6 +21,7 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
     public interface OnItemClickListener {
         void onStartWorkout(EntrenamientoResponseDto entrenamiento);
         void onManageExercises(EntrenamientoResponseDto entrenamiento);
+        void onDeleteWorkout(EntrenamientoResponseDto entrenamiento);
     }
 
     public EntrenamientoAdapter(List<EntrenamientoResponseDto> lista) {
@@ -63,7 +64,21 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         // El botón de la derecha (tres líneas/menú) servirá para que el admin gestione ejercicios
         holder.btnMasOpciones.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
         holder.btnMasOpciones.setOnClickListener(v -> {
-            if (listener != null) listener.onManageExercises(item);
+            if (listener != null) {
+                android.widget.PopupMenu popup = new android.widget.PopupMenu(v.getContext(), v);
+                popup.getMenu().add("Gestionar Ejercicios");
+                popup.getMenu().add("Eliminar Entrenamiento");
+                
+                popup.setOnMenuItemClickListener(menuItem -> {
+                    if (menuItem.getTitle().equals("Gestionar Ejercicios")) {
+                        listener.onManageExercises(item);
+                    } else if (menuItem.getTitle().equals("Eliminar Entrenamiento")) {
+                        listener.onDeleteWorkout(item);
+                    }
+                    return true;
+                });
+                popup.show();
+            }
         });
 
         // El texto "Empezar Entreno" sirve para ver los ejercicios (y empezar para el usuario)

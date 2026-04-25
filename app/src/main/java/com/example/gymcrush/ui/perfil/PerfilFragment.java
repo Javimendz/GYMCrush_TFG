@@ -111,6 +111,7 @@ public class PerfilFragment extends Fragment {
     private void setupObservers() {
         viewModel.getPerfil().observe(getViewLifecycleOwner(), perfil -> {
             if (perfil != null) {
+                android.util.Log.d("PerfilFragment", "Perfil recibido: " + perfil.getNombre() + " " + perfil.getApellidos());
                 if (currentPerfil != null) {
                     if (perfil.getPeso() == null) perfil.setPeso(currentPerfil.getPeso());
                     if (perfil.getEstatura() == null) perfil.setEstatura(currentPerfil.getEstatura());
@@ -123,6 +124,7 @@ public class PerfilFragment extends Fragment {
 
         viewModel.getSalud().observe(getViewLifecycleOwner(), salud -> {
             if (salud != null) {
+                android.util.Log.d("PerfilFragment", "Datos de salud recibidos: Peso=" + salud.getPeso());
                 actualizarSaludUI(salud);
             }
         });
@@ -135,11 +137,49 @@ public class PerfilFragment extends Fragment {
     }
 
     private void actualizarUI(PerfilResponseDto perfil) {
-        tvNombrePerfil.setText(perfil.getNombreCompleto());
-        tvEmailPerfil.setText(prefs.getString("email_usuario", "usuario@gymcrush.com"));
-        tvTelefono.setText(perfil.getTelefono());
-        tvDireccion.setText(perfil.getDireccion() + ", " + perfil.getCiudad());
+        String nombreCompleto = perfil.getNombreCompleto().trim();
+        String finalNombre;
+        if (nombreCompleto.isEmpty()) {
+            finalNombre = prefs.getString("nombre_usuario", "Usuario GYMCrush");
+        } else {
+            finalNombre = nombreCompleto;
+        }
+        tvNombrePerfil.setText(finalNombre);
+
+        String finalEmail;
+        if (perfil.getCorreo() != null && !perfil.getCorreo().isEmpty()) {
+            finalEmail = perfil.getCorreo();
+        } else {
+            finalEmail = prefs.getString("email_usuario", "usuario@gymcrush.com");
+        }
+        tvEmailPerfil.setText(finalEmail);
+
+        // Sincronizar con SharedPreferences para que otras pantallas (Home) se actualicen
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("nombre_usuario", finalNombre);
+        editor.putString("email_usuario", finalEmail);
+        editor.apply();
+
+        tvTelefono.setText(perfil.getTelefono() != null ? perfil.getTelefono() : "--");
+        
+        String direccion = (perfil.getDireccion() != null ? perfil.getDireccion() : "").trim();
+        String ciudad = (perfil.getCiudad() != null ? perfil.getCiudad() : "").trim();
+        if (direccion.isEmpty() && ciudad.isEmpty()) {
+            tvDireccion.setText("Dirección no definida");
+        } else {
+            tvDireccion.setText(direccion + (direccion.isEmpty() || ciudad.isEmpty() ? "" : ", ") + ciudad);
+        }
+
         tvBio.setText(perfil.getBio() != null && !perfil.getBio().isEmpty() ? perfil.getBio() : "Sin biografía definida.");
+
+        // Mostrar peso y altura si vienen en el DTO de perfil (fallback/inicial)
+        if (perfil.getPeso() != null && perfil.getPeso() > 0) {
+            tvPeso.setText(perfil.getPeso() + " kg");
+        }
+        if (perfil.getEstatura() != null && perfil.getEstatura() > 0) {
+            double alturaCm = perfil.getEstatura() < 3 ? perfil.getEstatura() * 100 : perfil.getEstatura();
+            tvAltura.setText((int)alturaCm + " cm");
+        }
 
         if (perfil.getFechaNacimiento() != null && !perfil.getFechaNacimiento().isEmpty()) {
             try {
@@ -191,7 +231,8 @@ public class PerfilFragment extends Fragment {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
         byte[] byteArray = outputStream.toByteArray();
-        String encodedImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        // Usar NO_WRAP para evitar saltos de línea en el JSON
+        String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
 
         if (currentPerfil != null) {
             PerfilRequestDto request = new PerfilRequestDto();

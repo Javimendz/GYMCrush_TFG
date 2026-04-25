@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,7 +31,10 @@ import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto;
 import com.example.gymcrush.data.remote.dto.FatSecretRecipeDto;
 import com.example.gymcrush.data.remote.dto.FatSecretResponseDto;
+import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
+import com.example.gymcrush.data.remote.dto.ReservaResponseDto;
+import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 import com.example.gymcrush.ui.ejercicios.ReproductorFragment;
 import com.google.gson.Gson;
 import com.example.gymcrush.ui.auth.LoginActivity;
@@ -98,7 +102,9 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private View cardNutricionWidget;
     private TextView tvNombrePlanWidget, tvCaloriasWidget;
     private TextView tvIANewsTitle, tvIANewsContent;
-    private com.google.android.material.progressindicator.LinearProgressIndicator progressProt, progressCarb, progressGras;
+    private TextView tvActividadPorcentaje, tvReservasValor;
+    private com.google.android.material.progressindicator.CircularProgressIndicator progressCircularStat;
+    private com.google.android.material.progressindicator.LinearProgressIndicator progressProt, progressCarb, progressGras, progressReservas;
     private SlidingRootNav slidingRootNav;
 
     // Carrusel
@@ -121,6 +127,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
 
         // 2. Configurar Saludo e Imagen con SharedPreferences
         profileImage = findViewById(R.id.profile_image);
+        profileImage.setOnClickListener(v -> cargarFragmento(new PerfilFragment()));
         
         // Widget Nutrición initialization
         cardNutricionWidget = findViewById(R.id.cardNutricionWidget);
@@ -128,11 +135,23 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         tvCaloriasWidget = findViewById(R.id.tvCaloriasWidget);
         tvIANewsTitle = findViewById(R.id.tvIANewsTitle);
         tvIANewsContent = findViewById(R.id.tvIANewsContent);
+        
+        tvActividadPorcentaje = findViewById(R.id.tvActividadPorcentaje);
+        tvReservasValor = findViewById(R.id.tvReservasValor);
+        progressCircularStat = findViewById(R.id.progressCircularStat);
+        progressReservas = findViewById(R.id.progressReservas);
+
         progressProt = findViewById(R.id.progressProt);
         progressCarb = findViewById(R.id.progressCarb);
         progressGras = findViewById(R.id.progressGras);
         
-        cardNutricionWidget.setOnClickListener(v -> cargarFragmento(new DietaFragment()));
+        cardNutricionWidget.setOnClickListener(v -> {
+            DietaFragment fragment = new DietaFragment();
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("mostrarHistorial", true);
+            fragment.setArguments(bundle);
+            cargarFragmento(fragment);
+        });
 
         // 3. Configurar Menú Lateral Moderno con SlidingRootNav
         ImageView btnMenu = findViewById(R.id.btnMenuLateral);
@@ -246,12 +265,15 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         setupCarousel();
         setupExerciseCarousel();
         cargarNoticiasIA();
+        actualizarRendimientoSemanal();
 
-        // Listener para manejar la visibilidad del Home al volver de fragmentos
+        // Listener único para manejar la visibilidad del Home y refrescar datos al volver de fragmentos
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
                 homeContent.setVisibility(View.VISIBLE);
                 bottomNav.setSelectedItemId(R.id.nav_home);
+                cargarDatosYFotoPerfil();
+                actualizarRendimientoSemanal();
             }
         });
     }
@@ -492,33 +514,170 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
         long usuarioId = prefs.getLong("user_id", -1);
         if (usuarioId != -1) {
-            apiService.obtenerUltimoPlan(usuarioId).enqueue(new Callback<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>>() {
+            apiService.obtenerUltimoPlan(usuarioId).enqueue(new Callback<ApiResponseDto<NutricionResponseDto>>() {
                 @Override
-                public void onResponse(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> call, Response<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> response) {
+                public void onResponse(Call<ApiResponseDto<NutricionResponseDto>> call, Response<ApiResponseDto<NutricionResponseDto>> response) {
                     if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
-                        com.example.gymcrush.data.remote.dto.NutricionResponseDto plan = response.body().getDatos();
+                        NutricionResponseDto plan = response.body().getDatos();
                         tvNombrePlanWidget.setText(plan.getNombreDieta());
+                        tvNombrePlanWidget.setTextColor(getResources().getColor(R.color.white));
                         tvCaloriasWidget.setText(plan.getCaloriasObjetivo() + " kcal");
+                        tvCaloriasWidget.setTextColor(getResources().getColor(R.color.brand_pink));
                         actualizarProgresoMacros(plan);
+                    } else {
+                        // Caso cuando no hay plan asignado
+                        tvNombrePlanWidget.setText("Plan no asignado");
+                        tvNombrePlanWidget.setTextColor(Color.parseColor("#FFEB3B")); // Amarillo vibrante
+                        tvCaloriasWidget.setText("--- kcal");
+                        tvCaloriasWidget.setTextColor(Color.parseColor("#FFEB3B"));
+                        progressProt.setProgress(100);
+                        progressCarb.setProgress(100);
+                        progressGras.setProgress(100);
                     }
                 }
-                @Override public void onFailure(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.NutricionResponseDto>> call, Throwable t) {}
+                @Override public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
+                    tvNombrePlanWidget.setText("Error al cargar");
+                }
             });
         }
     }
 
-    private void actualizarProgresoMacros(com.example.gymcrush.data.remote.dto.NutricionResponseDto plan) {
-        double p = 0, c = 0, g = 0;
+    private void actualizarProgresoMacros(NutricionResponseDto plan) {
+        double p = 0, c = 0, g = 0, cal = 0;
         if (plan.getComidas() != null) {
             for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : plan.getComidas()) {
                 p += (item.getProteina() != null) ? item.getProteina() : 0;
                 c += (item.getCarbohidratos() != null) ? item.getCarbohidratos() : 0;
                 g += (item.getGrasas() != null) ? item.getGrasas() : 0;
+                cal += (item.getCalorias() != null) ? item.getCalorias() : 0;
             }
         }
-        progressProt.setProgress((int) p);
-        progressCarb.setProgress((int) c);
-        progressGras.setProgress((int) g);
+
+        // Obtener objetivos del plan o usar valores por defecto
+        int objetivoCal = (plan.getCaloriasObjetivo() != null) ? plan.getCaloriasObjetivo() : 2000;
+        // Distribución estándar: 30% P, 40% C, 30% G
+        int objetivoP = (int) ((objetivoCal * 0.30) / 4);
+        int objetivoC = (int) ((objetivoCal * 0.40) / 4);
+        int objetivoG = (int) ((objetivoCal * 0.30) / 9);
+
+        // Actualizar barras con animación y colores dinámicos
+        progressProt.setProgress((int) ((p * 100) / Math.max(objetivoP, 1)), true);
+        progressCarb.setProgress((int) ((c * 100) / Math.max(objetivoC, 1)), true);
+        progressGras.setProgress((int) ((g * 100) / Math.max(objetivoG, 1)), true);
+        
+        if (tvCaloriasWidget != null) {
+            tvCaloriasWidget.setText(String.format(Locale.getDefault(), "%.0f", cal));
+        }
+    }
+
+    private void actualizarRendimientoSemanal() {
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
+        long usuarioId = prefs.getLong("user_id", -1);
+        if (usuarioId == -1) return;
+
+        ApiService apiService = RetrofitClient.getApiService();
+
+        // 1. Rendimiento de Actividad (Media de los últimos 7 días)
+        final int diasAtras = 7;
+        final int[] totalCompletadas = {0};
+        final int[] totalAsignadas = {0};
+        final int[] respuestasActividad = {0};
+        
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        for (int i = 0; i < diasAtras; i++) {
+            Calendar diaConsulta = (Calendar) cal.clone();
+            diaConsulta.add(Calendar.DAY_OF_YEAR, -i);
+            String fechaStr = sdf.format(diaConsulta.getTime());
+
+            apiService.getRutinaDiaria(usuarioId, fechaStr).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
+                    synchronized (respuestasActividad) {
+                        respuestasActividad[0]++;
+                        if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                            List<RutinaResponseDto> rutinas = response.body().getDatos();
+                            totalAsignadas[0] += rutinas.size();
+                            for (RutinaResponseDto r : rutinas) {
+                                if (Boolean.TRUE.equals(r.getCompletado())) totalCompletadas[0]++;
+                            }
+                        }
+                        if (respuestasActividad[0] == diasAtras) {
+                            actualizarUIActividadSemanal(totalCompletadas[0], totalAsignadas[0]);
+                        }
+                    }
+                }
+                @Override public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
+                    synchronized (respuestasActividad) {
+                        respuestasActividad[0]++;
+                        if (respuestasActividad[0] == diasAtras) {
+                            actualizarUIActividadSemanal(totalCompletadas[0], totalAsignadas[0]);
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Contador de Reservas Activas
+        apiService.getMisReservas(usuarioId).enqueue(new Callback<ApiResponseDto<List<ReservaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<ReservaResponseDto>>> call, Response<ApiResponseDto<List<ReservaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                    List<ReservaResponseDto> reservas = response.body().getDatos();
+                    int activas = 0;
+                    for (ReservaResponseDto r : reservas) {
+                        // Consideramos activa si no está cancelada (ajusta según tus estados)
+                        if (!"CANCELADA".equalsIgnoreCase(r.getEstado())) {
+                            activas++;
+                        }
+                    }
+                    actualizarUIReservas(activas);
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<ReservaResponseDto>>> call, Throwable t) {}
+        });
+    }
+
+    private void actualizarUIActividadSemanal(int completadas, int asignadas) {
+        runOnUiThread(() -> {
+            int porcentaje = (asignadas > 0) ? (completadas * 100) / asignadas : 0;
+            tvActividadPorcentaje.setText(porcentaje + "%");
+            progressCircularStat.setProgress(porcentaje, true);
+            
+            // Colores Neon Dinámicos según el diseño (Rosa/Amarillo/Azul)
+            if (porcentaje >= 50) {
+                // De medio a completo: Rosa Intenso (Antes era amarillo a partir del 50%)
+                progressCircularStat.setIndicatorColor(Color.parseColor("#CD0277"));
+                tvActividadPorcentaje.setTextColor(Color.parseColor("#CD0277"));
+            } else {
+                // Bajo: Azul Neón (del borde del widget)
+                progressCircularStat.setIndicatorColor(Color.parseColor("#4FC3F7"));
+                tvActividadPorcentaje.setTextColor(Color.parseColor("#4FC3F7"));
+            }
+        });
+    }
+
+    private void actualizarUIReservas(int activas) {
+        runOnUiThread(() -> {
+            tvReservasValor.setText(String.valueOf(activas));
+            
+            // Calculamos un progreso visual (ej: sobre 5 reservas máximo para llenar la barra)
+            int porcentaje = Math.min((activas * 100) / 5, 100);
+            progressReservas.setProgress(porcentaje, true);
+
+            // Colores Neon Dinámicos
+            if (activas >= 3) {
+                tvReservasValor.setTextColor(Color.parseColor("#CD0277")); // Rosa (Mucho compromiso)
+                progressReservas.setIndicatorColor(Color.parseColor("#CD0277"));
+            } else if (activas >= 1) {
+                tvReservasValor.setTextColor(Color.parseColor("#FFD600")); // Amarillo (Activo)
+                progressReservas.setIndicatorColor(Color.parseColor("#FFD600"));
+            } else {
+                tvReservasValor.setTextColor(Color.parseColor("#4FC3F7")); // Azul (Sin reservas)
+                progressReservas.setIndicatorColor(Color.parseColor("#4FC3F7"));
+            }
+        });
     }
 
 
@@ -584,49 +743,71 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
 
     private void cargarDatosYFotoPerfil() {
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
-        String nombre = prefs.getString("nombre_usuario", "Usuario");
-        TextView tvSaludo = findViewById(R.id.tvSaludo);
-        tvSaludo.setText("¡A tope, " + nombre + "!");
-
-        String token = prefs.getString("auth_token", "");
-        if (token.isEmpty()) return;
-
-        ApiService apiService = RetrofitClient.getApiService();
         long usuarioId = prefs.getLong("user_id", -1);
+
         if (usuarioId == -1) return;
 
+        ApiService apiService = RetrofitClient.getApiService();
+
+        // Llamamos al endpoint que devuelve una lista de perfiles y filtramos por usuarioId en el backend
+        // o si tienes un endpoint específico para el perfil del usuario logueado.
+        // Según tu backend, el endpoint /api/v1/perfil devuelve todos, y /api/v1/perfil/{id} devuelve por ID de PERFIL.
+        // Si el ID del usuario es el mismo que el del perfil:
         apiService.getPerfilById(usuarioId).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<PerfilResponseDto>> call, Response<ApiResponseDto<PerfilResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     PerfilResponseDto perfil = response.body().getDatos();
-                    if (perfil.getFoto() != null) {
-                        byte[] decodedString = Base64.decode(perfil.getFoto(), Base64.DEFAULT);
-                        Glide.with(DesarrolloActivity.this)
-                                .load(decodedString)
-                                .placeholder(R.drawable.logo)
-                                .into(profileImage);
-                        
-                        Glide.with(DesarrolloActivity.this)
-                                .load(decodedString)
-                                .circleCrop()
-                                .into(ivHeaderPhoto);
+
+                    // Guardar perfil_id para futuros usos si es distinto al user_id
+                    if (perfil.getId() != null) {
+                        prefs.edit().putLong("perfil_id", perfil.getId()).apply();
                     }
+
+                    // 1. Actualizar Saludo con nombre real
+                    TextView tvSaludo = findViewById(R.id.tvSaludo);
+                    if (tvSaludo != null && perfil.getNombre() != null) {
+                        tvSaludo.setText("¡A tope, " + perfil.getNombre() + "!");
+                    }
+
+                    // 2. Cargar Foto si existe
+                    if (perfil.getFoto() != null && !perfil.getFoto().isEmpty()) {
+                        try {
+                            byte[] decodedString = Base64.decode(perfil.getFoto(), Base64.DEFAULT);
+                            // Foto en la pantalla principal (Home)
+                            Glide.with(DesarrolloActivity.this)
+                                    .load(decodedString)
+                                    .circleCrop()
+                                    .into(profileImage);
+
+                            // Foto en el Header del Menú Lateral (Moderno)
+                            if (ivHeaderPhoto != null) {
+                                Glide.with(DesarrolloActivity.this)
+                                        .load(decodedString)
+                                        .circleCrop()
+                                        .into(ivHeaderPhoto);
+                            }
+                        } catch (Exception e) {
+                            Log.e("IMAGE_ERROR", "Error al decodificar imagen: " + e.getMessage());
+                        }
+                    }
+                } else {
+                    Log.e("API_ERROR", "Error en respuesta: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseDto<PerfilResponseDto>> call, Throwable t) {
-                Toast.makeText(DesarrolloActivity.this, "Error al cargar perfil", Toast.LENGTH_SHORT).show();
+                Log.e("API_ERROR", "Fallo al conectar: " + t.getMessage());
             }
         });
     }
-
     @Override
     protected void onRestart() {
         super.onRestart();
         cargarDatosYFotoPerfil();
         cargarDatosDinamicosCarrusel();
+        actualizarRendimientoSemanal();
     }
 
     private void cargarFragmento(Fragment fragment) {
@@ -641,6 +822,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private void mostrarHome() {
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         homeContent.setVisibility(View.VISIBLE);
+        cargarDatosYFotoPerfil();
     }
 
     private void mostrarDialogoQR() {

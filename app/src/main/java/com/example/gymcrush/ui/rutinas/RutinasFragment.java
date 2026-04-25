@@ -135,7 +135,38 @@ public class RutinasFragment extends Fragment {
         rvEjercicios.setNestedScrollingEnabled(false);
         ejerciciosAdapter = new EntrenamientoAdapter(new ArrayList<>());
         ejerciciosAdapter.setAdmin(isAdmin);
-        // ...
+        ejerciciosAdapter.setOnItemClickListener(new EntrenamientoAdapter.OnItemClickListener() {
+            @Override
+            public void onStartWorkout(EntrenamientoResponseDto entrenamiento) {
+                // Ver detalles o empezar
+                Intent intent = new Intent(getActivity(), DetalleRutinaActivity.class);
+                intent.putExtra("RUTINA_ID", entrenamiento.getId());
+                intent.putExtra("RUTINA_NOMBRE", entrenamiento.getNombre());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onManageExercises(EntrenamientoResponseDto entrenamiento) {
+                if (isAdmin) {
+                    Intent intent = new Intent(getActivity(), GestionarEjerciciosPlanActivity.class);
+                    intent.putExtra("PLAN_ID", entrenamiento.getId());
+                    intent.putExtra("PLAN_NOMBRE", entrenamiento.getNombre());
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onDeleteWorkout(EntrenamientoResponseDto entrenamiento) {
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Eliminar Entrenamiento")
+                        .setMessage("¿Estás seguro de que quieres eliminar '" + entrenamiento.getNombre() + "' del catálogo?")
+                        .setPositiveButton("Eliminar", (dialog, which) -> {
+                            eliminarEntrenamientoMaestro(entrenamiento.getId());
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
+            }
+        });
         rvEjercicios.setAdapter(ejerciciosAdapter);
 
         // 4. Configurar Rutinas Guardadas (Pestaña "MIS RUTINAS")
@@ -352,6 +383,24 @@ public class RutinasFragment extends Fragment {
             @Override
             public void onFailure(Call<ApiResponseDto<RutinaResponseDto>> call, Throwable t) {
                 Toast.makeText(getContext(), "Error al actualizar estado", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void eliminarEntrenamientoMaestro(Long id) {
+        RetrofitClient.getApiService().eliminarEntrenamiento(id).enqueue(new Callback<ApiResponseDto<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Entrenamiento eliminado", Toast.LENGTH_SHORT).show();
+                    cargarEjerciciosDesdeServidor();
+                } else {
+                    Toast.makeText(getContext(), "Error al eliminar", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -598,6 +647,17 @@ public class RutinasFragment extends Fragment {
     }
 
     private void mostrarDialogoNuevoEjercicio() {
+        String[] opciones = {"Buscar en Biblioteca Externa", "Crear Manualmente"};
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Nuevo Entrenamiento")
+                .setItems(opciones, (dialog, which) -> {
+                    if (which == 0) mostrarDialogoBusquedaExterna();
+                    else mostrarDialogoNuevoEjercicioManual();
+                })
+                .show();
+    }
+
+    private void mostrarDialogoNuevoEjercicioManual() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_admin_nuevo_ejercicio);
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -639,6 +699,80 @@ public class RutinasFragment extends Fragment {
         });
 
         dialog.show();
+    }
+
+    private void mostrarDialogoBusquedaExterna() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_buscar_ejercicios, null);
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create();
+
+        TextInputEditText etSearch = dialogView.findViewById(R.id.etSearchExternal);
+        View btnSearch = dialogView.findViewById(R.id.btnSearchExternal);
+        android.widget.ProgressBar pb = dialogView.findViewById(R.id.pbLoadingExternal);
+        RecyclerView rvExt = dialogView.findViewById(R.id.rvExternalExercises);
+
+        List<com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto> listaExt = new ArrayList<>();
+        com.example.gymcrush.ui.ejercicios.AdminEjerciciosAdapter extAdapter = new com.example.gymcrush.ui.ejercicios.AdminEjerciciosAdapter(listaExt, exercise -> {
+            guardarEntrenamientoDesdeExterno(exercise, dialog);
+        });
+
+        rvExt.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvExt.setAdapter(extAdapter);
+
+        btnSearch.setOnClickListener(v -> {
+            String query = etSearch.getText().toString().trim();
+            if (query.isEmpty()) return;
+
+            pb.setVisibility(View.VISIBLE);
+            RetrofitClient.getApiService().buscarEnBiblioteca(query).enqueue(new Callback<ApiResponseDto<List<com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto>>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<List<com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto>>> call, Response<ApiResponseDto<List<com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto>>> response) {
+                    pb.setVisibility(View.GONE);
+                    if (response.isSuccessful() && response.body() != null) {
+                        listaExt.clear();
+                        listaExt.addAll(response.body().getDatos());
+                        extAdapter.notifyDataSetChanged();
+                    }
+                }
+                @Override
+                public void onFailure(Call<ApiResponseDto<List<com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto>>> call, Throwable t) {
+                    pb.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        dialog.show();
+    }
+
+    private void guardarEntrenamientoDesdeExterno(com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto exercise, androidx.appcompat.app.AlertDialog parentDialog) {
+        // En EntrenamientoRequestDto no guardamos el GIF, pero podemos ponerlo en la descripción o adaptarlo
+        String desc = exercise.getDescription() != null ? exercise.getDescription() : "Ejercicio para " + exercise.getTarget();
+        EntrenamientoRequestDto request = new EntrenamientoRequestDto(
+                exercise.getName(),
+                desc,
+                10, // Duración defecto
+                "Media", // Intensidad defecto
+                exercise.getTarget().toUpperCase() // Usamos el músculo objetivo como categoría
+        );
+
+        RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "¡Entrenamiento añadido al catálogo!", Toast.LENGTH_SHORT).show();
+                    parentDialog.dismiss();
+                    cargarEjerciciosDesdeServidor();
+                } else {
+                    Toast.makeText(getContext(), "Error al guardar entrenamiento", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

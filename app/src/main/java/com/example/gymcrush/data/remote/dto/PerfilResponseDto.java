@@ -47,6 +47,9 @@ public class PerfilResponseDto {
     @SerializedName("foto")
     private String foto;
 
+    @SerializedName("correo")
+    private String correo;
+
     // Campos enriquecidos de Salud
     @SerializedName("peso")
     private Double peso;
@@ -77,6 +80,7 @@ public class PerfilResponseDto {
     public String getGenero() { return genero; }
     public String getBio() { return bio; }
     public String getFoto() { return foto; }
+    public String getCorreo() { return correo; }
     public Double getPeso() { return peso; }
     public Double getEstatura() { return estatura; }
     public Double getImc() { return imc; }
@@ -96,6 +100,7 @@ public class PerfilResponseDto {
     public void setGenero(String genero) { this.genero = genero; }
     public void setBio(String bio) { this.bio = bio; }
     public void setFoto(String foto) { this.foto = foto; }
+    public void setCorreo(String correo) { this.correo = correo; }
     public void setPeso(Double peso) { this.peso = peso; }
     public void setEstatura(Double estatura) { this.estatura = estatura; }
     public void setImc(Double imc) { this.imc = imc; }

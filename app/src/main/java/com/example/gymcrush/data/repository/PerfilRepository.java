@@ -36,23 +36,28 @@ public class PerfilRepository {
      * Obtiene el perfil de un usuario por su ID.
      */
     public void getPerfil(Long id, PerfilCallback<PerfilResponseDto> callback) {
+        android.util.Log.d("PerfilRepository", "Solicitando perfil para ID: " + id);
         apiService.getPerfilById(id).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponseDto<PerfilResponseDto>> call,
                                    @NonNull Response<ApiResponseDto<PerfilResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().isSuccess()) {
+                        android.util.Log.d("PerfilRepository", "Perfil obtenido con éxito para ID: " + id);
                         callback.onSuccess(response.body().getDatos());
                     } else {
+                        android.util.Log.e("PerfilRepository", "Error en respuesta de perfil: " + response.body().getMensaje());
                         callback.onError(response.body().getMensaje());
                     }
                 } else {
+                    android.util.Log.e("PerfilRepository", "Error HTTP en perfil: " + response.code());
                     callback.onError("Error al obtener perfil: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponseDto<PerfilResponseDto>> call, @NonNull Throwable t) {
+                android.util.Log.e("PerfilRepository", "Error de conexión en perfil", t);
                 callback.onError("Error de conexión: " + t.getMessage());
             }
         });
@@ -88,23 +93,28 @@ public class PerfilRepository {
      * Obtiene los datos de salud actuales de un usuario.
      */
     public void getSaludActual(Long id, PerfilCallback<SaludResponseDto> callback) {
+        android.util.Log.d("PerfilRepository", "Solicitando salud actual para ID: " + id);
         apiService.getSaludActual(id).enqueue(new Callback<ApiResponseDto<SaludResponseDto>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponseDto<SaludResponseDto>> call,
                                    @NonNull Response<ApiResponseDto<SaludResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().isSuccess()) {
+                        android.util.Log.d("PerfilRepository", "Salud obtenida con éxito para ID: " + id);
                         callback.onSuccess(response.body().getDatos());
                     } else {
+                        android.util.Log.w("PerfilRepository", "Aviso en salud: " + response.body().getMensaje());
                         callback.onError(response.body().getMensaje());
                     }
                 } else {
+                    android.util.Log.e("PerfilRepository", "Error HTTP en salud: " + response.code());
                     callback.onError("No se encontraron datos de salud.");
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponseDto<SaludResponseDto>> call, @NonNull Throwable t) {
+                android.util.Log.e("PerfilRepository", "Error de conexión en salud", t);
                 callback.onError("Error de conexión salud: " + t.getMessage());
             }
         });

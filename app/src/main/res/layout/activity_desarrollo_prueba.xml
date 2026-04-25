@@ -188,9 +188,10 @@
                                 app:layout_constraintTop_toBottomOf="@id/tvStatTitle1" />
 
                             <TextView
+                                android:id="@+id/tvActividadPorcentaje"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="75%"
+                                android:text="0%"
                                 android:textColor="@color/white"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
@@ -214,18 +215,18 @@
                                 android:id="@+id/tvStatTitle2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Calorías"
+                                android:text="Reservas"
                                 android:textColor="#B3FFFFFF"
                                 android:textSize="12sp"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <TextView
-                                android:id="@+id/tvStatValue2"
+                                android:id="@+id/tvReservasValor"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:text="1,250"
+                                android:text="0"
                                 android:textColor="@color/white"
                                 android:textSize="28sp"
                                 android:textStyle="bold"
@@ -233,21 +234,23 @@
                                 app:layout_constraintTop_toBottomOf="@id/tvStatTitle2" />
 
                             <TextView
+                                android:id="@+id/tvReservasSubtitulo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="kcal quemadas"
+                                android:text="Activas"
                                 android:textColor="#4FC3F7"
                                 android:textSize="12sp"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/tvStatValue2" />
+                                app:layout_constraintTop_toBottomOf="@id/tvReservasValor" />
 
                             <com.google.android.material.progressindicator.LinearProgressIndicator
+                                android:id="@+id/progressReservas"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 app:indicatorColor="#4FC3F7"
                                 app:trackColor="#1AFFFFFF"
                                 app:trackCornerRadius="4dp"
-                                android:progress="60"
+                                android:progress="0"
                                 app:layout_constraintBottom_toBottomOf="parent" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
