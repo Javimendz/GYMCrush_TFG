@@ -119,10 +119,12 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             holder.imgMenu.setVisibility(View.GONE);
         }
         
-        if (urlVideo != null && (urlVideo.endsWith(".mp4") || urlVideo.contains("gif"))) {
+        if (urlVideo != null && !urlVideo.isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(urlVideo)
                     .placeholder(R.drawable.logo)
+                    .error(R.drawable.logo)
+                    .centerCrop()
                     .into(holder.imgFoto);
         } else {
             holder.imgFoto.setImageResource(imagenRes);
