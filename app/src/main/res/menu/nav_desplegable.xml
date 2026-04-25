@@ -20,11 +20,6 @@
             android:icon="@drawable/ic_reservaclases"
             android:title="Mis reservas de clases" />
 
-        <item android:id="@+id/nav_clases"
-            android:icon="@drawable/ic_clases"
-            android:title="Horario Actividad" />
-
-
     </group>
 
     <group android:checkableBehavior="none">

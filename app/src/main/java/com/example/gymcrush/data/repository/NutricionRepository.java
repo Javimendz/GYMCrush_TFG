@@ -6,6 +6,7 @@ import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto;
 import com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto;
 import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
+import com.example.gymcrush.data.remote.dto.PageResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilFisicoRequest;
 
 import java.util.List;
@@ -27,8 +28,12 @@ public class NutricionRepository {
         apiService.obtenerUltimoPlan(usuarioId).enqueue(callback);
     }
 
-    public void obtenerHistorial(Long usuarioId, Callback<ApiResponseDto<List<NutricionResponseDto>>> callback) {
-        apiService.obtenerHistorialNutricional(usuarioId).enqueue(callback);
+    public void obtenerPlanPorId(Long planId, Callback<ApiResponseDto<NutricionResponseDto>> callback) {
+        apiService.obtenerPlanPorId(planId).enqueue(callback);
+    }
+
+    public void obtenerHistorial(Long usuarioId, int page, int size, Callback<ApiResponseDto<PageResponseDto<NutricionResponseDto>>> callback) {
+        apiService.obtenerHistorialNutricional(usuarioId, page, size).enqueue(callback);
     }
 
     public void añadirComida(ComidaDiariaRequestDto request, Callback<ApiResponseDto<ComidaDiariaResponseDto>> callback) {
@@ -45,5 +50,13 @@ public class NutricionRepository {
 
     public void buscarAlimentos(String query, Callback<ApiResponseDto<String>> callback) {
         apiService.buscarAlimentos(query).enqueue(callback);
+    }
+
+    public void actualizarNombrePlan(Long planId, String nombre, Callback<ApiResponseDto<NutricionResponseDto>> callback) {
+        apiService.actualizarNombrePlan(planId, nombre).enqueue(callback);
+    }
+
+    public void guardarPlan(Long usuarioId, NutricionResponseDto plan, Callback<ApiResponseDto<NutricionResponseDto>> callback) {
+        apiService.guardarPlan(usuarioId, plan).enqueue(callback);
     }
 }

@@ -11,12 +11,14 @@ import com.example.gymcrush.data.remote.dto.DietaResponseDto;
 import com.example.gymcrush.data.remote.dto.FatSecretRecipeDto;
 import com.example.gymcrush.data.remote.dto.FatSecretResponseDto;
 import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
+import com.example.gymcrush.data.remote.dto.PageResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilFisicoRequest;
 import com.example.gymcrush.data.remote.dto.SaludResponseDto;
 import com.example.gymcrush.data.repository.DietaRepository;
 import com.example.gymcrush.data.repository.NutricionRepository;
 import com.example.gymcrush.data.repository.PerfilRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -82,12 +84,16 @@ public class DietaViewModel extends ViewModel {
         planGeneradoEvent.setValue(null);
     }
 
+    private int currentPage = 0;
+    private final int PAGE_SIZE = 5;
+    private boolean isLastPage = false;
+    private List<NutricionResponseDto> currentHistorialList = new ArrayList<>();
+
     public void cargarDatosIniciales(Long usuarioId) {
         loading.setValue(true);
         cargarSalud(usuarioId);
         cargarUltimoPlan(usuarioId);
-        cargarCatalogo();
-        cargarHistorial(usuarioId);
+        reiniciarPaginacionHistorial(usuarioId);
     }
 
     private void cargarSalud(Long usuarioId) {
@@ -95,53 +101,47 @@ public class DietaViewModel extends ViewModel {
             @Override
             public void onSuccess(SaludResponseDto result) {
                 saludActual.setValue(result);
-                checkLoadingComplete();
             }
 
             @Override
             public void onError(String errorMessage) {
-                saludActual.setValue(null);
-                checkLoadingComplete();
+                error.setValue(errorMessage);
             }
         });
     }
 
-    public void cargarCatalogo() {
-        dietaRepository.listarDietas(new Callback<ApiResponseDto<List<DietaResponseDto>>>() {
-            @Override
-            public void onResponse(Call<ApiResponseDto<List<DietaResponseDto>>> call, Response<ApiResponseDto<List<DietaResponseDto>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().isSuccess()) {
-                        dietasCatalogo.setValue(response.body().getDatos());
-                    } else {
-                        error.setValue(response.body().getMensaje());
-                    }
-                }
-                checkLoadingComplete();
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponseDto<List<DietaResponseDto>>> call, Throwable t) {
-                error.setValue("Error al cargar catálogo: " + t.getMessage());
-                checkLoadingComplete();
-            }
-        });
+    public void reiniciarPaginacionHistorial(Long usuarioId) {
+        currentPage = 0;
+        isLastPage = false;
+        currentHistorialList.clear();
+        cargarHistorial(usuarioId);
     }
 
     public void cargarHistorial(Long usuarioId) {
-        nutricionRepository.obtenerHistorial(usuarioId, new Callback<ApiResponseDto<List<NutricionResponseDto>>>() {
+        if (isLastPage) return;
+
+        nutricionRepository.obtenerHistorial(usuarioId, currentPage, PAGE_SIZE, new Callback<ApiResponseDto<PageResponseDto<NutricionResponseDto>>>() {
             @Override
-            public void onResponse(Call<ApiResponseDto<List<NutricionResponseDto>>> call, Response<ApiResponseDto<List<NutricionResponseDto>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().isSuccess()) {
-                        historial.setValue(response.body().getDatos());
+            public void onResponse(Call<ApiResponseDto<PageResponseDto<NutricionResponseDto>>> call, Response<ApiResponseDto<PageResponseDto<NutricionResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    PageResponseDto<NutricionResponseDto> pageData = response.body().getDatos();
+                    if (pageData != null) {
+                        List<NutricionResponseDto> nuevosPlanes = pageData.getContent();
+                        if (nuevosPlanes == null || nuevosPlanes.isEmpty()) {
+                            isLastPage = true;
+                        } else {
+                            currentHistorialList.addAll(nuevosPlanes);
+                            historial.setValue(new ArrayList<>(currentHistorialList));
+                            currentPage++;
+                            isLastPage = pageData.isLast();
+                        }
                     }
                 }
                 checkLoadingComplete();
             }
 
             @Override
-            public void onFailure(Call<ApiResponseDto<List<NutricionResponseDto>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponseDto<PageResponseDto<NutricionResponseDto>>> call, Throwable t) {
                 checkLoadingComplete();
             }
         });
@@ -163,7 +163,7 @@ public class DietaViewModel extends ViewModel {
                         planActual.setValue(nuevoPlan);
                         planGeneradoEvent.setValue(nuevoPlan);
                         // Actualizar historial tras generar un nuevo plan
-                        cargarHistorial(request.getUsuarioId());
+                        reiniciarPaginacionHistorial(request.getUsuarioId());
                     } else {
                         error.setValue(response.body().getMensaje());
                     }
@@ -202,16 +202,38 @@ public class DietaViewModel extends ViewModel {
         });
     }
 
+    public void cargarPlan(Long planId) {
+        loading.setValue(true);
+        nutricionRepository.obtenerPlanPorId(planId, new Callback<ApiResponseDto<NutricionResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<NutricionResponseDto>> call, Response<ApiResponseDto<NutricionResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    planActual.setValue(response.body().getDatos());
+                }
+                checkLoadingComplete();
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
+                checkLoadingComplete();
+            }
+        });
+    }
+
     public void añadirComida(ComidaDiariaRequestDto request, Long usuarioId) {
         loading.setValue(true);
         nutricionRepository.añadirComida(request, new Callback<ApiResponseDto<ComidaDiariaResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<ComidaDiariaResponseDto>> call, Response<ApiResponseDto<ComidaDiariaResponseDto>> response) {
-                loading.setValue(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    // Recargar el plan actual para ver los cambios
-                    cargarUltimoPlan(usuarioId);
+                    // Recargar el plan específico al que añadimos la comida
+                    if (request.getPlanNutricionalId() != null) {
+                        cargarPlan(request.getPlanNutricionalId());
+                    } else {
+                        cargarUltimoPlan(usuarioId);
+                    }
                 } else {
+                    loading.setValue(false);
                     error.setValue("No se pudo añadir el plato");
                 }
             }
@@ -224,20 +246,26 @@ public class DietaViewModel extends ViewModel {
         });
     }
 
-    public void eliminarComida(Long comidaId, Long usuarioId) {
+    public void eliminarComida(Long comidaId, Long planId, Long usuarioId) {
+        loading.setValue(true);
         nutricionRepository.eliminarComida(comidaId, new Callback<ApiResponseDto<Void>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    // Recargar el plan actual para ver los cambios
-                    cargarUltimoPlan(usuarioId);
+                    if (planId != null) {
+                        cargarPlan(planId);
+                    } else {
+                        cargarUltimoPlan(usuarioId);
+                    }
                 } else {
+                    loading.setValue(false);
                     error.setValue("No se pudo eliminar el plato");
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {
+                loading.setValue(false);
                 error.setValue("Error de red: " + t.getMessage());
             }
         });
@@ -248,10 +276,14 @@ public class DietaViewModel extends ViewModel {
         nutricionRepository.guardarMuchasComidas(planId, comidas, new Callback<ApiResponseDto<Void>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
-                loading.setValue(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    cargarUltimoPlan(usuarioId);
+                    if (planId != null) {
+                        cargarPlan(planId);
+                    } else {
+                        cargarUltimoPlan(usuarioId);
+                    }
                 } else {
+                    loading.setValue(false);
                     error.setValue("No se pudieron guardar las comidas");
                 }
             }
@@ -327,6 +359,56 @@ public class DietaViewModel extends ViewModel {
 
     public void limpiarBusqueda() {
         resultadosBusqueda.setValue(new java.util.ArrayList<>());
+    }
+
+    public void actualizarNombrePlan(Long planId, String nombre, Long usuarioId) {
+        loading.setValue(true);
+        nutricionRepository.actualizarNombrePlan(planId, nombre, new Callback<ApiResponseDto<NutricionResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<NutricionResponseDto>> call, Response<ApiResponseDto<NutricionResponseDto>> response) {
+                loading.setValue(false);
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    planActual.setValue(response.body().getDatos());
+                    reiniciarPaginacionHistorial(usuarioId);
+                } else {
+                    String errorMsg = "No se pudo renombrar el plan";
+                    if (response.errorBody() != null) {
+                        try {
+                            errorMsg += ": " + response.errorBody().string();
+                        } catch (Exception ignored) {}
+                    }
+                    error.setValue(errorMsg);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
+                loading.setValue(false);
+                error.setValue("Error de red: " + t.getMessage());
+            }
+        });
+    }
+
+    public void guardarPlan(Long usuarioId, NutricionResponseDto plan) {
+        loading.setValue(true);
+        nutricionRepository.guardarPlan(usuarioId, plan, new Callback<ApiResponseDto<NutricionResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<NutricionResponseDto>> call, Response<ApiResponseDto<NutricionResponseDto>> response) {
+                loading.setValue(false);
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    planActual.setValue(response.body().getDatos());
+                    reiniciarPaginacionHistorial(usuarioId);
+                } else {
+                    error.setValue("No se pudo guardar el plan");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
+                loading.setValue(false);
+                error.setValue("Error de red: " + t.getMessage());
+            }
+        });
     }
 
     @Override

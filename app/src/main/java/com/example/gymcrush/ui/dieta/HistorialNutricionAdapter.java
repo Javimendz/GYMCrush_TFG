@@ -8,12 +8,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class HistorialNutricionAdapter extends RecyclerView.Adapter<HistorialNutricionAdapter.ViewHolder> {
 
-    private List<NutricionResponseDto> historial = new ArrayList<>();
+    private final List<NutricionResponseDto> historial = new ArrayList<>();
     private final OnPlanClickListener listener;
 
     public interface OnPlanClickListener {
@@ -24,8 +28,12 @@ public class HistorialNutricionAdapter extends RecyclerView.Adapter<HistorialNut
         this.listener = listener;
     }
 
-    public void setHistorial(List<NutricionResponseDto> historial) {
-        this.historial = historial;
+    // MEJORA 2: Limpiar y añadir en lugar de reasignar
+    public void setHistorial(List<NutricionResponseDto> nuevoHistorial) {
+        this.historial.clear();
+        if (nuevoHistorial != null) {
+            this.historial.addAll(nuevoHistorial);
+        }
         notifyDataSetChanged();
     }
 
@@ -48,25 +56,68 @@ public class HistorialNutricionAdapter extends RecyclerView.Adapter<HistorialNut
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvFecha, tvNombre, tvCalorias;
+        TextView tvFecha, tvNombre, tvCalorias, tvResumen;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvFecha = itemView.findViewById(R.id.tvFechaHistorial);
             tvNombre = itemView.findViewById(R.id.tvNombrePlanHistorial);
             tvCalorias = itemView.findViewById(R.id.tvCaloriasHistorial);
+            tvResumen = itemView.findViewById(R.id.tvResumenComidas);
         }
 
         public void bind(NutricionResponseDto plan, OnPlanClickListener listener) {
-            String fecha = plan.getFechaGeneracion() != null ? plan.getFechaGeneracion() : "Fecha desconocida";
-            // Si tiene nombre específico lo usamos, si no el tipo
-            String titulo = plan.getNombreDieta() != null && !plan.getNombreDieta().isEmpty() 
-                    ? plan.getNombreDieta() 
+
+            // MEJORA 1: Formatear la fecha para que sea amigable ("dd/MM/yyyy")
+            String fechaMostrada = "Fecha desconocida";
+            if (plan.getFechaGeneracion() != null) {
+                try {
+                    // Si tu backend envía LocalDateTime, suele llegar así: "2026-04-24T12:30:00"
+                    String fechaRaw = plan.getFechaGeneracion();
+                    // Fallback rápido: Si tiene la 'T', la quitamos y nos quedamos con la fecha
+                    if (fechaRaw.contains("T")) {
+                        fechaRaw = fechaRaw.split("T")[0]; // Queda "2026-04-24"
+
+                        // Opcional: Convertir de yyyy-MM-dd a dd/MM/yyyy
+                        SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                        SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        Date date = input.parse(fechaRaw);
+                        if (date != null) {
+                            fechaMostrada = output.format(date);
+                        }
+                    } else {
+                        fechaMostrada = fechaRaw;
+                    }
+                } catch (Exception e) {
+                    fechaMostrada = plan.getFechaGeneracion(); // Si falla, muestra la original
+                }
+            }
+            tvFecha.setText(fechaMostrada);
+
+            // Título
+            String titulo = plan.getNombreDieta() != null && !plan.getNombreDieta().isEmpty()
+                    ? plan.getNombreDieta()
                     : (plan.getTipoDieta() != null ? plan.getTipoDieta() : "Plan Personalizado");
-            
-            tvFecha.setText(fecha);
             tvNombre.setText(titulo);
+
+            // Calorías
             tvCalorias.setText(plan.getCaloriasObjetivo() + " kcal / día");
+
+            // Resumen de comidas (Lógica intacta, está muy bien hecha)
+            StringBuilder sb = new StringBuilder();
+            List<com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto> comidas = plan.getComidas();
+            if (comidas != null && !comidas.isEmpty()) {
+                for (int i = 0; i < Math.min(comidas.size(), 4); i++) {
+                    if (i > 0) sb.append(", ");
+                    sb.append(comidas.get(i).getNombreAlimento());
+                }
+                if (comidas.size() > 4) sb.append("...");
+            } else {
+                sb.append("Sin registros de alimentos");
+            }
+            tvResumen.setText(sb.toString());
+
+            // Click listener
             itemView.setOnClickListener(v -> listener.onPlanClick(plan));
         }
     }

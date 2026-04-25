@@ -206,6 +206,17 @@
                 app:cornerRadius="12dp"
                 android:backgroundTint="#CD0277"/>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAnadirMiDieta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Añadir a mi dieta"
+                app:cornerRadius="12dp"
+                android:backgroundTint="#4CAF50"
+                app:icon="@android:drawable/ic_input_add"
+                app:iconGravity="textStart"/>
+
             <TextView
                 android:id="@+id/tvLabelRecetaWeb"
                 android:layout_width="wrap_content"

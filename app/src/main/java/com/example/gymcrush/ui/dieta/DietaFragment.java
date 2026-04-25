@@ -37,7 +37,7 @@ public class DietaFragment extends Fragment {
     private MaterialButton btnActualizar, btnAddComida, btnBuscarComida;
     
     private MaterialCardView cardEmptySuggestion, cardSuggestion;
-    private TextView tvNombreSugerida, tvCaloriasSugeridas, tvProt, tvCarbs, tvGrasas;
+    private TextView tvNombreSugerida, tvCaloriasSugeridas, tvCaloriasRestantes, tvProt, tvCarbs, tvGrasas;
     private CustomDonutChart donutChart;
     private LinearProgressIndicator progressCalorias;
     
@@ -55,8 +55,14 @@ public class DietaFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(DietaViewModel.class);
         
-        SharedPreferences prefs = requireActivity().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
-        usuarioId = prefs.getLong("user_id", -1L);
+        // Unificamos la obtención del ID de usuario
+        SharedPreferences prefs = requireActivity().getSharedPreferences("GymCrushPrefs", Context.MODE_PRIVATE);
+        usuarioId = prefs.getLong("usuarioId", -1L);
+        if (usuarioId == -1L) {
+            // Reintento con el otro nombre por si acaso
+            prefs = requireActivity().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+            usuarioId = prefs.getLong("user_id", -1L);
+        }
 
         initViews(view);
         setupRecyclerViews();
@@ -126,6 +132,7 @@ public class DietaFragment extends Fragment {
         cardSuggestion = v.findViewById(R.id.cardSuggestion);
         tvNombreSugerida = v.findViewById(R.id.tvNombreDietaSugerida);
         tvCaloriasSugeridas = v.findViewById(R.id.tvCaloriasSugeridas);
+        tvCaloriasRestantes = v.findViewById(R.id.tvCaloriasRestantes);
         tvProt = v.findViewById(R.id.tvProt);
         tvCarbs = v.findViewById(R.id.tvCarbs);
         tvGrasas = v.findViewById(R.id.tvGrasas);
@@ -203,28 +210,42 @@ public class DietaFragment extends Fragment {
         });
         rvHistorial.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvHistorial.setAdapter(historialAdapter);
+        rvHistorial.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null && layoutManager.findLastCompletelyVisibleItemPosition() == historialAdapter.getItemCount() - 1) {
+                    viewModel.cargarHistorial(usuarioId);
+                }
+            }
+        });
 
         comidaAdapter = new ComidaAdapter();
         comidaAdapter.setOnHechaClickListener((comida, isChecked) -> {
-            if (isChecked && comida.getId() == null) {
-                // Si se marca una sugerencia, se añade al consumo real
-                com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto request = new com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto();
-                request.setMomento(comida.getMomento());
-                request.setNombreAlimento(comida.getNombreAlimento());
-                request.setCalorias(comida.getCalorias());
-                request.setProteina(comida.getProteina());
-                request.setCarbohidratos(comida.getCarbohidratos());
-                request.setGrasas(comida.getGrasas());
-                
-                NutricionResponseDto plan = viewModel.getPlanActual().getValue();
-                if (plan != null) {
+            NutricionResponseDto plan = viewModel.getPlanActual().getValue();
+            if (plan != null) {
+                if (isChecked && comida.getId() == null) {
+                    // Marcar sugerencia: Guardar en el servidor
+                    com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto request = new com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto();
+                    request.setNombreAlimento(comida.getNombreAlimento());
+                    request.setMomento(comida.getMomento());
+                    request.setCalorias(comida.getCalorias());
+                    request.setProteina(comida.getProteina());
+                    request.setCarbohidratos(comida.getCarbohidratos());
+                    request.setGrasas(comida.getGrasas());
                     request.setPlanNutricionalId(plan.getId());
+                    request.setImagenUrl(comida.getImagenUrl());
+                    request.setDescripcion(comida.getDescripcion());
+                    request.setRecipeUrl(comida.getRecipeUrl());
+
                     viewModel.añadirComida(request, usuarioId);
+                } else if (!isChecked && comida.getId() != null) {
+                    // Desmarcar: Eliminar del servidor
+                    viewModel.eliminarComida(comida.getId(), plan.getId(), usuarioId);
                 }
-            } else if (!isChecked && comida.getId() != null) {
-                // Si se desmarca una comida real, se elimina
-                viewModel.eliminarComida(comida.getId(), usuarioId);
             }
+            actualizarResumenMacros(getView());
         });
         comidaAdapter.setOnComidaClickListener(comida -> {
             // Intentar enriquecer con descripción e imagen del plan actual
@@ -253,7 +274,9 @@ public class DietaFragment extends Fragment {
                     .setTitle("Eliminar plato")
                     .setMessage("¿Estás seguro de que quieres eliminar " + comida.getNombreAlimento() + " de tu plan?")
                     .setPositiveButton("Eliminar", (dialog, which) -> {
-                        viewModel.eliminarComida(comida.getId(), usuarioId);
+                        NutricionResponseDto currentPlan = viewModel.getPlanActual().getValue();
+                        Long planId = (currentPlan != null) ? currentPlan.getId() : null;
+                        viewModel.eliminarComida(comida.getId(), planId, usuarioId);
                     })
                     .setNegativeButton("Cancelar", null)
                     .show();
@@ -293,6 +316,22 @@ public class DietaFragment extends Fragment {
     }
 
     private void setupObservers() {
+        // Observar el plan actual de forma global para reaccionar a cambios (añadir/eliminar)
+        viewModel.getPlanActual().observe(getViewLifecycleOwner(), plan -> {
+            if (plan != null) {
+                cardEmptySuggestion.setVisibility(View.GONE);
+                cardSuggestion.setVisibility(View.VISIBLE);
+                mostrarPlan(plan);
+                
+                if (plan.getMacronutrientes() != null && plan.getMacronutrientes().getRecipes() != null) {
+                    recetaAdapter.setRecetas(plan.getMacronutrientes().getRecipes().getRecipe());
+                }
+            } else {
+                cardEmptySuggestion.setVisibility(View.VISIBLE);
+                cardSuggestion.setVisibility(View.GONE);
+            }
+        });
+
         viewModel.getSaludActual().observe(getViewLifecycleOwner(), salud -> {
             if (salud != null) {
                 if (salud.getPeso() != null) etPeso.setText(String.valueOf(salud.getPeso()));
@@ -300,22 +339,6 @@ public class DietaFragment extends Fragment {
                 if (salud.getNivelActividad() != null) {
                     spinnerActividad.setText(salud.getNivelActividad(), false);
                 }
-            }
-        });
-
-        viewModel.getPlanActual().observe(getViewLifecycleOwner(), plan -> {
-            if (plan != null) {
-                cardEmptySuggestion.setVisibility(View.GONE);
-                cardSuggestion.setVisibility(View.VISIBLE);
-                mostrarPlan(plan);
-                
-                // Cargar recetas de FatSecret si vienen en el plan
-                if (plan.getMacronutrientes() != null && plan.getMacronutrientes().getRecipes() != null) {
-                    recetaAdapter.setRecetas(plan.getMacronutrientes().getRecipes().getRecipe());
-                }
-            } else {
-                cardEmptySuggestion.setVisibility(View.VISIBLE);
-                cardSuggestion.setVisibility(View.GONE);
             }
         });
 
@@ -348,46 +371,91 @@ public class DietaFragment extends Fragment {
     }
 
     private void mostrarPlan(NutricionResponseDto plan) {
-        // Usar nombreDieta si existe, si no tipoDieta
         String titulo = plan.getNombreDieta() != null && !plan.getNombreDieta().isEmpty()
                 ? plan.getNombreDieta()
                 : (plan.getTipoDieta() != null ? plan.getTipoDieta() : "PLAN PERSONALIZADO");
         tvNombreSugerida.setText(titulo);
-        
-        float p = 0, c = 0, g = 0;
 
         // Lista combinada para mostrar tanto lo sugerido como lo consumido
         java.util.List<com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto> todasLasComidas = new java.util.ArrayList<>();
 
-        // El backend devuelve en "dietas" las sugerencias diarias para completar los macros
+        // 1. Añadimos las sugerencias del plan (si ya están consumidas, usamos el objeto real para tener el ID)
         if (plan.getDietas() != null) {
-            todasLasComidas.addAll(plan.getDietas());
-            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : plan.getDietas()) {
-                if (item.getProteina() != null) p += item.getProteina();
-                if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
-                if (item.getGrasas() != null) g += item.getGrasas();
+            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto sugerencia : plan.getDietas()) {
+                com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto itemMostrar = sugerencia;
+                if (plan.getComidas() != null) {
+                    for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto real : plan.getComidas()) {
+                        if (real.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                                real.getMomento().equalsIgnoreCase(sugerencia.getMomento()) &&
+                                (real.getPlanNutricionalId() == null || real.getPlanNutricionalId().equals(plan.getId()))) {
+                            itemMostrar = real;
+                            itemMostrar.setSelected(true); // Marcar como consumida
+                            break;
+                        }
+                    }
+                }
+                todasLasComidas.add(itemMostrar);
             }
-            tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg Prot", p));
-            tvCarbs.setText(String.format(java.util.Locale.getDefault(), "%.0fg Carbs", c));
-            tvGrasas.setText(String.format(java.util.Locale.getDefault(), "%.0fg Grasas", g));
         }
 
-        donutChart.setData(p, c, g);
-
-        // Cálculo de calorías consumidas vs objetivo (basado en lo que ya tiene ID)
-        double calConsumidas = 0;
-        int calObjetivo = plan.getCaloriasObjetivo() != null ? plan.getCaloriasObjetivo() : 2000;
+        // 2. Añadimos comidas extras que no estaban en las sugerencias
         if (plan.getComidas() != null) {
-            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto comida : plan.getComidas()) {
-                if (comida.getCalorias() != null) calConsumidas += comida.getCalorias();
+            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto real : plan.getComidas()) {
+                if (real.getPlanNutricionalId() != null && !real.getPlanNutricionalId().equals(plan.getId())) {
+                    continue;
+                }
+                boolean yaEsta = false;
+                for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto m : todasLasComidas) {
+                    if (real.getId() != null && real.getId().equals(m.getId())) {
+                        yaEsta = true;
+                        break;
+                    }
+                }
+                if (!yaEsta) {
+                    real.setSelected(true);
+                    todasLasComidas.add(real);
+                }
             }
         }
-
-        tvCaloriasSugeridas.setText(String.format(java.util.Locale.getDefault(), "%.0f kcal de %d", calConsumidas, calObjetivo));
-        int progress = calObjetivo > 0 ? (int) ((calConsumidas / calObjetivo) * 100) : 0;
-        progressCalorias.setProgress(Math.min(progress, 100));
 
         comidaAdapter.setComidas(todasLasComidas);
+        actualizarResumenMacros(getView());
+    }
+
+    private void actualizarResumenMacros(View view) {
+        if (view == null || viewModel.getPlanActual().getValue() == null) return;
+        NutricionResponseDto plan = viewModel.getPlanActual().getValue();
+
+        double p = 0, c = 0, g = 0, calConsumidas = 0;
+        int calObjetivo = plan.getCaloriasObjetivo() != null ? plan.getCaloriasObjetivo() : 2000;
+
+        // Sumar todas las calorías de las comidas marcadas como "seleccionadas" (consumidas hoy)
+        if (comidaAdapter != null && comidaAdapter.getComidas() != null) {
+            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : comidaAdapter.getComidas()) {
+                if (item.isSelected()) {
+                    if (item.getProteina() != null) p += item.getProteina();
+                    if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
+                    if (item.getGrasas() != null) g += item.getGrasas();
+                    if (item.getCalorias() != null) calConsumidas += item.getCalorias();
+                }
+            }
+        }
+
+        tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg Prot", p));
+        tvCarbs.setText(String.format(java.util.Locale.getDefault(), "%.0fg Carbs", c));
+        tvGrasas.setText(String.format(java.util.Locale.getDefault(), "%.0fg Grasas", g));
+        donutChart.setData((float) p, (float) c, (float) g);
+
+        // Reactividad: Restar del objetivo para mostrar lo que falta o el total consumido
+        double calRestantes = calObjetivo - calConsumidas;
+        if (calRestantes < 0) calRestantes = 0;
+        
+        tvCaloriasSugeridas.setText(String.format(java.util.Locale.getDefault(), "%.0f kcal consumidas", calConsumidas));
+        // El texto grande central o secundario puede mostrar lo que falta
+        ((TextView)view.findViewById(R.id.tvCaloriasRestantes)).setText(String.format(java.util.Locale.getDefault(), "%.0f", calRestantes));
+
+        int progress = calObjetivo > 0 ? (int) ((calConsumidas / calObjetivo) * 100) : 0;
+        progressCalorias.setProgress(Math.min(progress, 100));
     }
 
     private void generarSugerencia() {

@@ -38,6 +38,7 @@ import com.example.gymcrush.data.remote.dto.PlanResponseDto;
 import com.example.gymcrush.data.remote.dto.PlanRequestDto;
 import com.example.gymcrush.data.remote.dto.DetallePlanRequestDto;
 import com.example.gymcrush.data.remote.dto.DetallePlanResponseDto;
+import com.example.gymcrush.data.remote.dto.PageResponseDto;
 
 import java.util.List;
 
@@ -272,8 +273,21 @@ public interface ApiService {
     @GET("api/v1/nutricion/ultimo-plan/{usuarioId}")
     Call<ApiResponseDto<NutricionResponseDto>> obtenerUltimoPlan(@Path("usuarioId") Long usuarioId);
 
+    @GET("api/v1/nutricion/plan/{id}")
+    Call<ApiResponseDto<NutricionResponseDto>> obtenerPlanPorId(@Path("id") Long id);
+
     @GET("api/v1/nutricion/historial/{usuarioId}")
-    Call<ApiResponseDto<List<NutricionResponseDto>>> obtenerHistorialNutricional(@Path("usuarioId") Long usuarioId);
+    Call<ApiResponseDto<PageResponseDto<NutricionResponseDto>>> obtenerHistorialNutricional(
+            @Path("usuarioId") Long usuarioId,
+            @Query("page") int page,
+            @Query("size") int size
+    );
+
+    @PATCH("api/v1/nutricion/plan/{id}/nombre")
+    Call<ApiResponseDto<NutricionResponseDto>> actualizarNombrePlan(@Path("id") Long planId, @Query("nombre") String nombre);
+
+    @POST("api/v1/nutricion/guardar-plan/{usuarioId}")
+    Call<ApiResponseDto<NutricionResponseDto>> guardarPlan(@Path("usuarioId") Long usuarioId, @Body NutricionResponseDto plan);
 
     // --- NUEVOS ENDPOINTS PARA BÚSQUEDA DE ALIMENTOS (FATSECRET) ---
     @GET("api/v1/nutricion/buscar")

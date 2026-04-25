@@ -51,6 +51,10 @@ public class ResultadoDietaFragment extends Fragment {
         }
         SharedPreferences prefs = requireActivity().getSharedPreferences("GymCrushPrefs", Context.MODE_PRIVATE);
         usuarioId = prefs.getLong("usuarioId", -1L);
+        if (usuarioId == -1L) {
+            prefs = requireActivity().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+            usuarioId = prefs.getLong("user_id", -1L);
+        }
         viewModel = new ViewModelProvider(requireActivity()).get(DietaViewModel.class);
     }
 
@@ -70,19 +74,46 @@ public class ResultadoDietaFragment extends Fragment {
 
     private void initViews(View view) {
         view.findViewById(R.id.btnBackResultadoDieta).setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        view.findViewById(R.id.btnRenombrarPlan).setOnClickListener(v -> mostrarDialogoRenombrar());
+        view.findViewById(R.id.btnGuardarPlan).setOnClickListener(v -> {
+            if (planNutricional != null) {
+                viewModel.guardarPlan(usuarioId, planNutricional);
+            }
+        });
 
         donutChart = view.findViewById(R.id.donutChartMacros);
         rvComidas = view.findViewById(R.id.rvComidasPlan);
         rvComidas.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ComidaAdapter();
         adapter.setOnComidaClickListener(this::onComidaClick);
-        adapter.setOnHechaClickListener((comida, isChecked) -> actualizarResumenMacros(view));
+        adapter.setOnHechaClickListener((comida, isChecked) -> {
+            if (isChecked && comida.getId() == null) {
+                // Marcar sugerencia: Guardar en el servidor para que persista
+                ComidaDiariaRequestDto request = new ComidaDiariaRequestDto();
+                request.setNombreAlimento(comida.getNombreAlimento());
+                request.setMomento(comida.getMomento());
+                request.setCalorias(comida.getCalorias());
+                request.setProteina(comida.getProteina());
+                request.setCarbohidratos(comida.getCarbohidratos());
+                request.setGrasas(comida.getGrasas());
+                request.setPlanNutricionalId(planNutricional.getId());
+                request.setImagenUrl(comida.getImagenUrl());
+                request.setDescripcion(comida.getDescripcion());
+                request.setRecipeUrl(comida.getRecipeUrl());
+
+                viewModel.añadirComida(request, usuarioId);
+            } else if (!isChecked && comida.getId() != null) {
+                // Desmarcar: Eliminar del servidor
+                viewModel.eliminarComida(comida.getId(), planNutricional.getId(), usuarioId);
+            }
+            actualizarResumenMacros(view);
+        });
         adapter.setOnMenuClickListener((v, comida) -> {
             android.widget.PopupMenu popup = new android.widget.PopupMenu(getContext(), v);
             popup.getMenu().add("Eliminar");
             popup.setOnMenuItemClickListener(item -> {
                 if (comida.getId() != null) {
-                    viewModel.eliminarComida(comida.getId(), usuarioId);
+                    viewModel.eliminarComida(comida.getId(), planNutricional.getId(), usuarioId);
                 } else {
                     Toast.makeText(getContext(), "No se puede eliminar una sugerencia", Toast.LENGTH_SHORT).show();
                 }
@@ -131,7 +162,7 @@ public class ResultadoDietaFragment extends Fragment {
         dto.setDescripcion(recipe.getRecipeDescription());
         dto.setRecipeUrl(recipe.getRecipeUrl());
         dto.setImagenUrl(recipe.getRecipeImage());
-        
+
         if (recipe.getRecipeNutrition() != null) {
             try {
                 dto.setCalorias(Double.parseDouble(recipe.getRecipeNutrition().getCalories()));
@@ -140,15 +171,25 @@ public class ResultadoDietaFragment extends Fragment {
                 dto.setGrasas(Double.parseDouble(recipe.getRecipeNutrition().getFat()));
             } catch (Exception ignored) {}
         }
-        
+
         DetalleComidaFragment.newInstance(dto).show(getParentFragmentManager(), "detalle_receta");
     }
 
+    // --- CORRECCIÓN APLICADA AQUÍ ---
     private void setupObservers() {
         viewModel.getPlanActual().observe(getViewLifecycleOwner(), plan -> {
-            if (plan != null && planNutricional != null && plan.getId().equals(planNutricional.getId())) {
-                this.planNutricional = plan;
-                mostrarDatos(getView());
+            if (plan != null) {
+                // SOLUCIÓN: Solo actualizamos si es exactamente el mismo plan que estamos
+                // viendo (comparando IDs) o si abrimos el fragmento sin plan previo.
+                if (this.planNutricional != null && this.planNutricional.getId() != null) {
+                    if (this.planNutricional.getId().equals(plan.getId())) {
+                        this.planNutricional = plan;
+                        mostrarDatos(getView());
+                    }
+                } else {
+                    this.planNutricional = plan;
+                    mostrarDatos(getView());
+                }
             }
         });
 
@@ -160,18 +201,35 @@ public class ResultadoDietaFragment extends Fragment {
     private void mostrarDatos(View view) {
         if (planNutricional == null || view == null) return;
 
+        TextView tvTituloHeader = view.findViewById(R.id.tvTituloPlan);
         TextView tvObj = view.findViewById(R.id.tv_resultado_objetivo);
         TextView tvCal = view.findViewById(R.id.tv_resultado_calorias);
+        View btnRenombrar = view.findViewById(R.id.btnRenombrarPlan);
+        View btnGuardar = view.findViewById(R.id.btnGuardarPlan);
+
+        // Si el plan no tiene ID (es simulado del catálogo), ocultamos la opción de renombrar y mostramos guardar
+        if (planNutricional.getId() == null) {
+            btnRenombrar.setVisibility(View.GONE);
+            btnGuardar.setVisibility(View.VISIBLE);
+        } else {
+            btnRenombrar.setVisibility(View.VISIBLE);
+            btnGuardar.setVisibility(View.GONE);
+        }
 
         String titulo = planNutricional.getNombreDieta() != null && !planNutricional.getNombreDieta().isEmpty()
                 ? planNutricional.getNombreDieta()
                 : (planNutricional.getTipoDieta() != null ? planNutricional.getTipoDieta() : "PLAN PERSONALIZADO");
 
-        tvCal.setText(titulo);
-        int calObjetivo = planNutricional.getCaloriasObjetivo() != null ? planNutricional.getCaloriasObjetivo() : 0;
-        tvObj.setText(String.format(Locale.getDefault(), "OBJETIVO: %d KCAL", calObjetivo));
+        // tvCal es el texto grande debajo de OBJETIVO en la card
+        if (tvCal != null) {
+            tvCal.setText(titulo);
+        }
 
-        actualizarResumenMacros(view);
+        // tvTituloHeader es el texto en la barra superior (Toolbar personalizada)
+        if (tvTituloHeader != null) {
+            tvTituloHeader.setText(titulo);
+        }
+        tvObj.setText("TU PLAN IDEAL");
 
         List<ComidaDiariaResponseDto> listaAMostrar = new ArrayList<>();
         if (planNutricional.getDietas() != null) {
@@ -180,8 +238,10 @@ public class ResultadoDietaFragment extends Fragment {
                 if (planNutricional.getComidas() != null) {
                     for (ComidaDiariaResponseDto real : planNutricional.getComidas()) {
                         if (real.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
-                            real.getMomento().equalsIgnoreCase(sugerencia.getMomento())) {
+                                real.getMomento().equalsIgnoreCase(sugerencia.getMomento()) &&
+                                (real.getPlanNutricionalId() == null || real.getPlanNutricionalId().equals(planNutricional.getId()))) {
                             itemMostrar = real;
+                            itemMostrar.setSelected(true); // Marcamos como consumida
                             break;
                         }
                     }
@@ -189,9 +249,12 @@ public class ResultadoDietaFragment extends Fragment {
                 listaAMostrar.add(itemMostrar);
             }
         }
-        
+
         if (planNutricional.getComidas() != null) {
             for (ComidaDiariaResponseDto real : planNutricional.getComidas()) {
+                if (real.getPlanNutricionalId() != null && !real.getPlanNutricionalId().equals(planNutricional.getId())) {
+                    continue;
+                }
                 boolean yaEsta = false;
                 for (ComidaDiariaResponseDto m : listaAMostrar) {
                     if (real.getId() != null && real.getId().equals(m.getId())) {
@@ -199,15 +262,19 @@ public class ResultadoDietaFragment extends Fragment {
                         break;
                     }
                 }
-                if (!yaEsta) listaAMostrar.add(real);
+                if (!yaEsta) {
+                    real.setSelected(true); // Es comida extra, está consumida
+                    listaAMostrar.add(real);
+                }
             }
         }
         adapter.setComidas(listaAMostrar);
+        actualizarResumenMacros(view);
 
-        if (planNutricional.getMacronutrientes() != null && 
-            planNutricional.getMacronutrientes().getRecipes() != null &&
-            planNutricional.getMacronutrientes().getRecipes().getRecipe() != null) {
-            
+        if (planNutricional.getMacronutrientes() != null &&
+                planNutricional.getMacronutrientes().getRecipes() != null &&
+                planNutricional.getMacronutrientes().getRecipes().getRecipe() != null) {
+
             List<FatSecretRecipeDto> recetas = planNutricional.getMacronutrientes().getRecipes().getRecipe();
             recetaAdapter.setRecetas(recetas);
             rvRecetas.setVisibility(View.VISIBLE);
@@ -230,22 +297,9 @@ public class ResultadoDietaFragment extends Fragment {
         double p = 0, c = 0, g = 0, calConsumidas = 0;
         int calObjetivo = planNutricional.getCaloriasObjetivo() != null ? planNutricional.getCaloriasObjetivo() : 2000;
 
-        // Sumamos solo los items que tienen la propiedad 'selected' como true
-        // Primero de las sugerencias (dietas)
-        if (planNutricional.getDietas() != null) {
-            for (ComidaDiariaResponseDto item : planNutricional.getDietas()) {
-                if (item.isSelected()) {
-                    if (item.getProteina() != null) p += item.getProteina();
-                    if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
-                    if (item.getGrasas() != null) g += item.getGrasas();
-                    if (item.getCalorias() != null) calConsumidas += item.getCalorias();
-                }
-            }
-        }
-        
-        // Luego de las comidas reales añadidas por el usuario
-        if (planNutricional.getComidas() != null) {
-            for (ComidaDiariaResponseDto item : planNutricional.getComidas()) {
+        // Usamos las comidas del adapter ya que contienen el estado 'selected' actualizado
+        if (adapter != null && adapter.getComidas() != null) {
+            for (ComidaDiariaResponseDto item : adapter.getComidas()) {
                 if (item.isSelected()) {
                     if (item.getProteina() != null) p += item.getProteina();
                     if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
@@ -256,6 +310,7 @@ public class ResultadoDietaFragment extends Fragment {
         }
 
         tvResumenCal.setText(String.format(Locale.getDefault(), "%.0f kcal de %d", calConsumidas, calObjetivo));
+
         int pct = calObjetivo > 0 ? (int) ((calConsumidas / calObjetivo) * 100) : 0;
         progress.setProgress(Math.min(pct, 100));
 
@@ -301,6 +356,48 @@ public class ResultadoDietaFragment extends Fragment {
                         viewModel.añadirComida(request, usuarioId);
                     } catch (Exception e) {
                         Toast.makeText(getContext(), "Error en los datos introducidos", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void mostrarDialogoRenombrar() {
+        if (planNutricional == null) return;
+
+        // Contenedor para el EditText con estilo
+        android.widget.FrameLayout container = new android.widget.FrameLayout(requireContext());
+        com.google.android.material.textfield.TextInputLayout textInputLayout = new com.google.android.material.textfield.TextInputLayout(requireContext(), null, com.google.android.material.R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
+        textInputLayout.setHint("Nombre del plan");
+        textInputLayout.setBoxStrokeColor(android.graphics.Color.parseColor("#CD0277"));
+        textInputLayout.setHintTextColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
+        textInputLayout.setDefaultHintTextColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#CD0277")));
+        textInputLayout.setPlaceholderText("Ej. Mi Dieta de Definición");
+        textInputLayout.setPlaceholderTextColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+
+        com.google.android.material.textfield.TextInputEditText et = new com.google.android.material.textfield.TextInputEditText(textInputLayout.getContext());
+        et.setText(planNutricional.getNombreDieta());
+        et.setTextColor(android.graphics.Color.WHITE);
+        if (et.getText() != null) {
+            et.setSelection(et.getText().length());
+        }
+
+        textInputLayout.addView(et);
+
+        int paddingPx = (int) (24 * getResources().getDisplayMetrics().density);
+        android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(paddingPx, paddingPx / 2, paddingPx, 0);
+        container.addView(textInputLayout, lp);
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+                .setTitle("Renombrar Plan")
+                .setMessage("Elige un nombre descriptivo para tu plan nutricional.")
+                .setView(container)
+                .setPositiveButton("Actualizar", (dialog, which) -> {
+                    String nuevoNombre = et.getText().toString().trim();
+                    if (!nuevoNombre.isEmpty()) {
+                        viewModel.actualizarNombrePlan(planNutricional.getId(), nuevoNombre, usuarioId);
                     }
                 })
                 .setNegativeButton("Cancelar", null)
