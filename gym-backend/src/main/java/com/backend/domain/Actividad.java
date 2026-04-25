@@ -44,7 +44,8 @@ public class Actividad {
     @Column(name = "precio", nullable = false)
     private Integer precio;
 
-    @OneToMany(mappedBy = "actividad", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "actividad", fetch = FetchType.EAGER, cascade = CascadeType.ALL, 
+           orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnoreProperties("actividad")
     private List<Horario> horarios;
