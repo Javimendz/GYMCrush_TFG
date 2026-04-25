@@ -36,8 +36,8 @@ public class PerfilRepository {
      * Obtiene el perfil de un usuario por su ID.
      */
     public void getPerfil(Long id, PerfilCallback<PerfilResponseDto> callback) {
-        android.util.Log.d("PerfilRepository", "Solicitando perfil para ID: " + id);
-        apiService.getPerfilById(id).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
+        android.util.Log.d("PerfilRepository", "Solicitando perfil para ID de usuario: " + id);
+        apiService.getPerfilByUsuarioId(id).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponseDto<PerfilResponseDto>> call,
                                    @NonNull Response<ApiResponseDto<PerfilResponseDto>> response) {

@@ -12,9 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -45,7 +43,6 @@ import com.example.gymcrush.ui.rutinas.RutinasFragment;
 import com.example.gymcrush.ui.perfil.PerfilFragment;
 import com.example.gymcrush.ui.contacto.ContactoFragment;
 import com.example.gymcrush.ui.reservas.ReservasFragment;
-import com.example.gymcrush.ui.servicios.ContratacionesFragment;
 import com.example.gymcrush.ui.equipo.EquipoFragment;
 import com.example.gymcrush.ui.servicios.SuplementacionFragment;
 import com.example.gymcrush.ui.dieta.DietaFragment;
@@ -54,7 +51,6 @@ import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 import com.example.gymcrush.ui.social.SocialFragment;
 import com.example.gymcrush.ui.notificaciones.NotificacionesFragment;
 import com.example.gymcrush.ui.salud.SaludFragment;
-import com.example.gymcrush.ui.actividades.ActividadesFragment;
 import com.example.gymcrush.ui.staff.StaffFragment;
 import java.util.Collections;
 import com.example.gymcrush.ui.view.EspacioFragment;
@@ -63,8 +59,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -752,8 +747,8 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         // Llamamos al endpoint que devuelve una lista de perfiles y filtramos por usuarioId en el backend
         // o si tienes un endpoint específico para el perfil del usuario logueado.
         // Según tu backend, el endpoint /api/v1/perfil devuelve todos, y /api/v1/perfil/{id} devuelve por ID de PERFIL.
-        // Si el ID del usuario es el mismo que el del perfil:
-        apiService.getPerfilById(usuarioId).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
+        // Usamos getPerfilByUsuarioId para asegurar que obtenemos el perfil del usuario logueado.
+        apiService.getPerfilByUsuarioId(usuarioId).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<PerfilResponseDto>> call, Response<ApiResponseDto<PerfilResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
