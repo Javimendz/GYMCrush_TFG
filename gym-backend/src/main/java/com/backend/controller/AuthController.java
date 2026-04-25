@@ -130,8 +130,8 @@ public class AuthController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de registro inválidos (username o correo ya existen)")
     public ResponseEntity<ApiResponseDto<UsuarioResponseDto>> registerUser(
             @Valid @RequestBody RegisterDto registerDto) {
-        log.info("Intento de registro de usuario: {} con correo: {}", registerDto.getUsername(),
-                registerDto.getCorreo());
+        log.info("Intento de registro de usuario: {} con email: {}", registerDto.getUsername(),
+                registerDto.getEmail());
 
         if (usuarioRepository.existsByUsername(registerDto.getUsername())) {
             log.warn("Registro fallido - Username ya existe: {}", registerDto.getUsername());
@@ -140,11 +140,11 @@ public class AuthController {
                             .error("El nombre de usuario '" + registerDto.getUsername() + "' ya está en uso"));
         }
 
-        if (usuarioRepository.existsByCorreo(registerDto.getCorreo())) {
-            log.warn("Registro fallido - Correo ya existe: {}", registerDto.getCorreo());
+        if (usuarioRepository.existsByEmail(registerDto.getEmail())) {
+            log.warn("Registro fallido - Email ya existe: {}", registerDto.getEmail());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponseDto
-                            .error("El correo electrónico '" + registerDto.getCorreo() + "' ya está registrado"));
+                            .error("El correo electrónico '" + registerDto.getEmail() + "' ya está registrado"));
         }
 
         try {

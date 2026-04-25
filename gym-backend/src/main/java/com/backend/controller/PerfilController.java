@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.domain.Perfil;
 import com.backend.dto.PerfilRequestDto;
 import com.backend.dto.PerfilResponseDto;
+import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.mapper.PerfilMapper;
 import com.backend.repository.PerfilRepository;
 import com.backend.repository.SaludRepository;
@@ -91,6 +92,34 @@ public class PerfilController {
                 .build());
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Recuperar perfil por ID de Usuario")
+    public ResponseEntity<ApiResponseDto<PerfilResponseDto>> getPerfilByUsuarioId(
+            @PathVariable("usuarioId") Long usuarioId) {
+
+        log.info("Buscando perfil para el usuario ID: {}", usuarioId);
+
+        // Buscamos el perfil asociado a ese usuario
+        Perfil perfil = perfilRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado para este usuario"));
+
+        PerfilResponseDto dto = perfilMapper.toDto(perfil);
+
+        // Enriquecemos con salud (copia la lógica que ya tienes en el findAll)
+        saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
+                .ifPresent(salud -> {
+                    dto.setPeso(salud.getPeso());
+                    dto.setEstatura(salud.getEstatura());
+                });
+
+        return ResponseEntity.ok(ApiResponseDto.<PerfilResponseDto>builder()
+                .mensaje("Perfil recuperado con éxito")
+                .datos(dto)
+                .success(true)
+                .build());
+    }
+
     /**
      * Obtiene los detalles de un perfil específico por su ID.
      *
@@ -104,8 +133,8 @@ public class PerfilController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> getPerfilById(
-            @PathVariable("id") Long id) { 
-            
+            @PathVariable("id") Long id) {
+
         log.info("Obteniendo perfil por ID: {}", id);
         PerfilResponseDto perfil = perfilService.findById(id);
         log.debug("Perfil encontrado: {} - {}", perfil.getId(), perfil.getNombre());
@@ -134,9 +163,9 @@ public class PerfilController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<PerfilResponseDto>> updatePerfil(
-            @PathVariable("id") Long id, 
+            @PathVariable("id") Long id,
             @Valid @RequestBody PerfilRequestDto dto) {
-            
+
         log.info("Actualizando perfil ID: {}", id);
         PerfilResponseDto actualizado = perfilService.update(id, dto);
 

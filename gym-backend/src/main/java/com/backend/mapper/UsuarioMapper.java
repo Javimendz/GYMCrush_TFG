@@ -29,7 +29,6 @@ public abstract class UsuarioMapper {
     protected RoleRepository roleRepository;
 
     /**
-     * CORRECCIÓN: target cambiado de "rol" a "roles"
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)

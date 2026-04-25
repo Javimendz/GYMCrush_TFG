@@ -37,8 +37,8 @@ public class Usuario {
     // @Column(name = "apellidos", nullable = false)
     // private String apellidos;
 
-    @Column(name = "correo", unique = true, nullable = false, length = 150)
-    private String correo;
+    @Column(name = "email", unique = true, nullable = false, length = 150)
+    private String email;
 
     @Column(name = "password", nullable = false, length = 255)
     private String password;

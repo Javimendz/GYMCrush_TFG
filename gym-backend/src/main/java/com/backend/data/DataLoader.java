@@ -95,7 +95,7 @@ public class DataLoader implements CommandLineRunner {
             // admin.setNombre("Administrador");
             admin.setUsername("admin");
             // admin.setApellidos("admin admin");
-            admin.setCorreo("admin@example.com");
+            admin.setEmail("admin@example.com");
             admin.setPassword(passwordEncoder.encode("admin1234"));
 
             Set<Role> adminRoles = new HashSet<>();
@@ -113,7 +113,7 @@ public class DataLoader implements CommandLineRunner {
             // usuario.setNombre("Usuario normal");
             usuario.setUsername("usuario");
             // usuario.setApellidos("de prueba");
-            usuario.setCorreo("usuario@example.com");
+            usuario.setEmail("usuario@example.com");
             usuario.setPassword(passwordEncoder.encode("123456"));
 
             Set<Role> usuarioRoles = new HashSet<>();

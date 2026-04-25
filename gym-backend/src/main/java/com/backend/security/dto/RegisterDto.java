@@ -53,7 +53,7 @@ public class RegisterDto {
      */
     @NotBlank(message = "El correo es obligatorio")
     @Email(message = "Formato de correo no válido")
-    private String correo;
+    private String email;
 
     /**
      * Nombre completo del usuario.

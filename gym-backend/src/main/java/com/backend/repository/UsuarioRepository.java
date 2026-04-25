@@ -51,8 +51,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      * @param correo Correo a verificar
      * @return true si existe, false en caso contrario
      */
-    Boolean existsByCorreo(String correo);
-
+    Boolean existsByEmail(String email);
+Optional<Usuario> findByEmail(String email);
     @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r.name = 'ENTRENADOR'")
     List<Usuario> findEntrenadores();
 

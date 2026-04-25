@@ -92,6 +92,14 @@ public class PerfilServiceImp implements IPerfilService {
 
         PerfilResponseDto dto = perfilMapper.toDto(perfil);
 
+
+        if (perfil.getUsuario() != null) {
+        dto.setCorreo(perfil.getUsuario().getEmail()); // Asegúrate de que PerfilResponseDto tenga setCorreo
+        // Si el nombre del perfil está vacío, usa el username como fallback
+        if (dto.getNombre() == null || dto.getNombre().isEmpty()) {
+            dto.setNombre(perfil.getUsuario().getUsername());
+        }
+    }
         saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
                 .ifPresent(salud -> {
                     dto.setPeso(salud.getPeso());

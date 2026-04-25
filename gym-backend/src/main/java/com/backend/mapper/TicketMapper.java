@@ -29,7 +29,7 @@ public interface TicketMapper {
      * @return el DTO de respuesta enriquecido
      */
     @Mapping(target = "usuarioId", source = "usuario.id")
-    @Mapping(target = "usuarioEmail", source = "usuario.correo")
+    @Mapping(target = "usuarioEmail", source = "usuario.email")
     @Mapping(target = "username", source = "usuario.username")
     @Mapping(target = "nombreCompletoUsuario", source = "ticket")
 
