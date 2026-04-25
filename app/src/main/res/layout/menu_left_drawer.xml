@@ -97,20 +97,6 @@
                     android:text="Mi Dieta" />
             </LinearLayout>
 
-            <!-- Item: Clases -->
-            <LinearLayout
-                android:id="@+id/menu_clases"
-                style="@style/ModernMenuItem">
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_clases"
-                    app:tint="#CD0277" />
-                <TextView
-                    style="@style/ModernMenuText"
-                    android:text="Horario Actividad" />
-            </LinearLayout>
-
             <!-- Item: Reservas -->
             <LinearLayout
                 android:id="@+id/menu_reservas"

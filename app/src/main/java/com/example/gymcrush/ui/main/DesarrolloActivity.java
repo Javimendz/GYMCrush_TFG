@@ -552,10 +552,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             slidingRootNav.closeMenu();
             cargarFragmento(new DietaFragment());
         });
-        menuView.findViewById(R.id.menu_clases).setOnClickListener(v -> {
-            slidingRootNav.closeMenu();
-            cargarFragmento(new ClasesFragment());
-        });
         menuView.findViewById(R.id.menu_reservas).setOnClickListener(v -> {
             slidingRootNav.closeMenu();
             cargarFragmento(new ReservasFragment());
