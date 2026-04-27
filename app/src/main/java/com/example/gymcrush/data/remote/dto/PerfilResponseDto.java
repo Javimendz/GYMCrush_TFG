@@ -50,6 +50,9 @@ public class PerfilResponseDto {
     @SerializedName("correo")
     private String correo;
 
+    @SerializedName("rol")
+    private java.util.List<String> roles;
+
     // Campos enriquecidos de Salud
     @SerializedName("peso")
     private Double peso;
@@ -81,6 +84,10 @@ public class PerfilResponseDto {
     public String getBio() { return bio; }
     public String getFoto() { return foto; }
     public String getCorreo() { return correo; }
+
+    public java.util.List<String> getRoles() {
+        return roles != null ? roles : new java.util.ArrayList<>();
+    }
     public Double getPeso() { return peso; }
     public Double getEstatura() { return estatura; }
     public Double getImc() { return imc; }

@@ -694,6 +694,19 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
         tvNombre.setText(prefs.getString("nombre_usuario", "Usuario GymCrush"));
 
+        // Verificar si es ADMIN para mostrar gestión de staff
+        java.util.Set<String> roles = prefs.getStringSet("roles", new java.util.HashSet<>());
+        boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        View menuStaffAdmin = menuView.findViewById(R.id.menu_staff_admin);
+        if (menuStaffAdmin != null) {
+            menuStaffAdmin.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
+            menuStaffAdmin.setOnClickListener(v -> {
+                slidingRootNav.closeMenu();
+                // Abrimos el fragmento de GESTIÓN de staff (StaffFragment)
+                cargarFragmento(new com.example.gymcrush.ui.staff.StaffFragment());
+            });
+        }
+
         menuView.findViewById(R.id.menu_qr).setOnClickListener(v -> {
             slidingRootNav.closeMenu();
             mostrarDialogoQR();

@@ -135,7 +135,13 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
 
         fabAddClase = view.findViewById(R.id.fabAddClase);
         checkAdminRole();
-        fabAddClase.setOnClickListener(v -> mostrarOpcionesGestionAdmin());
+        fabAddClase.setOnClickListener(v -> {
+            if (tabLayout.getSelectedTabPosition() == 0) {
+                mostrarOpcionesGestionHorario();
+            } else {
+                mostrarOpcionesGestionActividades();
+            }
+        });
 
         diaActual = getDiaDeHoy();
         marcarBotonDiaActual(view);
@@ -152,9 +158,11 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 if (tab.getPosition() == 0) {
                     layoutTabHorario.setVisibility(View.VISIBLE);
                     layoutTabActividades.setVisibility(View.GONE);
+                    fabAddClase.setOnClickListener(v -> mostrarOpcionesGestionHorario());
                 } else {
                     layoutTabHorario.setVisibility(View.GONE);
                     layoutTabActividades.setVisibility(View.VISIBLE);
+                    fabAddClase.setOnClickListener(v -> mostrarOpcionesGestionActividades());
                 }
             }
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
@@ -386,17 +394,27 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         }
     }
 
-    private void mostrarOpcionesGestionAdmin() {
-        String[] opciones = {"Nueva Clase (Horario)", "Nueva Actividad", "Gestionar Salas (Crear/Eliminar)"};
+    private void mostrarOpcionesGestionHorario() {
+        String[] opciones = {"Nueva Clase (Horario)", "Gestionar Salas (Crear/Eliminar)"};
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Panel de Administración")
+                .setTitle("Gestión de Horarios")
                 .setItems(opciones, (dialog, which) -> {
                     if (which == 0) {
                         abrirDialogoNuevaClase();
-                    } else if (which == 1) {
-                        mostrarDialogoNuevaActividad();
                     } else {
                         abrirDialogoGestionSalas();
+                    }
+                })
+                .show();
+    }
+
+    private void mostrarOpcionesGestionActividades() {
+        String[] opciones = {"Nueva Actividad"};
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Gestión de Actividades")
+                .setItems(opciones, (dialog, which) -> {
+                    if (which == 0) {
+                        mostrarDialogoNuevaActividad();
                     }
                 })
                 .show();
@@ -424,22 +442,29 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         RetrofitClient.getApiService().getTodasLasSalas().enqueue(new Callback<ApiResponseDto<List<SalaResponseDto>>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<List<SalaResponseDto>>> call, Response<ApiResponseDto<List<SalaResponseDto>>> response) {
+                List<Object> items = new ArrayList<>();
                 if (response.isSuccessful() && response.body() != null) {
-                    List<SalaResponseDto> salas = response.body().getDatos();
-                    ArrayAdapter<SalaResponseDto> adapterSala = new ArrayAdapter<SalaResponseDto>(getContext(), android.R.layout.simple_spinner_item, salas) {
-                        @Override public View getView(int p, View c, ViewGroup parent) {
-                            TextView v = (TextView) super.getView(p, c, parent);
-                            v.setText(getItem(p).getNombre());
-                            return v;
-                        }
-                        @Override public View getDropDownView(int p, View c, ViewGroup parent) {
-                            TextView v = (TextView) super.getDropDownView(p, c, parent);
-                            v.setText(getItem(p).getNombre());
-                            return v;
-                        }
-                    };
-                    spinnerSala.setAdapter(adapterSala);
+                    items.addAll(response.body().getDatos());
                 }
+                items.add(" + Nueva Sala");
+                ArrayAdapter<Object> adapterSala = new ArrayAdapter<Object>(getContext(), android.R.layout.simple_spinner_item, items) {
+                    @Override public View getView(int p, View c, ViewGroup parent) {
+                        TextView v = (TextView) super.getView(p, c, parent);
+                        Object item = getItem(p);
+                        if (item instanceof SalaResponseDto) v.setText(((SalaResponseDto)item).getNombre());
+                        else if (item != null) v.setText(item.toString());
+                        return v;
+                    }
+                    @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                        TextView v = (TextView) super.getDropDownView(p, c, parent);
+                        Object item = getItem(p);
+                        if (item instanceof SalaResponseDto) v.setText(((SalaResponseDto)item).getNombre());
+                        else if (item != null) v.setText(item.toString());
+                        return v;
+                    }
+                };
+                adapterSala.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerSala.setAdapter(adapterSala);
             }
             @Override public void onFailure(Call<ApiResponseDto<List<SalaResponseDto>>> call, Throwable t) {}
         });
@@ -484,25 +509,80 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                     String nombre = etNombre.getText().toString();
                     String precioStr = etPrecio.getText().toString();
                     Object selectedCat = spinnerCategoria.getSelectedItem();
-                    SalaResponseDto selectedSala = (SalaResponseDto) spinnerSala.getSelectedItem();
+                    Object selectedSala = spinnerSala.getSelectedItem();
 
                     if (nombre.isEmpty() || precioStr.isEmpty() || selectedCat == null || selectedSala == null) {
                         Toast.makeText(getContext(), "Rellena todos los campos", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    if (selectedCat instanceof String && selectedCat.equals(" + Nueva Categoría")) {
-                        mostrarDialogoCrearCategoria(nombreNuevaCat -> {
-                            crearActividadConCategoriaNueva(nombre, precioStr, nombreNuevaCat, selectedSala.getNombre());
+                    if (selectedSala instanceof String && selectedSala.equals(" + Nueva Sala")) {
+                        mostrarDialogoCrearSala(nombreNuevaSala -> {
+                            if (selectedCat instanceof String && selectedCat.equals(" + Nueva Categoría")) {
+                                mostrarDialogoCrearCategoria(nombreNuevaCat -> {
+                                    crearActividadConTodoNuevo(nombre, precioStr, nombreNuevaCat, nombreNuevaSala);
+                                });
+                            } else if (selectedCat instanceof CategoriaResponseDto) {
+                                crearActividadConSalaNueva(nombre, precioStr, ((CategoriaResponseDto) selectedCat).getId(), nombreNuevaSala);
+                            }
                         });
-                    } else if (selectedCat instanceof CategoriaResponseDto) {
+                    } else if (selectedCat instanceof String && selectedCat.equals(" + Nueva Categoría")) {
+                        mostrarDialogoCrearCategoria(nombreNuevaCat -> {
+                            crearActividadConCategoriaNueva(nombre, precioStr, nombreNuevaCat, ((SalaResponseDto) selectedSala).getNombre());
+                        });
+                    } else if (selectedCat instanceof CategoriaResponseDto && selectedSala instanceof SalaResponseDto) {
                         CategoriaResponseDto cat = (CategoriaResponseDto) selectedCat;
-                        ActividadRequestDto request = new ActividadRequestDto(nombre, "Actividad de " + cat.getNombre(), 60, selectedSala.getNombre(), Integer.parseInt(precioStr), cat.getId());
+                        SalaResponseDto sala = (SalaResponseDto) selectedSala;
+                        ActividadRequestDto request = new ActividadRequestDto(nombre, "Actividad de " + cat.getNombre(), 60, sala.getNombre(), Integer.parseInt(precioStr), cat.getId());
                         enviarPeticionCrearActividad(request);
                     }
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
+    }
+
+    private void mostrarDialogoCrearSala(ActividadesFragment.OnNombreRecibidoListener listener) {
+        EditText et = new EditText(getContext());
+        et.setHint("Nombre de la nueva sala");
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Crear Sala")
+                .setView(et)
+                .setPositiveButton("Crear", (d, w) -> {
+                    String nombre = et.getText().toString();
+                    if (!nombre.isEmpty()) {
+                        com.example.gymcrush.data.remote.dto.SalaRequestDto req = new com.example.gymcrush.data.remote.dto.SalaRequestDto(nombre, 20, "Nueva sala", "Por definir", "Básico", true);
+                        RetrofitClient.getApiService().crearSala(req).enqueue(new Callback<ApiResponseDto<SalaResponseDto>>() {
+                            @Override
+                            public void onResponse(Call<ApiResponseDto<SalaResponseDto>> call, Response<ApiResponseDto<SalaResponseDto>> response) {
+                                if (response.isSuccessful()) listener.onNombreRecibido(nombre);
+                            }
+                            @Override public void onFailure(Call<ApiResponseDto<SalaResponseDto>> call, Throwable t) {}
+                        });
+                    }
+                }).show();
+    }
+
+    private void crearActividadConSalaNueva(String nombre, String precioStr, Long categoriaId, String nombreSala) {
+        ActividadRequestDto request = new ActividadRequestDto(nombre, "Actividad en " + nombreSala, 60, nombreSala, Integer.parseInt(precioStr), categoriaId);
+        enviarPeticionCrearActividad(request);
+    }
+
+    private void crearActividadConTodoNuevo(String nombre, String precioStr, String nombreCat, String nombreSala) {
+        RetrofitClient.getApiService().getCategoriasActividad().enqueue(new Callback<ApiResponseDto<List<CategoriaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Response<ApiResponseDto<List<CategoriaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (CategoriaResponseDto c : response.body().getDatos()) {
+                        if (c.getNombre().equalsIgnoreCase(nombreCat)) {
+                            ActividadRequestDto request = new ActividadRequestDto(nombre, "Actividad de " + nombreCat, 60, nombreSala, Integer.parseInt(precioStr), c.getId());
+                            enviarPeticionCrearActividad(request);
+                            break;
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
+        });
     }
 
     private void mostrarDialogoCrearCategoria(ActividadesFragment.OnNombreRecibidoListener listener) {

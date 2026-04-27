@@ -24,7 +24,7 @@ import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
 import com.example.gymcrush.data.remote.dto.RegisterRequest;
 import com.example.gymcrush.data.remote.dto.UsuarioResponseDto;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -38,7 +38,7 @@ public class StaffFragment extends Fragment {
 
     private RecyclerView rvStaff;
     private ProgressBar progressBar;
-    private FloatingActionButton fabAdd;
+    private ExtendedFloatingActionButton fabAdd;
     private StaffAdapter adapter;
 
     @Nullable
