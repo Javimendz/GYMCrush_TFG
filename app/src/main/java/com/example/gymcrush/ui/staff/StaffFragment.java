@@ -1,6 +1,7 @@
 package com.example.gymcrush.ui.staff;
 
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,6 +41,7 @@ public class StaffFragment extends Fragment {
     private RecyclerView rvStaff;
     private ProgressBar progressBar;
     private ExtendedFloatingActionButton fabAdd;
+    private SearchView searchView;
     private StaffAdapter adapter;
 
     @Nullable
@@ -49,6 +52,7 @@ public class StaffFragment extends Fragment {
         rvStaff = view.findViewById(R.id.rvStaff);
         progressBar = view.findViewById(R.id.pbStaff);
         fabAdd = view.findViewById(R.id.fabAddStaff);
+        searchView = view.findViewById(R.id.searchViewStaff);
 
         rvStaff.setLayoutManager(new LinearLayoutManager(getContext()));
         
@@ -58,9 +62,32 @@ public class StaffFragment extends Fragment {
 
         fabAdd.setOnClickListener(v -> mostrarOpcionesStaff());
 
+        setupSearch();
         cargarStaff();
 
         return view;
+    }
+
+    private void setupSearch() {
+        if (searchView != null) {
+            // Aplicar fix para el crash de AppSearch (OneSearchSuggestProvider)
+            searchView.setSuggestionsAdapter(null);
+            searchView.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    if (adapter != null) adapter.filter(query);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    if (adapter != null) adapter.filter(newText);
+                    return true;
+                }
+            });
+        }
     }
 
     private void cargarStaff() {
@@ -70,8 +97,28 @@ public class StaffFragment extends Fragment {
             public void onResponse(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Response<ApiResponseDto<List<PerfilResponseDto>>> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
-                    adapter = new StaffAdapter(response.body().getDatos());
-                    rvStaff.setAdapter(adapter);
+                    List<PerfilResponseDto> lista = response.body().getDatos();
+                    if (adapter == null) {
+                        adapter = new StaffAdapter(lista, new StaffAdapter.OnStaffInteractionListener() {
+                            @Override
+                            public void onDeleteRole(PerfilResponseDto perfil) {
+                                new MaterialAlertDialogBuilder(requireContext())
+                                        .setTitle("Quitar Rol")
+                                        .setMessage("¿Estás seguro de que quieres quitarle el rol de staff a " + perfil.getNombre() + "?")
+                                        .setPositiveButton("Quitar", (d, w) -> ejecutarQuitarRol(perfil.getId()))
+                                        .setNegativeButton("Cancelar", null)
+                                        .show();
+                            }
+
+                            @Override
+                            public void onChangeRole(PerfilResponseDto perfil) {
+                                mostrarDialogoCambiarRol(perfil);
+                            }
+                        });
+                        rvStaff.setAdapter(adapter);
+                    } else {
+                        adapter.updateList(lista);
+                    }
                 }
             }
 
@@ -81,6 +128,39 @@ public class StaffFragment extends Fragment {
                 Toast.makeText(getContext(), "Error al cargar staff", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void ejecutarQuitarRol(Long id) {
+        RetrofitClient.getApiService().quitarRolEntrenador(id).enqueue(new Callback<ApiResponseDto<Void>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Rol quitado con éxito", Toast.LENGTH_SHORT).show();
+                    cargarStaff();
+                } else {
+                    Toast.makeText(getContext(), "Error al quitar rol", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void mostrarDialogoCambiarRol(PerfilResponseDto perfil) {
+        String[] roles = {"USUARIO", "ENTRENADOR", "ADMIN"};
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Cambiar Rol a " + perfil.getNombre())
+                .setItems(roles, (dialog, which) -> {
+                    // Aquí iría la lógica para cambiar a un rol específico si el backend lo soporta
+                    // Por ahora, como ejemplo, usaremos los métodos existentes
+                    if (which == 0) ejecutarQuitarRol(perfil.getId());
+                    else if (which == 1) confirmarAsignacion(perfil.getId());
+                    else Toast.makeText(getContext(), "Rol ADMIN no implementado individualmente", Toast.LENGTH_SHORT).show();
+                })
+                .show();
     }
 
     private void mostrarOpcionesStaff() {

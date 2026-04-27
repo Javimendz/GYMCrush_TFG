@@ -300,6 +300,9 @@ public interface ApiService {
     @PATCH("api/v1/usuarios/{id}/asignar-entrenador")
     Call<ApiResponseDto<Void>> asignarRolEntrenador(@Path("id") Long id);
 
+    @DELETE("api/v1/usuarios/{id}/quitar-entrenador")
+    Call<ApiResponseDto<Void>> quitarRolEntrenador(@Path("id") Long id);
+
     // --- NUEVO ENDPOINT PARA HISTORIAL DE CHAT ---
     @GET("api/v1/chat/historial")
     Call<List<com.example.gymcrush.ui.social.SocialFragment.ChatMessageDto>> getHistorialChat();

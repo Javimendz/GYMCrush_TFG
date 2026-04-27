@@ -11,6 +11,12 @@ public class PerfilResponseDto {
     @SerializedName("id")
     private Long id;
 
+    @SerializedName("usuarioId")
+    private Long usuarioId;
+
+    @SerializedName("username")
+    private String username;
+
     @SerializedName("nombre")
     private String nombre;
 
@@ -71,6 +77,8 @@ public class PerfilResponseDto {
 
     // Getters
     public Long getId() { return id; }
+    public Long getUsuarioId() { return usuarioId; }
+    public String getUsername() { return username; }
     public String getNombre() { return nombre; }
     public String getApellidos() { return apellidos; }
     public String getTelefono() { return telefono; }
@@ -95,6 +103,8 @@ public class PerfilResponseDto {
 
     // Setters (opcionales para Retrofit, pero útiles para pruebas)
     public void setId(Long id) { this.id = id; }
+    public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
+    public void setUsername(String username) { this.username = username; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     public void setApellidos(String apellidos) { this.apellidos = apellidos; }
     public void setTelefono(String telefono) { this.telefono = telefono; }
