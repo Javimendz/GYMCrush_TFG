@@ -77,7 +77,7 @@ public class ResultadoDietaFragment extends Fragment {
         view.findViewById(R.id.btnRenombrarPlan).setOnClickListener(v -> mostrarDialogoRenombrar());
         view.findViewById(R.id.btnGuardarPlan).setOnClickListener(v -> {
             if (planNutricional != null) {
-                viewModel.guardarPlan(usuarioId, planNutricional);
+                mostrarConfirmacionGuardar();
             }
         });
 
@@ -198,6 +198,64 @@ public class ResultadoDietaFragment extends Fragment {
         });
     }
 
+    private void mostrarConfirmacionGuardar() {
+        String mensaje = planNutricional.getId() == null 
+            ? "¿Deseas guardar este plan en tu historial?" 
+            : "¿Deseas guardar todas las recetas sugeridas en tu diario de hoy?";
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+                .setTitle("Confirmar Guardado")
+                .setMessage(mensaje)
+                .setPositiveButton("Confirmar", (dialog, which) -> {
+                    if (planNutricional.getId() == null) {
+                        // Caso catálogo o nuevo plan: Guardar plan completo
+                        viewModel.guardarPlan(usuarioId, planNutricional);
+                    } else {
+                        // Caso plan existente: Guardar sugerencias que aún no están en 'comidas'
+                        List<ComidaDiariaRequestDto> batch = new ArrayList<>();
+                        if (planNutricional.getDietas() != null) {
+                            for (ComidaDiariaResponseDto sugerencia : planNutricional.getDietas()) {
+                                // Verificar si esta sugerencia ya fue guardada (está en el adapter como seleccionada)
+                                boolean yaGuardada = false;
+                                if (adapter != null && adapter.getComidas() != null) {
+                                    for (ComidaDiariaResponseDto item : adapter.getComidas()) {
+                                        if (item.isSelected() && 
+                                            item.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                                            item.getMomento().equalsIgnoreCase(sugerencia.getMomento())) {
+                                            yaGuardada = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (!yaGuardada) {
+                                    ComidaDiariaRequestDto req = new ComidaDiariaRequestDto();
+                                    req.setNombreAlimento(sugerencia.getNombreAlimento());
+                                    req.setMomento(sugerencia.getMomento());
+                                    req.setCalorias(sugerencia.getCalorias());
+                                    req.setProteina(sugerencia.getProteina());
+                                    req.setCarbohidratos(sugerencia.getCarbohidratos());
+                                    req.setGrasas(sugerencia.getGrasas());
+                                    req.setPlanNutricionalId(planNutricional.getId());
+                                    req.setImagenUrl(sugerencia.getImagenUrl());
+                                    req.setDescripcion(sugerencia.getDescripcion());
+                                    req.setRecipeUrl(sugerencia.getRecipeUrl());
+                                    batch.add(req);
+                                }
+                            }
+                        }
+                        if (!batch.isEmpty()) {
+                            viewModel.guardarMuchasComidas(planNutricional.getId(), batch, usuarioId);
+                            Toast.makeText(getContext(), "Guardando " + batch.size() + " sugerencias...", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Todas las sugerencias ya están guardadas", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
     private void mostrarDatos(View view) {
         if (planNutricional == null || view == null) return;
 
@@ -207,13 +265,13 @@ public class ResultadoDietaFragment extends Fragment {
         View btnRenombrar = view.findViewById(R.id.btnRenombrarPlan);
         View btnGuardar = view.findViewById(R.id.btnGuardarPlan);
 
-        // Si el plan no tiene ID (es simulado del catálogo), ocultamos la opción de renombrar y mostramos guardar
+        // El botón de guardar estará siempre visible ahora
+        btnGuardar.setVisibility(View.VISIBLE);
+        
         if (planNutricional.getId() == null) {
             btnRenombrar.setVisibility(View.GONE);
-            btnGuardar.setVisibility(View.VISIBLE);
         } else {
             btnRenombrar.setVisibility(View.VISIBLE);
-            btnGuardar.setVisibility(View.GONE);
         }
 
         String titulo = planNutricional.getNombreDieta() != null && !planNutricional.getNombreDieta().isEmpty()
