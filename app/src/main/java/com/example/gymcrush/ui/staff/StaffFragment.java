@@ -55,7 +55,7 @@ public class StaffFragment extends Fragment {
         searchView = view.findViewById(R.id.searchViewStaff);
 
         rvStaff.setLayoutManager(new LinearLayoutManager(getContext()));
-        
+
         view.findViewById(R.id.btnBackStaff).setOnClickListener(v -> {
             if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
         });
@@ -105,7 +105,14 @@ public class StaffFragment extends Fragment {
                                 new MaterialAlertDialogBuilder(requireContext())
                                         .setTitle("Quitar Rol")
                                         .setMessage("¿Estás seguro de que quieres quitarle el rol de staff a " + perfil.getNombre() + "?")
-                                        .setPositiveButton("Quitar", (d, w) -> ejecutarQuitarRol(perfil.getId()))
+                                        .setPositiveButton("Quitar", (d, w) -> {
+                                            Long idParaQuitar = perfil.getUsuarioId();
+                                            if (idParaQuitar != null) {
+                                                ejecutarQuitarRol(idParaQuitar);
+                                            } else {
+                                                Toast.makeText(getContext(), "Error: ID de usuario no encontrado", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
                                         .setNegativeButton("Cancelar", null)
                                         .show();
                             }
@@ -154,10 +161,13 @@ public class StaffFragment extends Fragment {
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Cambiar Rol a " + perfil.getNombre())
                 .setItems(roles, (dialog, which) -> {
-                    // Aquí iría la lógica para cambiar a un rol específico si el backend lo soporta
-                    // Por ahora, como ejemplo, usaremos los métodos existentes
-                    if (which == 0) ejecutarQuitarRol(perfil.getId());
-                    else if (which == 1) confirmarAsignacion(perfil.getId());
+                    Long uId = perfil.getUsuarioId();
+                    if (uId == null) {
+                        Toast.makeText(getContext(), "Error: ID de usuario no disponible", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (which == 0) ejecutarQuitarRol(uId);
+                    else if (which == 1) confirmarAsignacion(uId);
                     else Toast.makeText(getContext(), "Rol ADMIN no implementado individualmente", Toast.LENGTH_SHORT).show();
                 })
                 .show();
@@ -185,10 +195,10 @@ public class StaffFragment extends Fragment {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     List<PerfilResponseDto> usuarios = response.body().getDatos();
-                    
+
                     Spinner spinner = new Spinner(getContext());
                     spinner.setPadding(40, 20, 40, 20);
-                    
+
                     ArrayAdapter<PerfilResponseDto> adapterPerf = new ArrayAdapter<PerfilResponseDto>(requireContext(), android.R.layout.simple_spinner_item, usuarios) {
                         @Override
                         public View getView(int pos, View v, ViewGroup p) {
@@ -211,8 +221,10 @@ public class StaffFragment extends Fragment {
                             .setView(spinner)
                             .setPositiveButton("Asignar", (dialog, which) -> {
                                 PerfilResponseDto seleccionado = (PerfilResponseDto) spinner.getSelectedItem();
-                                if (seleccionado != null) {
-                                    confirmarAsignacion(seleccionado.getId());
+                                if (seleccionado != null && seleccionado.getUsuarioId() != null) {
+                                    confirmarAsignacion(seleccionado.getUsuarioId());
+                                } else {
+                                    Toast.makeText(getContext(), "Selección inválida o ID faltante", Toast.LENGTH_SHORT).show();
                                 }
                             })
                             .setNegativeButton("Cancelar", null)

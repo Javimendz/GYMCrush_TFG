@@ -61,7 +61,7 @@ public class StaffAdapter extends RecyclerView.Adapter<StaffAdapter.StaffViewHol
     public void onBindViewHolder(@NonNull StaffViewHolder holder, int position) {
         PerfilResponseDto perfil = staffList.get(position);
         holder.tvNombre.setText(perfil.getNombre() + " " + (perfil.getApellidos() != null ? perfil.getApellidos() : ""));
-        
+
         // Mostrar el username real. Si no existe, mostrar el ID de usuario para depuración.
         String username = perfil.getUsername();
         if (username != null && !username.isEmpty()) {
@@ -75,9 +75,9 @@ public class StaffAdapter extends RecyclerView.Adapter<StaffAdapter.StaffViewHol
         List<String> roles = perfil.getRoles();
         if (roles != null) {
             for (String roleName : roles) {
-                if (roleName != null && (roleName.toUpperCase().contains("ENTRENADOR") || 
-                    roleName.toUpperCase().contains("COACH") ||
-                    roleName.toUpperCase().contains("TRAINER"))) {
+                if (roleName != null && (roleName.toUpperCase().contains("ENTRENADOR") ||
+                        roleName.toUpperCase().contains("COACH") ||
+                        roleName.toUpperCase().contains("TRAINER"))) {
                     isTrainer = true;
                     break;
                 }
