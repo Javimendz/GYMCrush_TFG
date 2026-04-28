@@ -27,13 +27,18 @@ import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilFisicoRequest;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.content.Context;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 public class DietaFragment extends Fragment {
 
     private DietaViewModel viewModel;
     private TextInputEditText etPeso, etAltura, etEdad;
-    private AutoCompleteTextView spinnerActividad, spinnerObjetivo;
+    private MaterialAutoCompleteTextView spinnerActividad, spinnerObjetivo;
     private MaterialButton btnActualizar, btnAddComida, btnBuscarComida;
 
     private MaterialCardView cardEmptySuggestion, cardSuggestion;
@@ -698,22 +703,62 @@ public class DietaFragment extends Fragment {
         String[] niveles = {"SEDENTARIO", "LIGERO", "MODERADO", "INTENSO", "ATLETA"};
         String[] objetivos = {"PERDER_GRASA", "MANTENER", "GANAR_MUSCULO"};
 
-        ArrayAdapter<String> adapterNiveles = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, niveles);
-        spinnerActividad.setAdapter(adapterNiveles);
+        // Usamos un adaptador personalizado que desactiva el filtrado
+        // Esto soluciona el problema de que solo se vea un elemento o ninguno
+        NoFilterAdapter adapterActividad = new NoFilterAdapter(requireContext(), niveles);
+        NoFilterAdapter adapterObjetivo = new NoFilterAdapter(requireContext(), objetivos);
 
-        ArrayAdapter<String> adapterObjetivos = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, objetivos);
-        spinnerObjetivo.setAdapter(adapterObjetivos);
+        spinnerActividad.setAdapter(adapterActividad);
+        spinnerObjetivo.setAdapter(adapterObjetivo);
 
-        // Fix: El problema del despliegue en AutoCompleteTextView suele ser el filtrado.
-        // Al usar setText(..., false) evitamos que se filtre la lista, y al usar 
-        // focusable="false" y click listener aseguramos que se abra siempre.
+        // Forzar comportamiento de Spinner (no teclado)
+        spinnerActividad.setInputType(android.text.InputType.TYPE_NULL);
+        spinnerObjetivo.setInputType(android.text.InputType.TYPE_NULL);
+
+        // Aseguramos apertura inmediata al tocar
+        spinnerActividad.setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                spinnerActividad.showDropDown();
+            }
+            return false;
+        });
         
-        spinnerActividad.setFocusable(false);
-        spinnerActividad.setCursorVisible(false);
-        spinnerActividad.setOnClickListener(v -> ((com.google.android.material.textfield.MaterialAutoCompleteTextView)spinnerActividad).showDropDown());
+        spinnerObjetivo.setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                spinnerObjetivo.showDropDown();
+            }
+            return false;
+        });
+    }
 
-        spinnerObjetivo.setFocusable(false);
-        spinnerObjetivo.setCursorVisible(false);
-        spinnerObjetivo.setOnClickListener(v -> ((com.google.android.material.textfield.MaterialAutoCompleteTextView)spinnerObjetivo).showDropDown());
+    /**
+     * Adaptador que ignora el filtrado de AutoCompleteTextView.
+     * Esto asegura que siempre se muestren todas las opciones independientemente del texto actual.
+     */
+    private static class NoFilterAdapter extends ArrayAdapter<String> implements Filterable {
+        private final String[] items;
+
+        public NoFilterAdapter(Context context, String[] items) {
+            super(context, android.R.layout.simple_dropdown_item_1line, items);
+            this.items = items;
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();
+                    results.values = items;
+                    results.count = items.length;
+                    return results;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    notifyDataSetChanged();
+                }
+            };
+        }
     }
 }
