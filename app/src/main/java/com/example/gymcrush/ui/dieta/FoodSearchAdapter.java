@@ -47,7 +47,7 @@ public class FoodSearchAdapter extends RecyclerView.Adapter<FoodSearchAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ComidaDiariaRequestDto item = items.get(position);
         holder.tvName.setText(item.getNombreAlimento() != null ? item.getNombreAlimento() : "Alimento");
-        
+
         double cal = item.getCalorias() != null ? item.getCalorias() : 0;
         double prot = item.getProteina() != null ? item.getProteina() : 0;
         double carb = item.getCarbohidratos() != null ? item.getCarbohidratos() : 0;
@@ -59,7 +59,7 @@ public class FoodSearchAdapter extends RecyclerView.Adapter<FoodSearchAdapter.Vi
 
         holder.cbSelected.setOnCheckedChangeListener(null);
         holder.cbSelected.setChecked(selectedPositions.contains(position));
-        
+
         holder.cbSelected.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 selectedPositions.add(position);

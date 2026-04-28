@@ -37,7 +37,7 @@ public class DietaFragment extends Fragment {
     private MaterialButton btnActualizar, btnAddComida, btnBuscarComida;
 
     private MaterialCardView cardEmptySuggestion, cardSuggestion;
-    private TextView tvNombreSugerida, tvCaloriasSugeridas, tvCaloriasRestantes, tvProt, tvCarbs, tvGrasas;
+    private TextView tvNombreSugerida, tvCaloriasSugeridas, tvCaloriasRestantes, tvProt, tvCarbs, tvGrasas, tvTituloRecetas;
     private CustomDonutChart donutChart;
     private LinearProgressIndicator progressCalorias;
 
@@ -143,6 +143,7 @@ public class DietaFragment extends Fragment {
         rvHistorial = v.findViewById(R.id.rvHistorialNutricion);
         rvComidas = v.findViewById(R.id.rvComidasSugeridas);
         rvRecetas = v.findViewById(R.id.rvRecetasSugeridas);
+        tvTituloRecetas = v.findViewById(R.id.tvTituloRecetas);
     }
 
     private void setupRecyclerViews() {
@@ -322,10 +323,7 @@ public class DietaFragment extends Fragment {
                 cardEmptySuggestion.setVisibility(View.GONE);
                 cardSuggestion.setVisibility(View.VISIBLE);
                 mostrarPlan(plan);
-
-                if (plan.getMacronutrientes() != null && plan.getMacronutrientes().getRecipes() != null) {
-                    recetaAdapter.setRecetas(plan.getMacronutrientes().getRecipes().getRecipe());
-                }
+                actualizarRecetas();
             } else {
                 cardEmptySuggestion.setVisibility(View.VISIBLE);
                 cardSuggestion.setVisibility(View.GONE);
@@ -351,6 +349,8 @@ public class DietaFragment extends Fragment {
         viewModel.getHistorial().observe(getViewLifecycleOwner(), historial -> {
             if (historial != null) {
                 historialAdapter.setHistorial(historial);
+                // Si el plan actual no tenía recetas, al cargar el historial puede que ahora sí encontremos
+                actualizarRecetas();
             }
         });
 
@@ -368,6 +368,48 @@ public class DietaFragment extends Fragment {
         viewModel.getError().observe(getViewLifecycleOwner(), error -> {
             if (error != null) Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void actualizarRecetas() {
+        NutricionResponseDto plan = viewModel.getPlanActual().getValue();
+        if (plan == null) {
+            rvRecetas.setVisibility(View.GONE);
+            tvTituloRecetas.setVisibility(View.GONE);
+            return;
+        }
+
+        // 1. Intentar con recetas del plan actual
+        if (plan.getMacronutrientes() != null &&
+                plan.getMacronutrientes().getRecipes() != null &&
+                plan.getMacronutrientes().getRecipes().getRecipe() != null &&
+                !plan.getMacronutrientes().getRecipes().getRecipe().isEmpty()) {
+
+            recetaAdapter.setRecetas(plan.getMacronutrientes().getRecipes().getRecipe());
+            rvRecetas.setVisibility(View.VISIBLE);
+            tvTituloRecetas.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        // 2. Si no hay, buscar en el historial (fallback)
+        java.util.List<NutricionResponseDto> hist = viewModel.getHistorial().getValue();
+        if (hist != null) {
+            for (NutricionResponseDto p : hist) {
+                if (p.getMacronutrientes() != null &&
+                        p.getMacronutrientes().getRecipes() != null &&
+                        p.getMacronutrientes().getRecipes().getRecipe() != null &&
+                        !p.getMacronutrientes().getRecipes().getRecipe().isEmpty()) {
+                    recetaAdapter.setRecetas(p.getMacronutrientes().getRecipes().getRecipe());
+                    rvRecetas.setVisibility(View.VISIBLE);
+                    tvTituloRecetas.setVisibility(View.VISIBLE);
+                    return;
+                }
+            }
+        }
+
+        // 3. Si nada funciona, ocultar sección
+        recetaAdapter.setRecetas(new java.util.ArrayList<>());
+        rvRecetas.setVisibility(View.GONE);
+        tvTituloRecetas.setVisibility(View.GONE);
     }
 
     private void mostrarPlan(NutricionResponseDto plan) {
