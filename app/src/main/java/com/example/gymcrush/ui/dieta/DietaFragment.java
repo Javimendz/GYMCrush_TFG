@@ -704,8 +704,16 @@ public class DietaFragment extends Fragment {
         ArrayAdapter<String> adapterObjetivos = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, objetivos);
         spinnerObjetivo.setAdapter(adapterObjetivos);
 
-        // Forzar que el dropdown se muestre al hacer click
-        spinnerActividad.setOnClickListener(v -> spinnerActividad.showDropDown());
-        spinnerObjetivo.setOnClickListener(v -> spinnerObjetivo.showDropDown());
+        // Fix: El problema del despliegue en AutoCompleteTextView suele ser el filtrado.
+        // Al usar setText(..., false) evitamos que se filtre la lista, y al usar 
+        // focusable="false" y click listener aseguramos que se abra siempre.
+        
+        spinnerActividad.setFocusable(false);
+        spinnerActividad.setCursorVisible(false);
+        spinnerActividad.setOnClickListener(v -> ((com.google.android.material.textfield.MaterialAutoCompleteTextView)spinnerActividad).showDropDown());
+
+        spinnerObjetivo.setFocusable(false);
+        spinnerObjetivo.setCursorVisible(false);
+        spinnerObjetivo.setOnClickListener(v -> ((com.google.android.material.textfield.MaterialAutoCompleteTextView)spinnerObjetivo).showDropDown());
     }
 }
