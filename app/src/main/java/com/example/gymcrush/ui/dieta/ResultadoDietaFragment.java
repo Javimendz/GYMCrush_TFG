@@ -75,7 +75,11 @@ public class ResultadoDietaFragment extends Fragment {
     private void initViews(View view) {
         view.findViewById(R.id.btnBackResultadoDieta).setOnClickListener(v -> getParentFragmentManager().popBackStack());
         view.findViewById(R.id.btnRenombrarPlan).setOnClickListener(v -> mostrarDialogoRenombrar());
-        view.findViewById(R.id.btnGuardarPlan).setOnClickListener(v -> mostrarDialogoConfirmarGuardado());
+        view.findViewById(R.id.btnGuardarPlan).setOnClickListener(v -> {
+            if (planNutricional != null) {
+                viewModel.guardarPlan(usuarioId, planNutricional);
+            }
+        });
 
         donutChart = view.findViewById(R.id.donutChartMacros);
         rvComidas = view.findViewById(R.id.rvComidasPlan);
@@ -83,6 +87,25 @@ public class ResultadoDietaFragment extends Fragment {
         adapter = new ComidaAdapter();
         adapter.setOnComidaClickListener(this::onComidaClick);
         adapter.setOnHechaClickListener((comida, isChecked) -> {
+            if (isChecked && comida.getId() == null) {
+                // Marcar sugerencia: Guardar en el servidor para que persista
+                ComidaDiariaRequestDto request = new ComidaDiariaRequestDto();
+                request.setNombreAlimento(comida.getNombreAlimento());
+                request.setMomento(comida.getMomento());
+                request.setCalorias(comida.getCalorias());
+                request.setProteina(comida.getProteina());
+                request.setCarbohidratos(comida.getCarbohidratos());
+                request.setGrasas(comida.getGrasas());
+                request.setPlanNutricionalId(planNutricional.getId());
+                request.setImagenUrl(comida.getImagenUrl());
+                request.setDescripcion(comida.getDescripcion());
+                request.setRecipeUrl(comida.getRecipeUrl());
+
+                viewModel.añadirComida(request, usuarioId);
+            } else if (!isChecked && comida.getId() != null) {
+                // Desmarcar: Eliminar del servidor
+                viewModel.eliminarComida(comida.getId(), planNutricional.getId(), usuarioId);
+            }
             actualizarResumenMacros(view);
         });
         adapter.setOnMenuClickListener((v, comida) -> {
@@ -184,14 +207,13 @@ public class ResultadoDietaFragment extends Fragment {
         View btnRenombrar = view.findViewById(R.id.btnRenombrarPlan);
         View btnGuardar = view.findViewById(R.id.btnGuardarPlan);
 
-        // Mostramos ambos botones siempre
-        btnRenombrar.setVisibility(View.VISIBLE);
-        btnGuardar.setVisibility(View.VISIBLE);
-
-        // Si el plan no tiene ID (es de catálogo), el botón de renombrar no tiene sentido o se puede dejar para que el usuario le ponga nombre antes de guardar
+        // Si el plan no tiene ID (es simulado del catálogo), ocultamos la opción de renombrar y mostramos guardar
         if (planNutricional.getId() == null) {
-            // Opcional: podrías querer que solo se guarde. 
-            // Pero según la petición, "al lado del lápiz pon un icono de botón que te permita guardar"
+            btnRenombrar.setVisibility(View.GONE);
+            btnGuardar.setVisibility(View.VISIBLE);
+        } else {
+            btnRenombrar.setVisibility(View.VISIBLE);
+            btnGuardar.setVisibility(View.GONE);
         }
 
         String titulo = planNutricional.getNombreDieta() != null && !planNutricional.getNombreDieta().isEmpty()
@@ -377,36 +399,6 @@ public class ResultadoDietaFragment extends Fragment {
                     if (!nuevoNombre.isEmpty()) {
                         viewModel.actualizarNombrePlan(planNutricional.getId(), nuevoNombre, usuarioId);
                     }
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
-    }
-
-    private void mostrarDialogoConfirmarGuardado() {
-        if (planNutricional == null) return;
-
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
-                .setTitle("Guardar Plan")
-                .setMessage("¿Deseas guardar los cambios realizados en este plan nutricional?")
-                .setPositiveButton("Guardar", (dialog, which) -> {
-                    // Preparamos el objeto para guardar
-                    // Si el plan ya existe (tiene ID), podemos actualizarlo o simplemente llamar a guardarPlan si el backend lo gestiona
-                    // Si es nuevo (ID null), se creará uno nuevo con las comidas seleccionadas
-                    
-                    List<ComidaDiariaResponseDto> seleccionadas = new ArrayList<>();
-                    if (adapter != null && adapter.getComidas() != null) {
-                        for (ComidaDiariaResponseDto c : adapter.getComidas()) {
-                            if (c.isSelected()) {
-                                seleccionadas.add(c);
-                            }
-                        }
-                    }
-                    
-                    // Actualizamos la lista de comidas en el DTO antes de enviar
-                    planNutricional.setComidas(seleccionadas);
-                    
-                    viewModel.guardarPlan(usuarioId, planNutricional);
-                    Toast.makeText(getContext(), "Guardando plan...", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();

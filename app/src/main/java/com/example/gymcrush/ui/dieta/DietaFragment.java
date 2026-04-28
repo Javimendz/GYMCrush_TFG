@@ -35,12 +35,12 @@ public class DietaFragment extends Fragment {
     private TextInputEditText etPeso, etAltura, etEdad;
     private AutoCompleteTextView spinnerActividad, spinnerObjetivo;
     private MaterialButton btnActualizar, btnAddComida, btnBuscarComida;
-    
+
     private MaterialCardView cardEmptySuggestion, cardSuggestion;
     private TextView tvNombreSugerida, tvCaloriasSugeridas, tvCaloriasRestantes, tvProt, tvCarbs, tvGrasas;
     private CustomDonutChart donutChart;
     private LinearProgressIndicator progressCalorias;
-    
+
     private RecyclerView rvCatalogo, rvHistorial, rvComidas, rvRecetas;
     private DietaAdapter adapter;
     private HistorialNutricionAdapter historialAdapter;
@@ -54,7 +54,7 @@ public class DietaFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_dieta, container, false);
 
         viewModel = new ViewModelProvider(requireActivity()).get(DietaViewModel.class);
-        
+
         // Unificamos la obtención del ID de usuario
         SharedPreferences prefs = requireActivity().getSharedPreferences("GymCrushPrefs", Context.MODE_PRIVATE);
         usuarioId = prefs.getLong("usuarioId", -1L);
@@ -74,9 +74,9 @@ public class DietaFragment extends Fragment {
             if (plan != null) {
                 ResultadoDietaFragment fragment = ResultadoDietaFragment.newInstance(plan);
                 getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null)
-                    .commit();
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
@@ -100,7 +100,7 @@ public class DietaFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         if (getArguments() != null) {
             String section = getArguments().getString("scrollToSection");
             boolean mostrarHistorial = getArguments().getBoolean("mostrarHistorial", false);
@@ -159,20 +159,20 @@ public class DietaFragment extends Fragment {
             String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
             String[] platosEjemplo = {"Bol de Avena y Frutas", "Sándwich Integral de Pavo", "Pollo con Arroz y Verduras", "Batido de Proteínas y Nueces", "Salmón a la Plancha con Ensalada"};
             String[] urlsEjemplo = {
-                "https://www.fatsecret.es/recetas/bol-de-avena-con-frutas/Default.aspx",
-                "https://www.fatsecret.es/recetas/sandwich-de-pavo/Default.aspx",
-                "https://www.fatsecret.es/recetas/pollo-con-arroz-y-verduras/Default.aspx",
-                "https://www.fatsecret.es/recetas/batido-de-proteinas/Default.aspx",
-                "https://www.fatsecret.es/recetas/salmon-a-la-plancha/Default.aspx"
+                    "https://www.fatsecret.es/recetas/bol-de-avena-con-frutas/Default.aspx",
+                    "https://www.fatsecret.es/recetas/sandwich-de-pavo/Default.aspx",
+                    "https://www.fatsecret.es/recetas/pollo-con-arroz-y-verduras/Default.aspx",
+                    "https://www.fatsecret.es/recetas/batido-de-proteinas/Default.aspx",
+                    "https://www.fatsecret.es/recetas/salmon-a-la-plancha/Default.aspx"
             };
             String[] imagenesEjemplo = {
-                "https://images.unsplash.com/photo-1517673400267-0251440c45dc?q=80&w=500&auto=format&fit=crop", // Avena
-                "https://images.unsplash.com/photo-1528733918455-5a59687cedf0?q=80&w=500&auto=format&fit=crop", // Sandwich
-                "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=500&auto=format&fit=crop", // Pollo
-                "https://images.unsplash.com/photo-1574783756247-29f6c244a51d?q=80&w=500&auto=format&fit=crop", // Batido
-                "https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=500&auto=format&fit=crop"  // Salmon
+                    "https://images.unsplash.com/photo-1517673400267-0251440c45dc?q=80&w=500&auto=format&fit=crop", // Avena
+                    "https://images.unsplash.com/photo-1528733918455-5a59687cedf0?q=80&w=500&auto=format&fit=crop", // Sandwich
+                    "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=500&auto=format&fit=crop", // Pollo
+                    "https://images.unsplash.com/photo-1574783756247-29f6c244a51d?q=80&w=500&auto=format&fit=crop", // Batido
+                    "https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=500&auto=format&fit=crop"  // Salmon
             };
-            
+
             for (int i = 0; i < momentos.length; i++) {
                 String momento = momentos[i];
                 ComidaDiariaResponseDto item = new ComidaDiariaResponseDto();
@@ -181,7 +181,7 @@ public class DietaFragment extends Fragment {
                 item.setRecipeUrl(urlsEjemplo[i]);
                 item.setImagenUrl(imagenesEjemplo[i]);
                 item.setDescripcion("Una opción saludable y equilibrada diseñada para tu dieta " + dieta.getTipo().toLowerCase() + ".");
-                
+
                 // Repartimos macros aproximados
                 item.setProteina(dieta.getCantidadProteinas() / 5);
                 item.setCarbohidratos(dieta.getCantidadCarbohidratos() / 5);
@@ -204,9 +204,9 @@ public class DietaFragment extends Fragment {
         historialAdapter = new HistorialNutricionAdapter(plan -> {
             ResultadoDietaFragment fragment = ResultadoDietaFragment.newInstance(plan);
             getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit();
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
         });
         rvHistorial.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvHistorial.setAdapter(historialAdapter);
@@ -322,7 +322,7 @@ public class DietaFragment extends Fragment {
                 cardEmptySuggestion.setVisibility(View.GONE);
                 cardSuggestion.setVisibility(View.VISIBLE);
                 mostrarPlan(plan);
-                
+
                 if (plan.getMacronutrientes() != null && plan.getMacronutrientes().getRecipes() != null) {
                     recetaAdapter.setRecetas(plan.getMacronutrientes().getRecipes().getRecipe());
                 }
@@ -449,7 +449,7 @@ public class DietaFragment extends Fragment {
         // Reactividad: Restar del objetivo para mostrar lo que falta o el total consumido
         double calRestantes = calObjetivo - calConsumidas;
         if (calRestantes < 0) calRestantes = 0;
-        
+
         tvCaloriasSugeridas.setText(String.format(java.util.Locale.getDefault(), "%.0f kcal consumidas", calConsumidas));
         // El texto grande central o secundario puede mostrar lo que falta
         ((TextView)view.findViewById(R.id.tvCaloriasRestantes)).setText(String.format(java.util.Locale.getDefault(), "%.0f", calRestantes));
@@ -661,7 +661,7 @@ public class DietaFragment extends Fragment {
 
         ArrayAdapter<String> adapterObjetivos = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, objetivos);
         spinnerObjetivo.setAdapter(adapterObjetivos);
-        
+
         // Forzar que el dropdown se muestre al hacer click
         spinnerActividad.setOnClickListener(v -> spinnerActividad.showDropDown());
         spinnerObjetivo.setOnClickListener(v -> spinnerObjetivo.showDropDown());

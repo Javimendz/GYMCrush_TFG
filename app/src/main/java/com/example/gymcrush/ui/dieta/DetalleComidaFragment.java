@@ -14,19 +14,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import com.bumptech.glide.Glide;
 import com.example.gymcrush.R;
-import androidx.lifecycle.ViewModelProvider;
-import com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto;
 import com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto;
-import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
-import android.widget.Toast;
-import android.content.Context;
-import android.content.SharedPreferences;
 import java.util.Locale;
 
 public class DetalleComidaFragment extends DialogFragment {
 
     private ComidaDiariaResponseDto comida;
-    private DietaViewModel viewModel;
 
     public static DetalleComidaFragment newInstance(ComidaDiariaResponseDto comida) {
         DetalleComidaFragment fragment = new DetalleComidaFragment();
@@ -42,7 +35,6 @@ public class DetalleComidaFragment extends DialogFragment {
         if (getArguments() != null) {
             comida = (ComidaDiariaResponseDto) getArguments().getSerializable("comida");
         }
-        viewModel = new ViewModelProvider(requireActivity()).get(DietaViewModel.class);
     }
 
     @Nullable
@@ -69,7 +61,7 @@ public class DetalleComidaFragment extends DialogFragment {
         if (comida != null) {
             tvNombre.setText(comida.getNombreAlimento());
             tvMomento.setText(comida.getMomento());
-            
+
             tvCal.setText(String.format(Locale.getDefault(), "%.0f kcal", comida.getCalorias() != null ? comida.getCalorias() : 0));
             tvProt.setText(String.format(Locale.getDefault(), "%.0fg", comida.getProteina() != null ? comida.getProteina() : 0));
             tvCarb.setText(String.format(Locale.getDefault(), "%.0fg", comida.getCarbohidratos() != null ? comida.getCarbohidratos() : 0));
@@ -145,8 +137,8 @@ public class DetalleComidaFragment extends DialogFragment {
                 // Cargamos con un mapa de encabezados para mayor seguridad y evitar redirecciones
                 java.util.Map<String, String> extraHeaders = new java.util.HashMap<>();
                 // Ocultar rastro de Android App para el servidor
-                extraHeaders.put("X-Requested-With", "XMLHttpRequest"); 
-                
+                extraHeaders.put("X-Requested-With", "XMLHttpRequest");
+
                 webView.clearCache(true);
                 webView.loadUrl(recipeUrl, extraHeaders);
             } else {
@@ -154,33 +146,6 @@ public class DetalleComidaFragment extends DialogFragment {
                 tvLabelRecetaWeb.setVisibility(View.GONE);
                 webViewContainer.setVisibility(View.GONE);
             }
-
-            com.google.android.material.button.MaterialButton btnAnadir = view.findViewById(R.id.btnAnadirMiDieta);
-            btnAnadir.setOnClickListener(v -> {
-                NutricionResponseDto planActual = viewModel.getPlanActual().getValue();
-                if (planActual != null && planActual.getId() != null) {
-                    ComidaDiariaRequestDto request = new ComidaDiariaRequestDto();
-                    request.setPlanNutricionalId(planActual.getId());
-                    request.setMomento(comida.getMomento());
-                    request.setNombreAlimento(comida.getNombreAlimento());
-                    request.setCalorias(comida.getCalorias());
-                    request.setProteina(comida.getProteina());
-                    request.setCarbohidratos(comida.getCarbohidratos());
-                    request.setGrasas(comida.getGrasas());
-                    request.setImagenUrl(comida.getImagenUrl());
-                    request.setDescripcion(comida.getDescripcion());
-                    request.setRecipeUrl(comida.getRecipeUrl());
-
-                    SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
-                    long usuarioId = prefs.getLong("user_id", -1);
-
-                    viewModel.añadirComida(request, usuarioId);
-                    Toast.makeText(requireContext(), "Añadiendo " + comida.getNombreAlimento() + " a tu plan...", Toast.LENGTH_SHORT).show();
-                    getParentFragmentManager().popBackStack();
-                } else {
-                    Toast.makeText(requireContext(), "No tienes un plan activo donde añadir la comida", Toast.LENGTH_LONG).show();
-                }
-            });
         }
     }
 }

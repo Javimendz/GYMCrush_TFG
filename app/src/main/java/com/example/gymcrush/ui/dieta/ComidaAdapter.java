@@ -101,7 +101,7 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener, OnComidaLongClickListener longClickListener, OnHechaClickListener hechaClickListener, OnMenuClickListener menuClickListener) {
             tvTitulo.setText(comida.getNombreAlimento() != null ? comida.getNombreAlimento() : comida.getMomento());
             tvDesc.setText(comida.getMomento()); // Invertimos para que el plato sea el título
-            
+
             if (comida.getCalorias() != null) {
                 String macros = String.format(Locale.getDefault(), "%.0f kcal | P: %.0fg | C: %.0fg | G: %.0fg",
                         comida.getCalorias(),
@@ -136,7 +136,7 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
             cbHecha.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 comida.setSelected(isChecked);
                 itemView.setAlpha(isChecked ? 0.6f : 1.0f);
-                
+
                 if (hechaClickListener != null) {
                     hechaClickListener.onHechaClick(comida, isChecked);
                 }
@@ -152,7 +152,7 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
             } else {
                 ivIcono.setImageResource(R.drawable.ic_compras);
             }
-            
+
             // ... resto del código de la hora
             String hora = "--:--";
             if (comida.getMomento() != null) {
