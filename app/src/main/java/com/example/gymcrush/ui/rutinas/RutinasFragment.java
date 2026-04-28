@@ -566,8 +566,19 @@ public class RutinasFragment extends Fragment {
         PlanesFragment fragment = new PlanesFragment();
         fragment.setOnPlanSubscriptionListener(() -> {
             // Cuando se suscribe a un plan, volvemos a la agenda y recargamos
-            tabLayoutPrincipal.getTabAt(0).select();
-            cargarRutinaPorFecha();
+            if (tabLayoutPrincipal != null) {
+                tabLayoutPrincipal.getTabAt(0).select();
+            }
+            
+            // Forzamos la fecha a hoy para ver los cambios del plan recién activado
+            // En el log se ve que "Hoy" es 2026-04-29 (miércoles)
+            fechaSeleccionada = LocalDate.now();
+            actualizarUIFecha();
+            
+            // Pequeño delay para asegurar que el backend ha procesado la asignación de ejercicios del plan
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                cargarRutinaPorFecha();
+            }, 800);
         });
         
         getChildFragmentManager().beginTransaction()
