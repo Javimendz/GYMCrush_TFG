@@ -12,6 +12,8 @@ import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.mapper.PerfilMapper;
 import com.backend.repository.PerfilRepository;
 import com.backend.repository.SaludRepository;
+import com.backend.domain.Usuario;
+import com.backend.domain.enums.EnumRol;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -154,5 +156,23 @@ public class PerfilServiceImp implements IPerfilService {
 
         // devuelvo el dto actualizado
         return perfilMapper.toDto(actualizado);
+    }
+
+    @Override
+    @Transactional
+    public void quitarRolEntrenador(Long id) {
+        log.info("Quitando rol ENTRENADOR del perfil ID: {}", id);
+        Perfil perfil = perfilRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
+
+        Usuario usuario = perfil.getUsuario();
+        if (usuario != null) {
+            String nombreRolAEliminar = "ROLE_" + EnumRol.ENTRENADOR.name();
+            // Usamos un iterador o removeIf sobre la colección de roles del usuario
+            usuario.getRoles().removeIf(rol -> rol.getName().equalsIgnoreCase(nombreRolAEliminar));
+            // Importante: No llamar a delete del perfil, solo guardar el usuario si es necesario, 
+            // aunque al ser Transactional y estar la entidad gestionada, se guardará solo.
+            log.info("Rol ENTRENADOR eliminado para el usuario: {}", usuario.getUsername());
+        }
     }
 }

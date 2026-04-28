@@ -61,6 +61,12 @@ public class PerfilResponseDto {
     private Long id;
 
     /**
+     * Identificador único del usuario asociado.
+     */
+    @Schema(description = "ID único del usuario asociado", example = "456")
+    private Long usuarioId;
+
+    /**
      * Nombre del usuario.
      * <p>
      * Primer nombre del usuario, utilizado para identificación

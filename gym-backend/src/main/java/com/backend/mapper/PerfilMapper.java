@@ -40,6 +40,7 @@ public interface PerfilMapper {
    * @return el DTO de respuesta
    */
   @Mapping(target = "username", source = "usuario.username")
+  @Mapping(target = "usuarioId", source = "usuario.id")
   @Mapping(target = "correo", source = "usuario.email")
   @Mapping(target = "rol", source = "usuario.roles", qualifiedByName = "mapRolesToStrings") // <-- CAMBIO AQUÍ
   @Mapping(target = "peso", ignore = true)

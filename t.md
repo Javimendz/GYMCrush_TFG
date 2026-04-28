@@ -1,3 +1,9 @@
+añadido a usuario.java 29/04/2026
+
+ @ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "plan_activo_id")
+private PlanEntrenamiento planActivo;
+
 Relaciones 
 
 // USUARIO Y PERFIL

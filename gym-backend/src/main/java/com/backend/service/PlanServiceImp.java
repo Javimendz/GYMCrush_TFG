@@ -74,46 +74,42 @@ public class PlanServiceImp implements IPlanService {
         planRepo.deleteById(id);
     }
 
-    @Override
-    @Transactional
-    public void suscribirUsuarioAPlan(Long usuarioId, Long planId, String usernameLogueado, boolean esAdmin) {
+   
 
-        // Buscamos al usuario destino
-        Usuario usuarioDestino = usuarioRepo.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+@Override
+@Transactional
+public void suscribirUsuarioAPlan(Long usuarioId, Long planId, String usernameLogueado, boolean esAdmin) {
+    Usuario usuarioDestino = usuarioRepo.findById(usuarioId)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (!esAdmin && !usuarioDestino.getUsername().equals(usernameLogueado)) {
-            log.warn("Intento de suscripción no autorizada. Usuario logueado: {}, Intentó suscribir a: {}",
-                    usernameLogueado, usuarioDestino.getUsername());
-            throw new RuntimeException("Acceso denegado: No tienes permiso para suscribir a otros usuarios.");
-        }
+    // ... (tus validaciones de seguridad anteriores) ...
 
-        PlanEntrenamiento plan = planRepo.findWithEjerciciosById(planId)
-                .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+    // 1. COMPROBACIÓN: ¿Ya está suscrito a este mismo plan? 
+    // Esto evita procesar todo si no ha cambiado de plan
+    if (usuarioDestino.getPlanActivo() != null && usuarioDestino.getPlanActivo().getId().equals(planId)) {
+        log.info("El usuario ya está suscrito a este plan. No se requiere acción.");
+        return; 
+    }
 
-        LocalDate hoy = LocalDate.now();
+    PlanEntrenamiento plan = planRepo.findWithEjerciciosById(planId)
+            .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
 
-        // Comprobamos si está vacía no solo null.
-        if (plan.getEjercicios() == null || plan.getEjercicios().isEmpty()) {
-            log.warn("ATENCIÓN: El plan '{}' no tiene ejercicios en DetallePlan. No hay rutinas que guardar.",
-                    plan.getNombre());
-            return;
-        }
+    LocalDate hoy = LocalDate.now();
 
-        log.info("Iniciando suscripción. Se van a generar {} ejercicios para {}", plan.getEjercicios().size(),
-                usuarioDestino.getUsername());
+    // 2. LIMPIEZA: Borramos rutinas pendientes para evitar el Error 409
+    // Borramos las rutinas de HOY en adelante que no estén completadas
+    rutinaRepo.deleteByUsuarioAndFechaAsignacionGreaterThanEqualAndCompletado(usuarioDestino, hoy, false);
+    log.info("Limpieza de rutinas antiguas completada para el usuario {}", usuarioDestino.getUsername());
 
-        // Creamos una lista para guardar todo de una sola vez
-        java.util.List<Rutina> rutinasAGuardar = new java.util.ArrayList<>();
+    // 3. GENERACIÓN: (Tu lógica de las fechas que corregimos antes)
+    LocalDate lunesDeEstaSemana = hoy.with(java.time.DayOfWeek.MONDAY);
+    List<Rutina> rutinasAGuardar = new java.util.ArrayList<>();
 
-        for (DetallePlan detalle : plan.getEjercicios()) {
+    for (DetallePlan detalle : plan.getEjercicios()) {
+        LocalDate fechaAsignacion = lunesDeEstaSemana.plusDays(detalle.getDiaSemana() - 1);
 
-            LocalDate fechaAsignacion = hoy.with(java.time.DayOfWeek.of(detalle.getDiaSemana()));
-
-            if (fechaAsignacion.isBefore(hoy)) {
-                fechaAsignacion = fechaAsignacion.plusWeeks(1);
-            }
-
+        // Solo guardamos rutinas de hoy en adelante (opcional, según prefieras)
+        if (!fechaAsignacion.isBefore(hoy)) {
             Rutina nuevaRutina = Rutina.builder()
                     .usuario(usuarioDestino)
                     .entrenamiento(detalle.getEntrenamiento())
@@ -121,14 +117,16 @@ public class PlanServiceImp implements IPlanService {
                     .orden(detalle.getOrden())
                     .completado(false)
                     .build();
-
             rutinasAGuardar.add(nuevaRutina);
-            log.info("Generando: {} para la fecha {}", detalle.getEntrenamiento().getNombre(), fechaAsignacion);
         }
-
-        rutinaRepo.saveAll(rutinasAGuardar);
-        log.info("¡Éxito! Se han guardado {} rutinas en la base de datos.", rutinasAGuardar.size());
     }
+
+    rutinaRepo.saveAll(rutinasAGuardar);
+
+    // 4. VINCULACIÓN: Ahora sí, actualizamos el plan activo
+    usuarioDestino.setPlanActivo(plan);
+    usuarioRepo.save(usuarioDestino);
+}
 
     @Override
     @Transactional

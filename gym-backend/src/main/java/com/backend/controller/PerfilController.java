@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -75,6 +76,12 @@ public class PerfilController {
 
         List<PerfilResponseDto> listaEnriquecida = perfiles.stream().map(perfil -> {
             PerfilResponseDto dto = perfilMapper.toDto(perfil);
+            
+            // Garantizar que el usuarioId se envíe correctamente
+            if (perfil.getUsuario() != null) {
+                dto.setUsuarioId(perfil.getUsuario().getId());
+            }
+
             saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
                     .ifPresent(salud -> {
                         dto.setPeso(salud.getPeso());
@@ -172,6 +179,20 @@ public class PerfilController {
         return ResponseEntity.ok(ApiResponseDto.<PerfilResponseDto>builder()
                 .mensaje("Perfil actualizado correctamente")
                 .datos(actualizado)
+                .success(true)
+                .build());
+    }
+
+    @DeleteMapping("/{id}/rol/entrenador")
+    @PreAuthorize("hasRole('ADMIN')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Quitar rol de entrenador", description = "Elimina el rol de entrenador de un perfil específico")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Rol quitado con éxito")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Perfil no encontrado")
+    public ResponseEntity<ApiResponseDto<Void>> quitarRolEntrenador(@PathVariable Long id) {
+        log.info("Petición para quitar rol entrenador al perfil ID: {}", id);
+        perfilService.quitarRolEntrenador(id);
+        return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                .mensaje("Rol quitado correctamente")
                 .success(true)
                 .build());
     }

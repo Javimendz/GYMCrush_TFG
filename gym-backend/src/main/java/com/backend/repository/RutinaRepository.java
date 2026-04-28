@@ -1,6 +1,8 @@
 package com.backend.repository;
 
 import com.backend.domain.Rutina;
+import com.backend.domain.Usuario;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
@@ -14,7 +16,7 @@ public interface RutinaRepository extends JpaRepository<Rutina, Long> {
      * Es la consulta principal para la pantalla "Mi Rutina de Hoy" en la App.
      */
     List<Rutina> findByUsuarioIdAndFechaAsignacionOrderByOrdenAsc(Long usuarioId, LocalDate fecha);
-
+void deleteByUsuarioAndFechaAsignacionGreaterThanEqualAndCompletado(Usuario usuario, LocalDate fecha, boolean completado);
     /**
      * Busca rutinas por entrenamiento.  para ver qué usuarios 
      * tienen asignado un ejercicio específico.

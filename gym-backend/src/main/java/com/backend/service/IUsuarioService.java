@@ -4,6 +4,7 @@ package com.backend.service;
 //Imorts
 import java.util.List;
 import com.backend.dto.UsuarioResponseDto;
+import com.backend.exceptions.ResourceNotFoundException;
 import com.backend.domain.enums.EnumRol;
 import com.backend.domain.Usuario;
 import com.backend.dto.UsuarioRequestDto;
@@ -31,7 +32,7 @@ public interface IUsuarioService {
      * @return Entidad Usuario guardada con ID asignado
      */
     Usuario save(Usuario usuario);
-
+    void quitarRolEntrenador(Long id);
     List<Usuario> listarEntrenadores();
 
     /**

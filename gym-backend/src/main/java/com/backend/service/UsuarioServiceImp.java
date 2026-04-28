@@ -44,11 +44,11 @@ public class UsuarioServiceImp implements IUsuarioService {
         Usuario usuario = usuarioMapper.toEntity(dto);
         usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 
+        String nombreCompletoRol = "ROLE_" + nombreRol.name();
         //  Búsqueda del Rol
-        Role role = roleRepository.findByName(nombreRol.name())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Error: El rol " + nombreRol + " no existe en la base de datos"));
-
+       Role role = roleRepository.findByName(nombreCompletoRol)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "Error: El rol " + nombreCompletoRol + " no existe en la base de datos"));
         //  Asignación del Rol
         usuario.getRoles().add(role);
 
@@ -60,6 +60,30 @@ public class UsuarioServiceImp implements IUsuarioService {
         //  Retorno mapeado
         return usuarioMapper.toUsuarioResponseDto(guardado);
     }
+
+
+    @Override
+@Transactional
+public void quitarRolEntrenador(Long id) {
+    //  Buscamos al usuario
+    Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
+
+    //  Construimos el nombre del rol (consistente con tu RoleInitializer)
+    String nombreRolBusqueda = "ROLE_" + EnumRol.ENTRENADOR.name();
+
+    //  Buscamos el objeto Role en la base de datos
+    Role rolEntrenador = roleRepository.findByName(nombreRolBusqueda)
+            .orElseThrow(() -> new ResourceNotFoundException("Error: El rol " + nombreRolBusqueda + " no existe en la DB"));
+
+    //  Usamos el método helper de tu entidad para una desvinculación limpia
+    usuario.removeRole(rolEntrenador);
+
+    //  Guardamos los cambios
+    usuarioRepository.save(usuario);
+    
+    log.info("Rol ENTRENADOR quitado exitosamente al usuario: {}", usuario.getUsername());
+}
 
     @Override
     public Usuario save(Usuario usuario) {
@@ -85,14 +109,16 @@ public class UsuarioServiceImp implements IUsuarioService {
         return usuarioRepository.findAll();
     }
 
-   @Override
+@Override
 @Transactional
 public void asignarRolEntrenador(Long id) {
     Usuario usuario = usuarioRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
     
-   Role rolEntrenador = roleRepository.findByName(EnumRol.ENTRENADOR.name()) 
-                .orElseThrow(() -> new RuntimeException("Error: El rol ENTRENADOR no existe en la DB"));
+    String nombreRolBusqueda = "ROLE_" + EnumRol.ENTRENADOR.name(); 
+    
+    Role rolEntrenador = roleRepository.findByName(nombreRolBusqueda) 
+                .orElseThrow(() -> new RuntimeException("Error: El rol " + nombreRolBusqueda + " no existe en la DB"));
 
     usuario.getRoles().add(rolEntrenador);
     

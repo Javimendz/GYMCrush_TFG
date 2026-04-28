@@ -108,7 +108,17 @@ public class UsuarioController {
                         .build());
     }
 
-    @PatchMapping("/{id}/asignar-entrenador") 
+    @DeleteMapping("/{id}/quitar-entrenador")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponseDto<Void>> quitarRolEntrenador(@PathVariable Long id) {
+        usuarioService.quitarRolEntrenador(id);
+        return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                .mensaje("Rol ENTRENADOR quitado con éxito")
+                .success(true)
+                .build());
+    }
+
+    @PatchMapping("/{id}/asignar-entrenador")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponseDto<Void>> asignarRolEntrenador(@PathVariable Long id) {
         usuarioService.asignarRolEntrenador(id);

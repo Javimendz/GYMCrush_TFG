@@ -56,5 +56,12 @@ public class RoleInitializer {
             roleRepository.save(adminRole);
             System.out.println("Rol ROLE_ADMIN creado");
         }
+        if (!roleRepository.existsByName("ROLE_ENTRENADOR")) {
+            Role entrenadorRole = new Role();
+            entrenadorRole.setName("ROLE_ENTRENADOR");
+            roleRepository.save(entrenadorRole);
+            System.out.println("Rol ROLE_ENTRENADOR creado");
+        }
     }
+    
 }

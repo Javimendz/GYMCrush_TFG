@@ -79,4 +79,11 @@ public interface IPerfilService {
      * @throws ResourceNotFoundException si el perfil no existe
      */
     PerfilResponseDto update(Long id, PerfilRequestDto dto);
+
+    /**
+     * Elimina el rol de entrenador del usuario asociado al perfil.
+     *
+     * @param id Identificador único del perfil
+     */
+    void quitarRolEntrenador(Long id);
 }

@@ -141,4 +141,9 @@ public class Usuario {
         role.getUsuarios().remove(this);
     }
 
+    @ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "plan_activo_id")
+private PlanEntrenamiento planActivo;
+
+
 }
