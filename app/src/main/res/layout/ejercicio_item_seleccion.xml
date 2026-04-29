@@ -1,94 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="6dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="#1A1A1A"
-    app:strokeColor="#33FFFFFF"
-    app:strokeWidth="1dp">
+    app:cardBackgroundColor="#16213E"> <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:animateLayoutChanges="true"> <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
+    <CheckBox
+        android:id="@+id/cbSeleccionado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:buttonTint="#CD0277" /> <TextView
+    android:id="@+id/tvNombreEjercicio"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_marginStart="8dp"
+    android:text="Nombre del Ejercicio"
+    android:textColor="@color/white"
+    android:textSize="16sp"
+    android:textStyle="bold" />
+</LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layoutDetallesSeleccion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        android:visibility="gone"
+        android:baselineAligned="false"
+        android:weightSum="2">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:hint="Series (ej: 4)"
+            app:boxStrokeColor="#CD0277"
+            app:hintTextColor="#CD0277">
 
-            <TextView
-                android:id="@+id/tvNombreEjercicio"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Nombre del Ejercicio"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <CheckBox
-                android:id="@+id/cbSeleccionado"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="#E91E63"/>
-        </LinearLayout>
-
-        <!-- Apartado para Series y Repeticiones (Solo visible si está seleccionado) -->
-        <LinearLayout
-            android:id="@+id/layoutDetallesSeleccion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Series:"
-                android:textColor="#99FFFFFF"
-                android:textSize="12sp"/>
-
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSeries"
-                android:layout_width="50dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="4"
                 android:textColor="@color/white"
-                android:textColorHint="#44FFFFFF"
-                android:backgroundTint="#E91E63"
-                android:inputType="number"
-                android:textSize="14sp"
-                android:textAlignment="center"/>
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Reps:"
-                android:textColor="#99FFFFFF"
-                android:textSize="12sp"
-                android:layout_marginStart="16dp"/>
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:hint="Reps (ej: 10-12)"
+            app:boxStrokeColor="#CD0277"
+            app:hintTextColor="#CD0277">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etRepeticiones"
-                android:layout_width="50dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="12"
                 android:textColor="@color/white"
-                android:textColorHint="#44FFFFFF"
-                android:backgroundTint="#E91E63"
-                android:inputType="number"
-                android:textSize="14sp"
-                android:textAlignment="center"/>
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
     </LinearLayout>
+</LinearLayout>
 </com.google.android.material.card.MaterialCardView>

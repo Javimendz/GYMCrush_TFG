@@ -99,10 +99,20 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         // 5. Configurar lista de sub-ejercicios si existen
         if (rv != null) {
             rv.setLayoutManager(new LinearLayoutManager(this));
+            
+            // Intentamos obtener la lista de ejercicios de varias fuentes
             listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
 
+            // Si es una rutina con múltiples ejercicios (como la de brazos que mencionas)
             if (listaEjercicios != null && !listaEjercicios.isEmpty()) {
                 tvLabelEjercicios.setVisibility(View.VISIBLE);
+                
+                // Ocultar descripción y video principal para dar prioridad a la lista de ejercicios
+                if (tvDesc != null) tvDesc.setVisibility(View.GONE);
+                if (playerView != null) playerView.setVisibility(View.GONE);
+                if (imgDetalle != null) imgDetalle.setVisibility(View.GONE);
+                findViewById(R.id.cardImagen).setVisibility(View.GONE);
+
                 EjercicioAdapter adapter = new EjercicioAdapter(listaEjercicios, true);
                 rv.setAdapter(adapter);
             } else {

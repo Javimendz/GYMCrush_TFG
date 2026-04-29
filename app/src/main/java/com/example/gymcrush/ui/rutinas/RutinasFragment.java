@@ -238,9 +238,9 @@ public class RutinasFragment extends Fragment {
 
     private void setupCarruselRutinas() {
         if (vpRutinasFavoritas == null) return;
-        
+
         List<RepositorioRutinas.RutinaModel> rutinas = RepositorioRutinas.getRutinas();
-        
+
         if (rutinas.isEmpty()) {
             vpRutinasFavoritas.setVisibility(View.GONE);
             dotsIndicator.setVisibility(View.GONE);
@@ -249,14 +249,16 @@ public class RutinasFragment extends Fragment {
 
         vpRutinasFavoritas.setVisibility(View.VISIBLE);
         dotsIndicator.setVisibility(View.VISIBLE);
-        
-        // Usamos las rutinas guardadas localmente para el carrusel
-        // Se añade true para indicar que es para ViewPager2 (y use match_parent)
-        RutinaGuardadaAdapter carruselAdapter = new RutinaGuardadaAdapter(rutinas, true);
-        vpRutinasFavoritas.setAdapter(carruselAdapter);
-        
-        // Conectar TabLayout (dots) con ViewPager2
-        new com.google.android.material.tabs.TabLayoutMediator(dotsIndicator, vpRutinasFavoritas, (tab, position) -> {}).attach();
+
+        if (vpRutinasFavoritas.getAdapter() == null) {
+            RutinaGuardadaAdapter carruselAdapter = new RutinaGuardadaAdapter(rutinas, true);
+            vpRutinasFavoritas.setAdapter(carruselAdapter);
+
+            new com.google.android.material.tabs.TabLayoutMediator(dotsIndicator, vpRutinasFavoritas, (tab, position) -> {}).attach();
+        } else {
+            // Reciclamos el adaptador existente y actualizamos la lista para no romper la UI
+            ((RutinaGuardadaAdapter) vpRutinasFavoritas.getAdapter()).updateList(rutinas);
+        }
     }
 
     private void eliminarRutinaPersonalizada(RepositorioRutinas.RutinaModel rutina) {
@@ -350,21 +352,35 @@ public class RutinasFragment extends Fragment {
     private void cargarRutinaPorFecha() {
         if (userId == -1) return;
         String fechaStr = fechaSeleccionada.toString();
+
         RetrofitClient.getApiService().getRutinaDiaria(userId, fechaStr).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    rutinasAdapter.updateList(response.body().getDatos());
+                    List<RutinaResponseDto> datosRecibidos = response.body().getDatos();
+
+                    // Log para depuración: así verás en Logcat cuántos ejercicios llegan realmente
+                    android.util.Log.d("API_CHECK", "Ejercicios recibidos para " + fechaStr + ": " +
+                            (datosRecibidos != null ? datosRecibidos.size() : 0));
+
+                    // Actualizamos el adaptador con la lista completa
+                    if (rutinasAdapter != null) {
+                        rutinasAdapter.updateList(datosRecibidos);
+                    }
+
+                    // Si no hay datos, podrías mostrar un layout de "Agenda vacía"
+                    rvRutinas.setVisibility(datosRecibidos == null || datosRecibidos.isEmpty() ? View.GONE : View.VISIBLE);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error al cargar agenda", Toast.LENGTH_SHORT).show();
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Error al cargar la agenda diaria", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
-
     private void cargarRutinaDiaria() {
         fechaSeleccionada = LocalDate.now();
         actualizarUIFecha();
@@ -925,7 +941,15 @@ public class RutinasFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        cargarRutinaPorFecha();
-        cargarEstadisticas();
+
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            // Verificamos que el fragmento siga en pantalla para evitar crasheos
+            if (isAdded()) {
+                cargarRutinaPorFecha();
+                cargarEstadisticas();
+                cargarEjerciciosDesdeServidor();
+                actualizarRutinasGuardadas();
+            }
+        }, 400); // 400 milisegundos de retraso
     }
 }

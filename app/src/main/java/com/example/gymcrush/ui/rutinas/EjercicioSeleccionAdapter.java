@@ -37,37 +37,46 @@ public class EjercicioSeleccionAdapter extends RecyclerView.Adapter<EjercicioSel
         Ejercicio ejercicio = listaEjercicios.get(position);
         holder.tvNombre.setText(ejercicio.getNombre());
 
-        // Estado del CheckBox
+        // 1. Limpiar TextWatchers antiguos para evitar que afecten a otras celdas recicladas
+        if (holder.etSeries.getTag() instanceof TextWatcher) {
+            holder.etSeries.removeTextChangedListener((TextWatcher) holder.etSeries.getTag());
+        }
+        if (holder.etRepeticiones.getTag() instanceof TextWatcher) {
+            holder.etRepeticiones.removeTextChangedListener((TextWatcher) holder.etRepeticiones.getTag());
+        }
+
+        // 2. Desconectar el listener del CheckBox para evitar disparos accidentales al reciclar
         holder.cbSeleccionado.setOnCheckedChangeListener(null);
         holder.cbSeleccionado.setChecked(ejercicio.isSeleccionado());
-        
-        // Mostrar/Ocultar campos de series/reps
         holder.layoutDetalles.setVisibility(ejercicio.isSeleccionado() ? View.VISIBLE : View.GONE);
 
+        // 3. Configurar nuevos listeners y guardarlos en el TAG
         holder.cbSeleccionado.setOnCheckedChangeListener((buttonView, isChecked) -> {
             ejercicio.setSeleccionado(isChecked);
             holder.layoutDetalles.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
-        // Guardar Series
         holder.etSeries.setText(ejercicio.getSeries());
-        holder.etSeries.addTextChangedListener(new TextWatcher() {
+        TextWatcher watcherSeries = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override public void afterTextChanged(Editable s) {
                 ejercicio.setSeries(s.toString());
             }
-        });
+        };
+        holder.etSeries.addTextChangedListener(watcherSeries);
+        holder.etSeries.setTag(watcherSeries);
 
-        // Guardar Repeticiones
         holder.etRepeticiones.setText(ejercicio.getRepeticiones());
-        holder.etRepeticiones.addTextChangedListener(new TextWatcher() {
+        TextWatcher watcherReps = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
             @Override public void afterTextChanged(Editable s) {
                 ejercicio.setRepeticiones(s.toString());
             }
-        });
+        };
+        holder.etRepeticiones.addTextChangedListener(watcherReps);
+        holder.etRepeticiones.setTag(watcherReps);
     }
 
     @Override

@@ -67,7 +67,14 @@ public class RepositorioRutinas {
     }
 
     public static List<Ejercicio> getEjerciciosDeRutina(String nombre) {
-        return datosRutinas.get(nombre);
+        if (nombre == null) return new ArrayList<>();
+        String nombreBusqueda = nombre.toLowerCase().trim();
+        for (String key : datosRutinas.keySet()) {
+            if (key.toLowerCase().trim().equals(nombreBusqueda)) {
+                return datosRutinas.get(key);
+            }
+        }
+        return new ArrayList<>();
     }
 
     public static void eliminarRutina(String nombre) {
@@ -78,8 +85,18 @@ public class RepositorioRutinas {
     public static void sincronizarConServidor(List<EntrenamientoResponseDto> entrenamientos) {
         List<RutinaModel> nuevasRutinas = new ArrayList<>();
         for (EntrenamientoResponseDto e : entrenamientos) {
-            // Intentamos recuperar los sub-ejercicios guardados localmente para esta rutina
-            List<Ejercicio> ejs = datosRutinas.get(e.getNombre());
+            // Sincronización insensible a mayúsculas/minúsculas para evitar pérdida de datos
+            String nombreNormalizado = e.getNombre() != null ? e.getNombre().toLowerCase().trim() : "";
+            List<Ejercicio> ejs = null;
+            
+            // Buscar en el mapa con el nombre normalizado
+            for (String key : datosRutinas.keySet()) {
+                if (key.toLowerCase().trim().equals(nombreNormalizado)) {
+                    ejs = datosRutinas.get(key);
+                    break;
+                }
+            }
+
             if (ejs == null) ejs = new ArrayList<>();
             
             RutinaModel model = new RutinaModel(
@@ -94,8 +111,7 @@ public class RepositorioRutinas {
             );
             nuevasRutinas.add(model);
             
-            // Si el mapa no tenía los ejercicios (ej: tras reinicio), pero el modelo sí (no debería ocurrir aquí)
-            // nos aseguramos de que el mapa esté al día si queremos que DetalleRutina los use
+            // Asegurar que el mapa conserve la asociación
             if (!ejs.isEmpty()) {
                 datosRutinas.put(e.getNombre(), ejs);
             }
