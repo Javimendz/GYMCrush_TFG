@@ -42,7 +42,7 @@ public class EntrenamientoController {
                                                 .build());
         }
 
-        @GetMapping("/usuario/{usuarioId}")
+        @GetMapping
         @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
         @Operation(summary = "Listar catálogo completo de entrenamientos")
         public ResponseEntity<ApiResponseDto<List<EntrenamientoResponseDto>>> listarTodos() {

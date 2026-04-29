@@ -84,4 +84,16 @@ public class RutinaServiceImp implements IRutinaService {
         }
         rutinaRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RutinaResponseDto> obtenerPorRango(Long usuarioId, LocalDate inicio, LocalDate fin) {
+        log.info("Obteniendo rutinas para usuario {} entre {} y {}", usuarioId, inicio, fin);
+        
+        // Llamamos al método del repositorio para traer las rutinas de la base de datos
+        return rutinaRepository.findByUsuarioIdAndFechaAsignacionBetweenOrderByOrden(usuarioId, inicio, fin)
+                .stream()
+                .map(rutinaMapper::toResponseDto) // Usamos mapStruct para pasarlo a DTO
+                .toList();
+    }
 }

@@ -8,6 +8,23 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
+
+import com.backend.domain.Rutina;
+// --- AÑADE ESTA LÍNEA PARA SOLUCIONAR EL ERROR DEL USUARIO ---
+import com.backend.domain.Usuario; 
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+// --- AÑADE ESTA LÍNEA SI ESTÁS USANDO LA ANOTACIÓN @Repository ---
+import org.springframework.stereotype.Repository; 
+
+import java.time.LocalDate;
+import java.util.List;
+
+
 @Repository
 public interface RutinaRepository extends JpaRepository<Rutina, Long> {
 
@@ -22,6 +39,20 @@ void deleteByUsuarioAndFechaAsignacionGreaterThanEqualAndCompletado(Usuario usua
      * tienen asignado un ejercicio específico.
      */
     List<Rutina> findByEntrenamientoId(Long entrenamientoId);
+
+
+    List<Rutina> findByUsuarioIdAndFechaAsignacionBetweenOrderByOrden(
+    Long usuarioId, 
+    LocalDate fechaInicio, 
+    LocalDate fechaFin
+);
+/**
+     * Elimina las rutinas de los usuarios que tienen un plan específico activo
+     * y cuyo estado de completado coincida con el parámetro (ej: false).
+     */
+    @Modifying
+    @Query("DELETE FROM Rutina r WHERE r.usuario.planActivo.id = :planId AND r.completado = :completado")
+    void deleteByUsuarioPlanActivoIdAndCompletado(@Param("planId") Long planId, @Param("completado") boolean completado);
 
     /**
      * Busca las rutinas pendientes (no completadas) de un usuario.

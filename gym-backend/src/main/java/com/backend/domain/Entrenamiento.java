@@ -1,6 +1,6 @@
 //Paquete
 package com.backend.domain;
-
+import java.util.List;
 
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
@@ -45,7 +45,8 @@ public class Entrenamiento {
     @Column(nullable = false, length = 100)
     private String nombre; // Ej: "Pecho y Tríceps"
 
-    @Column(length = 500)
+    @Lob
+@Column(columnDefinition = "TEXT")
     private String descripcion;
 
      /**
@@ -77,5 +78,6 @@ public class Entrenamiento {
     @Column(name = "intensidad", length = 150)
     private String intensidad;
 
-  
+  @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Tutorial> tutoriales;
 }

@@ -12,11 +12,13 @@ import com.backend.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor // Crea el constructor para la inyección de dependencias de Lombok
 public class NotificacionServiceImpl implements NotificacionService {
 

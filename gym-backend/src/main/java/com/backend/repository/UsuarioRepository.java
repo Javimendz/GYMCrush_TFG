@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository;
 import com.backend.domain.Usuario;
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;
-
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 /**
  * Interfaz de repositorio para la entidad Usuario
  * <p>
@@ -29,6 +31,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
      */
     Optional<Usuario> findByUsername(String username);
 
+
+    @Modifying
+    @Query("UPDATE Usuario u SET u.planActivo = null WHERE u.planActivo.id = :planId")
+    void desvincularPlanDeUsuarios(@Param("planId") Long planId);
     /**
      * Verifica si existe un usuario con el nombre de usuario especificado.
      * <p>

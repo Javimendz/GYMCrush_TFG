@@ -30,6 +30,6 @@ public class PlanEntrenamiento {
     private String objetivo; // PERDER_PESO, GANAR_MUSCULO
     private String nivel; // PRINCIPIANTE, INTERMEDIO, AVANZADO
 
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL)
+   @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetallePlan> ejercicios;
 }

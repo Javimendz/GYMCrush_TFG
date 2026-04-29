@@ -49,6 +49,7 @@ public class Tutorial {
      * Opcional, permite texto largo para explicar el contenido.
      * </p>
      */
+    @Lob
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
@@ -89,4 +90,8 @@ public class Tutorial {
     @Builder.Default
     @ToString.Exclude // evitar bs infinitos
     private List<Visualizacion> visualizaciones = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "entrenamiento_id") 
+    private Entrenamiento entrenamiento;
 }

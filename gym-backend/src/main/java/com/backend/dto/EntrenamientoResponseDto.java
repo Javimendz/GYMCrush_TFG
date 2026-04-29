@@ -1,5 +1,6 @@
 package com.backend.dto;
 
+import lombok.Builder; 
 import lombok.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -35,6 +36,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Data // Genera automáticamente getters, setters, toString, equals y hashCode
 @Schema(description = "DTO para la respuesta de entrenamiento")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EntrenamientoResponseDto {
 
     /**
@@ -80,4 +84,8 @@ public class EntrenamientoResponseDto {
      */
     @Schema(description = "Número de ejercicios en esta sesión maestra", example = "6")
     private Integer cantidadEjercicios;
+
+    @Schema(description = "URL del video demostrativo del entrenamiento", example = "https://www.youtube.com/watch?v=example")
+    private String urlVideo; 
+  
 }

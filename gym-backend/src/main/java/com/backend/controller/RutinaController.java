@@ -40,6 +40,17 @@ public class RutinaController {
                 .body(ApiResponseDto.success("Entrenamiento asignado correctamente", response));
     }
 
+
+    @GetMapping("/usuario/{usuarioId}/rango")
+public ResponseEntity<List<RutinaResponseDto>> obtenerRutinasPorRango(
+        @PathVariable Long usuarioId,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
+    
+    // Llama a tu service para que use el método 'Between' que acabamos de crear
+    List<RutinaResponseDto> rutinas = rutinaService.obtenerPorRango(usuarioId, inicio, fin);
+    return ResponseEntity.ok(rutinas);
+}
     @GetMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @Operation(summary = "Obtener rutina diaria", description = "Obtiene los ejercicios programados para un usuario en una fecha específica")

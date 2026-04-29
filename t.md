@@ -4,6 +4,11 @@ añadido a usuario.java 29/04/2026
 @JoinColumn(name = "plan_activo_id")
 private PlanEntrenamiento planActivo;
 
+en Entrenamiento añadido relacion 1-M
+
+@OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Tutorial> tutoriales;
+
 Relaciones 
 
 // USUARIO Y PERFIL

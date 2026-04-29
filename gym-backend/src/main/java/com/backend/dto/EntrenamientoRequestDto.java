@@ -19,4 +19,8 @@ public class EntrenamientoRequestDto {
     private String intensidad;
     private Integer cantidadEjercicios;
 
+
+    private String urlVideo;
+    
+    private Long categoriaId;
 }

@@ -24,6 +24,7 @@ import lombok.*;
 @Table(name = "perfiles")
 @Getter
 @Setter
+@Data   
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

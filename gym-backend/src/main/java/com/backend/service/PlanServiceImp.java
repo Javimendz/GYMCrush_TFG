@@ -66,14 +66,24 @@ public class PlanServiceImp implements IPlanService {
     }
 
     @Override
-    @Transactional
-    public void eliminarPlan(Long id) {
-        if (!planRepo.existsById(id)) {
-            throw new RuntimeException("No se puede eliminar: Plan no encontrado");
-        }
-        planRepo.deleteById(id);
-    }
+@Transactional
+public void eliminarPlan(Long id) {
+    // 1. Verificar existencia
+    PlanEntrenamiento plan = planRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
 
+    log.info("Eliminando plan: {}. Limpiando dependencias...", plan.getNombre());
+rutinaRepo.deleteByUsuarioPlanActivoIdAndCompletado(id, false);
+    // 2. Limpiar la relación con los usuarios (para evitar el error de FK)
+    usuarioRepo.desvincularPlanDeUsuarios(id);
+
+    // 3. Borrar el plan. 
+    // Gracias a orphanRemoval = true, todos los 'detalles_plan' asociados 
+    // desaparecerán de la tabla que mostraste en la imagen.
+    planRepo.delete(plan); 
+    
+    log.info("Plan y sus detalles eliminados correctamente.");
+}
    
 
 @Override
