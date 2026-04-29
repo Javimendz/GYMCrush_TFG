@@ -209,9 +209,10 @@ public class CrearRutinaActivity extends AppCompatActivity {
         com.example.gymcrush.data.remote.RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
                     // Guardar localmente para que el DetalleRutinaActivity pueda mostrar los ejercicios
-                    RepositorioRutinas.guardarRutinaCompletaConPortada(nombre, seleccionados, urlPortada);
+                    Long idCreado = response.body().getDatos() != null ? response.body().getDatos().getId() : null;
+                    RepositorioRutinas.guardarRutinaCompletaConPortada(idCreado, nombre, seleccionados, urlPortada);
                     Toast.makeText(CrearRutinaActivity.this, "¡Plantilla guardada con éxito!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
@@ -324,7 +325,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     }
                     
                     if (completados[0] == totalAAsignar) {
-                        RepositorioRutinas.guardarRutinaCompletaConPortada(nombreRutina, seleccionados, urlPortada);
+                        RepositorioRutinas.guardarRutinaCompletaConPortada(null, nombreRutina, seleccionados, urlPortada);
                         finalizarGuardado(huboError[0]);
                     }
                 }
@@ -334,7 +335,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     completados[0]++;
                     huboError[0] = true;
                     if (completados[0] == totalAAsignar) {
-                        RepositorioRutinas.guardarRutinaCompletaConPortada(nombreRutina, seleccionados, urlPortada);
+                        RepositorioRutinas.guardarRutinaCompletaConPortada(null, nombreRutina, seleccionados, urlPortada);
                         finalizarGuardado(huboError[0]);
                     }
                 }

@@ -17,9 +17,19 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
 
     private List<RepositorioRutinas.RutinaModel> listaRutinas;
     private boolean forViewPager = false;
+    private OnRutinaGuardadaClickListener listener;
+
+    public interface OnRutinaGuardadaClickListener {
+        void onDelete(RepositorioRutinas.RutinaModel rutina);
+    }
 
     public RutinaGuardadaAdapter(List<RepositorioRutinas.RutinaModel> listaRutinas) {
         this.listaRutinas = listaRutinas;
+    }
+
+    public RutinaGuardadaAdapter(List<RepositorioRutinas.RutinaModel> listaRutinas, OnRutinaGuardadaClickListener listener) {
+        this.listaRutinas = listaRutinas;
+        this.listener = listener;
     }
 
     public RutinaGuardadaAdapter(List<RepositorioRutinas.RutinaModel> listaRutinas, boolean forViewPager) {
@@ -110,6 +120,18 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             v.getContext().startActivity(intent);
         });
+
+        holder.btnMasOpciones.setOnClickListener(v -> {
+            android.widget.PopupMenu popup = new android.widget.PopupMenu(v.getContext(), v);
+            popup.getMenu().add("Eliminar rutina");
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getTitle().equals("Eliminar rutina")) {
+                    if (listener != null) listener.onDelete(rutina);
+                }
+                return true;
+            });
+            popup.show();
+        });
     }
 
     public void updateList(List<RepositorioRutinas.RutinaModel> newList) {
@@ -124,7 +146,7 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvDetalles, tvEstado;
-        ImageView imgRutina;
+        ImageView imgRutina, btnMasOpciones;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -132,6 +154,7 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
             tvDetalles = itemView.findViewById(R.id.tvDetallesRutina);
             tvEstado = itemView.findViewById(R.id.tvEstadoRutina);
             imgRutina = itemView.findViewById(R.id.imgRutina);
+            btnMasOpciones = itemView.findViewById(R.id.btnMasOpciones);
         }
     }
 }
