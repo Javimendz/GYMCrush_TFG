@@ -56,7 +56,7 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
         // 2. Cabecera del Plan
         if (rutina.getNombrePlan() != null && !rutina.getNombrePlan().isEmpty()) {
             holder.layoutHeaderPlan.setVisibility(View.VISIBLE);
-            holder.tvNombrePlan.setText(rutina.getNombrePlan().toUpperCase());
+            holder.tvNombrePlan.setText("PLAN: " + rutina.getNombrePlan().toUpperCase());
         } else {
             holder.layoutHeaderPlan.setVisibility(View.GONE);
         }
@@ -64,11 +64,11 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
         // 3. Estado visual
         if (Boolean.TRUE.equals(rutina.getCompletado())) {
             holder.tvEstado.setText("COMPLETADO");
-            holder.tvEstado.setAlpha(0.5f);
+            holder.tvEstado.setTextColor(0xFF4CAF50); // Verde
             holder.imgCheck.setVisibility(View.VISIBLE);
         } else {
             holder.tvEstado.setText("EMPEZAR");
-            holder.tvEstado.setAlpha(1.0f);
+            holder.tvEstado.setTextColor(0xFFCD0277); // Tu rosa magenta
             holder.imgCheck.setVisibility(View.GONE);
         }
 
@@ -76,15 +76,16 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
         holder.btnOpciones.setOnClickListener(v -> listener.onEliminar(rutina));
 
         // 4. Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback)
-        String imageUrl = (rutina.getUrlImagen() != null && !rutina.getUrlImagen().isEmpty()) 
-                ? rutina.getUrlImagen() 
+        String imageUrl = (rutina.getUrlImagen() != null && !rutina.getUrlImagen().isEmpty())
+                ? rutina.getUrlImagen()
                 : rutina.getUrlVideo();
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(imageUrl)
-                    .placeholder(R.drawable.ic_launcher_foreground)
-                    .error(R.drawable.ic_launcher_foreground)
+                    .centerCrop() // Asegura que la imagen llene la tarjeta
+                    .placeholder(R.drawable.cardio) // Imagen por defecto
+                    .error(R.drawable.cardio)
                     .into(holder.imgRutina);
         } else {
             holder.imgRutina.setImageResource(R.drawable.ic_launcher_foreground);

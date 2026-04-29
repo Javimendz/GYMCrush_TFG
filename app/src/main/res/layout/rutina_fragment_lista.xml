@@ -10,7 +10,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- Header -->
         <TextView
             android:id="@+id/tvTituloRutinas"
             android:layout_width="match_parent"
@@ -23,7 +22,6 @@
             android:paddingTop="20dp"
             android:paddingBottom="10dp" />
 
-        <!-- TabLayout -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayoutRutinas"
             android:layout_width="match_parent"
@@ -51,7 +49,6 @@
                 android:text="MIS RUTINAS" />
         </com.google.android.material.tabs.TabLayout>
 
-        <!-- Overlay de Carga IA (Invisible por defecto) -->
         <FrameLayout
             android:id="@+id/overlayIA"
             android:layout_width="match_parent"
@@ -86,7 +83,6 @@
             </LinearLayout>
         </FrameLayout>
 
-        <!-- Progreso de la Rutina -->
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progressRutina"
             android:layout_width="match_parent"
@@ -98,7 +94,6 @@
             app:trackCornerRadius="4dp"
             android:progress="0" />
 
-        <!-- Selector de Fecha Horizontal (Burbujas) -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCalendarioHorizontal"
             android:layout_width="match_parent"
@@ -109,7 +104,6 @@
             android:clipToPadding="false"
             android:orientation="horizontal" />
 
-        <!-- Selector de Fecha Antiguo (Oculto) -->
         <LinearLayout
             android:id="@+id/layoutSelectorFecha"
             android:layout_width="match_parent"
@@ -120,7 +114,7 @@
             android:gravity="center_vertical"
             android:background="#16213E"
             android:visibility="gone">
-             <TextView
+            <TextView
                 android:id="@+id/tvFechaSeleccionada"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -133,7 +127,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Contenedor de RUTINAS -->
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/containerRutinas"
                 android:layout_width="match_parent"
@@ -146,217 +139,26 @@
                     android:orientation="vertical"
                     android:paddingBottom="20dp">
 
-                    <!-- Resumen del Día -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardResumenDia"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="16dp"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#1E293B">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:background="#111827"
-                            android:padding="16dp">
-
-                            <TextView
-                                android:id="@+id/tvResumenTitulo"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="RESUMEN DE HOY"
-                                android:textColor="#94A3B8"
-                                android:textSize="12sp"
-                                android:textStyle="bold"
-                                android:letterSpacing="0.1"/>
-
-                            <TextView
-                                android:id="@+id/tvEstadoRutinaDia"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="No has empezado tu rutina todavía"
-                                android:textColor="#FFFFFF"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:layout_marginTop="4dp"/>
-
-                            <TextView
-                                android:id="@+id/tvProgresoTexto"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0% completado"
-                                android:textColor="#CD0277"
-                                android:textSize="12sp"
-                                android:layout_marginTop="8dp"/>
-
-                            <com.google.android.material.progressindicator.LinearProgressIndicator
-                                android:id="@+id/progressRutinaDetalle"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                app:indicatorColor="#CD0277"
-                                app:trackColor="#1F2937"
-                                app:trackCornerRadius="4dp"
-                                android:progress="0" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Fase 4: Gráfica de Evolución -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="12dp"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#1E293B">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:background="#16213E"
-                            android:padding="16dp">
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="TU EVOLUCIÓN (7 DÍAS)"
-                                    android:textColor="#FFFFFF"
-                                    android:textSize="12sp"
-                                    android:textStyle="bold"
-                                    android:alpha="0.7"
-                                    android:layout_alignParentStart="true"/>
-
-                                <TextView
-                                    android:id="@+id/tvRacha"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Racha: --"
-                                    android:textColor="#FFD700"
-                                    android:textSize="12sp"
-                                    android:textStyle="bold"
-                                    android:layout_alignParentEnd="true"
-                                    android:background="@drawable/bg_racha_badge"
-                                    android:paddingHorizontal="8dp"
-                                    android:paddingVertical="2dp"/>
-                            </RelativeLayout>
-
-                            <!-- Mini Stats Row -->
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:layout_marginTop="12dp"
-                                android:weightSum="3">
-
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:orientation="vertical"
-                                    android:gravity="center">
-                                    <TextView
-                                        android:id="@+id/tvStatTotal"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="--"
-                                        android:textColor="#FFFFFF"
-                                        android:textSize="16sp"
-                                        android:textStyle="bold"/>
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="Total"
-                                        android:textColor="#94A3B8"
-                                        android:textSize="10sp"/>
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:orientation="vertical"
-                                    android:gravity="center">
-                                    <TextView
-                                        android:id="@+id/tvStatMedia"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="--"
-                                        android:textColor="#FFFFFF"
-                                        android:textSize="16sp"
-                                        android:textStyle="bold"/>
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="Media/día"
-                                        android:textColor="#94A3B8"
-                                        android:textSize="10sp"/>
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:orientation="vertical"
-                                    android:gravity="center">
-                                    <TextView
-                                        android:id="@+id/tvStatEfectividad"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="--"
-                                        android:textColor="#CD0277"
-                                        android:textSize="16sp"
-                                        android:textStyle="bold"/>
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="Efectividad"
-                                        android:textColor="#94A3B8"
-                                        android:textSize="10sp"/>
-                                </LinearLayout>
-                            </LinearLayout>
-
-                            <com.github.mikephil.charting.charts.LineChart
-                                android:id="@+id/graphEvolucionRutinas"
-                                android:layout_width="match_parent"
-                                android:layout_height="140dp"
-                                android:layout_marginTop="12dp"/>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-
-
-                    <!-- Carrusel de Rutinas (ViewPager2) -->
                     <TextView
                         android:id="@+id/tvLabelFavoritos"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TUS FAVORITOS"
+                        android:text="MIS FAVORITOS"
                         android:textColor="#94A3B8"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginHorizontal="24dp"
-                        android:layout_marginTop="20dp"
-                        android:letterSpacing="0.1"/>
+                        android:layout_marginTop="16dp"
+                        android:letterSpacing="0.1"
+                        android:visibility="gone"/>
 
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vpRutinasFavoritas"
                         android:layout_width="match_parent"
-                        android:layout_height="160dp"
-                        android:layout_marginTop="8dp" />
+                        android:layout_height="200dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"/>
 
-                    <!-- Dots Indicator -->
                     <com.google.android.material.tabs.TabLayout
                         android:id="@+id/dotsIndicator"
                         android:layout_width="wrap_content"
@@ -366,8 +168,8 @@
                         app:tabGravity="center"
                         app:tabIndicatorHeight="0dp"
                         app:tabMaxWidth="12dp"
-                        app:tabRippleColor="@null" />
-
+                        app:tabRippleColor="@null"
+                        android:layout_marginBottom="0dp" />
 
                     <TextView
                         android:id="@+id/tvLabelAgenda"
@@ -378,8 +180,203 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:layout_marginHorizontal="24dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="4dp"
                         android:letterSpacing="0.1"/>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardResumenDia"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginTop="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp"
+                        app:strokeWidth="0dp">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <ImageView
+                                android:id="@+id/imgFondoCardResumen"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/cardio" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="#B30A1128" />
+
+                            <LinearLayout
+                                android:layout_width="390dp"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="16dp">
+
+                                <TextView
+                                    android:id="@+id/tvResumenTitulo"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:letterSpacing="0.1"
+                                    android:text="RESUMEN DE HOY"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvEstadoRutinaDia"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="No has empezado tu rutina todavía"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvProgresoTexto"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:text="0% completado"
+                                    android:textColor="#CD0277"
+                                    android:textSize="12sp" />
+
+                                <com.google.android.material.progressindicator.LinearProgressIndicator
+                                    android:id="@+id/progressRutinaDetalle"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:progress="0"
+                                    app:indicatorColor="#CD0277"
+                                    app:trackColor="#33FFFFFF"
+                                    app:trackCornerRadius="4dp" />
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:layout_marginTop="16dp"
+                                    android:layout_marginBottom="16dp"
+                                    android:background="#20FFFFFF" />
+
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:alpha="0.7"
+                                        android:text="TU EVOLUCIÓN (7 DÍAS)"
+                                        android:textColor="#FFFFFF"
+                                        android:textSize="12sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:id="@+id/tvRacha"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentEnd="true"
+                                        android:background="@drawable/bg_racha_badge"
+                                        android:paddingHorizontal="8dp"
+                                        android:paddingVertical="2dp"
+                                        android:text="Racha: --"
+                                        android:textColor="#FFD700"
+                                        android:textSize="12sp"
+                                        android:textStyle="bold" />
+                                </RelativeLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="12dp"
+                                    android:orientation="horizontal"
+                                    android:weightSum="3">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:id="@+id/tvStatTotal"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="--"
+                                            android:textColor="#FFFFFF"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Total"
+                                            android:textColor="#94A3B8"
+                                            android:textSize="10sp" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:id="@+id/tvStatMedia"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="--"
+                                            android:textColor="#FFFFFF"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Media/día"
+                                            android:textColor="#94A3B8"
+                                            android:textSize="10sp" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:id="@+id/tvStatEfectividad"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="--"
+                                            android:textColor="#CD0277"
+                                            android:textSize="16sp"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Efectividad"
+                                            android:textColor="#94A3B8"
+                                            android:textSize="10sp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                                <com.github.mikephil.charting.charts.LineChart
+                                    android:id="@+id/graphEvolucionRutinas"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="180dp"
+                                    android:layout_marginTop="16dp" />
+
+                            </LinearLayout>
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvMisRutinas"
@@ -387,120 +384,49 @@
                         android:layout_height="wrap_content"
                         android:nestedScrollingEnabled="false"
                         android:overScrollMode="never"
+                        android:paddingTop="8dp"
                         android:paddingBottom="80dp"
                         android:clipToPadding="false"/>
 
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 
-            <!-- Contenedor de PLANES -->
-            <FrameLayout
-                android:id="@+id/containerPlanes"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
-
-            <!-- Contenedor de MIS RUTINAS GUARDADAS -->
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/containerRutinasGuardadas"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                android:fillViewport="true">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp"
-                    android:paddingBottom="100dp">
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvRutinasGuardadas"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false" />
+            <FrameLayout android:id="@+id/containerPlanes" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+            <androidx.core.widget.NestedScrollView android:id="@+id/containerRutinasGuardadas" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:fillViewport="true">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:paddingBottom="100dp">
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRutinasGuardadas" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" />
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 
-            <!-- Contenedor de ENTRENAMIENTOS -->
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/containerEntrenamientos"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                android:fillViewport="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="100dp">
-
-                    <!-- Categorías Horizontal -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="10dp"
-                        app:hintEnabled="false"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="0dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etBuscarEjercicio"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Buscar por nombre..."
-                            android:textColor="#FFFFFF"
-                            android:textColorHint="#66FFFFFF"
-                            android:background="@drawable/bg_search_view"
-                            android:padding="12dp"
-                            android:maxLines="1"
-                            android:inputType="text"/>
+            <androidx.core.widget.NestedScrollView android:id="@+id/containerEntrenamientos" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:fillViewport="true">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="10dp" android:paddingBottom="100dp">
+                    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="20dp" android:layout_marginTop="10dp" app:hintEnabled="false" app:boxStrokeWidth="0dp" app:boxStrokeWidthFocused="0dp">
+                        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etBuscarEjercicio" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Buscar por nombre..." android:textColor="#FFFFFF" android:textColorHint="#66FFFFFF" android:background="@drawable/bg_search_view" android:padding="12dp" android:maxLines="1" android:inputType="text"/>
                     </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.tabs.TabLayout
-                        android:id="@+id/tabLayoutCategorias"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="#0A1128"
-                        app:tabMode="scrollable"
-                        app:tabIndicatorColor="#CD0277"
-                        app:tabSelectedTextColor="#FFFFFF"
-                        app:tabTextColor="#99FFFFFF"
-                        app:tabRippleColor="@null"
-                        android:layout_marginBottom="8dp"/>
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvEjerciciosRegistrados"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false" />
-
+                    <com.google.android.material.tabs.TabLayout android:id="@+id/tabLayoutCategorias" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#0A1128" app:tabMode="scrollable" app:tabIndicatorColor="#CD0277" app:tabSelectedTextColor="#FFFFFF" app:tabTextColor="#99FFFFFF" app:tabRippleColor="@null" android:layout_marginBottom="8dp"/>
+                    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvEjerciciosRegistrados" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" />
                     <LinearLayout
                         android:id="@+id/layoutEjerciciosVacio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="40dp"
+                        android:gravity="center"
+                        android:padding="32dp"
                         android:visibility="gone">
-
                         <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:src="@drawable/ic_menu"
-                            app:tint="#33FFFFFF" />
-
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:src="@android:drawable/ic_menu_search"
+                            app:tint="#66FFFFFF" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="No hay entrenamientos en esta categoría."
+                            android:text="No se encontraron ejercicios en esta categoría"
                             android:textColor="#66FFFFFF"
+                            android:textSize="16sp"
                             android:layout_marginTop="16dp"
                             android:gravity="center"/>
                     </LinearLayout>
-
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
 

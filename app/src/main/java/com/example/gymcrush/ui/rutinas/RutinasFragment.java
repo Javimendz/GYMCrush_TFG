@@ -57,6 +57,7 @@ public class RutinasFragment extends Fragment {
     private RecyclerView rvRutinas, rvEjercicios, rvRutinasGuardadas;
     private androidx.viewpager2.widget.ViewPager2 vpRutinasFavoritas;
     private com.google.android.material.tabs.TabLayout dotsIndicator;
+    private TextView tvLabelFavoritos;
     private RutinaApiAdapter rutinasAdapter;
     private EntrenamientoAdapter ejerciciosAdapter;
     private RutinaGuardadaAdapter rutinasGuardadasAdapter;
@@ -70,6 +71,7 @@ public class RutinasFragment extends Fragment {
     private LineChart graphEvolucion;
     private TextView tvStatTotal, tvStatMedia, tvStatEfectividad, tvFechaSeleccionada;
     private TextView tvRacha, tvEstadoRutinaDia, tvProgresoTexto;
+    private android.widget.ImageView imgFondoCardResumen;
     private com.google.android.material.progressindicator.LinearProgressIndicator progressRutinaDetalle;
     private MaterialButton btnCambiarFecha;
     private com.google.android.material.floatingactionbutton.FloatingActionButton btnIrACrear;
@@ -95,6 +97,9 @@ public class RutinasFragment extends Fragment {
         rvRutinas = vista.findViewById(R.id.rvMisRutinas);
         rvEjercicios = vista.findViewById(R.id.rvEjerciciosRegistrados);
         rvRutinasGuardadas = vista.findViewById(R.id.rvRutinasGuardadas);
+        vpRutinasFavoritas = vista.findViewById(R.id.vpRutinasFavoritas);
+        dotsIndicator = vista.findViewById(R.id.dotsIndicator);
+        tvLabelFavoritos = vista.findViewById(R.id.tvLabelFavoritos);
 
         
         btnIrACrear = vista.findViewById(R.id.btnIrACrear);
@@ -122,6 +127,7 @@ public class RutinasFragment extends Fragment {
         tvEstadoRutinaDia = vista.findViewById(R.id.tvEstadoRutinaDia);
         tvProgresoTexto = vista.findViewById(R.id.tvProgresoTexto);
         progressRutinaDetalle = vista.findViewById(R.id.progressRutinaDetalle);
+        imgFondoCardResumen = vista.findViewById(R.id.imgFondoCardResumen);
 
         // Nuevo: Barra de progreso y Calendario Horizontal
         com.google.android.material.progressindicator.LinearProgressIndicator progressRutina = vista.findViewById(R.id.progressRutina);
@@ -254,18 +260,20 @@ public class RutinasFragment extends Fragment {
     }
 
     private void setupCarruselRutinas() {
-        if (vpRutinasFavoritas == null) return;
+        if (vpRutinasFavoritas == null || dotsIndicator == null) return;
 
         List<RepositorioRutinas.RutinaModel> rutinas = RepositorioRutinas.getRutinas();
 
         if (rutinas.isEmpty()) {
             vpRutinasFavoritas.setVisibility(View.GONE);
             dotsIndicator.setVisibility(View.GONE);
+            if (tvLabelFavoritos != null) tvLabelFavoritos.setVisibility(View.GONE);
             return;
         }
 
         vpRutinasFavoritas.setVisibility(View.VISIBLE);
         dotsIndicator.setVisibility(View.VISIBLE);
+        if (tvLabelFavoritos != null) tvLabelFavoritos.setVisibility(View.VISIBLE);
 
         if (vpRutinasFavoritas.getAdapter() == null) {
             RutinaGuardadaAdapter carruselAdapter = new RutinaGuardadaAdapter(rutinas, true);
@@ -405,6 +413,7 @@ public class RutinasFragment extends Fragment {
             tvEstadoRutinaDia.setText("¡Día de descanso!");
             tvProgresoTexto.setText("Tómate un respiro hoy");
             progressRutinaDetalle.setProgress(0);
+            if (imgFondoCardResumen != null) imgFondoCardResumen.setImageResource(R.drawable.cardio);
             return;
         }
 
@@ -413,6 +422,18 @@ public class RutinasFragment extends Fragment {
 
         progressRutinaDetalle.setProgress(porcentaje, true);
         tvProgresoTexto.setText(porcentaje + "% completado (" + completadas + "/" + lista.size() + ")");
+
+        // Cargar imagen dinámica basada en el primer entrenamiento
+        if (imgFondoCardResumen != null && !lista.isEmpty()) {
+            String nombre = lista.get(0).getNombreEntrenamiento().toLowerCase();
+            if (nombre.contains("spinning") || nombre.contains("bici") || nombre.contains("cycle")) {
+                imgFondoCardResumen.setImageResource(R.drawable.spinning);
+            } else if (nombre.contains("pesas") || nombre.contains("fuerza") || nombre.contains("musculacion")) {
+                imgFondoCardResumen.setImageResource(R.drawable.musculacion);
+            } else {
+                imgFondoCardResumen.setImageResource(R.drawable.cardio);
+            }
+        }
 
         if (porcentaje == 100) {
             tvEstadoRutinaDia.setText("¡Objetivo cumplido! 🏆");
