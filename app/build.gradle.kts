@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.gridlayout)
     implementation(libs.fragment)
     implementation(libs.recyclerview)
+    implementation(libs.mpandroidchart)
 
     // QR Code Generation
     implementation(libs.zxing.android)

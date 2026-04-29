@@ -26,8 +26,10 @@ slidingRootNav = "v1.1.1"
 stomp = "1.6.6"
 rxjava2 = "2.2.21"
 rxandroid2 = "2.1.1"
+mpandroidchart = "v3.1.0"
 
 [libraries]
+mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 rxjava2 = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rxjava2" }
 rxandroid2 = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rxandroid2" }
 stomp = { group = "com.github.NaikSoftware", name = "StompProtocolAndroid", version.ref = "stomp" }

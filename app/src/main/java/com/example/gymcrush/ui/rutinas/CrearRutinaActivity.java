@@ -209,7 +209,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
             public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Long entrenamientoId = response.body().getDatos().getId();
-                    RepositorioRutinas.guardarRutinaCompletaConPortada(entrenamientoId, nombre, seleccionados, urlPortada);
+                    RepositorioRutinas.guardarRutinaCompletaConPortada(CrearRutinaActivity.this, entrenamientoId, nombre, seleccionados, urlPortada);
 
                     // Añadir a plan si está marcado
                     if (cbAnadirAPlan != null && cbAnadirAPlan.isChecked() && !listaPlanes.isEmpty()) {

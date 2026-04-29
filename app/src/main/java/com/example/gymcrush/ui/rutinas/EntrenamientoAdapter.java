@@ -50,13 +50,19 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         String categoria = item.getCategoria() != null ? item.getCategoria() : "Sin categoría";
         holder.tvDetalles.setText(categoria + " | " + item.getDuracion() + " min | " + item.getIntensidad());
 
-        if (item.getUrlVideo() != null && !item.getUrlVideo().isEmpty()) {
+        // Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback para GIFs)
+        String imageUrl = (item.getUrlImagen() != null && !item.getUrlImagen().isEmpty()) 
+                ? item.getUrlImagen() 
+                : item.getUrlVideo();
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(holder.itemView.getContext())
-                    .load(item.getUrlVideo())
-                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_workout)
+                    .error(R.drawable.ic_workout)
                     .into(holder.imgRutina);
         } else {
-            holder.imgRutina.setImageResource(R.drawable.ic_launcher_foreground);
+            holder.imgRutina.setImageResource(R.drawable.ic_workout);
         }
 
         holder.btnMasOpciones.setVisibility(isAdmin ? View.VISIBLE : View.GONE);

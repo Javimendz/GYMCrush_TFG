@@ -28,6 +28,8 @@ public class RutinaResponseDto {
     private String series;
     @SerializedName("repeticiones")
     private String repeticiones;
+    @SerializedName("urlImagen")
+    private String urlImagen;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -54,4 +56,6 @@ public class RutinaResponseDto {
     public void setSeries(String series) { this.series = series; }
     public String getRepeticiones() { return repeticiones; }
     public void setRepeticiones(String repeticiones) { this.repeticiones = repeticiones; }
+    public String getUrlImagen() { return urlImagen; }
+    public void setUrlImagen(String urlImagen) { this.urlImagen = urlImagen; }
 }

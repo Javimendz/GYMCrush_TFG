@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 import java.util.List;
@@ -73,6 +74,21 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
 
         holder.itemView.setOnClickListener(v -> listener.onClick(rutina));
         holder.btnOpciones.setOnClickListener(v -> listener.onEliminar(rutina));
+
+        // 4. Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback)
+        String imageUrl = (rutina.getUrlImagen() != null && !rutina.getUrlImagen().isEmpty()) 
+                ? rutina.getUrlImagen() 
+                : rutina.getUrlVideo();
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .error(R.drawable.ic_launcher_foreground)
+                    .into(holder.imgRutina);
+        } else {
+            holder.imgRutina.setImageResource(R.drawable.ic_launcher_foreground);
+        }
     }
 
     @Override
