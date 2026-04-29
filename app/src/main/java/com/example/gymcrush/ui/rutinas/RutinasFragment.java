@@ -124,6 +124,32 @@ public class RutinasFragment extends Fragment {
             public void onEliminar(RutinaResponseDto rutina) {
                 eliminarRutinaDeAgenda(rutina.getId());
             }
+
+            @Override
+            public void onClick(RutinaResponseDto rutina) {
+                Intent intent = new Intent(getActivity(), DetalleRutinaActivity.class);
+                
+                // Buscamos el entrenamiento en el catálogo para obtener la descripción y el video
+                EntrenamientoResponseDto entrenamientoCompleto = listaEjerciciosCompleta.stream()
+                        .filter(e -> e.getId().equals(rutina.getEntrenamientoId()))
+                        .findFirst()
+                        .orElse(null);
+
+                intent.putExtra("NOMBRE_RUTINA", rutina.getNombreEntrenamiento());
+                intent.putExtra("ASIGNACION_ID", rutina.getId()); // El ID para completar la rutina
+                intent.putExtra("DURACION", rutina.getDuracion());
+                intent.putExtra("INTENSIDAD", rutina.getIntensidad());
+                
+                if (entrenamientoCompleto != null) {
+                    intent.putExtra("DESCRIPCION", entrenamientoCompleto.getDescripcion());
+                    intent.putExtra("URL_VIDEO", entrenamientoCompleto.getUrlVideo());
+                } else {
+                    intent.putExtra("DESCRIPCION", "Sin descripción disponible.");
+                    intent.putExtra("URL_VIDEO", rutina.getUrlVideo());
+                }
+
+                startActivity(intent);
+            }
         });
         rvRutinas.setAdapter(rutinasAdapter);
 
@@ -141,7 +167,11 @@ public class RutinasFragment extends Fragment {
                 // Ver detalles o empezar
                 Intent intent = new Intent(getActivity(), DetalleRutinaActivity.class);
                 intent.putExtra("RUTINA_ID", entrenamiento.getId());
-                intent.putExtra("RUTINA_NOMBRE", entrenamiento.getNombre());
+                intent.putExtra("NOMBRE_RUTINA", entrenamiento.getNombre());
+                intent.putExtra("URL_VIDEO", entrenamiento.getUrlVideo());
+                intent.putExtra("DESCRIPCION", entrenamiento.getDescripcion());
+                intent.putExtra("DURACION", entrenamiento.getDuracion());
+                intent.putExtra("INTENSIDAD", entrenamiento.getIntensidad());
                 startActivity(intent);
             }
 
@@ -190,7 +220,9 @@ public class RutinasFragment extends Fragment {
             btnGenerarIA.setOnClickListener(v -> generarRutinaIA());
         }
 
-        fabAddEjercicio.setOnClickListener(v -> mostrarDialogoNuevoEjercicio());
+        if (fabAddEjercicio != null) {
+            fabAddEjercicio.setOnClickListener(v -> mostrarDialogoNuevoEjercicio());
+        }
 
         actualizarUIFecha();
         cargarRutinaPorFecha();
@@ -450,8 +482,12 @@ public class RutinasFragment extends Fragment {
                 } else if (position == 1) {
                     containerPlanes.setVisibility(View.VISIBLE);
                     mostrarFragmentPlanes();
+                } else if (position == 2) {
+                    containerRutinasGuardadas.setVisibility(View.VISIBLE);
+                    actualizarRutinasGuardadas(); 
                 } else {
                     containerEjercicios.setVisibility(View.VISIBLE);
+                    configurarFiltrosCategorias();
                 }
             }
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
@@ -557,17 +593,60 @@ public class RutinasFragment extends Fragment {
     }
 
     private void actualizarRutinasGuardadas() {
-        if (rutinasGuardadasAdapter != null) {
-            rutinasGuardadasAdapter.updateList(RepositorioRutinas.getRutinas());
-        }
+        if (userId == -1) return;
+        
+        RetrofitClient.getApiService().getEntrenamientosUsuario(userId).enqueue(new Callback<ApiResponseDto<List<EntrenamientoResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Response<ApiResponseDto<List<EntrenamientoResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<EntrenamientoResponseDto> entrenamientos = response.body().getDatos();
+                    
+                    // Convertimos los DTOs a RutinaModel con toda la información necesaria
+                    List<RepositorioRutinas.RutinaModel> listaModelos = entrenamientos.stream()
+                            .map(e -> new RepositorioRutinas.RutinaModel(
+                                    e.getId(),
+                                    e.getNombre(),
+                                    e.getDuracion() + " min",
+                                    e.getIntensidad(),
+                                    e.getDescripcion(),
+                                    e.getUrlVideo(),
+                                    R.drawable.ic_launcher_background,
+                                    new ArrayList<>()
+                            ))
+                            .collect(Collectors.toList());
+
+                    if (rutinasGuardadasAdapter != null) {
+                        rutinasGuardadasAdapter.updateList(listaModelos);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Throwable t) {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Error al cargar tus rutinas", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void mostrarFragmentPlanes() {
         PlanesFragment fragment = new PlanesFragment();
         fragment.setOnPlanSubscriptionListener(() -> {
             // Cuando se suscribe a un plan, volvemos a la agenda y recargamos
-            tabLayoutPrincipal.getTabAt(0).select();
-            cargarRutinaPorFecha();
+            if (tabLayoutPrincipal != null) {
+                tabLayoutPrincipal.getTabAt(0).select();
+            }
+            
+            // Forzamos la fecha a hoy para ver los cambios del plan recién activado
+            // En el log se ve que "Hoy" es 2026-04-29 (miércoles)
+            fechaSeleccionada = LocalDate.now();
+            actualizarUIFecha();
+            
+            // Pequeño delay para asegurar que el backend ha procesado la asignación de ejercicios del plan
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                cargarRutinaPorFecha();
+            }, 800);
         });
         
         getChildFragmentManager().beginTransaction()
@@ -576,13 +655,37 @@ public class RutinasFragment extends Fragment {
     }
 
     private void actualizarVisibilidadFab(int tabPosition) {
-        if (tabPosition == 2) {
+        if (tabPosition == 0) {
+            // Agenda: Botón para añadir ejercicio rápido hoy
+            if (fabAddEjercicio != null) fabAddEjercicio.hide();
+            if (btnIrACrear != null) {
+                btnIrACrear.show();
+                btnIrACrear.setOnClickListener(v -> {
+                    Intent intent = new Intent(getActivity(), CrearRutinaActivity.class);
+                    startActivity(intent);
+                });
+            }
+        } else if (tabPosition == 1) {
+            // Explorar: FAB oculto (se usa el interno de PlanesFragment)
+            if (btnIrACrear != null) btnIrACrear.hide();
+            if (fabAddEjercicio != null) fabAddEjercicio.hide();
+        } else if (tabPosition == 2) {
+            // Mis Rutinas: Botón para crear nueva plantilla (Entrenamiento)
+            if (fabAddEjercicio != null) fabAddEjercicio.hide();
+            if (btnIrACrear != null) {
+                btnIrACrear.show();
+                btnIrACrear.setOnClickListener(v -> {
+                    // Aquí podrías abrir CrearRutinaActivity pero para guardarla como plantilla
+                    Intent intent = new Intent(getActivity(), CrearRutinaActivity.class);
+                    intent.putExtra("ES_PLANTILLA", true);
+                    startActivity(intent);
+                });
+            }
+        } else if (tabPosition == 3) {
+            // Biblioteca: Solo Admin puede añadir ejercicios base
             if (btnIrACrear != null) btnIrACrear.hide();
             if (isAdmin && fabAddEjercicio != null) fabAddEjercicio.show();
             else if (fabAddEjercicio != null) fabAddEjercicio.hide();
-        } else {
-            if (fabAddEjercicio != null) fabAddEjercicio.hide();
-            if (btnIrACrear != null) btnIrACrear.show();
         }
     }
 
@@ -747,14 +850,21 @@ public class RutinasFragment extends Fragment {
     }
 
     private void guardarEntrenamientoDesdeExterno(com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto exercise, androidx.appcompat.app.AlertDialog parentDialog) {
-        // En EntrenamientoRequestDto no guardamos el GIF, pero podemos ponerlo en la descripción o adaptarlo
+        // En EntrenamientoRequestDto guardamos el GIF en urlVideo para mostrarlo en la app
         String desc = exercise.getDescription() != null ? exercise.getDescription() : "Ejercicio para " + exercise.getTarget();
+        
+        // Si hay instrucciones, las añadimos a la descripción
+        if (exercise.getInstructions() != null && !exercise.getInstructions().isEmpty()) {
+            desc += "\n\nInstrucciones:\n" + String.join("\n", exercise.getInstructions());
+        }
+
         EntrenamientoRequestDto request = new EntrenamientoRequestDto(
                 exercise.getName(),
                 desc,
                 10, // Duración defecto
                 "Media", // Intensidad defecto
-                exercise.getTarget().toUpperCase() // Usamos el músculo objetivo como categoría
+                exercise.getTarget().toUpperCase(), // Usamos el músculo objetivo como categoría
+                exercise.getGifUrl() // Pasamos la URL del GIF
         );
 
         RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {

@@ -98,7 +98,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="numberDecimal"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/black" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -119,7 +119,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="number"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/black" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
@@ -146,7 +146,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="number"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/black" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -158,12 +158,12 @@
                             android:hint="Actividad"
                             app:boxBackgroundColor="@android:color/transparent"
                             app:hintTextColor="@color/white">
-                            <AutoCompleteTextView
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
                                 android:id="@+id/spinnerActividad"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="none"
-                                android:textColor="@color/white" />
+                                android:textColor="@color/black" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
@@ -175,12 +175,12 @@
                         android:hint="Objetivo"
                         app:boxBackgroundColor="@android:color/transparent"
                         app:hintTextColor="@color/white">
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/spinnerObjetivo"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton

@@ -36,11 +36,32 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
         holder.tvNombre.setText(rutina.getNombreEntrenamiento());
         holder.tvDetalles.setText(rutina.getDuracion() + " min | Intensidad: " + rutina.getIntensidad());
         
-        // Cargar imagen con Glide
-        if (rutina.getUrlVideo() != null && !rutina.getUrlVideo().isEmpty()) {
+        // Cargar imagen con Glide (Soporte para miniaturas de video y YouTube)
+        String urlToLoad = rutina.getUrlVideo();
+        if (urlToLoad != null && !urlToLoad.isEmpty()) {
+            com.bumptech.glide.request.RequestOptions options = new com.bumptech.glide.request.RequestOptions()
+                    .frame(1000000) // 1 segundo
+                    .centerCrop();
+
+            // Si es YouTube, extraemos el thumbnail directamente
+            if (urlToLoad.contains("youtube.com") || urlToLoad.contains("youtu.be")) {
+                String videoId = "";
+                if (urlToLoad.contains("v=")) {
+                    videoId = urlToLoad.split("v=")[1].split("&")[0];
+                } else if (urlToLoad.contains("youtu.be/")) {
+                    videoId = urlToLoad.split("youtu.be/")[1].split("\\?")[0];
+                }
+                if (!videoId.isEmpty()) {
+                    urlToLoad = "https://img.youtube.com/vi/" + videoId + "/0.jpg";
+                }
+            }
+
             Glide.with(holder.itemView.getContext())
-                    .load(rutina.getUrlVideo())
+                    .asBitmap()
+                    .load(urlToLoad)
+                    .apply(options)
                     .placeholder(R.drawable.ic_launcher_foreground)
+                    .error(R.drawable.ic_launcher_foreground)
                     .into(holder.imgRutina);
         } else {
             holder.imgRutina.setImageResource(R.drawable.ic_launcher_foreground);
@@ -48,19 +69,21 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
 
         if (rutina.getCompletado()) {
             holder.tvEstado.setText("COMPLETADA ✓");
-            holder.tvEstado.setTextColor(0xFF4CAF50); // Verde
+            holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF4CAF50));
+            holder.tvEstado.setTextColor(0xFFFFFFFF);
             holder.itemView.setAlpha(0.6f);
             holder.tvNombre.setPaintFlags(holder.tvNombre.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             holder.tvEstado.setText("PENDIENTE");
-            holder.tvEstado.setTextColor(0xFFE91E63); // Rosa/Fucsia
+            holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFCD0277));
+            holder.tvEstado.setTextColor(0xFFFFFFFF);
             holder.itemView.setAlpha(1.0f);
             holder.tvNombre.setPaintFlags(holder.tvNombre.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
         }
 
         holder.itemView.setOnClickListener(v -> {
-            if (!rutina.getCompletado() && listener != null) {
-                listener.onCompletar(rutina);
+            if (listener != null) {
+                listener.onClick(rutina);
             }
         });
 
@@ -100,6 +123,7 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
     public interface OnRutinaClickListener {
         void onCompletar(RutinaResponseDto rutina);
         void onEliminar(RutinaResponseDto rutina);
+        void onClick(RutinaResponseDto rutina);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

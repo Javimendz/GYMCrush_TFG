@@ -48,7 +48,12 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EJERCICIOS" />
+                android:text="MIS RUTINAS" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BIBLIOTECA" />
         </com.google.android.material.tabs.TabLayout>
 
         <!-- Overlay de Carga IA (Invisible por defecto) -->
@@ -257,13 +262,13 @@
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vpRutinasFavoritas"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="140dp"
                         android:layout_marginTop="16dp" />
 
                     <!-- Dots Indicator -->
                     <com.google.android.material.tabs.TabLayout
                         android:id="@+id/dotsIndicator"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         app:tabBackground="@drawable/tab_selector_dot"

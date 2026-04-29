@@ -771,6 +771,13 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                         public void onResponse(Call<ApiResponseDto<HorarioResponseDto>> call, Response<ApiResponseDto<HorarioResponseDto>> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(getContext(), "Horario creado con éxito", Toast.LENGTH_SHORT).show();
+                                diaActual = dia;
+                                for (MaterialButton btn : botonesDias) {
+                                    if (btn.getText().toString().equalsIgnoreCase(diaActual)) {
+                                        actualizarEstiloBotones(btn);
+                                        break;
+                                    }
+                                }
                                 viewModel.cargarHorariosPorDia(diaActual);
                             } else {
                                 Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();

@@ -14,21 +14,31 @@ public class RepositorioRutinas {
     private static List<RutinaModel> listaRutinas = new ArrayList<>();
 
     public static class RutinaModel {
+        public Long id;
         public String nombre;
         public String duracion;
         public String dificultad;
+        public String descripcion;
+        public String urlVideo;
         public int imagenResId;
         public boolean completada = false;
         public List<Ejercicio> ejercicios;
 
         public RutinaModel(String nombre, String duracion, String dificultad, int imagenResId) {
-            this(nombre, duracion, dificultad, imagenResId, new ArrayList<>());
+            this(null, nombre, duracion, dificultad, "", "", imagenResId, new ArrayList<>());
         }
 
         public RutinaModel(String nombre, String duracion, String dificultad, int imagenResId, List<Ejercicio> ejercicios) {
+            this(null, nombre, duracion, dificultad, "", "", imagenResId, ejercicios);
+        }
+
+        public RutinaModel(Long id, String nombre, String duracion, String dificultad, String descripcion, String urlVideo, int imagenResId, List<Ejercicio> ejercicios) {
+            this.id = id;
             this.nombre = nombre;
             this.duracion = duracion;
             this.dificultad = dificultad;
+            this.descripcion = descripcion;
+            this.urlVideo = urlVideo;
             this.imagenResId = imagenResId;
             this.ejercicios = ejercicios;
         }

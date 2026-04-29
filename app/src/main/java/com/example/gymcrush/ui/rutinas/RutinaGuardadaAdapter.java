@@ -45,12 +45,29 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
         RepositorioRutinas.RutinaModel rutina = listaRutinas.get(position);
         holder.tvNombre.setText(rutina.nombre);
         holder.tvDetalles.setText(rutina.duracion + " | Dificultad: " + rutina.dificultad);
-        holder.imgRutina.setImageResource(rutina.imagenResId);
+        
+        // Cargar imagen con Glide si hay URL (Soporte para miniaturas de video)
+        if (rutina.urlVideo != null && !rutina.urlVideo.isEmpty()) {
+            com.bumptech.glide.request.RequestOptions options = new com.bumptech.glide.request.RequestOptions()
+                    .frame(1000000) // Captura un frame del video (1 segundo)
+                    .centerCrop();
+
+            com.bumptech.glide.Glide.with(holder.itemView.getContext())
+                    .asBitmap()
+                    .load(rutina.urlVideo)
+                    .apply(options)
+                    .placeholder(R.drawable.ic_launcher_foreground)
+                    .error(rutina.imagenResId)
+                    .into(holder.imgRutina);
+        } else {
+            holder.imgRutina.setImageResource(rutina.imagenResId);
+        }
 
         // Lógica de progreso y estado
+        holder.tvEstado.setTextColor(Color.WHITE);
         if (rutina.completada) {
             holder.tvEstado.setText("Rutina Completada ✓");
-            holder.tvEstado.setTextColor(Color.parseColor("#4CAF50")); // Verde
+            holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
         } else {
             // Calcular progreso parcial
             List<Ejercicio> ejercicios = RepositorioRutinas.getEjerciciosDeRutina(rutina.nombre);
@@ -62,21 +79,27 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
                 }
                 
                 if (hechos > 0) {
-                    holder.tvEstado.setText("Progreso: " + hechos + "/" + total + " completados");
-                    holder.tvEstado.setTextColor(Color.parseColor("#FF9800")); // Naranja
+                    holder.tvEstado.setText("Progreso: " + hechos + "/" + total);
+                    holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800")));
                 } else {
                     holder.tvEstado.setText("Empezar Entreno");
-                    holder.tvEstado.setTextColor(Color.parseColor("#E91E63")); // Rosa original
+                    holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#CD0277")));
                 }
             } else {
                 holder.tvEstado.setText("Empezar Entreno");
-                holder.tvEstado.setTextColor(Color.parseColor("#E91E63"));
+                holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#CD0277")));
             }
         }
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), DetalleRutinaActivity.class);
             intent.putExtra("NOMBRE_RUTINA", rutina.nombre);
+            intent.putExtra("DESCRIPCION", rutina.descripcion);
+            intent.putExtra("URL_VIDEO", rutina.urlVideo);
+            intent.putExtra("RUTINA_ID", rutina.id);
+            intent.putExtra("DURACION", rutina.duracion);
+            intent.putExtra("INTENSIDAD", rutina.dificultad);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             v.getContext().startActivity(intent);
         });
     }

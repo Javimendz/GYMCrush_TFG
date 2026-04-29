@@ -17,10 +17,21 @@ import java.util.Locale;
 
 public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaViewHolder> {
 
-    public interface OnComidaClickListener { void onComidaClick(ComidaDiariaResponseDto comida); }
-    public interface OnComidaLongClickListener { void onComidaLongClick(ComidaDiariaResponseDto comida); }
-    public interface OnHechaClickListener { void onHechaClick(ComidaDiariaResponseDto comida, boolean isChecked); }
-    public interface OnMenuClickListener { void onMenuClick(View view, ComidaDiariaResponseDto comida); }
+    public interface OnComidaClickListener {
+        void onComidaClick(ComidaDiariaResponseDto comida);
+    }
+
+    public interface OnComidaLongClickListener {
+        void onComidaLongClick(ComidaDiariaResponseDto comida);
+    }
+
+    public interface OnHechaClickListener {
+        void onHechaClick(ComidaDiariaResponseDto comida, boolean isChecked);
+    }
+
+    public interface OnMenuClickListener {
+        void onMenuClick(View view, ComidaDiariaResponseDto comida);
+    }
 
     private List<ComidaDiariaResponseDto> comidas = new ArrayList<>();
     private OnComidaClickListener clickListener;
@@ -33,12 +44,25 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         notifyDataSetChanged();
     }
 
-    public List<ComidaDiariaResponseDto> getComidas() { return comidas; }
+    public List<ComidaDiariaResponseDto> getComidas() {
+        return comidas;
+    }
 
-    public void setOnComidaClickListener(OnComidaClickListener listener) { this.clickListener = listener; }
-    public void setOnComidaLongClickListener(OnComidaLongClickListener listener) { this.longClickListener = listener; }
-    public void setOnHechaClickListener(OnHechaClickListener listener) { this.hechaClickListener = listener; }
-    public void setOnMenuClickListener(OnMenuClickListener listener) { this.menuClickListener = listener; }
+    public void setOnComidaClickListener(OnComidaClickListener listener) {
+        this.clickListener = listener;
+    }
+
+    public void setOnComidaLongClickListener(OnComidaLongClickListener listener) {
+        this.longClickListener = listener;
+    }
+
+    public void setOnHechaClickListener(OnHechaClickListener listener) {
+        this.hechaClickListener = listener;
+    }
+
+    public void setOnMenuClickListener(OnMenuClickListener listener) {
+        this.menuClickListener = listener;
+    }
 
     @NonNull
     @Override
@@ -54,7 +78,9 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
     }
 
     @Override
-    public int getItemCount() { return comidas.size(); }
+    public int getItemCount() {
+        return comidas.size();
+    }
 
     static class ComidaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDesc, tvHora, tvMacros;
@@ -72,69 +98,73 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
             cbHecha = itemView.findViewById(R.id.cbComidaHecha);
         }
 
-        public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener,
-                         OnComidaLongClickListener longClickListener,
-                         OnHechaClickListener hechaClickListener, OnMenuClickListener menuClickListener) {
+        public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener, OnComidaLongClickListener longClickListener, OnHechaClickListener hechaClickListener, OnMenuClickListener menuClickListener) {
+            tvTitulo.setText(comida.getNombreAlimento() != null ? comida.getNombreAlimento() : comida.getMomento());
+            tvDesc.setText(comida.getMomento()); // Invertimos para que el plato sea el título
 
-            tvTitulo.setText(comida.getNombreAlimento() != null ? comida.getNombreAlimento() : "Sin nombre");
-            tvDesc.setText(comida.getMomento());
-
-            // 1. Lógica de Macros
             if (comida.getCalorias() != null) {
-                tvMacros.setText(String.format(Locale.getDefault(), "%.0f kcal | P:%.0fg | C:%.0fg | G:%.0fg",
-                        comida.getCalorias(), comida.getProteina(), comida.getCarbohidratos(), comida.getGrasas()));
+                String macros = String.format(Locale.getDefault(), "%.0f kcal | P: %.0fg | C: %.0fg | G: %.0fg",
+                        comida.getCalorias(),
+                        comida.getProteina() != null ? comida.getProteina() : 0,
+                        comida.getCarbohidratos() != null ? comida.getCarbohidratos() : 0,
+                        comida.getGrasas() != null ? comida.getGrasas() : 0);
+                tvMacros.setText(macros);
                 tvMacros.setVisibility(View.VISIBLE);
             } else {
                 tvMacros.setVisibility(View.GONE);
             }
 
-            // 2. ESTADO VISUAL Y BLOQUEO (Solución a tu problema)
-            cbHecha.setOnCheckedChangeListener(null); // Limpiar listener para evitar bugs de reciclaje
+            itemView.setOnClickListener(v -> {
+                if (clickListener != null) {
+                    clickListener.onComidaClick(comida);
+                }
+            });
+
+            if (ivMenu != null) {
+                ivMenu.setOnClickListener(v -> {
+                    if (menuClickListener != null) {
+                        menuClickListener.onMenuClick(v, comida);
+                    }
+                });
+            }
+
+            // Lógica del Checkbox para selección de consumo
+            cbHecha.setOnCheckedChangeListener(null);
             cbHecha.setChecked(comida.isSelected());
-
-            // Si la comida ya tiene ID (está en la DB), bloqueamos el checkbox para que no se pueda desmarcar
-            cbHecha.setEnabled(comida.getId() == null);
-
-            // Efecto de oscurecimiento si está seleccionado
-            itemView.setAlpha(comida.isSelected() ? 0.5f : 1.0f);
+            itemView.setAlpha(comida.isSelected() ? 0.6f : 1.0f);
 
             cbHecha.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 comida.setSelected(isChecked);
-                itemView.setAlpha(isChecked ? 0.5f : 1.0f);
-                if (hechaClickListener != null) hechaClickListener.onHechaClick(comida, isChecked);
-            });
+                itemView.setAlpha(isChecked ? 0.6f : 1.0f);
 
-            // 3. Imagen con Glide
-            Glide.with(itemView.getContext())
-                    .load(comida.getImagenUrl())
-                    .centerCrop()
-                    .placeholder(R.drawable.ic_compras)
-                    .into(ivIcono);
-
-            if (ivMenu != null) ivMenu.setOnClickListener(v -> menuClickListener.onMenuClick(v, comida));
-            itemView.setOnClickListener(v -> clickListener.onComidaClick(comida));
-            itemView.setOnLongClickListener(v -> {
-                if (longClickListener != null) {
-                    longClickListener.onComidaLongClick(comida);
-                    return true;
+                if (hechaClickListener != null) {
+                    hechaClickListener.onHechaClick(comida, isChecked);
                 }
-                return false;
             });
 
-            // 4. Lógica de Horas
-            tvHora.setText(asignarHoraSegunMomento(comida.getMomento()));
-        }
-
-        private String asignarHoraSegunMomento(String momento) {
-            if (momento == null) return "--:--";
-            switch (momento.toUpperCase()) {
-                case "DESAYUNO": return "08:30";
-                case "ALMUERZO": return "11:30";
-                case "COMIDA": return "14:30";
-                case "MERIENDA": return "18:00";
-                case "CENA": return "21:30";
-                default: return "12:00";
+            if (comida.getImagenUrl() != null && !comida.getImagenUrl().isEmpty()) {
+                Glide.with(itemView.getContext())
+                        .load(comida.getImagenUrl())
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_compras)
+                        .error(R.drawable.ic_compras)
+                        .into(ivIcono);
+            } else {
+                ivIcono.setImageResource(R.drawable.ic_compras);
             }
+
+            // ... resto del código de la hora
+            String hora = "--:--";
+            if (comida.getMomento() != null) {
+                switch (comida.getMomento().toUpperCase()) {
+                    case "DESAYUNO": hora = "08:30"; break;
+                    case "ALMUERZO": case "MEDIA MAÑANA": hora = "11:30"; break;
+                    case "COMIDA": hora = "14:30"; break;
+                    case "MERIENDA": hora = "18:00"; break;
+                    case "CENA": hora = "21:30"; break;
+                }
+            }
+            tvHora.setText(hora);
         }
     }
 }

@@ -329,7 +329,7 @@ public class DietaViewModel extends ViewModel {
         try {
             com.google.gson.Gson gson = new com.google.gson.Gson();
             FatSecretResponseDto fsResponse = gson.fromJson(jsonString, FatSecretResponseDto.class);
-            
+
             List<ComidaDiariaRequestDto> conversion = new java.util.ArrayList<>();
             if (fsResponse != null && fsResponse.getRecipes() != null && fsResponse.getRecipes().getRecipe() != null) {
                 for (FatSecretRecipeDto recipe : fsResponse.getRecipes().getRecipe()) {
@@ -338,7 +338,7 @@ public class DietaViewModel extends ViewModel {
                     dto.setImagenUrl(recipe.getRecipeImage());
                     dto.setRecipeUrl(recipe.getRecipeUrl());
                     dto.setDescripcion(recipe.getRecipeDescription());
-                    
+
                     if (recipe.getRecipeNutrition() != null) {
                         try {
                             dto.setCalorias(Double.parseDouble(recipe.getRecipeNutrition().getCalories()));

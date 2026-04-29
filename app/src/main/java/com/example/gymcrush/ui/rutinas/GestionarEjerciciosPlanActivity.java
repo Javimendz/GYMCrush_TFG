@@ -82,11 +82,16 @@ public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
         RepositorioEjercicios.getTodosAsync(new RepositorioEjercicios.RepositorioCallback() {
             @Override
             public void onLoaded(List<Ejercicio> ejercicios) {
-                catalogoEjercicios = ejercicios;
+                if (ejercicios == null || ejercicios.isEmpty()) {
+                    catalogoEjercicios = RepositorioEjercicios.getTodos();
+                } else {
+                    catalogoEjercicios = ejercicios;
+                }
             }
             @Override
             public void onError(String mensaje) {
-                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error al cargar catálogo: " + mensaje, Toast.LENGTH_SHORT).show();
+                catalogoEjercicios = RepositorioEjercicios.getTodos();
+                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Cargando catálogo local", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -126,14 +131,16 @@ public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
         builder.setView(view)
                 .setTitle("Añadir Ejercicio al Plan")
                 .setPositiveButton("Añadir", (dialog, which) -> {
+                    if (spinnerEjercicios.getSelectedItem() == null) {
+                        Toast.makeText(this, "Por favor, selecciona un ejercicio", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     Ejercicio ej = (Ejercicio) spinnerEjercicios.getSelectedItem();
                     int dia = spinnerDia.getSelectedItemPosition() + 1;
                     String ordenStr = etOrden.getText().toString();
                     int orden = ordenStr.isEmpty() ? 1 : Integer.parseInt(ordenStr);
 
-                    if (ej != null) {
-                        anadirEjercicioAlPlan(ej, dia, orden);
-                    }
+                    anadirEjercicioAlPlan(ej, dia, orden);
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
@@ -167,17 +174,24 @@ public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
                         }
                         @Override
                         public void onFailure(Call<ApiResponseDto<DetallePlanResponseDto>> call, Throwable t) {
-                            Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
+                            android.util.Log.e("GestionarPlan", "Error al añadir: " + t.getMessage());
+                            Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error de red al añadir detalle", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
-                    Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error al registrar entrenamiento", Toast.LENGTH_SHORT).show();
+                    String msg = "Error al registrar: ";
+                    if (response.errorBody() != null) {
+                        try { msg += response.errorBody().string(); } catch (Exception ignored) {}
+                    }
+                    android.util.Log.e("GestionarPlan", msg);
+                    Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error al registrar entrenamiento en servidor", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto>> call, Throwable t) {
-                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
+                android.util.Log.e("GestionarPlan", "Fallo red: " + t.getMessage());
+                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -13,13 +13,20 @@ public class EntrenamientoRequestDto {
     private String intensidad;
     @SerializedName("categoria")
     private String categoria;
+    @SerializedName("urlVideo")
+    private String urlVideo;
 
     public EntrenamientoRequestDto(String nombre, String descripcion, Integer duracion, String intensidad, String categoria) {
+        this(nombre, descripcion, duracion, intensidad, categoria, "");
+    }
+
+    public EntrenamientoRequestDto(String nombre, String descripcion, Integer duracion, String intensidad, String categoria, String urlVideo) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.duracion = duracion;
         this.intensidad = intensidad;
         this.categoria = categoria;
+        this.urlVideo = urlVideo;
     }
 
     // Getters y Setters
@@ -33,4 +40,6 @@ public class EntrenamientoRequestDto {
     public void setIntensidad(String intensidad) { this.intensidad = intensidad; }
     public String getCategoria() { return categoria; }
     public void setCategoria(String categoria) { this.categoria = categoria; }
+    public String getUrlVideo() { return urlVideo; }
+    public void setUrlVideo(String urlVideo) { this.urlVideo = urlVideo; }
 }

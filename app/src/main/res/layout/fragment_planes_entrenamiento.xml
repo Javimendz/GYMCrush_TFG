@@ -25,6 +25,20 @@
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNuevoPlanToolbar"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="NUEVO PLAN"
+                android:textColor="@color/brand_pink"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:icon="@android:drawable/ic_input_add"
+                app:iconTint="@color/brand_pink" />
         </RelativeLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

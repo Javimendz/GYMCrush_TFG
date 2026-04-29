@@ -58,11 +58,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="EMPEZAR"
-                android:textColor="#CD0277"
+                android:textColor="#FFFFFF"
                 android:textSize="10sp"
                 android:textStyle="bold"
-                android:background="#2D1B4E"
-                android:paddingHorizontal="6dp"
+                android:background="@drawable/bg_estado_badge"
+                android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
                 android:layout_marginTop="6dp"/>
 

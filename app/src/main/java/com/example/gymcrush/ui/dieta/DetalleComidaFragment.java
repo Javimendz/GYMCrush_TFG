@@ -69,7 +69,7 @@ public class DetalleComidaFragment extends DialogFragment {
         if (comida != null) {
             tvNombre.setText(comida.getNombreAlimento());
             tvMomento.setText(comida.getMomento());
-            
+
             tvCal.setText(String.format(Locale.getDefault(), "%.0f kcal", comida.getCalorias() != null ? comida.getCalorias() : 0));
             tvProt.setText(String.format(Locale.getDefault(), "%.0fg", comida.getProteina() != null ? comida.getProteina() : 0));
             tvCarb.setText(String.format(Locale.getDefault(), "%.0fg", comida.getCarbohidratos() != null ? comida.getCarbohidratos() : 0));
@@ -145,8 +145,8 @@ public class DetalleComidaFragment extends DialogFragment {
                 // Cargamos con un mapa de encabezados para mayor seguridad y evitar redirecciones
                 java.util.Map<String, String> extraHeaders = new java.util.HashMap<>();
                 // Ocultar rastro de Android App para el servidor
-                extraHeaders.put("X-Requested-With", "XMLHttpRequest"); 
-                
+                extraHeaders.put("X-Requested-With", "XMLHttpRequest");
+
                 webView.clearCache(true);
                 webView.loadUrl(recipeUrl, extraHeaders);
             } else {

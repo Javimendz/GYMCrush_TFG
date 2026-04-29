@@ -41,6 +41,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
     private RecyclerView rvEjercicios;
     private EjercicioSeleccionAdapter adapter;
     private List<Ejercicio> listaEjercicios = new ArrayList<>();
+    private Long defaultCategoriaId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
 
         // 3. Cargar ejercicios desde el servidor (los que el admin añadió)
         cargarEjerciciosDelServidor();
+        cargarCategorias();
 
         // 4. Configurar búsqueda en biblioteca externa
         btnBuscarBiblioteca.setOnClickListener(v -> buscarEnBibliotecaExterna());
@@ -68,6 +70,22 @@ public class CrearRutinaActivity extends AppCompatActivity {
         // 5. Configurar el botón Guardar
         btnGuardar.setOnClickListener(v -> {
             guardarRutina();
+        });
+    }
+
+    private void cargarCategorias() {
+        RetrofitClient.getApiService().getCategorias().enqueue(new retrofit2.Callback<com.example.gymcrush.data.remote.dto.ApiResponseDto<List<com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto>>>() {
+            @Override
+            public void onResponse(Call<com.example.gymcrush.data.remote.dto.ApiResponseDto<List<com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto>>> call, Response<com.example.gymcrush.data.remote.dto.ApiResponseDto<List<com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null && !response.body().getDatos().isEmpty()) {
+                    defaultCategoriaId = response.body().getDatos().get(0).getId();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.gymcrush.data.remote.dto.ApiResponseDto<List<com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto>>> call, Throwable t) {
+                // Silencioso, se usará el fallback si es necesario
+            }
         });
     }
 
@@ -164,8 +182,47 @@ public class CrearRutinaActivity extends AppCompatActivity {
             return;
         }
 
-        // 2. Procesar ejercicios: Si no tienen ID, hay que crearlos en el servidor primero
-        procesarEjerciciosYGuardar(userId, nombre, seleccionados);
+        // Si es una plantilla (proviene de Tab "Mis Rutinas")
+        boolean esPlantilla = getIntent().getBooleanExtra("ES_PLANTILLA", false);
+        if (esPlantilla) {
+            guardarComoPlantilla(userId, nombre, seleccionados);
+        } else {
+            // Comportamiento normal: Guardar como rutina diaria
+            procesarEjerciciosYGuardar(userId, nombre, seleccionados);
+        }
+    }
+
+    private void guardarComoPlantilla(long userId, String nombre, List<Ejercicio> seleccionados) {
+        // Mapear a DTO de Entrenamiento
+        com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto request = 
+            new com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto(
+                nombre, 
+                "Rutina personalizada creada por el usuario", 
+                60, 
+                "MEDIA", 
+                "PERSONALIZADA"
+            );
+        
+        // El backend probablemente necesite asociar los ejercicios. 
+        // Si el DTO no tiene lista de ejercicios, se guardará solo el cabecero por ahora.
+        // Opcional: Expandir DTO en el backend para aceptar ejercicios.
+        
+        com.example.gymcrush.data.remote.RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(CrearRutinaActivity.this, "¡Plantilla guardada con éxito!", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(CrearRutinaActivity.this, "Error al guardar plantilla", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Throwable t) {
+                Toast.makeText(CrearRutinaActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void procesarEjerciciosYGuardar(long userId, String nombreRutina, List<Ejercicio> seleccionados) {
@@ -195,8 +252,8 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     ej.getNombre(),
                     ej.getDescripcion(),
                     ej.getUrlVideo(),
-                    10, // duracionMin por defecto (ahora 10 para evitar error de validación)
-                    1L, // categoriaId por defecto
+                    10, // duracionMin por defecto
+                    defaultCategoriaId != null ? defaultCategoriaId : 1L, // Usar categoría cargada o fallback
                     ej.getCategoria(), // musculoObjetivo
                     "N/A" // equipamiento
             );

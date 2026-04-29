@@ -77,7 +77,7 @@ public class ResultadoDietaFragment extends Fragment {
         view.findViewById(R.id.btnRenombrarPlan).setOnClickListener(v -> mostrarDialogoRenombrar());
         view.findViewById(R.id.btnGuardarPlan).setOnClickListener(v -> {
             if (planNutricional != null) {
-                viewModel.guardarPlan(usuarioId, planNutricional);
+                mostrarConfirmacionGuardar();
             }
         });
 
@@ -131,60 +131,6 @@ public class ResultadoDietaFragment extends Fragment {
 
         view.findViewById(R.id.btnAddComidaResultado).setOnClickListener(v -> mostrarDialogoAñadirComida());
         view.findViewById(R.id.btnBuscarComidaResultado).setOnClickListener(v -> mostrarDialogoBusqueda());
-        view.findViewById(R.id.btnCompletarTodo).setOnClickListener(v -> completarTodo());
-    }
-
-    private void completarTodo() {
-        if (planNutricional == null || adapter == null || adapter.getComidas() == null) return;
-
-        // Verificar si hay algo que guardar
-        boolean hayPendientes = false;
-        for (ComidaDiariaResponseDto comida : adapter.getComidas()) {
-            if (!comida.isSelected()) {
-                hayPendientes = true;
-                break;
-            }
-        }
-
-        if (!hayPendientes) {
-            Toast.makeText(getContext(), "Todas las comidas ya están completadas", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Marcar todo como completado")
-                .setMessage("¿Deseas marcar todas las comidas como consumidas y guardarlas en tu plan?")
-                .setPositiveButton("Confirmar", (dialog, which) -> {
-                    List<ComidaDiariaRequestDto> aGuardar = new ArrayList<>();
-                    for (ComidaDiariaResponseDto comida : adapter.getComidas()) {
-                        if (!comida.isSelected()) {
-                            ComidaDiariaRequestDto req = new ComidaDiariaRequestDto();
-                            req.setNombreAlimento(comida.getNombreAlimento());
-                            req.setMomento(comida.getMomento());
-                            req.setCalorias(comida.getCalorias());
-                            req.setProteina(comida.getProteina());
-                            req.setCarbohidratos(comida.getCarbohidratos());
-                            req.setGrasas(comida.getGrasas());
-                            req.setPlanNutricionalId(planNutricional.getId());
-                            req.setImagenUrl(comida.getImagenUrl());
-                            req.setDescripcion(comida.getDescripcion());
-                            req.setRecipeUrl(comida.getRecipeUrl());
-                            aGuardar.add(req);
-
-                            // Marcamos localmente para feedback inmediato
-                            comida.setSelected(true);
-                        }
-                    }
-
-                    if (!aGuardar.isEmpty()) {
-                        viewModel.guardarMuchasComidas(planNutricional.getId(), aGuardar, usuarioId);
-                        adapter.notifyDataSetChanged();
-                        actualizarResumenMacros(getView());
-                        Toast.makeText(getContext(), "Comidas guardadas correctamente", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
     }
 
     private void onComidaClick(ComidaDiariaResponseDto comida) {
@@ -252,60 +198,149 @@ public class ResultadoDietaFragment extends Fragment {
         });
     }
 
+    private void mostrarConfirmacionGuardar() {
+        String mensaje = planNutricional.getId() == null 
+            ? "¿Deseas guardar este plan en tu historial?" 
+            : "¿Deseas guardar todas las recetas sugeridas en tu diario de hoy?";
+
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+                .setTitle("Confirmar Guardado")
+                .setMessage(mensaje)
+                .setPositiveButton("Confirmar", (dialog, which) -> {
+                    if (planNutricional.getId() == null) {
+                        // Caso catálogo o nuevo plan: Guardar plan completo
+                        viewModel.guardarPlan(usuarioId, planNutricional);
+                    } else {
+                        // Caso plan existente: Guardar sugerencias que aún no están en 'comidas'
+                        List<ComidaDiariaRequestDto> batch = new ArrayList<>();
+                        if (planNutricional.getDietas() != null) {
+                            for (ComidaDiariaResponseDto sugerencia : planNutricional.getDietas()) {
+                                // Verificar si esta sugerencia ya fue guardada (está en el adapter como seleccionada)
+                                boolean yaGuardada = false;
+                                if (adapter != null && adapter.getComidas() != null) {
+                                    for (ComidaDiariaResponseDto item : adapter.getComidas()) {
+                                        if (item.isSelected() && 
+                                            item.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                                            item.getMomento().equalsIgnoreCase(sugerencia.getMomento())) {
+                                            yaGuardada = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (!yaGuardada) {
+                                    ComidaDiariaRequestDto req = new ComidaDiariaRequestDto();
+                                    req.setNombreAlimento(sugerencia.getNombreAlimento());
+                                    req.setMomento(sugerencia.getMomento());
+                                    req.setCalorias(sugerencia.getCalorias());
+                                    req.setProteina(sugerencia.getProteina());
+                                    req.setCarbohidratos(sugerencia.getCarbohidratos());
+                                    req.setGrasas(sugerencia.getGrasas());
+                                    req.setPlanNutricionalId(planNutricional.getId());
+                                    req.setImagenUrl(sugerencia.getImagenUrl());
+                                    req.setDescripcion(sugerencia.getDescripcion());
+                                    req.setRecipeUrl(sugerencia.getRecipeUrl());
+                                    batch.add(req);
+                                }
+                            }
+                        }
+                        if (!batch.isEmpty()) {
+                            viewModel.guardarMuchasComidas(planNutricional.getId(), batch, usuarioId);
+                            Toast.makeText(getContext(), "Guardando " + batch.size() + " sugerencias...", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Todas las sugerencias ya están guardadas", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
     private void mostrarDatos(View view) {
         if (planNutricional == null || view == null) return;
 
-        // Configuración de textos de cabecera
         TextView tvTituloHeader = view.findViewById(R.id.tvTituloPlan);
+        TextView tvObj = view.findViewById(R.id.tv_resultado_objetivo);
         TextView tvCal = view.findViewById(R.id.tv_resultado_calorias);
-        String titulo = planNutricional.getNombreDieta() != null ? planNutricional.getNombreDieta() : "PLAN PERSONALIZADO";
-        tvTituloHeader.setText(titulo);
-        tvCal.setText(titulo);
+        View btnRenombrar = view.findViewById(R.id.btnRenombrarPlan);
+        View btnGuardar = view.findViewById(R.id.btnGuardarPlan);
 
-        List<ComidaDiariaResponseDto> listaFinal = new ArrayList<>();
-        java.util.HashSet<Long> idsVinculados = new java.util.HashSet<>();
+        // El botón de guardar estará siempre visible ahora
+        btnGuardar.setVisibility(View.VISIBLE);
+        
+        if (planNutricional.getId() == null) {
+            btnRenombrar.setVisibility(View.GONE);
+        } else {
+            btnRenombrar.setVisibility(View.VISIBLE);
+        }
 
-        // 1. Vincular Sugerencias con Comidas Reales
+        String titulo = planNutricional.getNombreDieta() != null && !planNutricional.getNombreDieta().isEmpty()
+                ? planNutricional.getNombreDieta()
+                : (planNutricional.getTipoDieta() != null ? planNutricional.getTipoDieta() : "PLAN PERSONALIZADO");
+
+        // tvCal es el texto grande debajo de OBJETIVO en la card
+        if (tvCal != null) {
+            tvCal.setText(titulo);
+        }
+
+        // tvTituloHeader es el texto en la barra superior (Toolbar personalizada)
+        if (tvTituloHeader != null) {
+            tvTituloHeader.setText(titulo);
+        }
+        tvObj.setText("TU PLAN IDEAL");
+
+        List<ComidaDiariaResponseDto> listaAMostrar = new ArrayList<>();
         if (planNutricional.getDietas() != null) {
             for (ComidaDiariaResponseDto sugerencia : planNutricional.getDietas()) {
-                if (sugerencia.getNombreAlimento() == null) continue;
-
-                ComidaDiariaResponseDto itemItem = sugerencia;
-                boolean consumida = false;
-
+                ComidaDiariaResponseDto itemMostrar = sugerencia;
                 if (planNutricional.getComidas() != null) {
                     for (ComidaDiariaResponseDto real : planNutricional.getComidas()) {
-                        if (real.getNombreAlimento() == null) continue;
-
-                        // Comparación limpia para evitar duplicados
-                        boolean mNombre = real.getNombreAlimento().trim().equalsIgnoreCase(sugerencia.getNombreAlimento().trim());
-                        boolean mMomento = String.valueOf(real.getMomento()).trim().equalsIgnoreCase(String.valueOf(sugerencia.getMomento()).trim());
-
-                        if (mNombre && mMomento) {
-                            itemItem = real; // Sustituimos sugerencia por el dato real de la DB
-                            consumida = true;
-                            if (real.getId() != null) idsVinculados.add(real.getId());
+                        if (real.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                                real.getMomento().equalsIgnoreCase(sugerencia.getMomento()) &&
+                                (real.getPlanNutricionalId() == null || real.getPlanNutricionalId().equals(planNutricional.getId()))) {
+                            itemMostrar = real;
+                            itemMostrar.setSelected(true); // Marcamos como consumida
                             break;
                         }
                     }
                 }
-                itemItem.setSelected(consumida);
-                listaFinal.add(itemItem);
+                listaAMostrar.add(itemMostrar);
             }
         }
 
-        // 2. Añadir Comidas Extras (las que no están en el plan base)
         if (planNutricional.getComidas() != null) {
             for (ComidaDiariaResponseDto real : planNutricional.getComidas()) {
-                if (real.getId() != null && !idsVinculados.contains(real.getId())) {
-                    real.setSelected(true);
-                    listaFinal.add(real);
+                if (real.getPlanNutricionalId() != null && !real.getPlanNutricionalId().equals(planNutricional.getId())) {
+                    continue;
+                }
+                boolean yaEsta = false;
+                for (ComidaDiariaResponseDto m : listaAMostrar) {
+                    if (real.getId() != null && real.getId().equals(m.getId())) {
+                        yaEsta = true;
+                        break;
+                    }
+                }
+                if (!yaEsta) {
+                    real.setSelected(true); // Es comida extra, está consumida
+                    listaAMostrar.add(real);
                 }
             }
         }
-
-        adapter.setComidas(listaFinal);
+        adapter.setComidas(listaAMostrar);
         actualizarResumenMacros(view);
+
+        if (planNutricional.getMacronutrientes() != null &&
+                planNutricional.getMacronutrientes().getRecipes() != null &&
+                planNutricional.getMacronutrientes().getRecipes().getRecipe() != null) {
+
+            List<FatSecretRecipeDto> recetas = planNutricional.getMacronutrientes().getRecipes().getRecipe();
+            recetaAdapter.setRecetas(recetas);
+            rvRecetas.setVisibility(View.VISIBLE);
+            tvLabelRecetas.setVisibility(View.VISIBLE);
+        } else {
+            rvRecetas.setVisibility(View.GONE);
+            tvLabelRecetas.setVisibility(View.GONE);
+        }
     }
 
     private void actualizarResumenMacros(View view) {

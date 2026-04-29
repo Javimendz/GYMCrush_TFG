@@ -19,13 +19,18 @@ import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.PlanResponseDto;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import com.example.gymcrush.data.remote.dto.DetallePlanResponseDto;
+import com.example.gymcrush.data.remote.dto.RutinaRequestDto;
+import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 
 public class PlanesFragment extends Fragment {
 
@@ -56,6 +61,15 @@ public class PlanesFragment extends Fragment {
                 Intent intent = new Intent(requireContext(), CrearPlanActivity.class);
                 startActivity(intent);
             });
+
+            View btnNuevoPlanToolbar = view.findViewById(R.id.btnNuevoPlanToolbar);
+            if (btnNuevoPlanToolbar != null) {
+                btnNuevoPlanToolbar.setVisibility(View.VISIBLE);
+                btnNuevoPlanToolbar.setOnClickListener(v -> {
+                    Intent intent = new Intent(requireContext(), CrearPlanActivity.class);
+                    startActivity(intent);
+                });
+            }
         }
 
         adapter = new PlanesAdapter(new ArrayList<>(), new PlanesAdapter.OnPlanClickListener() {
@@ -143,10 +157,8 @@ public class PlanesFragment extends Fragment {
             @Override
             public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "¡Plan activado con éxito! Revisa tu agenda de hoy.", Toast.LENGTH_LONG).show();
-                    if (subscriptionListener != null) {
-                        subscriptionListener.onPlanSubscribed();
-                    }
+                    // Una vez suscrito, volcamos los ejercicios del plan a la agenda diaria del usuario
+                    volcarEjerciciosAlAgenda(planId);
                 } else {
                     Toast.makeText(getContext(), "Error al activar el plan", Toast.LENGTH_SHORT).show();
                 }
@@ -157,5 +169,72 @@ public class PlanesFragment extends Fragment {
                 Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void volcarEjerciciosAlAgenda(Long planId) {
+        RetrofitClient.getApiService().getEjerciciosDelPlan(planId).enqueue(new Callback<ApiResponseDto<List<DetallePlanResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<DetallePlanResponseDto>>> call, Response<ApiResponseDto<List<DetallePlanResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<DetallePlanResponseDto> ejercicios = response.body().getDatos();
+                    if (ejercicios == null || ejercicios.isEmpty()) {
+                        finalizarSuscripcion();
+                        return;
+                    }
+
+                    String hoy = LocalDate.now().toString();
+                    // Filtramos los ejercicios del Día 1 para asignarlos a hoy
+                    List<DetallePlanResponseDto> dia1 = new ArrayList<>();
+                    for (DetallePlanResponseDto ej : ejercicios) {
+                        if (ej.getDiaSemana() != null && ej.getDiaSemana() == 1) {
+                            dia1.add(ej);
+                        }
+                    }
+
+                    if (dia1.isEmpty()) {
+                        finalizarSuscripcion();
+                        return;
+                    }
+
+                    AtomicInteger contador = new AtomicInteger(0);
+                    int total = dia1.size();
+
+                    for (DetallePlanResponseDto ej : dia1) {
+                        RutinaRequestDto req = new RutinaRequestDto(userId, ej.getEntrenamientoId(), hoy, ej.getOrden());
+                        RetrofitClient.getApiService().asignarEntrenamiento(req).enqueue(new Callback<ApiResponseDto<RutinaResponseDto>>() {
+                            @Override
+                            public void onResponse(Call<ApiResponseDto<RutinaResponseDto>> call, Response<ApiResponseDto<RutinaResponseDto>> response) {
+                                if (contador.incrementAndGet() == total) {
+                                    finalizarSuscripcion();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ApiResponseDto<RutinaResponseDto>> call, Throwable t) {
+                                if (contador.incrementAndGet() == total) {
+                                    finalizarSuscripcion();
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    finalizarSuscripcion();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<DetallePlanResponseDto>>> call, Throwable t) {
+                finalizarSuscripcion();
+            }
+        });
+    }
+
+    private void finalizarSuscripcion() {
+        if (isAdded()) {
+            Toast.makeText(getContext(), "¡Plan activado con éxito! Revisa tu agenda de hoy.", Toast.LENGTH_LONG).show();
+            if (subscriptionListener != null) {
+                subscriptionListener.onPlanSubscribed();
+            }
+        }
     }
 }
