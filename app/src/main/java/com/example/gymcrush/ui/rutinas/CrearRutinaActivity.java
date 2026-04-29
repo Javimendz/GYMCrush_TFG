@@ -193,28 +193,29 @@ public class CrearRutinaActivity extends AppCompatActivity {
     }
 
     private void guardarComoPlantilla(long userId, String nombre, List<Ejercicio> seleccionados) {
-        // Mapear a DTO de Entrenamiento
+        // Tomar la URL del video del primer ejercicio como portada de la rutina
+        String urlPortada = (seleccionados != null && !seleccionados.isEmpty()) ? seleccionados.get(0).getUrlVideo() : "";
+
         com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto request = 
             new com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto(
                 nombre, 
                 "Rutina personalizada creada por el usuario", 
                 60, 
                 "MEDIA", 
-                "PERSONALIZADA"
+                "PERSONALIZADA",
+                urlPortada
             );
-        
-        // El backend probablemente necesite asociar los ejercicios. 
-        // Si el DTO no tiene lista de ejercicios, se guardará solo el cabecero por ahora.
-        // Opcional: Expandir DTO en el backend para aceptar ejercicios.
         
         com.example.gymcrush.data.remote.RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
                 if (response.isSuccessful()) {
+                    // Guardar localmente para que el DetalleRutinaActivity pueda mostrar los ejercicios
+                    RepositorioRutinas.guardarRutinaCompletaConPortada(nombre, seleccionados, urlPortada);
                     Toast.makeText(CrearRutinaActivity.this, "¡Plantilla guardada con éxito!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Toast.makeText(CrearRutinaActivity.this, "Error al guardar plantilla", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CrearRutinaActivity.this, "Error al guardar plantilla en el servidor", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -248,12 +249,20 @@ public class CrearRutinaActivity extends AppCompatActivity {
         final int[] creados = {0};
 
         for (Ejercicio ej : pendientes) {
+            // Asegurar que la descripción no exceda el límite del backend (500 chars)
+            String desc = ej.getDescripcion();
+            if (desc != null && desc.length() > 500) {
+                desc = desc.substring(0, 497) + "...";
+            } else if (desc == null || desc.isEmpty()) {
+                desc = "Sin descripción detallada.";
+            }
+
             TutorialRequestDto dto = new TutorialRequestDto(
                     ej.getNombre(),
-                    ej.getDescripcion(),
+                    desc,
                     ej.getUrlVideo(),
                     10, // duracionMin por defecto
-                    defaultCategoriaId != null ? defaultCategoriaId : 1L, // Usar categoría cargada o fallback
+                    defaultCategoriaId != null ? defaultCategoriaId : 1L,
                     ej.getCategoria(), // musculoObjetivo
                     "N/A" // equipamiento
             );
@@ -264,6 +273,8 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
                         ej.setId(response.body().getDatos().getId());
                         listos.add(ej);
+                    } else {
+                        android.util.Log.e("API_ERROR", "Error creando tutorial: " + response.code());
                     }
                     creados[0]++;
                     if (creados[0] == total) {
@@ -273,6 +284,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ApiResponseDto<TutorialResponseDto>> call, Throwable t) {
+                    android.util.Log.e("API_ERROR", "Fallo red creando tutorial", t);
                     creados[0]++;
                     if (creados[0] == total) {
                         enviarAsignacionesAlServidor(userId, nombreRutina, listos);
@@ -292,6 +304,8 @@ public class CrearRutinaActivity extends AppCompatActivity {
         final int[] completados = {0};
         final boolean[] huboError = {false};
 
+        String urlPortada = (seleccionados != null && !seleccionados.isEmpty()) ? seleccionados.get(0).getUrlVideo() : "";
+
         for (int i = 0; i < seleccionados.size(); i++) {
             Ejercicio ej = seleccionados.get(i);
             RutinaRequestDto request = new RutinaRequestDto(
@@ -310,7 +324,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     }
                     
                     if (completados[0] == totalAAsignar) {
-                        RepositorioRutinas.guardarRutinaCompleta(nombreRutina, seleccionados);
+                        RepositorioRutinas.guardarRutinaCompletaConPortada(nombreRutina, seleccionados, urlPortada);
                         finalizarGuardado(huboError[0]);
                     }
                 }
@@ -320,7 +334,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     completados[0]++;
                     huboError[0] = true;
                     if (completados[0] == totalAAsignar) {
-                        RepositorioRutinas.guardarRutinaCompleta(nombreRutina, seleccionados);
+                        RepositorioRutinas.guardarRutinaCompletaConPortada(nombreRutina, seleccionados, urlPortada);
                         finalizarGuardado(huboError[0]);
                     }
                 }

@@ -332,46 +332,44 @@ public class RutinasFragment extends Fragment {
 
     private void cargarEstadisticas() {
         if (userId == -1) return;
-        
-        final Float[] puntos = new Float[7];
-        final String[] etiquetas = new String[7];
-        final AtomicInteger peticionesFinalizadas = new AtomicInteger(0);
+
         LocalDate hoy = LocalDate.now();
+        LocalDate inicio = hoy.minusDays(6);
+        LocalDate fin = hoy;
 
-        for (int i = 0; i < 7; i++) {
-            final int index = i;
-            LocalDate dia = hoy.minusDays(6 - i);
-            etiquetas[index] = dia.getDayOfMonth() + "/" + dia.getMonthValue();
-            String fechaStr = dia.toString();
-            
-            RetrofitClient.getApiService().getRutinaDiaria(userId, fechaStr).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
-                @Override
-                public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
-                    float completadas = 0;
-                    if (response.isSuccessful() && response.body() != null) {
-                        completadas = (float) response.body().getDatos().stream()
-                                .filter(RutinaResponseDto::getCompletado)
+        RetrofitClient.getApiService().getRutinasPorRango(userId, inicio.toString(), fin.toString()).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<RutinaResponseDto> todas = response.body().getDatos();
+                    Float[] puntos = new Float[7];
+                    String[] etiquetas = new String[7];
+
+                    for (int i = 0; i < 7; i++) {
+                        LocalDate dia = inicio.plusDays(i);
+                        etiquetas[i] = dia.getDayOfMonth() + "/" + dia.getMonthValue();
+                        String fechaStr = dia.toString();
+
+                        long completadas = todas.stream()
+                                .filter(r -> r.getFechaAsignacion() != null && r.getFechaAsignacion().equals(fechaStr) && r.getCompletado())
                                 .count();
+                        puntos[i] = (float) completadas;
                     }
-                    puntos[index] = completadas;
-                    verificarYActualizar();
-                }
 
-                @Override
-                public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
-                    puntos[index] = 0f;
-                    verificarYActualizar();
-                }
-
-                private void verificarYActualizar() {
-                    if (peticionesFinalizadas.incrementAndGet() == 7) {
-                        List<Float> puntosList = Arrays.asList(puntos);
-                        graphEvolucion.setData(puntosList, Arrays.asList(etiquetas));
+                    if (isAdded()) {
+                        graphEvolucion.setData(Arrays.asList(puntos), Arrays.asList(etiquetas));
                         calcularYMostrarRacha(puntos);
                     }
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), "Error al cargar estadísticas", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void calcularYMostrarRacha(Float[] puntos) {

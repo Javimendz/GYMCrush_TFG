@@ -48,19 +48,27 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
         
         // Cargar imagen con Glide si hay URL (Soporte para miniaturas de video)
         if (rutina.urlVideo != null && !rutina.urlVideo.isEmpty()) {
-            com.bumptech.glide.request.RequestOptions options = new com.bumptech.glide.request.RequestOptions()
-                    .frame(1000000) // Captura un frame del video (1 segundo)
-                    .centerCrop();
+            String urlToLoad = rutina.urlVideo;
+            if (urlToLoad.contains("youtube.com") || urlToLoad.contains("youtu.be")) {
+                String videoId = "";
+                if (urlToLoad.contains("v=")) {
+                    videoId = urlToLoad.split("v=")[1].split("&")[0];
+                } else if (urlToLoad.contains("youtu.be/")) {
+                    videoId = urlToLoad.split("youtu.be/")[1].split("\\?")[0];
+                }
+                if (!videoId.isEmpty()) {
+                    urlToLoad = "https://img.youtube.com/vi/" + videoId + "/0.jpg";
+                }
+            }
 
             com.bumptech.glide.Glide.with(holder.itemView.getContext())
-                    .asBitmap()
-                    .load(rutina.urlVideo)
-                    .apply(options)
+                    .load(urlToLoad)
                     .placeholder(R.drawable.ic_launcher_foreground)
-                    .error(rutina.imagenResId)
+                    .error(rutina.imagenResId != 0 ? rutina.imagenResId : R.drawable.ic_launcher_background)
+                    .centerCrop()
                     .into(holder.imgRutina);
         } else {
-            holder.imgRutina.setImageResource(rutina.imagenResId);
+            holder.imgRutina.setImageResource(rutina.imagenResId != 0 ? rutina.imagenResId : R.drawable.ic_launcher_background);
         }
 
         // Lógica de progreso y estado

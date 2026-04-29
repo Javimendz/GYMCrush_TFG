@@ -120,8 +120,21 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         }
         
         if (urlVideo != null && !urlVideo.isEmpty()) {
+            String urlToLoad = urlVideo;
+            if (urlToLoad.contains("youtube.com") || urlToLoad.contains("youtu.be")) {
+                String videoId = "";
+                if (urlToLoad.contains("v=")) {
+                    videoId = urlToLoad.split("v=")[1].split("&")[0];
+                } else if (urlToLoad.contains("youtu.be/")) {
+                    videoId = urlToLoad.split("youtu.be/")[1].split("\\?")[0];
+                }
+                if (!videoId.isEmpty()) {
+                    urlToLoad = "https://img.youtube.com/vi/" + videoId + "/0.jpg";
+                }
+            }
+
             Glide.with(holder.itemView.getContext())
-                    .load(urlVideo)
+                    .load(urlToLoad)
                     .placeholder(R.drawable.logo)
                     .error(R.drawable.logo)
                     .centerCrop()

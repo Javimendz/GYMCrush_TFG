@@ -221,6 +221,13 @@ public interface ApiService {
             @Query("fecha") String fecha
     );
 
+    @GET("api/v1/rutinas/usuario/{usuarioId}/rango")
+    Call<ApiResponseDto<List<RutinaResponseDto>>> getRutinasPorRango(
+            @Path("usuarioId") Long usuarioId,
+            @Query("inicio") String inicio,
+            @Query("fin") String fin
+    );
+
     @PATCH("api/v1/rutinas/{id}/completar")
     Call<ApiResponseDto<RutinaResponseDto>> completarRutina(@Path("id") Long id);
 

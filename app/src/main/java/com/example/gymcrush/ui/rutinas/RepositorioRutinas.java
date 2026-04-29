@@ -80,6 +80,12 @@ public class RepositorioRutinas {
         datosRutinas.put(nombre, ejercicios);
     }
 
+    public static void guardarRutinaCompletaConPortada(String nombre, List<Ejercicio> ejercicios, String urlPortada) {
+        int imgRes = (urlPortada == null || urlPortada.isEmpty()) ? R.drawable.ic_launcher_background : 0;
+        listaRutinas.add(new RutinaModel(null, nombre, "Personalizada", "Media", "Rutina personalizada", urlPortada, imgRes, ejercicios));
+        datosRutinas.put(nombre, ejercicios);
+    }
+
     public static List<Ejercicio> getEjerciciosDeRutina(String nombre) {
         return datosRutinas.get(nombre);
     }
