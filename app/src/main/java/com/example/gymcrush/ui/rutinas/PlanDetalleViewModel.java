@@ -28,23 +28,27 @@ public class PlanDetalleViewModel extends ViewModel {
     public LiveData<List<EntrenamientoResponseDto>> getCatalogoEntrenamientos() { return catalogoEntrenamientos; }
     public LiveData<String> getMensaje() { return mensaje; }
 
-    // 1. CARGAR LOS EJERCICIOS DEL PLAN (La lista principal)
+    // 1. CARGAR LOS EJERCICIOS DEL PLAN (Obteniendo el plan completo)
     public void cargarEjerciciosDelPlan(Long planId) {
-        apiService.obtenerEjerciciosDelPlan(planId).enqueue(new Callback<ApiResponseDto<List<DetallePlanResponseDto>>>() {
+        apiService.getPlanPorId(planId).enqueue(new Callback<ApiResponseDto<PlanResponseDto>>() {
             @Override
-            public void onResponse(Call<ApiResponseDto<List<DetallePlanResponseDto>>> call, Response<ApiResponseDto<List<DetallePlanResponseDto>>> response) {
+            public void onResponse(Call<ApiResponseDto<PlanResponseDto>> call, Response<ApiResponseDto<PlanResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
-                    List<DetallePlanResponseDto> lista = response.body().getDatos();
-                    // Ordenamos por día y luego por orden numérico
-                    Collections.sort(lista, (e1, e2) -> {
-                        int diaCompare = e1.getDiaSemana().compareTo(e2.getDiaSemana());
-                        return (diaCompare != 0) ? diaCompare : e1.getOrden().compareTo(e2.getOrden());
-                    });
-                    ejerciciosPlan.setValue(lista);
+                    List<DetallePlanResponseDto> lista = response.body().getDatos().getEjercicios();
+                    if (lista != null) {
+                        // Ordenamos por día y luego por orden numérico
+                        Collections.sort(lista, (e1, e2) -> {
+                            int diaCompare = e1.getDiaSemana().compareTo(e2.getDiaSemana());
+                            return (diaCompare != 0) ? diaCompare : e1.getOrden().compareTo(e2.getOrden());
+                        });
+                        ejerciciosPlan.setValue(lista);
+                    } else {
+                        ejerciciosPlan.setValue(Collections.emptyList());
+                    }
                 }
             }
             @Override
-            public void onFailure(Call<ApiResponseDto<List<DetallePlanResponseDto>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponseDto<PlanResponseDto>> call, Throwable t) {
                 mensaje.setValue("Error al cargar la estructura del plan");
             }
         });
@@ -69,10 +73,11 @@ public class PlanDetalleViewModel extends ViewModel {
     // 3. AÑADIR UN NUEVO EJERCICIO AL PLAN
     public void añadirEjercicioAlPlan(Long planId, Long entrenamientoId, int diaSemana, int orden) {
         DetallePlanRequestDto request = new DetallePlanRequestDto(entrenamientoId, diaSemana, orden);
+        List<DetallePlanRequestDto> listaRequest = Collections.singletonList(request);
 
-        apiService.añadirEjercicioAlPlan(planId, request).enqueue(new Callback<ApiResponseDto<DetallePlanResponseDto>>() {
+        apiService.añadirEjercicioAlPlan(planId, listaRequest).enqueue(new Callback<PlanResponseDto>() {
             @Override
-            public void onResponse(Call<ApiResponseDto<DetallePlanResponseDto>> call, Response<ApiResponseDto<DetallePlanResponseDto>> response) {
+            public void onResponse(Call<PlanResponseDto> call, Response<PlanResponseDto> response) {
                 if (response.isSuccessful()) {
                     mensaje.setValue("¡Añadido correctamente!");
                     cargarEjerciciosDelPlan(planId); // Refrescamos la vista automáticamente
@@ -81,7 +86,7 @@ public class PlanDetalleViewModel extends ViewModel {
                 }
             }
             @Override
-            public void onFailure(Call<ApiResponseDto<DetallePlanResponseDto>> call, Throwable t) {
+            public void onFailure(Call<PlanResponseDto> call, Throwable t) {
                 mensaje.setValue("Error de red al guardar");
             }
         });

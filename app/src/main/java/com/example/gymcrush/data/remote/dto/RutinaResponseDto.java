@@ -22,8 +22,8 @@ public class RutinaResponseDto {
     private String intensidad;
     @SerializedName("urlVideo")
     private String urlVideo;
-    @SerializedName("planNombre")
-    private String planNombre;
+    @SerializedName("nombrePlan")
+    private String nombrePlan;
     @SerializedName("series")
     private String series;
     @SerializedName("repeticiones")
@@ -48,8 +48,8 @@ public class RutinaResponseDto {
     public void setIntensidad(String intensidad) { this.intensidad = intensidad; }
     public String getUrlVideo() { return urlVideo; }
     public void setUrlVideo(String urlVideo) { this.urlVideo = urlVideo; }
-    public String getPlanNombre() { return planNombre; }
-    public void setPlanNombre(String planNombre) { this.planNombre = planNombre; }
+    public String getNombrePlan() { return nombrePlan; }
+    public void setNombrePlan(String nombrePlan) { this.nombrePlan = nombrePlan; }
     public String getSeries() { return series; }
     public void setSeries(String series) { this.series = series; }
     public String getRepeticiones() { return repeticiones; }

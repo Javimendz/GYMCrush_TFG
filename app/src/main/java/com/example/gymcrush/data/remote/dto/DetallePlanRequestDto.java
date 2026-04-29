@@ -9,11 +9,25 @@ public class DetallePlanRequestDto {
     private Integer diaSemana;
     @SerializedName("orden")
     private Integer orden;
+    @SerializedName("series")
+    private Integer series;
+    @SerializedName("repeticiones")
+    private Integer repeticiones;
 
     public DetallePlanRequestDto(Long entrenamientoId, Integer diaSemana, Integer orden) {
         this.entrenamientoId = entrenamientoId;
         this.diaSemana = diaSemana;
         this.orden = orden;
+        this.series = 3; // Valores por defecto para evitar nulos en el backend
+        this.repeticiones = 12;
+    }
+
+    public DetallePlanRequestDto(Long entrenamientoId, Integer diaSemana, Integer orden, Integer series, Integer repeticiones) {
+        this.entrenamientoId = entrenamientoId;
+        this.diaSemana = diaSemana;
+        this.orden = orden;
+        this.series = series;
+        this.repeticiones = repeticiones;
     }
 
     // Getters and Setters
@@ -23,4 +37,8 @@ public class DetallePlanRequestDto {
     public void setDiaSemana(Integer diaSemana) { this.diaSemana = diaSemana; }
     public Integer getOrden() { return orden; }
     public void setOrden(Integer orden) { this.orden = orden; }
+    public Integer getSeries() { return series; }
+    public void setSeries(Integer series) { this.series = series; }
+    public Integer getRepeticiones() { return repeticiones; }
+    public void setRepeticiones(Integer repeticiones) { this.repeticiones = repeticiones; }
 }

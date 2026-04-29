@@ -199,59 +199,7 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- BOTÓN IA -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardIA"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="12dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardBackgroundColor="#2D1B4E"
-                        app:strokeColor="#CD0277"
-                        app:strokeWidth="1dp">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:padding="12dp"
-                            android:gravity="center_vertical">
-                            <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:src="@android:drawable/ic_menu_manage"
-                                app:tint="#CD0277"/>
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical"
-                                android:layout_marginStart="12dp">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="¡Generar con IA!"
-                                    android:textColor="#FFFFFF"
-                                    android:textStyle="bold"
-                                    android:textSize="14sp"/>
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Crea una rutina basada en tu perfil"
-                                    android:textColor="#99FFFFFF"
-                                    android:textSize="11sp"/>
-                            </LinearLayout>
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnGenerarIA"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="MAGIA"
-                                android:textSize="10sp"
-                                app:backgroundTint="#CD0277"
-                                app:cornerRadius="20dp"
-                                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+
 
                     <!-- Carrusel de Rutinas (ViewPager2) -->
                     <androidx.viewpager2.widget.ViewPager2

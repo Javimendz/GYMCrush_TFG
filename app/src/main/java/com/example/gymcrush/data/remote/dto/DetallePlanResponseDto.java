@@ -13,6 +13,10 @@ public class DetallePlanResponseDto {
     private Integer diaSemana;
     @SerializedName("orden")
     private Integer orden;
+    @SerializedName("series")
+    private Integer series;
+    @SerializedName("repeticiones")
+    private Integer repeticiones;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -25,4 +29,8 @@ public class DetallePlanResponseDto {
     public void setDiaSemana(Integer diaSemana) { this.diaSemana = diaSemana; }
     public Integer getOrden() { return orden; }
     public void setOrden(Integer orden) { this.orden = orden; }
+    public Integer getSeries() { return series; }
+    public void setSeries(Integer series) { this.series = series; }
+    public Integer getRepeticiones() { return repeticiones; }
+    public void setRepeticiones(Integer repeticiones) { this.repeticiones = repeticiones; }
 }

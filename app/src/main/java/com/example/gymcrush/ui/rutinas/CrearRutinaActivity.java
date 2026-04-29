@@ -232,10 +232,11 @@ public class CrearRutinaActivity extends AppCompatActivity {
 
     private void anadirAPlanMaestro(Long planId, Long entrenamientoId) {
         com.example.gymcrush.data.remote.dto.DetallePlanRequestDto req = new com.example.gymcrush.data.remote.dto.DetallePlanRequestDto(entrenamientoId, 1, 10);
+        List<com.example.gymcrush.data.remote.dto.DetallePlanRequestDto> listaReq = java.util.Collections.singletonList(req);
 
-        RetrofitClient.getApiService().añadirEjercicioAlPlan(planId, req).enqueue(new Callback<ApiResponseDto<com.example.gymcrush.data.remote.dto.DetallePlanResponseDto>>() {
-            @Override public void onResponse(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.DetallePlanResponseDto>> call, Response<ApiResponseDto<com.example.gymcrush.data.remote.dto.DetallePlanResponseDto>> response) { }
-            @Override public void onFailure(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.DetallePlanResponseDto>> call, Throwable t) { }
+        RetrofitClient.getApiService().añadirEjercicioAlPlan(planId, listaReq).enqueue(new Callback<com.example.gymcrush.data.remote.dto.PlanResponseDto>() {
+            @Override public void onResponse(Call<com.example.gymcrush.data.remote.dto.PlanResponseDto> call, Response<com.example.gymcrush.data.remote.dto.PlanResponseDto> response) { }
+            @Override public void onFailure(Call<com.example.gymcrush.data.remote.dto.PlanResponseDto> call, Throwable t) { }
         });
     }
 

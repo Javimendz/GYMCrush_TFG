@@ -250,8 +250,7 @@ public interface ApiService {
     @POST("api/v1/planes/{planId}/suscribir/{usuarioId}")
     Call<ApiResponseDto<Void>> suscribirUsuarioAPlan(@Path("planId") Long planId, @Path("usuarioId") Long usuarioId);
 
-    @GET("api/v1/planes/{planId}/ejercicios")
-    Call<ApiResponseDto<List<DetallePlanResponseDto>>> getEjerciciosDelPlan(@Path("planId") Long planId);
+
 
     @POST("api/v1/planes")
     Call<ApiResponseDto<PlanResponseDto>> crearPlan(@Body PlanRequestDto dto);
@@ -260,10 +259,9 @@ public interface ApiService {
     Call<ApiResponseDto<Void>> eliminarPlanMaestro(@Path("id") Long id);
 
     @POST("api/v1/planes/{planId}/ejercicios")
-    Call<ApiResponseDto<DetallePlanResponseDto>> añadirEjercicioAlPlan(@Path("planId") Long planId, @Body DetallePlanRequestDto dto);
+    Call<PlanResponseDto> añadirEjercicioAlPlan(@Path("planId") Long planId, @Body List<DetallePlanRequestDto> dto);
 
-    @DELETE("api/v1/planes/ejercicios-detalle/{id}")
-    Call<ApiResponseDto<Void>> quitarEjercicioDelPlan(@Path("id") Long id);
+
 
     // --- NUEVOS ENDPOINTS PARA ENTRENAMIENTOS ---
     @GET("api/v1/entrenamientos/usuario/{usuarioId}")

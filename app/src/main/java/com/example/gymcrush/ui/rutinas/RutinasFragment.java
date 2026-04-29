@@ -61,7 +61,7 @@ public class RutinasFragment extends Fragment {
     private android.widget.EditText etBuscador;
     private com.example.gymcrush.ui.salud.ProgressGraphView graphEvolucion;
     private TextView tvFechaSeleccionada, tvRacha;
-    private MaterialButton btnCambiarFecha, btnGenerarIA;
+    private MaterialButton btnCambiarFecha;
     private com.google.android.material.floatingactionbutton.FloatingActionButton btnIrACrear;
     private View overlayIA;
     private TextView tvEstadoIA;
@@ -82,11 +82,7 @@ public class RutinasFragment extends Fragment {
         rvRutinas = vista.findViewById(R.id.rvMisRutinas);
         rvEjercicios = vista.findViewById(R.id.rvEjerciciosRegistrados);
         rvRutinasGuardadas = vista.findViewById(R.id.rvRutinasGuardadas);
-        vpRutinasFavoritas = vista.findViewById(R.id.vpRutinasFavoritas);
-        dotsIndicator = vista.findViewById(R.id.dotsIndicator);
-        btnGenerarIA = vista.findViewById(R.id.btnGenerarIA);
-        overlayIA = vista.findViewById(R.id.overlayIA);
-        tvEstadoIA = vista.findViewById(R.id.tvEstadoIA);
+
         
         btnIrACrear = vista.findViewById(R.id.btnIrACrear);
         
@@ -220,9 +216,7 @@ public class RutinasFragment extends Fragment {
         setupTabs();
         setupDatePicker();
         
-        if (btnGenerarIA != null) {
-            btnGenerarIA.setOnClickListener(v -> generarRutinaIA());
-        }
+
 
         if (fabAddEjercicio != null) {
             fabAddEjercicio.setOnClickListener(v -> mostrarDialogoNuevoEjercicio());
@@ -352,7 +346,7 @@ public class RutinasFragment extends Fragment {
     private void cargarRutinaPorFecha() {
         if (userId == -1) return;
         String fechaStr = fechaSeleccionada.toString();
-
+        android.util.Log.d("FECHA_CHECK", "Cargando rutina para: " + fechaStr);
         RetrofitClient.getApiService().getRutinaDiaria(userId, fechaStr).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
@@ -543,6 +537,7 @@ public class RutinasFragment extends Fragment {
                     if (progress != null) progress.setVisibility(View.VISIBLE);
                     if (calHorizontal != null) calHorizontal.setVisibility(View.VISIBLE);
                     setupCarruselRutinas(); // Verificar si mostrar u ocultar carrusel
+                    cargarRutinaPorFecha();
                 } else if (position == 1) { // EXPLORAR
                     containerPlanes.setVisibility(View.VISIBLE);
                     mostrarFragmentPlanes();
@@ -569,93 +564,7 @@ public class RutinasFragment extends Fragment {
         });
     }
 
-    private void generarRutinaIA() {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
-        builder.setTitle("Personalizar con IA");
-        
-        String[] opciones = {"Todo el cuerpo (Gym)", "Torso/Pierna", "En casa (Sin equipo)", "Solo Cardio/Resistencia"};
-        builder.setItems(opciones, (dialog, which) -> {
-            String seleccion = opciones[which];
-            ejecutarGeneracionIA(seleccion);
-        });
-        builder.show();
-    }
 
-    private void ejecutarGeneracionIA(String preferencia) {
-        if (overlayIA != null) overlayIA.setVisibility(View.VISIBLE);
-        if (tvEstadoIA != null) tvEstadoIA.setText("Analizando catálogo para: " + preferencia);
-
-        // 1. Obtener todos los entrenamientos disponibles
-        RetrofitClient.getApiService().getEntrenamientosUsuario(userId).enqueue(new Callback<ApiResponseDto<List<EntrenamientoResponseDto>>>() {
-            @Override
-            public void onResponse(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Response<ApiResponseDto<List<EntrenamientoResponseDto>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    if (tvEstadoIA != null) tvEstadoIA.setText("IA: Seleccionando mejores ejercicios...");
-                    List<EntrenamientoResponseDto> todos = response.body().getDatos();
-                    List<EntrenamientoResponseDto> seleccionados = filtrarEjerciciosIA(todos, preferencia);
-                    asignarEjerciciosIA(seleccionados);
-                } else {
-                    if (overlayIA != null) overlayIA.setVisibility(View.GONE);
-                }
-            }
-            @Override public void onFailure(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Throwable t) {
-                if (overlayIA != null) overlayIA.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    private List<EntrenamientoResponseDto> filtrarEjerciciosIA(List<EntrenamientoResponseDto> lista, String preferencia) {
-        // Lógica de "IA" simplificada basada en categorías
-        switch (preferencia) {
-            case "En casa (Sin equipo)":
-                return lista.stream()
-                        .filter(e -> "Cardio".equalsIgnoreCase(e.getCategoria()) || "Flexibilidad".equalsIgnoreCase(e.getCategoria()))
-                        .limit(5).collect(Collectors.toList());
-            case "Solo Cardio/Resistencia":
-                return lista.stream()
-                        .filter(e -> "Cardio".equalsIgnoreCase(e.getCategoria()))
-                        .limit(4).collect(Collectors.toList());
-            default:
-                // Aleatorio inteligente para Gym
-                java.util.Collections.shuffle(lista);
-                return lista.stream().limit(6).collect(Collectors.toList());
-        }
-    }
-
-    private void asignarEjerciciosIA(List<EntrenamientoResponseDto> ejercicios) {
-        if (ejercicios.isEmpty()) {
-            if (overlayIA != null) overlayIA.setVisibility(View.GONE);
-            Toast.makeText(getContext(), "No hay suficientes ejercicios en la base de datos", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (tvEstadoIA != null) tvEstadoIA.setText("IA: Asignando a tu agenda...");
-        String hoy = LocalDate.now().toString();
-        AtomicInteger count = new AtomicInteger(0);
-        
-        for (int i = 0; i < ejercicios.size(); i++) {
-            com.example.gymcrush.data.remote.dto.RutinaRequestDto request = new com.example.gymcrush.data.remote.dto.RutinaRequestDto(
-                userId, ejercicios.get(i).getId(), hoy, i + 1
-            );
-
-            RetrofitClient.getApiService().asignarEntrenamiento(request).enqueue(new Callback<ApiResponseDto<RutinaResponseDto>>() {
-                @Override
-                public void onResponse(Call<ApiResponseDto<RutinaResponseDto>> call, Response<ApiResponseDto<RutinaResponseDto>> response) {
-                    if (count.incrementAndGet() == ejercicios.size()) {
-                        if (overlayIA != null) overlayIA.setVisibility(View.GONE);
-                        Toast.makeText(getContext(), "¡Tu nueva rutina de IA está lista!", Toast.LENGTH_SHORT).show();
-                        cargarRutinaPorFecha(); // Recargar la agenda
-                    }
-                }
-                @Override public void onFailure(Call<ApiResponseDto<RutinaResponseDto>> call, Throwable t) {
-                    if (count.incrementAndGet() == ejercicios.size()) {
-                        if (overlayIA != null) overlayIA.setVisibility(View.GONE);
-                        cargarRutinaPorFecha();
-                    }
-                }
-            });
-        }
-    }
 
     private void actualizarRutinasGuardadas() {
         if (userId == -1) return;
@@ -692,25 +601,37 @@ public class RutinasFragment extends Fragment {
     private void mostrarFragmentPlanes() {
         PlanesFragment fragment = new PlanesFragment();
         fragment.setOnPlanSubscriptionListener(() -> {
-            // Cuando se suscribe a un plan, volvemos a la agenda y recargamos
+            // 1. Cambiamos a la pestaña de MI AGENDA
             if (tabLayoutPrincipal != null) {
                 tabLayoutPrincipal.getTabAt(0).select();
             }
-            
-            // Forzamos la fecha a hoy para ver los cambios del plan recién activado
-            // En el log se ve que "Hoy" es 2026-04-29 (miércoles)
+
             fechaSeleccionada = LocalDate.now();
             actualizarUIFecha();
-            
-            // Pequeño delay para asegurar que el backend ha procesado la asignación de ejercicios del plan
+
+            // 2. Mostramos un aviso visual de que el plan se está cargando
+            Toast.makeText(getContext(), "¡Plan Maestro Activado! Cargando tu agenda...", Toast.LENGTH_LONG).show();
+
+            // 3. Forzamos la recarga de los datos del usuario para obtener el nuevo 'plan_activo_id'
             new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                cargarRutinaPorFecha();
-            }, 800);
+                if (isAdded()) {
+                    // Recargamos la agenda para ver los nuevos ejercicios del plan
+                    cargarRutinaPorFecha();
+                    // Opcional: Podrías llamar a un método que actualice un TextView con el nombre del Plan
+                    actualizarNombrePlanActivo();
+                }
+            }, 1000); // Subimos a 1 segundo para dar tiempo al servidor a procesar el "Master Plan"
         });
-        
+
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.containerPlanes, fragment)
                 .commit();
+    }
+
+    private void actualizarNombrePlanActivo() {
+        // Aquí podrías hacer una petición rápida al perfil del usuario
+        // y poner el nombre del plan en un TextView que añadas arriba de la racha.
+        android.util.Log.i("RutinasFragment", "Sincronizando interfaz con el nuevo Plan Maestro");
     }
 
     private void actualizarVisibilidadFab(int tabPosition) {

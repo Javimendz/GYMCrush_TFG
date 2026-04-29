@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,13 +28,10 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
         this.listener = listener;
     }
 
-    // CORRECCIÓN: Método para actualizar la lista completa de forma segura
     public void updateList(List<RutinaResponseDto> newList) {
         this.listaRutinas.clear();
-        if (newList != null) {
-            this.listaRutinas.addAll(newList);
-        }
-        notifyDataSetChanged(); // Notifica que toda la lista ha cambiado
+        if (newList != null) this.listaRutinas.addAll(newList);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -47,22 +45,29 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         RutinaResponseDto rutina = listaRutinas.get(position);
 
-        holder.tvNombre.setText(rutina.getNombreEntrenamiento());
+        // 1. Evitar el texto "null"
+        holder.tvNombre.setText(rutina.getNombreEntrenamiento() != null ? rutina.getNombreEntrenamiento() : "Ejercicio");
 
-        // Formatear detalles: "4 sets x 12 reps"
-        String detalles = String.format("%s sets x %s reps",
-                rutina.getSeries() != null ? rutina.getSeries() : "0",
-                rutina.getRepeticiones() != null ? rutina.getRepeticiones() : "0");
-        holder.tvDetalles.setText(detalles);
+        String series = rutina.getSeries() != null ? rutina.getSeries() : "0";
+        String reps = rutina.getRepeticiones() != null ? rutina.getRepeticiones() : "0";
+        holder.tvDetalles.setText(series + " sets x " + reps + " reps");
 
-        // Manejo de estado visual (Completado o no)
-        if (rutina.getCompletado()) {
+        // 2. Cabecera del Plan
+        if (rutina.getNombrePlan() != null && !rutina.getNombrePlan().isEmpty()) {
+            holder.layoutHeaderPlan.setVisibility(View.VISIBLE);
+            holder.tvNombrePlan.setText(rutina.getNombrePlan().toUpperCase());
+        } else {
+            holder.layoutHeaderPlan.setVisibility(View.GONE);
+        }
+
+        // 3. Estado visual
+        if (Boolean.TRUE.equals(rutina.getCompletado())) {
             holder.tvEstado.setText("COMPLETADO");
-            holder.tvEstado.setBackgroundResource(R.drawable.bg_estado_completado); // Asegúrate de tener este drawable
+            holder.tvEstado.setAlpha(0.5f);
             holder.imgCheck.setVisibility(View.VISIBLE);
         } else {
             holder.tvEstado.setText("EMPEZAR");
-            holder.tvEstado.setBackgroundResource(R.drawable.bg_estado_badge);
+            holder.tvEstado.setAlpha(1.0f);
             holder.imgCheck.setVisibility(View.GONE);
         }
 
@@ -72,22 +77,24 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
 
     @Override
     public int getItemCount() {
-        // CORRECCIÓN: Siempre debe devolver el tamaño real de la lista
-        return listaRutinas != null ? listaRutinas.size() : 0;
+        return listaRutinas.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvNombre, tvDetalles, tvEstado;
+        TextView tvNombre, tvDetalles, tvEstado, tvNombrePlan;
         ImageView imgCheck, btnOpciones, imgRutina;
+        LinearLayout layoutHeaderPlan;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNombre = itemView.findViewById(R.id.tvNombreRutina);
             tvDetalles = itemView.findViewById(R.id.tvDetallesRutina);
             tvEstado = itemView.findViewById(R.id.tvEstadoRutina);
+            tvNombrePlan = itemView.findViewById(R.id.tvNombrePlanPertenece);
             imgCheck = itemView.findViewById(R.id.imgStatusCheck);
             btnOpciones = itemView.findViewById(R.id.btnMasOpciones);
             imgRutina = itemView.findViewById(R.id.imgRutina);
+            layoutHeaderPlan = itemView.findViewById(R.id.layoutHeaderPlan);
         }
     }
 }
