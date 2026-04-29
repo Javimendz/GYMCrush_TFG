@@ -49,11 +49,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="MIS RUTINAS" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="BIBLIOTECA" />
         </com.google.android.material.tabs.TabLayout>
 
         <!-- Overlay de Carga IA (Invisible por defecto) -->

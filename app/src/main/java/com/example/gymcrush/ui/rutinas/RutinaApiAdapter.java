@@ -74,7 +74,7 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
             holder.itemView.setAlpha(0.6f);
             holder.tvNombre.setPaintFlags(holder.tvNombre.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            holder.tvEstado.setText("PENDIENTE");
+            holder.tvEstado.setText("EMPEZAR ENTRENAMIENTO");
             holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFCD0277));
             holder.tvEstado.setTextColor(0xFFFFFFFF);
             holder.itemView.setAlpha(1.0f);

@@ -247,9 +247,20 @@ public class RutinasFragment extends Fragment {
     private void setupCarruselRutinas() {
         if (vpRutinasFavoritas == null) return;
         
+        List<RepositorioRutinas.RutinaModel> rutinas = RepositorioRutinas.getRutinas();
+        
+        if (rutinas.isEmpty()) {
+            vpRutinasFavoritas.setVisibility(View.GONE);
+            dotsIndicator.setVisibility(View.GONE);
+            return;
+        }
+
+        vpRutinasFavoritas.setVisibility(View.VISIBLE);
+        dotsIndicator.setVisibility(View.VISIBLE);
+        
         // Usamos las rutinas guardadas localmente para el carrusel
         // Se añade true para indicar que es para ViewPager2 (y use match_parent)
-        RutinaGuardadaAdapter carruselAdapter = new RutinaGuardadaAdapter(RepositorioRutinas.getRutinas(), true);
+        RutinaGuardadaAdapter carruselAdapter = new RutinaGuardadaAdapter(rutinas, true);
         vpRutinasFavoritas.setAdapter(carruselAdapter);
         
         // Conectar TabLayout (dots) con ViewPager2
@@ -513,19 +524,27 @@ public class RutinasFragment extends Fragment {
                 containerEjercicios.setVisibility(View.GONE);
                 containerRutinasGuardadas.setVisibility(View.GONE);
                 layoutSelectorFecha.setVisibility(View.GONE);
+                
+                // Nuevo: Ocultar también el progreso y el calendario horizontal si no es Agenda
+                View progress = getView().findViewById(R.id.progressRutina);
+                View calHorizontal = getView().findViewById(R.id.rvCalendarioHorizontal);
 
-                if (position == 0) {
+                if (position == 0) { // MI AGENDA
                     containerRutinas.setVisibility(View.VISIBLE);
                     layoutSelectorFecha.setVisibility(View.VISIBLE);
-                } else if (position == 1) {
+                    if (progress != null) progress.setVisibility(View.VISIBLE);
+                    if (calHorizontal != null) calHorizontal.setVisibility(View.VISIBLE);
+                    setupCarruselRutinas(); // Verificar si mostrar u ocultar carrusel
+                } else if (position == 1) { // EXPLORAR
                     containerPlanes.setVisibility(View.VISIBLE);
                     mostrarFragmentPlanes();
-                } else if (position == 2) {
+                    if (progress != null) progress.setVisibility(View.GONE);
+                    if (calHorizontal != null) calHorizontal.setVisibility(View.GONE);
+                } else if (position == 2) { // MIS RUTINAS
                     containerRutinasGuardadas.setVisibility(View.VISIBLE);
-                    actualizarRutinasGuardadas(); 
-                } else {
-                    containerEjercicios.setVisibility(View.VISIBLE);
-                    configurarFiltrosCategorias();
+                    actualizarRutinasGuardadas();
+                    if (progress != null) progress.setVisibility(View.GONE);
+                    if (calHorizontal != null) calHorizontal.setVisibility(View.GONE);
                 }
             }
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
@@ -642,6 +661,11 @@ public class RutinasFragment extends Fragment {
                     // Sincronizar el repositorio central con los datos frescos del servidor
                     RepositorioRutinas.sincronizarConServidor(entrenamientos);
 
+                    // Actualizar visibilidad del carrusel si estamos en la pestaña 0
+                    if (tabLayoutPrincipal.getSelectedTabPosition() == 0) {
+                        setupCarruselRutinas();
+                    }
+
                     if (rutinasGuardadasAdapter != null) {
                         rutinasGuardadasAdapter.updateList(RepositorioRutinas.getRutinas());
                     }
@@ -683,7 +707,7 @@ public class RutinasFragment extends Fragment {
 
     private void actualizarVisibilidadFab(int tabPosition) {
         if (tabPosition == 0) {
-            // Agenda: Botón para añadir ejercicio rápido hoy
+            // Agenda: Botón para añadir entrenamiento hoy
             if (fabAddEjercicio != null) fabAddEjercicio.hide();
             if (btnIrACrear != null) {
                 btnIrACrear.show();
@@ -693,7 +717,7 @@ public class RutinasFragment extends Fragment {
                 });
             }
         } else if (tabPosition == 1) {
-            // Explorar: FAB oculto (se usa el interno de PlanesFragment)
+            // Explorar: FAB oculto
             if (btnIrACrear != null) btnIrACrear.hide();
             if (fabAddEjercicio != null) fabAddEjercicio.hide();
         } else if (tabPosition == 2) {
@@ -702,17 +726,11 @@ public class RutinasFragment extends Fragment {
             if (btnIrACrear != null) {
                 btnIrACrear.show();
                 btnIrACrear.setOnClickListener(v -> {
-                    // Aquí podrías abrir CrearRutinaActivity pero para guardarla como plantilla
                     Intent intent = new Intent(getActivity(), CrearRutinaActivity.class);
                     intent.putExtra("ES_PLANTILLA", true);
                     startActivity(intent);
                 });
             }
-        } else if (tabPosition == 3) {
-            // Biblioteca: Solo Admin puede añadir ejercicios base
-            if (btnIrACrear != null) btnIrACrear.hide();
-            if (isAdmin && fabAddEjercicio != null) fabAddEjercicio.show();
-            else if (fabAddEjercicio != null) fabAddEjercicio.hide();
         }
     }
 
