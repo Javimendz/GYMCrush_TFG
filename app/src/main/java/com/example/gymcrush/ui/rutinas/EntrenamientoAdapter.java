@@ -20,7 +20,6 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
 
     public interface OnItemClickListener {
         void onStartWorkout(EntrenamientoResponseDto entrenamiento);
-        void onManageExercises(EntrenamientoResponseDto entrenamiento);
         void onDeleteWorkout(EntrenamientoResponseDto entrenamiento);
     }
 
@@ -51,7 +50,6 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         String categoria = item.getCategoria() != null ? item.getCategoria() : "Sin categoría";
         holder.tvDetalles.setText(categoria + " | " + item.getDuracion() + " min | " + item.getIntensidad());
 
-        // Cargar imagen con Glide
         if (item.getUrlVideo() != null && !item.getUrlVideo().isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(item.getUrlVideo())
@@ -61,18 +59,14 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
             holder.imgRutina.setImageResource(R.drawable.ic_launcher_foreground);
         }
 
-        // El botón de la derecha (tres líneas/menú) servirá para que el admin gestione ejercicios
         holder.btnMasOpciones.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
         holder.btnMasOpciones.setOnClickListener(v -> {
             if (listener != null) {
                 android.widget.PopupMenu popup = new android.widget.PopupMenu(v.getContext(), v);
-                popup.getMenu().add("Gestionar Ejercicios");
-                popup.getMenu().add("Eliminar Entrenamiento");
-                
+                popup.getMenu().add("Eliminar Entrenamiento del Catálogo");
+
                 popup.setOnMenuItemClickListener(menuItem -> {
-                    if (menuItem.getTitle().equals("Gestionar Ejercicios")) {
-                        listener.onManageExercises(item);
-                    } else if (menuItem.getTitle().equals("Eliminar Entrenamiento")) {
+                    if (menuItem.getTitle().equals("Eliminar Entrenamiento del Catálogo")) {
                         listener.onDeleteWorkout(item);
                     }
                     return true;
@@ -81,7 +75,6 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
             }
         });
 
-        // El texto "Empezar Entreno" sirve para ver los ejercicios (y empezar para el usuario)
         holder.tvEstado.setOnClickListener(v -> {
             if (listener != null) listener.onStartWorkout(item);
         });

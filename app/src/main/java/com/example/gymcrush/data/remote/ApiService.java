@@ -51,7 +51,13 @@ public interface ApiService {
     // --- NUEVOS ENDPOINTS PARA COMIDAS DIARIAS ---
     @POST("api/v1/comidas")
     Call<ApiResponseDto<ComidaDiariaResponseDto>> añadirComida(@Body ComidaDiariaRequestDto request);
+    @GET("api/v1/planes/{planId}/ejercicios")
+    Call<ApiResponseDto<List<DetallePlanResponseDto>>> obtenerEjerciciosDelPlan(@Path("planId") Long planId);
 
+    @GET("api/v1/entrenamientos")
+    Call<ApiResponseDto<List<EntrenamientoResponseDto>>> listarEntrenamientosCatalogo();
+    @DELETE("api/v1/planes/ejercicios-detalle/{id}")
+    Call<ApiResponseDto<Void>> eliminarEjercicioDelPlan(@Path("id") Long id);
     @DELETE("api/v1/comidas/{id}")
     Call<ApiResponseDto<Void>> eliminarComida(@Path("id") Long id);
 

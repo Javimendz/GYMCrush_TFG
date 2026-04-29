@@ -22,6 +22,8 @@ public class RutinaResponseDto {
     private String intensidad;
     @SerializedName("urlVideo")
     private String urlVideo;
+    @SerializedName("planNombre")
+    private String planNombre;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -42,4 +44,6 @@ public class RutinaResponseDto {
     public void setIntensidad(String intensidad) { this.intensidad = intensidad; }
     public String getUrlVideo() { return urlVideo; }
     public void setUrlVideo(String urlVideo) { this.urlVideo = urlVideo; }
+    public String getPlanNombre() { return planNombre; }
+    public void setPlanNombre(String planNombre) { this.planNombre = planNombre; }
 }

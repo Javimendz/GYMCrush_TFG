@@ -14,7 +14,7 @@ import java.util.List;
 public class DetallePlanAdapter extends RecyclerView.Adapter<DetallePlanAdapter.ViewHolder> {
 
     private List<DetallePlanResponseDto> detalles;
-    private OnDeleteClickListener deleteListener;
+    private final OnDeleteClickListener deleteListener;
 
     public interface OnDeleteClickListener {
         void onDelete(DetallePlanResponseDto detalle);
@@ -35,14 +35,25 @@ public class DetallePlanAdapter extends RecyclerView.Adapter<DetallePlanAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DetallePlanResponseDto detalle = detalles.get(position);
+
         holder.tvNombre.setText(detalle.getNombreEntrenamiento());
-        holder.tvDiaOrden.setText("Día " + detalle.getDiaSemana() + " - Orden " + detalle.getOrden());
+
+        // Convertimos el número 1-7 en texto real
+        String[] nombresDias = {"", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+        String diaTexto = "Día " + detalle.getDiaSemana();
+
+        if (detalle.getDiaSemana() != null && detalle.getDiaSemana() >= 1 && detalle.getDiaSemana() <= 7) {
+            diaTexto = nombresDias[detalle.getDiaSemana()];
+        }
+
+        holder.tvDiaOrden.setText(diaTexto + " • Ejercicio " + detalle.getOrden());
+
         holder.btnEliminar.setOnClickListener(v -> deleteListener.onDelete(detalle));
     }
 
     @Override
     public int getItemCount() {
-        return detalles.size();
+        return detalles != null ? detalles.size() : 0;
     }
 
     public void updateList(List<DetallePlanResponseDto> newList) {

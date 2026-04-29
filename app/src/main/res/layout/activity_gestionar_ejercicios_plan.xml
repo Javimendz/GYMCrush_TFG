@@ -1,39 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android_custom="http://schemas.android.com/apk/res-auto"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#0A1128">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarGestionar"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="#FF4D4D"
-        android_custom:titleTextColor="@color/white"
-        android_custom:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:background="#16213E">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarGestionPlan"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:titleTextColor="@color/white" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutVacioPlan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@android:drawable/ic_menu_agenda"
+            app:tint="#A0AAB2"
+            android:layout_marginBottom="8dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Este plan aún no tiene ejercicios.\n¡Añade uno pulsando el botón +!"
+            android:textAlignment="center"
+            android:textColor="#A0AAB2"/>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvDetallePlan"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android_custom:layout_constraintTop_toBottomOf="@id/toolbarGestionar"
-        android_custom:layout_constraintBottom_toBottomOf="parent"
-        android_custom:layout_constraintStart_toStartOf="parent"
-        android_custom:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_detalle_plan" />
+        android:id="@+id/rvDetallesPlan"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="16dp"
+        android:paddingBottom="88dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddEjercicioDetalle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
         android:src="@android:drawable/ic_input_add"
-        android_custom:layout_constraintBottom_toBottomOf="parent"
-        android_custom:layout_constraintEnd_toEndOf="parent"
-        android_custom:tint="@color/white"
-        android_custom:backgroundTint="#FF4D4D" />
+        app:tint="@color/white"
+        app:backgroundTint="#CD0277" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

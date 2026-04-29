@@ -109,7 +109,47 @@
                 android:id="@+id/rvSeleccionEjercicios"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="24dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Opciones avanzadas"
+                android:textColor="#E91E63"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#121B3A"
+                app:cardCornerRadius="12dp"
+                app:strokeWidth="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+                    <CheckBox
+                        android:id="@+id/cbAnadirAPlan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Añadir esta rutina a un Plan Maestro"
+                        android:textColor="#FFFFFF"
+                        android:buttonTint="#E91E63"/>
+
+                    <Spinner
+                        android:id="@+id/spinnerPlanes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:backgroundTint="#FFFFFF"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
     </ScrollView>
 

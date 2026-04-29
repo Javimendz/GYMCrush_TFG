@@ -1,39 +1,34 @@
 package com.example.gymcrush.ui.rutinas;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gymcrush.R;
-import com.example.gymcrush.data.remote.RetrofitClient;
-import com.example.gymcrush.data.remote.dto.ApiResponseDto;
-import com.example.gymcrush.data.remote.dto.DetallePlanRequestDto;
-import com.example.gymcrush.data.remote.dto.DetallePlanResponseDto;
-import com.example.gymcrush.ui.ejercicios.Ejercicio;
-import com.example.gymcrush.ui.ejercicios.RepositorioEjercicios;
+import com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
 
     private Long planId;
-    private String nombrePlan;
-    private RecyclerView rvDetalles;
+    private PlanDetalleViewModel viewModel;
     private DetallePlanAdapter adapter;
-    private FloatingActionButton fabAdd;
-    private List<Ejercicio> catalogoEjercicios = new ArrayList<>();
+    private List<EntrenamientoResponseDto> catalogoActual = new ArrayList<>();
+    private View layoutVacio; // Para evitar la "pantalla azul vacía"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,164 +36,104 @@ public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gestionar_ejercicios_plan);
 
         planId = getIntent().getLongExtra("PLAN_ID", -1);
-        nombrePlan = getIntent().getStringExtra("PLAN_NOMBRE");
+        String nombrePlan = getIntent().getStringExtra("PLAN_NOMBRE");
 
-        Toolbar toolbar = findViewById(R.id.toolbarGestionar);
+        // 1. Configurar Barra Superior
+        Toolbar toolbar = findViewById(R.id.toolbarGestionPlan);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Ejercicios: " + nombrePlan);
+            getSupportActionBar().setTitle(nombrePlan != null ? nombrePlan : "Gestión del Plan");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        rvDetalles = findViewById(R.id.rvDetallePlan);
-        fabAdd = findViewById(R.id.fabAddEjercicioDetalle);
+        // 2. Inicializar Vistas
+        layoutVacio = findViewById(R.id.layoutVacioPlan); // Debes añadir este ID a tu activity_gestionar_ejercicios_plan.xml
+        RecyclerView rv = findViewById(R.id.rvDetallesPlan);
+        rv.setLayoutManager(new LinearLayoutManager(this));
 
-        rvDetalles.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new DetallePlanAdapter(new ArrayList<>(), this::eliminarEjercicio);
-        rvDetalles.setAdapter(adapter);
+        adapter = new DetallePlanAdapter(new ArrayList<>(), detalle -> {
+            viewModel.eliminarEjercicioDelPlan(detalle.getId(), planId);
+        });
+        rv.setAdapter(adapter);
 
-        fabAdd.setOnClickListener(v -> mostrarDialogoAnadir());
+        // 3. ViewModel y Observadores
+        viewModel = new ViewModelProvider(this).get(PlanDetalleViewModel.class);
 
-        cargarDetalles();
-        cargarCatalogoEjercicios();
-    }
-
-    private void cargarDetalles() {
-        RetrofitClient.getApiService().getEjerciciosDelPlan(planId).enqueue(new Callback<ApiResponseDto<List<DetallePlanResponseDto>>>() {
-            @Override
-            public void onResponse(Call<ApiResponseDto<List<DetallePlanResponseDto>>> call, Response<ApiResponseDto<List<DetallePlanResponseDto>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    adapter.updateList(response.body().getDatos());
-                }
-            }
-            @Override
-            public void onFailure(Call<ApiResponseDto<List<DetallePlanResponseDto>>> call, Throwable t) {
-                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error al cargar ejercicios del plan", Toast.LENGTH_SHORT).show();
+        viewModel.getEjerciciosPlan().observe(this, lista -> {
+            adapter.updateList(lista);
+            // Si la lista está vacía, mostramos un mensaje para que no sea solo una pantalla azul
+            if (lista == null || lista.isEmpty()) {
+                if (layoutVacio != null) layoutVacio.setVisibility(View.VISIBLE);
+            } else {
+                if (layoutVacio != null) layoutVacio.setVisibility(View.GONE);
             }
         });
-    }
 
-    private void cargarCatalogoEjercicios() {
-        RepositorioEjercicios.getTodosAsync(new RepositorioEjercicios.RepositorioCallback() {
-            @Override
-            public void onLoaded(List<Ejercicio> ejercicios) {
-                if (ejercicios == null || ejercicios.isEmpty()) {
-                    catalogoEjercicios = RepositorioEjercicios.getTodos();
-                } else {
-                    catalogoEjercicios = ejercicios;
-                }
-            }
-            @Override
-            public void onError(String mensaje) {
-                catalogoEjercicios = RepositorioEjercicios.getTodos();
-                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Cargando catálogo local", Toast.LENGTH_SHORT).show();
-            }
+        viewModel.getCatalogoEntrenamientos().observe(this, entrenamientos -> {
+            this.catalogoActual = entrenamientos;
         });
+
+        // 4. Cargar datos iniciales
+        if (planId != -1) {
+            viewModel.cargarEjerciciosDelPlan(planId);
+            viewModel.cargarCatalogoParaSpinner();
+        }
+
+        FloatingActionButton fabAdd = findViewById(R.id.fabAddEjercicioDetalle);
+        fabAdd.setOnClickListener(v -> mostrarDialogoAñadir());
     }
 
-    private void eliminarEjercicio(DetallePlanResponseDto detalle) {
-        RetrofitClient.getApiService().quitarEjercicioDelPlan(detalle.getId()).enqueue(new Callback<ApiResponseDto<Void>>() {
-            @Override
-            public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(GestionarEjerciciosPlanActivity.this, "Ejercicio quitado", Toast.LENGTH_SHORT).show();
-                    cargarDetalles();
-                }
-            }
-            @Override
-            public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {
-                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+    private void mostrarDialogoAñadir() {
+        // Validación: No abrir si el catálogo no ha cargado
+        if (catalogoActual == null || catalogoActual.isEmpty()) {
+            Toast.makeText(this, "Cargando catálogo de ejercicios...", Toast.LENGTH_SHORT).show();
+            viewModel.cargarCatalogoParaSpinner();
+            return;
+        }
 
-    private void mostrarDialogoAnadir() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_anadir_ejercicio_plan, null);
-        
-        Spinner spinnerEjercicios = view.findViewById(R.id.spinnerEjerciciosCatalogo);
-        Spinner spinnerDia = view.findViewById(R.id.spinnerDiaSemana);
-        EditText etOrden = view.findViewById(R.id.etOrdenPlan);
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_anadir_ejercicio_plan);
 
-        ArrayAdapter<Ejercicio> adapterEj = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, catalogoEjercicios);
-        adapterEj.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        // --- SOLUCIÓN AL NULLPOINTER: Buscar dentro de 'dialog' ---
+        Spinner spinnerEjercicios = dialog.findViewById(R.id.spinnerEjerciciosCatalogo);
+        Spinner spinnerDias = dialog.findViewById(R.id.spinnerDiaSemana);
+        EditText etOrden = dialog.findViewById(R.id.etOrdenPlan);
+        Button btnGuardar = dialog.findViewById(R.id.btnGuardarDetallePlan);
+
+        // Llenar Spinner de Ejercicios
+        List<String> nombres = new ArrayList<>();
+        for (EntrenamientoResponseDto e : catalogoActual) nombres.add(e.getNombre());
+        ArrayAdapter<String> adapterEj = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, nombres);
         spinnerEjercicios.setAdapter(adapterEj);
 
+        // Llenar Spinner de Días
         String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
-        ArrayAdapter<String> adapterDia = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dias);
-        spinnerDia.setAdapter(adapterDia);
+        ArrayAdapter<String> adapterDi = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, dias);
+        spinnerDias.setAdapter(adapterDi);
 
-        builder.setView(view)
-                .setTitle("Añadir Ejercicio al Plan")
-                .setPositiveButton("Añadir", (dialog, which) -> {
-                    if (spinnerEjercicios.getSelectedItem() == null) {
-                        Toast.makeText(this, "Por favor, selecciona un ejercicio", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    Ejercicio ej = (Ejercicio) spinnerEjercicios.getSelectedItem();
-                    int dia = spinnerDia.getSelectedItemPosition() + 1;
-                    String ordenStr = etOrden.getText().toString();
-                    int orden = ordenStr.isEmpty() ? 1 : Integer.parseInt(ordenStr);
-
-                    anadirEjercicioAlPlan(ej, dia, orden);
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
-    }
-
-    private void anadirEjercicioAlPlan(Ejercicio ej, int dia, int orden) {
-        // Paso 1: Asegurarnos de que el ejercicio existe en la tabla de 'Entrenamientos' del servidor
-        com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto entrenamientoReq = new com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto(
-                ej.getNombre(),
-                ej.getDescripcion(),
-                30,
-                ej.getDificultad(),
-                ej.getCategoria()
-        );
-
-        RetrofitClient.getApiService().crearEntrenamiento(entrenamientoReq).enqueue(new Callback<ApiResponseDto<com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto>>() {
-            @Override
-            public void onResponse(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto>> call, Response<ApiResponseDto<com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Long nuevoIdServidor = response.body().getDatos().getId();
-
-                    // Paso 2: Añadir al detalle del plan
-                    DetallePlanRequestDto dto = new DetallePlanRequestDto(nuevoIdServidor, dia, orden);
-                    RetrofitClient.getApiService().añadirEjercicioAlPlan(planId, dto).enqueue(new Callback<ApiResponseDto<DetallePlanResponseDto>>() {
-                        @Override
-                        public void onResponse(Call<ApiResponseDto<DetallePlanResponseDto>> call, Response<ApiResponseDto<DetallePlanResponseDto>> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Añadido correctamente", Toast.LENGTH_SHORT).show();
-                                cargarDetalles();
-                            }
-                        }
-                        @Override
-                        public void onFailure(Call<ApiResponseDto<DetallePlanResponseDto>> call, Throwable t) {
-                            android.util.Log.e("GestionarPlan", "Error al añadir: " + t.getMessage());
-                            Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error de red al añadir detalle", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } else {
-                    String msg = "Error al registrar: ";
-                    if (response.errorBody() != null) {
-                        try { msg += response.errorBody().string(); } catch (Exception ignored) {}
-                    }
-                    android.util.Log.e("GestionarPlan", msg);
-                    Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error al registrar entrenamiento en servidor", Toast.LENGTH_SHORT).show();
-                }
+        btnGuardar.setOnClickListener(v -> {
+            String ordenStr = etOrden.getText().toString();
+            if (ordenStr.isEmpty()) {
+                etOrden.setError("Introduce el orden");
+                return;
             }
 
-            @Override
-            public void onFailure(Call<ApiResponseDto<com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto>> call, Throwable t) {
-                android.util.Log.e("GestionarPlan", "Fallo red: " + t.getMessage());
-                Toast.makeText(GestionarEjerciciosPlanActivity.this, "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            int pos = spinnerEjercicios.getSelectedItemPosition();
+            Long idEntrenamiento = catalogoActual.get(pos).getId();
+            int dia = spinnerDias.getSelectedItemPosition() + 1;
+            int orden = Integer.parseInt(ordenStr);
+
+            viewModel.añadirEjercicioAlPlan(planId, idEntrenamiento, dia, orden);
+            dialog.dismiss();
         });
-    }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+        dialog.show();
     }
 }

@@ -175,19 +175,11 @@ public class RutinasFragment extends Fragment {
                 startActivity(intent);
             }
 
-            @Override
-            public void onManageExercises(EntrenamientoResponseDto entrenamiento) {
-                if (isAdmin) {
-                    Intent intent = new Intent(getActivity(), GestionarEjerciciosPlanActivity.class);
-                    intent.putExtra("PLAN_ID", entrenamiento.getId());
-                    intent.putExtra("PLAN_NOMBRE", entrenamiento.getNombre());
-                    startActivity(intent);
-                }
-            }
+
+
 
             @Override
-            public void onDeleteWorkout(EntrenamientoResponseDto entrenamiento) {
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            public void onDeleteWorkout(EntrenamientoResponseDto entrenamiento) {   new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                         .setTitle("Eliminar Entrenamiento")
                         .setMessage("¿Estás seguro de que quieres eliminar '" + entrenamiento.getNombre() + "' del catálogo?")
                         .setPositiveButton("Eliminar", (dialog, which) -> {
