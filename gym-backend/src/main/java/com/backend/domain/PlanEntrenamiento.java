@@ -1,9 +1,11 @@
 package com.backend.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "planes_entrenamiento")
@@ -30,6 +33,13 @@ public class PlanEntrenamiento {
     private String objetivo; // PERDER_PESO, GANAR_MUSCULO
     private String nivel; // PRINCIPIANTE, INTERMEDIO, AVANZADO
 
-   @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DetallePlan> ejercicios;
+   @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude // Evita errores de recursividad infinita
+    private List<DetallePlan> ejercicios = new ArrayList<>();
+
+    public void addEjercicio(DetallePlan detalle) {
+        ejercicios.add(detalle);
+        detalle.setPlan(this);
+    }
 }

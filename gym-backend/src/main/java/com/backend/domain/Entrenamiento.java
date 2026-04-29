@@ -45,6 +45,9 @@ public class Entrenamiento {
     @Column(nullable = false, length = 100)
     private String nombre; // Ej: "Pecho y Tríceps"
 
+    @Column(nullable = true)
+    private String urlImagen;
+
     @Lob
 @Column(columnDefinition = "TEXT")
     private String descripcion;

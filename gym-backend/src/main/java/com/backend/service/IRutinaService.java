@@ -7,10 +7,8 @@ import java.util.List;
 
 public interface IRutinaService {
     RutinaResponseDto asignarEntrenamiento(RutinaRequestDto dto);
-
     List<RutinaResponseDto> obtenerRutinaDiaria(Long usuarioId, LocalDate fecha);
-
     RutinaResponseDto marcarComoCompletada(Long id);
-List<RutinaResponseDto> obtenerPorRango(Long usuarioId, LocalDate inicio, LocalDate fin);
     void eliminarAsignacion(Long id);
+    List<RutinaResponseDto> obtenerPorRango(Long usuarioId, LocalDate inicio, LocalDate fin);
 }

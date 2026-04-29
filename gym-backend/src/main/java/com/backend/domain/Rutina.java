@@ -37,6 +37,18 @@ public class Rutina {
     @Builder.Default
     private Boolean completado = false; // El usuario lo marca con un check en la app
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer series = 0;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer repeticiones = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double peso = 0.0;
+
     // Relación hacia el Usuario (De quién es la rutina)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)

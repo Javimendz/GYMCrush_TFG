@@ -35,4 +35,9 @@ public class RutinaResponseDto {
 
     @Schema(description = "Nivel de esfuerzo", example = "ALTA")
     private String intensidad;
+    
+    @Schema(description = "URL de la imagen del ejercicio")
+    private String urlImagen;
+    @Schema
+    private String nombrePlan;
 }

@@ -9,11 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 
-import com.backend.domain.Rutina;
-// --- AÑADE ESTA LÍNEA PARA SOLUCIONAR EL ERROR DEL USUARIO ---
-import com.backend.domain.Usuario; 
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,8 +28,8 @@ public interface RutinaRepository extends JpaRepository<Rutina, Long> {
      * Busca todas las rutinas asignadas a un usuario para un día concreto.
      * Es la consulta principal para la pantalla "Mi Rutina de Hoy" en la App.
      */
-    List<Rutina> findByUsuarioIdAndFechaAsignacionOrderByOrdenAsc(Long usuarioId, LocalDate fecha);
-void deleteByUsuarioAndFechaAsignacionGreaterThanEqualAndCompletado(Usuario usuario, LocalDate fecha, boolean completado);
+@Query("SELECT r FROM Rutina r JOIN FETCH r.entrenamiento WHERE r.usuario.id = :usuarioId AND r.fechaAsignacion = :fecha ORDER BY r.orden")
+List<Rutina> findByUsuarioIdAndFechaAsignacionOrderByOrdenAsc(@Param("usuarioId") Long usuarioId, @Param("fecha") LocalDate fecha);void deleteByUsuarioAndFechaAsignacionGreaterThanEqualAndCompletado(Usuario usuario, LocalDate fecha, boolean completado);
     /**
      * Busca rutinas por entrenamiento.  para ver qué usuarios 
      * tienen asignado un ejercicio específico.

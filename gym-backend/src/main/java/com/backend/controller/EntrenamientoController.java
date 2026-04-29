@@ -57,6 +57,27 @@ public class EntrenamientoController {
                                                 .build());
         }
 
+        @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @Operation(summary = "Listar entrenamientos asociados a un usuario")
+    public ResponseEntity<ApiResponseDto<List<EntrenamientoResponseDto>>> listarPorUsuario(
+            @PathVariable("usuarioId") Long usuarioId) {
+            
+        log.info("Solicitud para listar entrenamientos del usuario ID: {}", usuarioId);
+        
+        // NOTA: Si en tu 'entrenamientoService' tienes un método específico para el usuario,
+        // úsalo aquí (ej: entrenamientoService.listarPorUsuario(usuarioId)). 
+        // Si no lo tienes y quieres devolver el catálogo completo por ahora, usamos listarTodos():
+        List<EntrenamientoResponseDto> entrenamientos = entrenamientoService.listarTodos();
+
+        return ResponseEntity.ok(
+                ApiResponseDto.<List<EntrenamientoResponseDto>>builder()
+                        .mensaje("Entrenamientos del usuario recuperados")
+                        .success(true)
+                        .datos(entrenamientos)
+                        .build());
+    }
+
         @GetMapping("/{id}")
         @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
         @Operation(summary = "Obtener detalle de una sesión")

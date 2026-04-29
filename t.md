@@ -4,10 +4,32 @@ añadido a usuario.java 29/04/2026
 @JoinColumn(name = "plan_activo_id")
 private PlanEntrenamiento planActivo;
 
-en Entrenamiento añadido relacion 1-M
+en Entrenamiento añadido relacion 1-N
 
 @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Tutorial> tutoriales;
+
+
+añadido a detalleplan
+
+private Integer series;
+    private Integer repeticiones;
+
+
+añadido a rutina.java
+
+@Column(nullable = false)
+    @Builder.Default
+    private Integer series = 0;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer repeticiones = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Double peso = 0.0;
+
 
 Relaciones 
 

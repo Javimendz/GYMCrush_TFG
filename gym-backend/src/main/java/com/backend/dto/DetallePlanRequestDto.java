@@ -30,4 +30,7 @@ public class DetallePlanRequestDto {
     @NotNull(message = "El orden es obligatorio")
     @Min(value = 1, message = "El orden debe ser al menos 1")
     private Integer orden;
+
+    private Integer series;
+    private Integer repeticiones;
 }

@@ -27,4 +27,7 @@ public class DetallePlan {
 
     private Integer diaSemana; // 1 = Lunes, 2 = Martes...
     private Integer orden; // 1º Ejercicio, 2º Ejercicio...
+    
+    private Integer series;
+    private Integer repeticiones;
 }

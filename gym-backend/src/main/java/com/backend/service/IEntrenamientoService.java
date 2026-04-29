@@ -13,5 +13,7 @@ public interface IEntrenamientoService {
 
     List<EntrenamientoResponseDto> listarTodos();
 
+    List<EntrenamientoResponseDto> listarPorUsuario(Long usuarioId);
+
     void eliminar(Long id);
 }

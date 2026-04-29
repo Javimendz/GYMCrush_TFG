@@ -24,10 +24,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/planes")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Planes de Entrenamiento", description = "Gestión del catálogo principal de planes y suscripciones")
 public class PlanController {
 
@@ -70,26 +72,30 @@ public class PlanController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
     @Operation(summary = "Suscribir usuario", description = "Asigna las rutinas del plan a la agenda del usuario")
     public ResponseEntity<ApiResponseDto<Void>> suscribir(@PathVariable Long planId, @PathVariable Long usuarioId,
-        org.springframework.security.core.Authentication auth
-    ) {
-       String usernameLogueado = auth.getName();
+            org.springframework.security.core.Authentication auth) {
+        String usernameLogueado = auth.getName();
         boolean esAdmin = auth.getAuthorities().stream()
                 .anyMatch(r -> r.getAuthority().contains("ADMIN"));
 
         // 2. Se los pasamos al servicio para que valide
         planService.suscribirUsuarioAPlan(usuarioId, planId, usernameLogueado, esAdmin);
-        
+
         return ResponseEntity.ok(ApiResponseDto.success("¡Plan activado! Revisa tu agenda de hoy", null));
     }
-    @PostMapping("/{planId}/ejercicios")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Añadir ejercicio al plan", description = "Añade un entrenamiento específico a un día del plan")
-    public ResponseEntity<ApiResponseDto<DetallePlanResponseDto>> añadirEjercicio(
-            @PathVariable Long planId, 
-            @Valid @RequestBody DetallePlanRequestDto dto) {
-        
-        DetallePlanResponseDto response = planService.añadirEjercicioAlPlan(planId, dto);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseDto.success("Ejercicio añadido al plan correctamente", response));
-    }
+
+    
+@Operation(summary = "Añadir ejercicios al plan", description = "Añade una lista de entrenamientos a un plan maestro")
+@PostMapping("/{id}/ejercicios") // Asegúrate de que la ruta sea esta
+public ResponseEntity<ApiResponseDto<PlanResponseDto>> añadirEjerciciosAlPlan(
+        @PathVariable Long id, 
+        @Valid @RequestBody List<DetallePlanRequestDto> ejerciciosDto) {
+    
+    log.info("Añadiendo lista de {} ejercicios al plan ID {}", ejerciciosDto.size(), id);
+    
+    // Llamamos al service que ya actualizamos para recibir List
+    PlanResponseDto actualizado = planService.añadirEjercicioAlPlan(id, ejerciciosDto);
+    
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponseDto.success("Ejercicios añadidos correctamente", actualizado));
+}
 }
