@@ -60,7 +60,8 @@ public class RutinasFragment extends Fragment {
     private LinearLayout layoutVacio, layoutSelectorFecha;
     private android.widget.EditText etBuscador;
     private com.example.gymcrush.ui.salud.ProgressGraphView graphEvolucion;
-    private TextView tvFechaSeleccionada, tvRacha;
+    private TextView tvFechaSeleccionada, tvRacha, tvEstadoRutinaDia, tvProgresoTexto;
+    private com.google.android.material.progressindicator.LinearProgressIndicator progressRutinaDetalle;
     private MaterialButton btnCambiarFecha;
     private com.google.android.material.floatingactionbutton.FloatingActionButton btnIrACrear;
     private View overlayIA;
@@ -99,6 +100,11 @@ public class RutinasFragment extends Fragment {
         graphEvolucion = vista.findViewById(R.id.graphEvolucionRutinas);
         tvRacha = vista.findViewById(R.id.tvRacha);
         etBuscador = vista.findViewById(R.id.etBuscarEjercicio);
+
+        // Referencias Resumen Diario
+        tvEstadoRutinaDia = vista.findViewById(R.id.tvEstadoRutinaDia);
+        tvProgresoTexto = vista.findViewById(R.id.tvProgresoTexto);
+        progressRutinaDetalle = vista.findViewById(R.id.progressRutinaDetalle);
 
         // Nuevo: Barra de progreso y Calendario Horizontal
         com.google.android.material.progressindicator.LinearProgressIndicator progressRutina = vista.findViewById(R.id.progressRutina);
@@ -362,6 +368,9 @@ public class RutinasFragment extends Fragment {
                         rutinasAdapter.updateList(datosRecibidos);
                     }
 
+                    // Actualizar Resumen Diario
+                    actualizarResumenDiario(datosRecibidos);
+
                     // Si no hay datos, podrías mostrar un layout de "Agenda vacía"
                     rvRutinas.setVisibility(datosRecibidos == null || datosRecibidos.isEmpty() ? View.GONE : View.VISIBLE);
                 }
@@ -369,12 +378,35 @@ public class RutinasFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
-                if (isAdded()) {
-                    Toast.makeText(getContext(), "Error al cargar la agenda diaria", Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(getContext(), "Error al cargar agenda", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+    private void actualizarResumenDiario(List<RutinaResponseDto> lista) {
+        if (lista == null || lista.isEmpty()) {
+            tvEstadoRutinaDia.setText("¡Día de descanso!");
+            tvProgresoTexto.setText("Tómate un respiro hoy");
+            progressRutinaDetalle.setProgress(0);
+            return;
+        }
+
+        long completadas = lista.stream().filter(r -> Boolean.TRUE.equals(r.getCompletado())).count();
+        int porcentaje = (int) ((completadas * 100) / lista.size());
+
+        progressRutinaDetalle.setProgress(porcentaje, true);
+        tvProgresoTexto.setText(porcentaje + "% completado (" + completadas + "/" + lista.size() + ")");
+
+        if (porcentaje == 100) {
+            tvEstadoRutinaDia.setText("¡Objetivo cumplido! 🏆");
+        } else if (porcentaje > 0) {
+            tvEstadoRutinaDia.setText("¡Vas por buen camino!");
+        } else {
+            String nombre = lista.get(0).getNombreEntrenamiento();
+            tvEstadoRutinaDia.setText("Próximo: " + nombre);
+        }
+    }
+
     private void cargarRutinaDiaria() {
         fechaSeleccionada = LocalDate.now();
         actualizarUIFecha();
@@ -401,7 +433,7 @@ public class RutinasFragment extends Fragment {
                     float completadas = 0;
                     if (response.isSuccessful() && response.body() != null) {
                         completadas = (float) response.body().getDatos().stream()
-                                .filter(RutinaResponseDto::getCompletado)
+                                .filter(r -> Boolean.TRUE.equals(r.getCompletado()))
                                 .count();
                     }
                     puntos[index] = completadas;
