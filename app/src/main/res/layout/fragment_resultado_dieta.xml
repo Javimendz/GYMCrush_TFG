@@ -214,34 +214,61 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="8dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tvLabelRecomendacion"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
+                    android:layout_weight="1.2"
                     android:text="RECOMENDACIÓN DIARIA"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:id="@+id/llAccionesComida"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:orientation="horizontal">
+                    android:layout_weight="2.8"
+                    android:orientation="horizontal"
+                    android:gravity="end|center_vertical">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCompletarTodo"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="2dp"
+                        android:text="Completado"
+                        android:textColor="#CD0277"
+                        android:textSize="10sp"
+                        app:icon="@android:drawable/checkbox_on_background"
+                        app:iconPadding="2dp"
+                        app:iconSize="14dp"
+                        app:iconTint="#CD0277" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnBuscarComidaResultado"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="2dp"
                         android:text="Buscar"
                         android:textColor="#CD0277"
+                        android:textSize="10sp"
                         app:icon="@android:drawable/ic_menu_search"
+                        app:iconPadding="2dp"
+                        app:iconSize="14dp"
                         app:iconTint="#CD0277" />
 
                     <com.google.android.material.button.MaterialButton
@@ -249,12 +276,17 @@
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="2dp"
                         android:text="Añadir"
                         android:textColor="#CD0277"
+                        android:textSize="10sp"
                         app:icon="@android:drawable/ic_input_add"
+                        app:iconPadding="2dp"
+                        app:iconSize="14dp"
                         app:iconTint="#CD0277" />
                 </LinearLayout>
-            </RelativeLayout>
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvComidasPlan"

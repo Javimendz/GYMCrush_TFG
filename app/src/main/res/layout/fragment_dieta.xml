@@ -395,34 +395,59 @@
                         android:layout_marginTop="20dp"
                         android:layout_marginBottom="12dp" />
 
-                    <RelativeLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="12dp">
 
                         <TextView
                             android:id="@+id/tvTituloComidas"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
+                            android:layout_weight="1"
                             android:text="TU MENÚ DIARIO"
                             android:textColor="#BDBDBD"
                             android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:singleLine="true" />
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnMarcarTodoCompletadoHome"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:paddingHorizontal="4dp"
+                                android:text="Completado"
+                                android:textColor="@color/brand_pink"
+                                android:textSize="10sp"
+                                app:icon="@android:drawable/checkbox_on_background"
+                                app:iconPadding="2dp"
+                                app:iconSize="14dp"
+                                app:iconTint="@color/brand_pink" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnBuscarComida"
                                 style="@style/Widget.MaterialComponents.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:paddingHorizontal="4dp"
                                 android:text="Buscar"
                                 android:textColor="@color/brand_pink"
+                                android:textSize="10sp"
                                 app:icon="@android:drawable/ic_menu_search"
+                                app:iconPadding="2dp"
+                                app:iconSize="14dp"
                                 app:iconTint="@color/brand_pink" />
 
                             <com.google.android.material.button.MaterialButton
@@ -430,12 +455,17 @@
                                 style="@style/Widget.MaterialComponents.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:paddingHorizontal="4dp"
                                 android:text="Añadir"
                                 android:textColor="@color/brand_pink"
+                                android:textSize="10sp"
                                 app:icon="@android:drawable/ic_input_add"
+                                app:iconPadding="2dp"
+                                app:iconSize="14dp"
                                 app:iconTint="@color/brand_pink" />
                         </LinearLayout>
-                    </RelativeLayout>
+                    </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvComidasSugeridas"
