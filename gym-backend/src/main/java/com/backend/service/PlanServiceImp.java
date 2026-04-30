@@ -69,18 +69,16 @@ public class PlanServiceImp implements IPlanService {
     @Override
     @Transactional
     public void eliminarPlan(Long id) {
-        // 1. Verificar existencia
+        //  Verificar existencia
         PlanEntrenamiento plan = planRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
 
         log.info("Eliminando plan: {}. Limpiando dependencias...", plan.getNombre());
         rutinaRepo.deleteByUsuarioPlanActivoIdAndCompletado(id, false);
-        // 2. Limpiar la relación con los usuarios (para evitar el error de FK)
+        //  Limpiar la relación con los usuarios (para evitar el error de FK)
         usuarioRepo.desvincularPlanDeUsuarios(id);
 
-        // 3. Borrar el plan.
-        // Gracias a orphanRemoval = true, todos los 'detalles_plan' asociados
-        // desaparecerán de la tabla que mostraste en la imagen.
+        //  Borrar el plan.
         planRepo.delete(plan);
 
         log.info("Plan y sus detalles eliminados correctamente.");
@@ -92,7 +90,7 @@ public class PlanServiceImp implements IPlanService {
         Usuario usuarioDestino = usuarioRepo.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // 1. COMPROBACIÓN: ¿Ya está suscrito a este mismo plan?
+        //  ¿Ya está suscrito a este mismo plan?
         if (usuarioDestino.getPlanActivo() != null && usuarioDestino.getPlanActivo().getId().equals(planId)) {
             log.info("El usuario ya está suscrito a este plan. No se requiere acción.");
             return;
@@ -103,19 +101,17 @@ public class PlanServiceImp implements IPlanService {
 
         LocalDate hoy = LocalDate.now();
 
-        // 2. LIMPIEZA: Borramos rutinas pendientes para evitar duplicados
+        //  Borramos rutinas pendientes para evitar duplicados
         rutinaRepo.deleteByUsuarioAndFechaAsignacionGreaterThanEqualAndCompletado(usuarioDestino, hoy, false);
         log.info("Limpieza de rutinas antiguas completada para el usuario {}", usuarioDestino.getUsername());
 
-        // 3. GENERACIÓN: Repartimos ejercicios por días de la semana
+        // Repartimos ejercicios por días de la semana
         LocalDate lunesDeEstaSemana = hoy.with(java.time.DayOfWeek.MONDAY);
         List<Rutina> rutinasAGuardar = new java.util.ArrayList<>();
 
         for (DetallePlan detalle : plan.getEjercicios()) {
             LocalDate fechaAsignacion = lunesDeEstaSemana.plusDays(detalle.getDiaSemana() - 1);
 
-            // CORRECCIÓN: Si el día ya pasó esta semana, lo movemos a la semana que viene
-            // en lugar de descartarlo. Así siempre se ven todos los ejercicios del plan.
             if (fechaAsignacion.isBefore(hoy)) {
                 fechaAsignacion = fechaAsignacion.plusWeeks(1);
             }
@@ -138,7 +134,7 @@ public class PlanServiceImp implements IPlanService {
         rutinaRepo.saveAll(rutinasAGuardar);
         log.info("Se guardaron {} rutinas para el usuario {}", rutinasAGuardar.size(), usuarioDestino.getUsername());
 
-        // 4. VINCULACIÓN: Actualizamos el plan activo del usuario
+        //  Actualizamos el plan activo del usuario
         usuarioDestino.setPlanActivo(plan);
         usuarioRepo.save(usuarioDestino);
     }
@@ -149,7 +145,7 @@ public class PlanServiceImp implements IPlanService {
         PlanEntrenamiento plan = planRepo.findById(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("Plan no encontrado"));
 
-        // 1. Convertimos los DTOs en entidades DetallePlan
+        //  Convertimos los DTOs en entidades DetallePlan
         for (DetallePlanRequestDto dto : ejerciciosDto) {
             Entrenamiento entrenamiento = entrenamientoRepo.findById(dto.getEntrenamientoId())
                     .orElseThrow(() -> new ResourceNotFoundException("Ejercicio no encontrado"));
@@ -161,12 +157,10 @@ public class PlanServiceImp implements IPlanService {
             nuevoDetalle.setSeries(dto.getSeries());
             nuevoDetalle.setRepeticiones(dto.getRepeticiones());
 
-            // 2. Usamos el método de ayuda que creamos en la entidad
+            //  Usamos el método de ayuda que creamos en la entidad
             plan.addEjercicio(nuevoDetalle);
         }
 
-        // 3. Guardamos el Plan (gracias al CascadeType.ALL, guardará todos los
-        // DetallePlan nuevos)
         PlanEntrenamiento guardado = planRepo.save(plan);
         return planMapper.toResponseDto(guardado);
 

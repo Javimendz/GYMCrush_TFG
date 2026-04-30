@@ -30,12 +30,6 @@ public class RutinaServiceImp implements IRutinaService {
     private final DetallePlanRepository detallePlanRepository; // Añadido
     private final RutinaMapper rutinaMapper;
 
-    /**
-     * CORRECCIÓN: Método para activar el Plan Maestro y repartir ejercicios por
-     * días.
-     * Esto hace que si cambias de día en Android, veas ejercicios diferentes.
-     */
-
     /* 
     @Override
     @Transactional
@@ -126,7 +120,7 @@ public class RutinaServiceImp implements IRutinaService {
         Rutina rutina = rutinaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Asignación de rutina no encontrada"));
 
-        // Toggle: si está completada la pone pendiente y viceversa
+        // si está completada la pone pendiente y viceversa
         rutina.setCompletado(!rutina.getCompletado());
 
         return rutinaMapper.toResponseDto(rutinaRepository.save(rutina));
