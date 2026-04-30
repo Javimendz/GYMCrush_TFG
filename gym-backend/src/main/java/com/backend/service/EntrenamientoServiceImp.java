@@ -56,10 +56,10 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
     public List<EntrenamientoResponseDto> listarPorUsuario(Long usuarioId) {
         log.info("Buscando entrenamientos para el usuario ID: {}", usuarioId);
 
-        // 1. Obtenemos todos los entrenamientos
+        //  Obtenemos todos los entrenamientos
         List<Entrenamiento> entrenamientos = entrenamientoRepository.findAll();
 
-        // 2. Mapeamos cada entrenamiento buscando su tutorial correspondiente
+        //  Mapeamos cada entrenamiento buscando su tutorial correspondiente
         return entrenamientos.stream()
                 .map(entrenamiento -> {
                     // Obtenemos el primer tutorial (si existe) para pasárselo al mapper
@@ -94,14 +94,14 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
     public List<EntrenamientoResponseDto> listarTodos() {
         return entrenamientoRepository.findAll().stream()
                 .map(entrenamiento -> {
-                    // 1. Buscamos el primer tutorial de la lista de este entrenamiento
+                    // Buscamos el primer tutorial de la lista de este entrenamiento
                     // Si la lista está vacía, enviamos null
                     Tutorial tutorial = (entrenamiento.getTutoriales() != null
                             && !entrenamiento.getTutoriales().isEmpty())
                                     ? entrenamiento.getTutoriales().get(0)
                                     : null;
 
-                    // 2. Ahora llamamos al mapper con los DOS parámetros que pide
+                    // Ahora llamamos al mapper con los DOS parámetros que pide
                     return entrenamientoMapper.toResponseDto(entrenamiento, tutorial);
                 })
                 .toList();
@@ -116,7 +116,7 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
                 .orElseThrow(
                         () -> new ResourceNotFoundException("No se puede actualizar: Entrenamiento no encontrado"));
 
-        // 1. Actualizamos los datos del ejercicio
+        //  Actualizamos los datos del ejercicio
         existente.setNombre(dto.getNombre());
         existente.setDescripcion(dto.getDescripcion());
         existente.setDuracion(dto.getDuracion());
@@ -125,12 +125,12 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
 
         Entrenamiento guardado = entrenamientoRepository.save(existente);
 
-        // 2. Buscamos el tutorial asociado para pasarlo al mapper
+        // Buscamos el tutorial asociado para pasarlo al mapper
         Tutorial tutorial = (guardado.getTutoriales() != null && !guardado.getTutoriales().isEmpty())
                 ? guardado.getTutoriales().get(0)
                 : null;
 
-        // (Opcional) Si quieres que al editar el entrenamiento también se edite el
+        // Si quieres que al editar el entrenamiento también se edite el
         // video:
         if (tutorial != null) {
             tutorial.setUrlVideo(dto.getUrlVideo());
@@ -141,7 +141,7 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
 
         log.info("Entrenamiento {} actualizado correctamente", id);
 
-        // 3. RETORNO CON LOS DOS PARÁMETROS (¡Esto es lo que pedía la línea 104!)
+        //  RETORNO CON LOS DOS PARÁMETROS (¡Esto es lo que pedía la línea 104!)
         return entrenamientoMapper.toResponseDto(guardado, tutorial);
     }
 
