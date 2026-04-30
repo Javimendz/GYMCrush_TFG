@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import androidx.annotation.OptIn;
+import androidx.media3.common.util.UnstableApi;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.TutorialResponseDto;
 
@@ -67,7 +69,16 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             nombre = t.getTitulo();
             categoria = t.getNombreCategoria();
             descripcion = t.getDescripcion();
-            duracion = t.getDuracionMin() + " min"; // Simplificado para el tag
+
+            // Corregimos la duración para evitar "null min" o "0 min"
+            if (t.getDuracionMin() != null && t.getDuracionMin() > 0) {
+                duracion = t.getDuracionMin() + " min";
+                duracionMinima = t.getDuracionMin();
+            } else {
+                duracion = null;
+                duracionMinima = 0;
+            }
+
             urlVideo = t.getUrlVideo();
             id = t.getId();
             musculoTag = t.getMusculoObjetivo() != null ? t.getMusculoObjetivo().toUpperCase() : "GENERAL";
@@ -106,7 +117,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             subtituloArmado = categoria;
             
             // Intentamos parsear la duración para el tag del reproductor
-            if (duracion != null) {
+            if (duracion != null && !duracion.equalsIgnoreCase("n/a")) {
                 try {
                     String cleanDur = duracion.toLowerCase().replace("min", "").trim();
                     duracionMinima = Integer.parseInt(cleanDur);
@@ -115,6 +126,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
                 }
             } else {
                 duracionMinima = 0;
+                duracion = null; // Para que se oculte el tag
             }
 
             etiquetaAzul = "Intensidad: " + dificultad.toUpperCase();
@@ -146,8 +158,19 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         holder.txtDificultad.setText("Duración: " + duracion); // Mantenemos el oculto por compatibilidad
         
         // Actualizamos los nuevos Tags visuales
-        holder.tvDuracionTag.setText(duracion);
-        holder.tvMusculoTag.setText(musculoTag);
+        if (duracion != null && !duracion.isEmpty() && !duracion.equalsIgnoreCase("null") && !duracion.equalsIgnoreCase("n/a") && !duracion.contains("null")) {
+            holder.layoutDuracionTag.setVisibility(View.VISIBLE);
+            holder.tvDuracionTag.setText(duracion);
+        } else {
+            holder.layoutDuracionTag.setVisibility(View.GONE);
+        }
+
+        if (musculoTag != null && !musculoTag.isEmpty() && !musculoTag.equals("null")) {
+            holder.layoutMusculoTag.setVisibility(View.VISIBLE);
+            holder.tvMusculoTag.setText(musculoTag);
+        } else {
+            holder.layoutMusculoTag.setVisibility(View.GONE);
+        }
 
         if (isAdmin && listaTutoriales != null) {
             holder.imgMenu.setVisibility(View.VISIBLE);
@@ -202,36 +225,40 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         final Integer finalDuracionMin = duracionMinima;
         final String finalEtiquetaAzul = etiquetaAzul;
 
-        holder.itemView.setOnClickListener(v -> {
-            if (finalUrl != null && !finalUrl.isEmpty()) {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @OptIn(markerClass = UnstableApi.class)
+            @Override
+            public void onClick(View v) {
+                if (finalUrl != null && !finalUrl.isEmpty()) {
 
-                // INVOCACIÓN AL REPRODUCTOR ACTUALIZADA
-                ReproductorFragment reproductor = ReproductorFragment.newInstance(
-                        finalId,
-                        finalUrl,
-                        finalNombre,
-                        finalDesc,
-                        finalSubtitulo,
-                        finalDuracionMin,
-                        finalEtiquetaAzul
-                );
+                    // INVOCACIÓN AL REPRODUCTOR ACTUALIZADA
+                    ReproductorFragment reproductor = ReproductorFragment.newInstance(
+                            finalId,
+                            finalUrl,
+                            finalNombre,
+                            finalDesc,
+                            finalSubtitulo,
+                            finalDuracionMin,
+                            finalEtiquetaAzul
+                    );
 
-                if (v.getContext() instanceof AppCompatActivity) {
-                    AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                    int containerId = R.id.fragment_container;
-                    if (activity.findViewById(containerId) != null) {
-                        activity.getSupportFragmentManager()
-                                .beginTransaction()
-                                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                                .replace(containerId, reproductor)
-                                .addToBackStack(null)
-                                .commit();
-                    } else {
-                        activity.getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(android.R.id.content, reproductor)
-                                .addToBackStack(null)
-                                .commit();
+                    if (v.getContext() instanceof AppCompatActivity) {
+                        AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                        int containerId = R.id.fragment_container;
+                        if (activity.findViewById(containerId) != null) {
+                            activity.getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                                    .replace(containerId, reproductor)
+                                    .addToBackStack(null)
+                                    .commit();
+                        } else {
+                            activity.getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(android.R.id.content, reproductor)
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
                     }
                 }
             }
@@ -250,6 +277,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         TextView tvDuracionTag, tvMusculoTag;
         ImageView imgFoto, imgMenu;
         CheckBox cbCompletado;
+        View layoutDuracionTag, layoutMusculoTag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -263,6 +291,8 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             imgFoto = itemView.findViewById(R.id.imgEjercicioIcono);
             cbCompletado = itemView.findViewById(R.id.cbCompletado);
             imgMenu = itemView.findViewById(R.id.imgMenuEjercicio);
+            layoutDuracionTag = itemView.findViewById(R.id.layoutDuracionTag);
+            layoutMusculoTag = itemView.findViewById(R.id.layoutMusculoTag);
         }
     }
 }

@@ -154,54 +154,30 @@ public class RutinasFragment extends Fragment {
                         .findFirst()
                         .orElse(null);
 
-                // --- 1. PREPARAMOS LOS DATOS PARA EL REPRODUCTOR ---
                 String titulo = rutina.getNombreEntrenamiento();
                 String urlVideo = rutina.getUrlVideo();
                 String descripcion = "Sin descripción detallada.";
                 Integer duracionMin = rutina.getDuracion();
-                String etiquetaAzul = "";
-                String subtitulo = "";
+                String intensidad = rutina.getIntensidad();
 
                 if (entrenamientoCompleto != null) {
-                    // Si encontramos el entrenamiento, cogemos sus datos ricos
                     if (entrenamientoCompleto.getDescripcion() != null && !entrenamientoCompleto.getDescripcion().isEmpty()) {
                         descripcion = entrenamientoCompleto.getDescripcion();
                     }
                     if (entrenamientoCompleto.getUrlVideo() != null && !entrenamientoCompleto.getUrlVideo().isEmpty()) {
-                        urlVideo = entrenamientoCompleto.getUrlVideo(); // Damos prioridad al vídeo del catálogo
-                    }
-
-                    // Armamos la etiqueta azul con la categoría del catálogo
-                    if (entrenamientoCompleto.getCategoria() != null && !entrenamientoCompleto.getCategoria().isEmpty()) {
-                        etiquetaAzul = "Categoría: " + entrenamientoCompleto.getCategoria().toUpperCase();
-                    } else if (rutina.getIntensidad() != null && !rutina.getIntensidad().isEmpty()) {
-                        // Fallback: Si no hay categoría, mostramos la intensidad de la rutina
-                        etiquetaAzul = "Intensidad: " + rutina.getIntensidad().toUpperCase();
-                    }
-                } else {
-                    // Si por algún motivo no está en el catálogo, intentamos mostrar la intensidad
-                    if (rutina.getIntensidad() != null && !rutina.getIntensidad().isEmpty()) {
-                        etiquetaAzul = "Intensidad: " + rutina.getIntensidad().toUpperCase();
+                        urlVideo = entrenamientoCompleto.getUrlVideo();
                     }
                 }
 
-                // --- 2. ABRIMOS EL REPRODUCTOR ---
-                ReproductorFragment reproductor = ReproductorFragment.newInstance(
-                        rutina.getEntrenamientoId(),
-                        urlVideo,
-                        titulo,
-                        descripcion,
-                        subtitulo, // Vacio para la agenda (no solemos tener "Músculo - Máquina" aquí)
-                        duracionMin,
-                        etiquetaAzul
-                );
-
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                        .replace(R.id.fragment_container, reproductor)
-                        .addToBackStack(null)
-                        .commit();
+                // --- ABRIMOS LA ACTIVIDAD DE DETALLE EN LUGAR DEL REPRODUCTOR ---
+                android.content.Intent intent = new android.content.Intent(getContext(), DetalleRutinaActivity.class);
+                intent.putExtra("RUTINA_ID", rutina.getId());
+                intent.putExtra("NOMBRE_RUTINA", titulo);
+                intent.putExtra("URL_VIDEO", urlVideo);
+                intent.putExtra("DESCRIPCION", descripcion);
+                intent.putExtra("INTENSIDAD", intensidad);
+                intent.putExtra("DURACION", duracionMin);
+                startActivity(intent);
             }
         });
         rvRutinas.setAdapter(rutinasAdapter);
@@ -917,7 +893,10 @@ public class RutinasFragment extends Fragment {
     private void mostrarDialogoNuevoEjercicioManual() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_admin_nuevo_ejercicio);
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         TextInputEditText etNombre = dialog.findViewById(R.id.etNombreEjercicio);
         TextInputEditText etDesc = dialog.findViewById(R.id.etDescripcionEjercicio);
@@ -938,26 +917,39 @@ public class RutinasFragment extends Fragment {
                 return;
             }
 
-            EntrenamientoRequestDto request = new EntrenamientoRequestDto(
-                    nombre, desc, Integer.parseInt(durStr), intensidad, cat
-            );
+            try {
+                int duracion = Integer.parseInt(durStr);
 
-            RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
-                @Override
-                public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
-                    if (response.isSuccessful()) {
-                        Toast.makeText(getContext(), "Entrenamiento guardado", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        cargarEjerciciosDesdeServidor();
+                // Creamos el objeto Request usando SETTERS para evitar errores de constructor
+                EntrenamientoRequestDto request = new EntrenamientoRequestDto(
+                        nombre,
+                        desc,
+                        Integer.parseInt(durStr),
+                        intensidad.isEmpty() ? "MEDIA" : intensidad,
+                        cat,   // categoria como String — exactamente lo que el backend espera
+                        1,     // cantidadEjercicios
+                        "",    // urlVideo vacío
+                        null   // urlImagen null
+                );
+
+                RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Ejercicio Manual Guardado", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            cargarEjerciciosDesdeServidor();
+                        }
                     }
-                }
-                @Override public void onFailure(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Throwable t) {}
-            });
+                    @Override public void onFailure(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Throwable t) {}
+                });
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Número de duración no válido", Toast.LENGTH_SHORT).show();
+            }
         });
 
         dialog.show();
     }
-
     private void mostrarDialogoBusquedaExterna() {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_buscar_ejercicios, null);
         androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
@@ -1014,14 +1006,16 @@ public class RutinasFragment extends Fragment {
         // 2. Creamos el objeto Request usando SETTERS
         // Esto asegura que cada campo del objeto de la API externa (exercise)
         // se mapee correctamente a tu base de datos.
-        com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto request = new com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto();
-
-        request.setNombre(exercise.getName());
-        request.setDescripcion(desc);
-        request.setDuracion(10); // Duración por defecto
-        request.setIntensidad("MEDIA");
-        request.setUrlVideo(exercise.getGifUrl()); // <--- AQUÍ capturamos el video/gif
-        request.setCategoriaId(1L); // ID de categoría por defecto (ajustar si tienes mapeo)
+        EntrenamientoRequestDto request = new EntrenamientoRequestDto(
+                exercise.getName(),
+                desc,
+                10,
+                "Media",
+                exercise.getTarget().toUpperCase(), // categoria = músculo objetivo
+                1,
+                exercise.getGifUrl(), // urlVideo = link de YouTube que ya construyes
+                null                  // urlImagen null
+        );// ID de categoría por defecto (ajustar si tienes mapeo)
 
         // 3. Enviamos la petición al Backend
         RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {

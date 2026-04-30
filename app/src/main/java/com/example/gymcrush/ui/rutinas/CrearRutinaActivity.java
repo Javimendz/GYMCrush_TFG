@@ -37,13 +37,14 @@ import retrofit2.Response;
 
 public class CrearRutinaActivity extends AppCompatActivity {
 
+    private Long defaultCategoriaId = null;
     private EditText etNombreRutina;
     private TextInputEditText etBuscarBiblioteca;
     private Button btnGuardar, btnBuscarBiblioteca;
     private RecyclerView rvEjercicios;
     private EjercicioSeleccionAdapter adapter;
     private List<Ejercicio> listaEjercicios = new ArrayList<>();
-    private Long defaultCategoriaId = null;
+
     private List<com.example.gymcrush.data.remote.dto.PlanResponseDto> listaPlanes = new ArrayList<>();
     private Spinner spinnerPlanes;
     private CheckBox cbAnadirAPlan;
@@ -174,19 +175,17 @@ public class CrearRutinaActivity extends AppCompatActivity {
     }
 
     private void guardarRutina() {
+        // 1. Validaciones iniciales
         String nombreRaw = etNombreRutina.getText().toString().trim();
-
         if (nombreRaw.isEmpty()) {
             Toast.makeText(this, "Por favor, ponle un nombre a la rutina", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Normalizar: Primera letra Mayúscula, resto minúsculas
         String nombre = nombreRaw.substring(0, 1).toUpperCase() + nombreRaw.substring(1).toLowerCase();
 
-        SharedPreferences prefs = getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
-        long userId = prefs.getLong("user_id", -1);
-        if (userId == -1) return;
-
+        // 2. Filtrar ejercicios seleccionados
         List<Ejercicio> seleccionados = listaEjercicios.stream()
                 .filter(Ejercicio::isSeleccionado)
                 .collect(Collectors.toList());
@@ -196,37 +195,84 @@ public class CrearRutinaActivity extends AppCompatActivity {
             return;
         }
 
-        int duracionEstimada = seleccionados.size() * 10;
-        String intensidad = seleccionados.size() > 4 ? "ALTA" : "MEDIA";
-        String urlPortada = seleccionados.get(0).getUrlVideo();
+        // 3. Extraer IDs de Tutoriales para la relación en Base de Datos
+        List<Long> tutorialesIds = seleccionados.stream()
+                .map(Ejercicio::getId)
+                .filter(id -> id != null)
+                .collect(Collectors.toList());
 
+        // 4. Calcular Descripción y Duración acumulada
+        StringBuilder sbDescripcion = new StringBuilder();
+        int acumuladorDuracion = 0;
+
+        for (Ejercicio ej : seleccionados) {
+            if (sbDescripcion.length() > 0) sbDescripcion.append(", ");
+            sbDescripcion.append(ej.getNombre());
+
+            try {
+                // Extraer números de la duración (ej: "15 min" -> 15)
+                String d = ej.getDuracion().replaceAll("[^0-9]", "");
+                acumuladorDuracion += d.isEmpty() ? 10 : Integer.parseInt(d);
+            } catch (Exception e) {
+                acumuladorDuracion += 10; // Valor por defecto
+            }
+        }
+
+        // --- VARIABLES FINAL/EFFECTIVELY FINAL PARA EL CALLBACK ---
+        final int duracionFinal = acumuladorDuracion;
+        final String descripcionFinal = sbDescripcion.toString();
+        final String urlPortada = seleccionados.get(0).getUrlVideo();
+
+        // 5. Crear el Request DTO (Constructor de 10 parámetros)
         EntrenamientoRequestDto entrenamientoReq = new EntrenamientoRequestDto(
-                nombre, "Rutina personalizada", duracionEstimada, intensidad, "PERSONALIZADA", urlPortada
+                nombre,               // nombre
+                descripcionFinal,     // descripcion
+                duracionFinal,        // duracion
+                "MEDIA",              // intensidad
+                "GENERAL",            // categoria
+                tutorialesIds,        // tutorialesIds
+                defaultCategoriaId,   // categoriaId
+                urlPortada,           // urlVideo
+                seleccionados.size(), // cantidadEjercicios
+                null                  // urlImagen
         );
-
+        // 6. Llamada al API para crear el Entrenamiento
         RetrofitClient.getApiService().crearEntrenamiento(entrenamientoReq).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Long entrenamientoId = response.body().getDatos().getId();
-                    RepositorioRutinas.guardarRutinaCompletaConPortada(CrearRutinaActivity.this, entrenamientoId, nombre, seleccionados, urlPortada);
 
-                    // Añadir a plan si está marcado
-                    if (cbAnadirAPlan != null && cbAnadirAPlan.isChecked() && !listaPlanes.isEmpty()) {
-                        int pos = spinnerPlanes.getSelectedItemPosition();
-                        Long planId = listaPlanes.get(pos).getId();
-                        anadirAPlanMaestro(planId, entrenamientoId);
-                    }
+                    // Guardar en el repositorio local para actualización inmediata de la UI
+                    RepositorioRutinas.guardarRutinaCompletaConPortada(
+                            CrearRutinaActivity.this,
+                            entrenamientoId,
+                            nombre,
+                            seleccionados,
+                            urlPortada,
+                            duracionFinal + " min",
+                            descripcionFinal
+                    );
 
-                    boolean esSoloPlantilla = getIntent().getBooleanExtra("ES_PLANTILLA", false);
-                    if (!esSoloPlantilla) {
+                    // 7. Asignar la rutina recién creada al usuario actual
+                    SharedPreferences prefs = getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+                    long userId = prefs.getLong("user_id", -1);
+
+                    if (userId != -1) {
                         asignarRutinaCreadaAUsuario(userId, entrenamientoId);
                     } else {
+                        Toast.makeText(CrearRutinaActivity.this, "Rutina creada (Sin asignar a usuario)", Toast.LENGTH_SHORT).show();
                         finish();
                     }
+                } else {
+                    Toast.makeText(CrearRutinaActivity.this, "Error del servidor: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override public void onFailure(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Throwable t) { }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Throwable t) {
+                Toast.makeText(CrearRutinaActivity.this, "Error de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

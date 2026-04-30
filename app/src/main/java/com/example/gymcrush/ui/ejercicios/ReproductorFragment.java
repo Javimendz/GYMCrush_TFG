@@ -125,7 +125,11 @@ public class ReproductorFragment extends Fragment {
 
         // Etiqueta Azul (Extra / Intensidad / Categoría)
         if (etiquetaExtra != null && !etiquetaExtra.isEmpty()) {
-            tvIntensidadTag.setText(etiquetaExtra);
+            String tagFinal = etiquetaExtra.toUpperCase();
+            if (!tagFinal.contains("INTENSIDAD:") && !tagFinal.contains("CATEGORÍA:")) {
+                tagFinal = "INTENSIDAD: " + tagFinal;
+            }
+            tvIntensidadTag.setText(tagFinal);
             tvIntensidadTag.setVisibility(View.VISIBLE);
         } else {
             tvIntensidadTag.setVisibility(View.GONE);

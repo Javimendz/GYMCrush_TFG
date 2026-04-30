@@ -82,14 +82,14 @@ public class RepositorioRutinas {
     }
 
     public static void guardarRutinaCompleta(Context context, String nombre, List<Ejercicio> ejercicios) {
-        guardarRutinaCompletaConPortada(context, null, nombre, ejercicios, null);
+        guardarRutinaCompletaConPortada(context, null, nombre, ejercicios, null, null, null);
     }
 
-    public static void guardarRutinaCompletaConPortada(Context context, Long id, String nombre, List<Ejercicio> ejercicios, String urlPortada) {
+    public static void guardarRutinaCompletaConPortada(Context context, Long id, String nombre, List<Ejercicio> ejercicios, String urlPortada, String duracion, String descripcion) {
         int imgRes = (urlPortada == null || urlPortada.isEmpty()) ? R.drawable.ic_launcher_background : 0;
         // Evitar duplicados por nombre para mantener consistencia
         listaRutinas.removeIf(r -> r.nombre.equals(nombre));
-        listaRutinas.add(new RutinaModel(id, nombre, "Personalizada", "Media", "Rutina personalizada", urlPortada, imgRes, ejercicios));
+        listaRutinas.add(new RutinaModel(id, nombre, duracion, "Media", descripcion, urlPortada, imgRes, ejercicios));
         datosRutinas.put(nombre, ejercicios);
         guardarDatosEnLocal(context);
     }

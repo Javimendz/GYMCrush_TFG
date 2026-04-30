@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,7 +55,27 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         RepositorioRutinas.RutinaModel rutina = listaRutinas.get(position);
         holder.tvNombre.setText(rutina.nombre);
-        holder.tvDetalles.setText(rutina.duracion + " | Dificultad: " + rutina.dificultad);
+
+        String desc = rutina.descripcion;
+        if (desc == null || desc.isEmpty() || desc.equals("Rutina personalizada")) {
+            desc = "Rutina personalizada";
+        }
+        holder.tvDetalles.setText(desc);
+
+        // Tags de Duración e Intensidad
+        if (rutina.duracion != null && !rutina.duracion.isEmpty()) {
+            holder.layoutDuracionTag.setVisibility(View.VISIBLE);
+            holder.tvDuracionTag.setText(rutina.duracion.contains("min") ? rutina.duracion : rutina.duracion + " min");
+        } else {
+            holder.layoutDuracionTag.setVisibility(View.GONE);
+        }
+
+        if (rutina.dificultad != null && !rutina.dificultad.isEmpty()) {
+            holder.layoutIntensidadTag.setVisibility(View.VISIBLE);
+            holder.tvIntensidadTag.setText(rutina.dificultad.toUpperCase());
+        } else {
+            holder.layoutIntensidadTag.setVisibility(View.GONE);
+        }
         
         // Cargar imagen con Glide si hay URL (Soporte para miniaturas de video)
         if (rutina.urlVideo != null && !rutina.urlVideo.isEmpty()) {
@@ -146,15 +167,21 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvDetalles, tvEstado;
+        TextView tvDuracionTag, tvIntensidadTag;
         ImageView imgRutina, btnMasOpciones;
+        LinearLayout layoutDuracionTag, layoutIntensidadTag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNombre = itemView.findViewById(R.id.tvNombreRutina);
             tvDetalles = itemView.findViewById(R.id.tvDetallesRutina);
             tvEstado = itemView.findViewById(R.id.tvEstadoRutina);
+            tvDuracionTag = itemView.findViewById(R.id.tvDuracionTagItem);
+            tvIntensidadTag = itemView.findViewById(R.id.tvIntensidadTagItem);
             imgRutina = itemView.findViewById(R.id.imgRutina);
             btnMasOpciones = itemView.findViewById(R.id.btnMasOpciones);
+            layoutDuracionTag = itemView.findViewById(R.id.layoutDuracionTag);
+            layoutIntensidadTag = itemView.findViewById(R.id.layoutIntensidadTag);
         }
     }
 }

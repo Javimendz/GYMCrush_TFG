@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,7 +49,22 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         EntrenamientoResponseDto item = lista.get(position);
         holder.tvNombre.setText(item.getNombre());
         String categoria = item.getCategoria() != null ? item.getCategoria() : "Sin categoría";
-        holder.tvDetalles.setText(categoria + " | " + item.getDuracion() + " min | " + item.getIntensidad());
+        holder.tvDetalles.setText(categoria);
+
+        // Tags de Duración e Intensidad
+        if (item.getDuracion() != null && item.getDuracion() > 0) {
+            holder.layoutDuracionTag.setVisibility(View.VISIBLE);
+            holder.tvDuracionTag.setText(item.getDuracion() + " min");
+        } else {
+            holder.layoutDuracionTag.setVisibility(View.GONE);
+        }
+
+        if (item.getIntensidad() != null && !item.getIntensidad().isEmpty()) {
+            holder.layoutIntensidadTag.setVisibility(View.VISIBLE);
+            holder.tvIntensidadTag.setText(item.getIntensidad().toUpperCase());
+        } else {
+            holder.layoutIntensidadTag.setVisibility(View.GONE);
+        }
 
         // Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback para GIFs)
         String imageUrl = (item.getUrlImagen() != null && !item.getUrlImagen().isEmpty()) 
@@ -98,14 +114,21 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvDetalles, tvEstado;
+        TextView tvDuracionTag, tvIntensidadTag;
         ImageView btnMasOpciones, imgRutina;
+        LinearLayout layoutDuracionTag, layoutIntensidadTag;
+
         public ViewHolder(@NonNull View v) {
             super(v);
             tvNombre = v.findViewById(R.id.tvNombreRutina);
             tvDetalles = v.findViewById(R.id.tvDetallesRutina);
             tvEstado = v.findViewById(R.id.tvEstadoRutina);
+            tvDuracionTag = v.findViewById(R.id.tvDuracionTagItem);
+            tvIntensidadTag = v.findViewById(R.id.tvIntensidadTagItem);
             btnMasOpciones = v.findViewById(R.id.btnMasOpciones);
             imgRutina = v.findViewById(R.id.imgRutina);
+            layoutDuracionTag = v.findViewById(R.id.layoutDuracionTag);
+            layoutIntensidadTag = v.findViewById(R.id.layoutIntensidadTag);
         }
     }
 }

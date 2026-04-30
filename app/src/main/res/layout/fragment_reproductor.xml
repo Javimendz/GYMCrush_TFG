@@ -57,31 +57,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvSubtituloVideo">
 
-        <!-- Etiqueta Duración (Fondo amarillo oscuro, Texto amarillo) -->
+        <!-- Etiqueta Duración (Fondo amarillo con transparencia, Texto amarillo) -->
         <TextView
             android:id="@+id/tvDuracionTag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#33331A"
+            android:background="#33FFC107"
             android:textColor="#FFC107"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
+            android:paddingVertical="4dp"
             android:text="20 min"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="12dp" />
 
-        <!-- Etiqueta Intensidad (Fondo azul oscuro, Texto azul claro) -->
+        <!-- Etiqueta Intensidad (Fondo azul con transparencia, Texto azul claro) -->
         <TextView
             android:id="@+id/tvIntensidadTag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#002D5A"
-            android:textColor="#00B0FF"
-            android:textSize="12sp"
+            android:background="#3303A9F4"
+            android:textColor="#03A9F4"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
+            android:paddingVertical="4dp"
             android:text="Intensidad: MEDIA" />
 
     </LinearLayout>

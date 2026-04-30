@@ -83,7 +83,7 @@
                     android:layout_height="220dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="4dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     app:strokeWidth="0dp">
 
                     <FrameLayout
@@ -106,6 +106,21 @@
                             app:resize_mode="zoom" />
                     </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Etiqueta amarilla de duración debajo del reproductor -->
+                <TextView
+                    android:id="@+id/tvDuracionTagVideo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-- min"
+                    android:textColor="#FFC107"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:background="#33FFC107"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/tvDescripcionDetalle"

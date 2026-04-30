@@ -46,49 +46,67 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         RutinaResponseDto rutina = listaRutinas.get(position);
 
-        // 1. Evitar el texto "null"
-        holder.tvNombre.setText(rutina.getNombreEntrenamiento() != null ? rutina.getNombreEntrenamiento() : "Ejercicio");
+        // 1. Mostrar nombre
+        holder.tvNombre.setText(rutina.getNombreEntrenamiento() != null ? rutina.getNombreEntrenamiento().toUpperCase() : "ENTRENAMIENTO");
+        holder.tvNombre.setVisibility(View.VISIBLE);
 
+        // 2. Mostrar detalles (ej: "3 sets x 12 reps")
         String series = rutina.getSeries() != null ? rutina.getSeries() : "0";
         String reps = rutina.getRepeticiones() != null ? rutina.getRepeticiones() : "0";
-        holder.tvDetalles.setText(series + " sets x " + reps + " reps");
+        holder.tvDetalles.setText(series + " Series x " + reps + " Reps");
 
-        // 2. Cabecera del Plan
-        if (rutina.getNombrePlan() != null && !rutina.getNombrePlan().isEmpty()) {
-            holder.layoutHeaderPlan.setVisibility(View.VISIBLE);
-            holder.tvNombrePlan.setText("PLAN: " + rutina.getNombrePlan().toUpperCase());
+        // 3. Control de etiquetas
+        if (rutina.getDuracion() != null && rutina.getDuracion() > 0) {
+            holder.layoutDuracionTag.setVisibility(View.VISIBLE);
+            holder.tvDuracionTag.setText(rutina.getDuracion() + " min");
         } else {
-            holder.layoutHeaderPlan.setVisibility(View.GONE);
+            holder.layoutDuracionTag.setVisibility(View.GONE);
         }
 
-        // 3. Estado visual
-        if (Boolean.TRUE.equals(rutina.getCompletado())) {
-            holder.tvEstado.setText("COMPLETADO");
-            holder.tvEstado.setTextColor(0xFF4CAF50); // Verde
-            holder.imgCheck.setVisibility(View.VISIBLE);
+        if (rutina.getIntensidad() != null && !rutina.getIntensidad().isEmpty() && !rutina.getIntensidad().equalsIgnoreCase("n/a")) {
+            holder.layoutIntensidadTag.setVisibility(View.VISIBLE);
+            holder.tvIntensidadTag.setText("INTENSIDAD: " + rutina.getIntensidad().toUpperCase());
         } else {
-            holder.tvEstado.setText("EMPEZAR");
-            holder.tvEstado.setTextColor(0xFFCD0277); // Tu rosa magenta
+            holder.layoutIntensidadTag.setVisibility(View.GONE);
+        }
+
+        // 4. Mostrar estado de completado
+        if (rutina.getCompletado() != null && rutina.getCompletado()) {
+            holder.imgCheck.setVisibility(View.VISIBLE);
+            holder.tvEstado.setText("COMPLETADO");
+            holder.tvEstado.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_green_light));
+        } else {
             holder.imgCheck.setVisibility(View.GONE);
+            holder.tvEstado.setText("PENDIENTE");
+            holder.tvEstado.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.white));
         }
 
         holder.itemView.setOnClickListener(v -> listener.onClick(rutina));
         holder.btnOpciones.setOnClickListener(v -> listener.onEliminar(rutina));
 
-        // 4. Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback)
+        // 5. Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback)
         String imageUrl = (rutina.getUrlImagen() != null && !rutina.getUrlImagen().isEmpty())
                 ? rutina.getUrlImagen()
                 : rutina.getUrlVideo();
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
+            String urlToLoad = imageUrl;
+            if (urlToLoad.contains("youtube.com") || urlToLoad.contains("youtu.be")) {
+                String videoId = "";
+                if (urlToLoad.contains("v=")) videoId = urlToLoad.split("v=")[1].split("&")[0];
+                else if (urlToLoad.contains("youtu.be/")) videoId = urlToLoad.split("youtu.be/")[1].split("\\?")[0];
+                
+                if (!videoId.isEmpty()) urlToLoad = "https://img.youtube.com/vi/" + videoId + "/0.jpg";
+            }
+
             Glide.with(holder.itemView.getContext())
-                    .load(imageUrl)
-                    .centerCrop() // Asegura que la imagen llene la tarjeta
-                    .placeholder(R.drawable.cardio) // Imagen por defecto
+                    .load(urlToLoad)
+                    .centerCrop()
+                    .placeholder(R.drawable.cardio)
                     .error(R.drawable.cardio)
                     .into(holder.imgRutina);
         } else {
-            holder.imgRutina.setImageResource(R.drawable.ic_launcher_foreground);
+            holder.imgRutina.setImageResource(R.drawable.cardio);
         }
     }
 
@@ -99,8 +117,9 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvDetalles, tvEstado, tvNombrePlan;
+        TextView tvDuracionTag, tvIntensidadTag;
         ImageView imgCheck, btnOpciones, imgRutina;
-        LinearLayout layoutHeaderPlan;
+        LinearLayout layoutHeaderPlan, layoutDuracionTag, layoutIntensidadTag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -108,10 +127,14 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
             tvDetalles = itemView.findViewById(R.id.tvDetallesRutina);
             tvEstado = itemView.findViewById(R.id.tvEstadoRutina);
             tvNombrePlan = itemView.findViewById(R.id.tvNombrePlanPertenece);
+            tvDuracionTag = itemView.findViewById(R.id.tvDuracionTagItem);
+            tvIntensidadTag = itemView.findViewById(R.id.tvIntensidadTagItem);
             imgCheck = itemView.findViewById(R.id.imgStatusCheck);
             btnOpciones = itemView.findViewById(R.id.btnMasOpciones);
             imgRutina = itemView.findViewById(R.id.imgRutina);
             layoutHeaderPlan = itemView.findViewById(R.id.layoutHeaderPlan);
+            layoutDuracionTag = itemView.findViewById(R.id.layoutDuracionTag);
+            layoutIntensidadTag = itemView.findViewById(R.id.layoutIntensidadTag);
         }
     }
 }

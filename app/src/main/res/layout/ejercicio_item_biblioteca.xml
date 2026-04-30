@@ -65,10 +65,11 @@
 
                 <!-- Tag Duración -->
                 <LinearLayout
+                    android:id="@+id/layoutDuracionTag"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:background="@drawable/bg_chip_accent"
+                    android:background="@drawable/bg_chip_yellow"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="4dp"
                     android:gravity="center_vertical"
@@ -93,6 +94,7 @@
 
                 <!-- Tag Músculo/Intensidad -->
                 <LinearLayout
+                    android:id="@+id/layoutMusculoTag"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
