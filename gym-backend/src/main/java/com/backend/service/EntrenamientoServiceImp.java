@@ -10,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.backend.repository.TutorialRepository;
 import com.backend.domain.Tutorial;
+import com.backend.repository.CategoriaTutorialRepository;
+import com.backend.domain.CategoriaTutorial;
+import com.backend.repository.RutinaRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,32 +27,69 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
     private final EntrenamientoRepository entrenamientoRepository;
     private final EntrenamientoMapper entrenamientoMapper;
     private final TutorialRepository tutorialRepository;
+    private final CategoriaTutorialRepository categoriaTutorialRepository;
+    private final RutinaRepository rutinaRepository;
+        
+ @Override
+@Transactional
+public EntrenamientoResponseDto crear(EntrenamientoRequestDto dto) {
+    Entrenamiento entrenamiento = entrenamientoMapper.toEntity(dto);
+    log.info("Creando entrenamiento: {}", dto.getNombre());
 
-    @Override
-    @Transactional
-    public EntrenamientoResponseDto crear(EntrenamientoRequestDto dto) {
-        log.info("Creando entrenamiento maestro: {}", dto.getNombre());
+    // 1. Forzar asignación de campos (Asegúrate de que urlImagen se guarde)
+    entrenamiento.setNombre(dto.getNombre());
+    entrenamiento.setDescripcion(dto.getDescripcion());
+    entrenamiento.setDuracion(dto.getDuracion());
+    entrenamiento.setIntensidad(dto.getIntensidad());
+    entrenamiento.setCantidadEjercicios(dto.getCantidadEjercicios());
+    entrenamiento.setUrlImagen(dto.getUrlImagen()); // Si esto llega NULL desde Android, revisa el JSON de salida en el log
 
-        // Crear Entrenamiento
-        Entrenamiento entrenamiento = new Entrenamiento();
-        entrenamiento.setNombre(dto.getNombre());
-        entrenamiento.setIntensidad(dto.getIntensidad());
-        entrenamiento.setDuracion(dto.getDuracion());
-
-        Entrenamiento guardado = entrenamientoRepository.save(entrenamiento);
-
-        // Crear Tutorial asociado
-        Tutorial tutorial = new Tutorial();
-        tutorial.setTitulo(dto.getNombre());
-        tutorial.setUrlVideo(dto.getUrlVideo());
-        tutorial.setDescripcion(dto.getDescripcion());
-        tutorial.setEntrenamiento(guardado);
-
-        tutorialRepository.save(tutorial);
-
-        return entrenamientoMapper.toResponseDto(guardado, tutorial);
+    // 2. CORRECCIÓN CATEGORÍA: Manejar ID o Nombre ("GENERAL")
+    if (dto.getCategoriaId() != null) {
+        CategoriaTutorial categoria = categoriaTutorialRepository.findById(dto.getCategoriaId())
+            .orElseThrow(() -> new RuntimeException("Categoría por ID no encontrada"));
+        entrenamiento.setCategoria(categoria);
+    } 
+    // Si no viene ID pero viene el texto "GENERAL"
+    else if (dto.getCategoria() != null && !dto.getCategoria().isEmpty()) {
+        CategoriaTutorial categoria = categoriaTutorialRepository.findByNombre(dto.getCategoria())
+            .orElseGet(() -> {
+                // Si no existe, la creamos para que no sea NULL
+                CategoriaTutorial nueva = new CategoriaTutorial();
+                nueva.setNombre(dto.getCategoria());
+                return categoriaTutorialRepository.save(nueva);
+            });
+        entrenamiento.setCategoria(categoria);
     }
 
+    Entrenamiento saved = entrenamientoRepository.save(entrenamiento);
+
+    // 3. Tutoriales existentes
+    if (dto.getTutorialesIds() != null && !dto.getTutorialesIds().isEmpty()) {
+        List<Tutorial> tutoriales = tutorialRepository.findAllById(dto.getTutorialesIds());
+        for (Tutorial t : tutoriales) {
+            t.setEntrenamiento(saved); 
+        }
+        tutorialRepository.saveAll(tutoriales);
+        saved.setTutoriales(tutoriales);
+    }
+
+    // 4. Tutorial NUEVO
+    Tutorial nuevoTutorial = null;
+    if (dto.getUrlVideo() != null && !dto.getUrlVideo().isEmpty()) {
+        nuevoTutorial = new Tutorial();
+        nuevoTutorial.setTitulo(dto.getNombre());
+        nuevoTutorial.setUrlVideo(dto.getUrlVideo());
+        nuevoTutorial.setDescripcion(dto.getDescripcion());
+        nuevoTutorial.setEntrenamiento(saved);
+        nuevoTutorial = tutorialRepository.save(nuevoTutorial);
+    }
+
+    Tutorial tutorialParaVideo = (nuevoTutorial != null) ? nuevoTutorial : 
+        (saved.getTutoriales() != null && !saved.getTutoriales().isEmpty() ? saved.getTutoriales().get(0) : null);
+
+    return entrenamientoMapper.toResponseDto(saved, tutorialParaVideo);
+}
     @Override
     @Transactional(readOnly = true)
     public List<EntrenamientoResponseDto> listarPorUsuario(Long usuarioId) {
@@ -146,13 +185,13 @@ public class EntrenamientoServiceImp implements IEntrenamientoService {
     }
 
     @Override
-    @Transactional
-    public void eliminar(Long id) {
-        if (!entrenamientoRepository.existsById(id)) {
-            throw new ResourceNotFoundException("No se puede eliminar: Entrenamiento no encontrado");
-        }
-        entrenamientoRepository.deleteById(id);
+   @Transactional
+public void eliminar(Long id) {
+    if (!entrenamientoRepository.existsById(id)) {
+        throw new RuntimeException("Entrenamiento no encontrado");
     }
+    entrenamientoRepository.deleteById(id);
+}
 
     private EntrenamientoResponseDto mapearADto(Entrenamiento entrenamiento, Tutorial tutorial) {
         return EntrenamientoResponseDto.builder()

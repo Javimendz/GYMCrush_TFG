@@ -9,6 +9,9 @@ en Entrenamiento añadido relacion 1-N
 @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Tutorial> tutoriales;
 
+ @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private CategoriaTutorial categoria;
 
 añadido a detalleplan
 

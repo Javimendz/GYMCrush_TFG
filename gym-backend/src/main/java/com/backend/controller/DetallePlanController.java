@@ -2,24 +2,33 @@ package com.backend.controller;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
+
 import org.springframework.web.bind.annotation.RestController;
-
-import com.backend.dto.DetallePlanResponseDto;
-import com.backend.security.dto.ApiResponseDto;
-import com.backend.service.IDetallePlanService;
-
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid; 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.backend.dto.DetallePlanRequestDto;
+import com.backend.dto.DetallePlanResponseDto;
+import com.backend.service.IDetallePlanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import com.backend.security.dto.ApiResponseDto;
+import com.backend.service.IDetallePlanService;
 
 @RestController
 @RequestMapping("/api/v1/planes")
@@ -37,7 +46,14 @@ public class DetallePlanController {
         List<DetallePlanResponseDto> detalles = detalleService.listarPorPlan(planId);
         return ResponseEntity.ok(ApiResponseDto.success("Composición del plan obtenida", detalles));
     }
-
+    @PostMapping("/plan/{planId}")
+    public ResponseEntity<DetallePlanResponseDto> agregarEjercicio(
+            @PathVariable Long planId,
+            @Valid @RequestBody DetallePlanRequestDto dto) {
+        
+        DetallePlanResponseDto nuevoDetalle = detalleService.guardarEjercicio(planId, dto);
+        return new ResponseEntity<>(nuevoDetalle, HttpStatus.CREATED);
+    }
     @DeleteMapping("/ejercicios-detalle/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Quitar ejercicio del plan", description = "Elimina un ejercicio específico usando el ID del DetallePlan")

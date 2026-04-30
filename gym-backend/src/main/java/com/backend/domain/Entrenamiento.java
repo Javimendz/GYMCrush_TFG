@@ -48,7 +48,7 @@ public class Entrenamiento {
     @Column(nullable = true)
     private String urlImagen;
 
-    @Lob
+    
 @Column(columnDefinition = "TEXT")
     private String descripcion;
 
@@ -62,7 +62,9 @@ public class Entrenamiento {
     private Integer cantidadEjercicios;
 
  
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private CategoriaTutorial categoria;
     /**
      * Duración total de la sesión de entrenamiento.
      * <p>
@@ -81,6 +83,9 @@ public class Entrenamiento {
     @Column(name = "intensidad", length = 150)
     private String intensidad;
 
-  @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Tutorial> tutoriales;
+  @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL)
+private List<Tutorial> tutoriales;
+
+@OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, orphanRemoval = true)
+private List<Rutina> rutinas;
 }
