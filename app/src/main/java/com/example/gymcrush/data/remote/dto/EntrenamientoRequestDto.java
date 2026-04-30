@@ -17,6 +17,11 @@ public class EntrenamientoRequestDto {
     private String urlVideo;
     @SerializedName("urlImagen")
     private String urlImagen;
+    @SerializedName("categoriaId")
+    private Long categoriaId;
+
+    public EntrenamientoRequestDto() {
+    }
 
     public EntrenamientoRequestDto(String nombre, String descripcion, Integer duracion, String intensidad, String categoria) {
         this(nombre, descripcion, duracion, intensidad, categoria, "", "");
@@ -51,4 +56,7 @@ public class EntrenamientoRequestDto {
     public void setUrlVideo(String urlVideo) { this.urlVideo = urlVideo; }
     public String getUrlImagen() { return urlImagen; }
     public void setUrlImagen(String urlImagen) { this.urlImagen = urlImagen; }
+    public void setCategoriaId(Long categoriaId) {
+        this.categoriaId = categoriaId;
+    }
 }

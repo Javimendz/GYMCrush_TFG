@@ -52,27 +52,73 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String nombre, categoria, descripcion, duracion, urlVideo;
+        String nombre = "", categoria = "", descripcion = "", duracion = "", urlVideo = "";
+        String musculoTag = ""; // Nueva variable para el tag de músculo/dificultad
         Long id = -1L;
         int imagenRes = R.drawable.logo;
+
+        // Variables para las etiquetas del reproductor
+        String subtituloArmado = "";
+        Integer duracionMinima = null;
+        String etiquetaAzul = "";
 
         if (listaTutoriales != null) {
             TutorialResponseDto t = listaTutoriales.get(position);
             nombre = t.getTitulo();
             categoria = t.getNombreCategoria();
             descripcion = t.getDescripcion();
-            duracion = "Duración: " + t.getDuracionMin() + " min";
+            duracion = t.getDuracionMin() + " min"; // Simplificado para el tag
             urlVideo = t.getUrlVideo();
             id = t.getId();
+            musculoTag = t.getMusculoObjetivo() != null ? t.getMusculoObjetivo().toUpperCase() : "GENERAL";
+
             holder.txtRepsSeries.setVisibility(View.GONE);
             holder.cbCompletado.setVisibility(View.GONE);
+
+            // ARMAMOS LOS DATOS EXTRA PARA EL REPRODUCTOR
+            String musculo = t.getMusculoObjetivo() != null ? t.getMusculoObjetivo() : "";
+            String equipo = t.getEquipamiento() != null ? t.getEquipamiento() : "";
+            if (!musculo.isEmpty() && !equipo.isEmpty()) {
+                subtituloArmado = musculo + " - " + equipo;
+            } else {
+                subtituloArmado = musculo + equipo; // Concatena el que quede si falta alguno
+            }
+
+            duracionMinima = t.getDuracionMin();
+
+            if (t.getNombreCategoria() != null && !t.getNombreCategoria().isEmpty()) {
+                etiquetaAzul = "Categoría: " + t.getNombreCategoria().toUpperCase();
+            }
+
         } else {
             Ejercicio e = listaEjercicios.get(position);
             nombre = e.getNombre();
-            categoria = e.getCategoria();
-            descripcion = e.getDescripcion();
-            duracion = e.getDuracion();
+            categoria = e.getCategoria() != null ? e.getCategoria() : "Personalizado";
+            descripcion = e.getDescripcion() != null ? e.getDescripcion() : "Sin descripción";
+            duracion = e.getDuracion(); // Ej: "20 min" o "20"
             urlVideo = e.getUrlVideo();
+            id = e.getId();
+
+            String dificultad = e.getDificultad() != null ? e.getDificultad() : "MEDIA";
+            musculoTag = dificultad.toUpperCase();
+
+            // DATOS PARA EL REPRODUCTOR (Basado en Ejercicio)
+            subtituloArmado = categoria;
+            
+            // Intentamos parsear la duración para el tag del reproductor
+            if (duracion != null) {
+                try {
+                    String cleanDur = duracion.toLowerCase().replace("min", "").trim();
+                    duracionMinima = Integer.parseInt(cleanDur);
+                } catch (Exception ex) {
+                    duracionMinima = 0;
+                }
+            } else {
+                duracionMinima = 0;
+            }
+
+            etiquetaAzul = "Intensidad: " + dificultad.toUpperCase();
+
             if (e.getImagenResId() != 0) {
                 imagenRes = e.getImagenResId();
             }
@@ -81,10 +127,10 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
                 holder.txtRepsSeries.setVisibility(View.VISIBLE);
                 holder.txtRepsSeries.setText(e.getSeries() + " Series x " + e.getRepeticiones() + " Reps");
                 holder.cbCompletado.setVisibility(View.VISIBLE);
-                
+
                 // Manejar el estado del checkbox sin disparar listeners recursivos
                 holder.cbCompletado.setOnCheckedChangeListener(null);
-                holder.cbCompletado.setChecked(e.isSeleccionado()); // Usamos 'seleccionado' como 'completado' aquí
+                holder.cbCompletado.setChecked(e.isSeleccionado());
                 holder.cbCompletado.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     e.setSeleccionado(isChecked);
                 });
@@ -93,11 +139,15 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
                 holder.cbCompletado.setVisibility(View.GONE);
             }
         }
-        
+
         holder.txtNombre.setText(nombre);
         holder.txtCategoria.setText(categoria);
         holder.txtDescripcion.setText(descripcion);
-        holder.txtDificultad.setText(duracion);
+        holder.txtDificultad.setText("Duración: " + duracion); // Mantenemos el oculto por compatibilidad
+        
+        // Actualizamos los nuevos Tags visuales
+        holder.tvDuracionTag.setText(duracion);
+        holder.tvMusculoTag.setText(musculoTag);
 
         if (isAdmin && listaTutoriales != null) {
             holder.imgMenu.setVisibility(View.VISIBLE);
@@ -118,7 +168,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         } else {
             holder.imgMenu.setVisibility(View.GONE);
         }
-        
+
         if (urlVideo != null && !urlVideo.isEmpty()) {
             String urlToLoad = urlVideo;
             if (urlToLoad.contains("youtube.com") || urlToLoad.contains("youtu.be")) {
@@ -143,18 +193,27 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             holder.imgFoto.setImageResource(imagenRes);
         }
 
+        // VARIABLES FINALES PARA ENVIAR AL ONCLICK
         final Long finalId = id;
         final String finalUrl = urlVideo;
         final String finalNombre = nombre;
         final String finalDesc = descripcion;
+        final String finalSubtitulo = subtituloArmado;
+        final Integer finalDuracionMin = duracionMinima;
+        final String finalEtiquetaAzul = etiquetaAzul;
 
         holder.itemView.setOnClickListener(v -> {
             if (finalUrl != null && !finalUrl.isEmpty()) {
+
+                // INVOCACIÓN AL REPRODUCTOR ACTUALIZADA
                 ReproductorFragment reproductor = ReproductorFragment.newInstance(
                         finalId,
                         finalUrl,
                         finalNombre,
-                        finalDesc
+                        finalDesc,
+                        finalSubtitulo,
+                        finalDuracionMin,
+                        finalEtiquetaAzul
                 );
 
                 if (v.getContext() instanceof AppCompatActivity) {
@@ -188,6 +247,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtNombre, txtCategoria, txtDescripcion, txtDificultad, txtRepsSeries;
+        TextView tvDuracionTag, tvMusculoTag;
         ImageView imgFoto, imgMenu;
         CheckBox cbCompletado;
 
@@ -198,6 +258,8 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             txtDescripcion = itemView.findViewById(R.id.tvDescripcionEj);
             txtDificultad = itemView.findViewById(R.id.tvDificultad);
             txtRepsSeries = itemView.findViewById(R.id.tvRepsSeries);
+            tvDuracionTag = itemView.findViewById(R.id.tvDuracionTagItem);
+            tvMusculoTag = itemView.findViewById(R.id.tvMusculoTagItem);
             imgFoto = itemView.findViewById(R.id.imgEjercicioIcono);
             cbCompletado = itemView.findViewById(R.id.cbCompletado);
             imgMenu = itemView.findViewById(R.id.imgMenuEjercicio);

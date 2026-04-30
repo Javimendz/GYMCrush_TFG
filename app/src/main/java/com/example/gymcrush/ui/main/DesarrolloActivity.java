@@ -356,11 +356,20 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         
         exerciseCarouselAdapter = new CarouselAdapter(exerciseCarouselItemsList);
         exerciseCarouselAdapter.setOnItemClickListener(item -> {
+
+            String subtitulo = ""; // Ej: Si tienes item.getMusculo() ponlo aquí
+            Integer duracion = null; // Ej: Si tienes item.getDuracionMin() ponlo aquí
+            String etiquetaAzul = ""; // Ej: "Categoría: " + item.getCategoria()
+
+            //  Llamamos al fragmento con los 7 parámetros
             cargarFragmento(ReproductorFragment.newInstance(
                     item.getId(),
-                    item.getImageUrl(),
+                    item.getImageUrl(), // o getUrlVideo() si es un video
                     item.getTitle(),
-                    item.getFullDescription() != null ? item.getFullDescription() : item.getDescription()
+                    item.getFullDescription() != null ? item.getFullDescription() : item.getDescription(),
+                    subtitulo,
+                    duracion,
+                    etiquetaAzul
             ));
         });
         viewPagerExerciseCarousel.setAdapter(exerciseCarouselAdapter);

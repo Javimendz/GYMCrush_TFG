@@ -26,6 +26,7 @@ import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto;
 import com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto;
 import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
+import com.example.gymcrush.ui.ejercicios.ReproductorFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -37,11 +38,9 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +61,7 @@ public class RutinasFragment extends Fragment {
     private EntrenamientoAdapter ejerciciosAdapter;
     private RutinaGuardadaAdapter rutinasGuardadasAdapter;
     private List<EntrenamientoResponseDto> listaEjerciciosCompleta = new ArrayList<>();
-    
+
     private TabLayout tabLayoutPrincipal, tabLayoutCategorias;
     private NestedScrollView containerRutinas, containerEjercicios, containerRutinasGuardadas;
     private FrameLayout containerPlanes;
@@ -75,8 +74,6 @@ public class RutinasFragment extends Fragment {
     private com.google.android.material.progressindicator.LinearProgressIndicator progressRutinaDetalle;
     private MaterialButton btnCambiarFecha;
     private com.google.android.material.floatingactionbutton.FloatingActionButton btnIrACrear;
-    private View overlayIA;
-    private TextView tvEstadoIA;
     private long userId;
     private boolean isAdmin;
     private ExtendedFloatingActionButton fabAddEjercicio;
@@ -101,9 +98,8 @@ public class RutinasFragment extends Fragment {
         dotsIndicator = vista.findViewById(R.id.dotsIndicator);
         tvLabelFavoritos = vista.findViewById(R.id.tvLabelFavoritos);
 
-        
         btnIrACrear = vista.findViewById(R.id.btnIrACrear);
-        
+
         tabLayoutPrincipal = vista.findViewById(R.id.tabLayoutRutinas);
         tabLayoutCategorias = vista.findViewById(R.id.tabLayoutCategorias);
         containerRutinas = vista.findViewById(R.id.containerRutinas);
@@ -112,7 +108,7 @@ public class RutinasFragment extends Fragment {
         containerRutinasGuardadas = vista.findViewById(R.id.containerRutinasGuardadas);
         layoutVacio = vista.findViewById(R.id.layoutEjerciciosVacio);
         fabAddEjercicio = vista.findViewById(R.id.fabAddEjercicioAdmin);
-        
+
         layoutSelectorFecha = vista.findViewById(R.id.layoutSelectorFecha);
         tvFechaSeleccionada = vista.findViewById(R.id.tvFechaSeleccionada);
         graphEvolucion = vista.findViewById(R.id.graphEvolucionRutinas);
@@ -152,28 +148,60 @@ public class RutinasFragment extends Fragment {
 
             @Override
             public void onClick(RutinaResponseDto rutina) {
-                Intent intent = new Intent(getActivity(), DetalleRutinaActivity.class);
-                
-                // Buscamos el entrenamiento en el catálogo para obtener la descripción y el video
+                // Buscamos el entrenamiento completo en el catálogo (para coger categoría, descripción, etc.)
                 EntrenamientoResponseDto entrenamientoCompleto = listaEjerciciosCompleta.stream()
                         .filter(e -> e.getId().equals(rutina.getEntrenamientoId()))
                         .findFirst()
                         .orElse(null);
 
-                intent.putExtra("NOMBRE_RUTINA", rutina.getNombreEntrenamiento());
-                intent.putExtra("ASIGNACION_ID", rutina.getId()); // El ID para completar la rutina
-                intent.putExtra("DURACION", rutina.getDuracion());
-                intent.putExtra("INTENSIDAD", rutina.getIntensidad());
-                
+                // --- 1. PREPARAMOS LOS DATOS PARA EL REPRODUCTOR ---
+                String titulo = rutina.getNombreEntrenamiento();
+                String urlVideo = rutina.getUrlVideo();
+                String descripcion = "Sin descripción detallada.";
+                Integer duracionMin = rutina.getDuracion();
+                String etiquetaAzul = "";
+                String subtitulo = "";
+
                 if (entrenamientoCompleto != null) {
-                    intent.putExtra("DESCRIPCION", entrenamientoCompleto.getDescripcion());
-                    intent.putExtra("URL_VIDEO", entrenamientoCompleto.getUrlVideo());
+                    // Si encontramos el entrenamiento, cogemos sus datos ricos
+                    if (entrenamientoCompleto.getDescripcion() != null && !entrenamientoCompleto.getDescripcion().isEmpty()) {
+                        descripcion = entrenamientoCompleto.getDescripcion();
+                    }
+                    if (entrenamientoCompleto.getUrlVideo() != null && !entrenamientoCompleto.getUrlVideo().isEmpty()) {
+                        urlVideo = entrenamientoCompleto.getUrlVideo(); // Damos prioridad al vídeo del catálogo
+                    }
+
+                    // Armamos la etiqueta azul con la categoría del catálogo
+                    if (entrenamientoCompleto.getCategoria() != null && !entrenamientoCompleto.getCategoria().isEmpty()) {
+                        etiquetaAzul = "Categoría: " + entrenamientoCompleto.getCategoria().toUpperCase();
+                    } else if (rutina.getIntensidad() != null && !rutina.getIntensidad().isEmpty()) {
+                        // Fallback: Si no hay categoría, mostramos la intensidad de la rutina
+                        etiquetaAzul = "Intensidad: " + rutina.getIntensidad().toUpperCase();
+                    }
                 } else {
-                    intent.putExtra("DESCRIPCION", "Sin descripción disponible.");
-                    intent.putExtra("URL_VIDEO", rutina.getUrlVideo());
+                    // Si por algún motivo no está en el catálogo, intentamos mostrar la intensidad
+                    if (rutina.getIntensidad() != null && !rutina.getIntensidad().isEmpty()) {
+                        etiquetaAzul = "Intensidad: " + rutina.getIntensidad().toUpperCase();
+                    }
                 }
 
-                startActivity(intent);
+                // --- 2. ABRIMOS EL REPRODUCTOR ---
+                ReproductorFragment reproductor = ReproductorFragment.newInstance(
+                        rutina.getEntrenamientoId(),
+                        urlVideo,
+                        titulo,
+                        descripcion,
+                        subtitulo, // Vacio para la agenda (no solemos tener "Músculo - Máquina" aquí)
+                        duracionMin,
+                        etiquetaAzul
+                );
+
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
+                        .replace(R.id.fragment_container, reproductor)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
         rvRutinas.setAdapter(rutinasAdapter);
@@ -189,7 +217,7 @@ public class RutinasFragment extends Fragment {
         ejerciciosAdapter.setOnItemClickListener(new EntrenamientoAdapter.OnItemClickListener() {
             @Override
             public void onStartWorkout(EntrenamientoResponseDto entrenamiento) {
-                // Ver detalles o empezar
+                // AQUÍ TAMBIÉN SE PUEDE ABRIR EL REPRODUCTOR SI QUIERES, PERO DE MOMENTO LO DEJAMOS
                 Intent intent = new Intent(getActivity(), DetalleRutinaActivity.class);
                 intent.putExtra("RUTINA_ID", entrenamiento.getId());
                 intent.putExtra("NOMBRE_RUTINA", entrenamiento.getNombre());
@@ -200,11 +228,9 @@ public class RutinasFragment extends Fragment {
                 startActivity(intent);
             }
 
-
-
-
             @Override
-            public void onDeleteWorkout(EntrenamientoResponseDto entrenamiento) {   new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            public void onDeleteWorkout(EntrenamientoResponseDto entrenamiento) {
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                         .setTitle("Eliminar Entrenamiento")
                         .setMessage("¿Estás seguro de que quieres eliminar '" + entrenamiento.getNombre() + "' del catálogo?")
                         .setPositiveButton("Eliminar", (dialog, which) -> {
@@ -244,8 +270,6 @@ public class RutinasFragment extends Fragment {
 
         setupTabs();
         setupDatePicker();
-        
-
 
         if (fabAddEjercicio != null) {
             fabAddEjercicio.setOnClickListener(v -> mostrarDialogoNuevoEjercicio());
@@ -347,9 +371,9 @@ public class RutinasFragment extends Fragment {
 
     private void actualizarUIFecha() {
         if (tvFechaSeleccionada != null) {
-            String fechaStr = fechaSeleccionada.equals(LocalDate.now()) ? "Hoy" : 
-                fechaSeleccionada.getDayOfMonth() + " " + 
-                fechaSeleccionada.getMonth().getDisplayName(java.time.format.TextStyle.SHORT, new java.util.Locale("es", "ES"));
+            String fechaStr = fechaSeleccionada.equals(LocalDate.now()) ? "Hoy" :
+                    fechaSeleccionada.getDayOfMonth() + " " +
+                            fechaSeleccionada.getMonth().getDisplayName(java.time.format.TextStyle.SHORT, new java.util.Locale("es", "ES"));
             tvFechaSeleccionada.setText(fechaStr);
         }
     }
@@ -384,7 +408,7 @@ public class RutinasFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     List<RutinaResponseDto> datosRecibidos = response.body().getDatos();
 
-                    // Log para depuración: así verás en Logcat cuántos ejercicios llegan realmente
+                    // Log para depuración
                     android.util.Log.d("API_CHECK", "Ejercicios recibidos para " + fechaStr + ": " +
                             (datosRecibidos != null ? datosRecibidos.size() : 0));
 
@@ -479,7 +503,7 @@ public class RutinasFragment extends Fragment {
 
     private void cargarEstadisticas() {
         if (userId == -1) return;
-        
+
         final Float[] puntos = new Float[7];
         final Integer[] totales = new Integer[7];
         final String[] etiquetas = new String[7];
@@ -491,7 +515,7 @@ public class RutinasFragment extends Fragment {
             LocalDate dia = hoy.minusDays(6 - i);
             etiquetas[index] = dia.getDayOfMonth() + "/" + dia.getMonthValue();
             String fechaStr = dia.toString();
-            
+
             RetrofitClient.getApiService().getRutinaDiaria(userId, fechaStr).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
                 @Override
                 public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
@@ -539,7 +563,7 @@ public class RutinasFragment extends Fragment {
         }
 
         if (tvStatTotal != null) tvStatTotal.setText(String.format(java.util.Locale.getDefault(), "%.0f", sumaCompletadas));
-        
+
         if (tvStatMedia != null) {
             float media = diasConEjercicios > 0 ? sumaCompletadas / diasConEjercicios : 0;
             tvStatMedia.setText(String.format(java.util.Locale.getDefault(), "%.1f", media));
@@ -599,15 +623,12 @@ public class RutinasFragment extends Fragment {
                 break;
             }
         }
-        
+
         String labelDia = (racha == 1) ? getString(R.string.dia) : getString(R.string.dias);
         tvRacha.setText(getString(R.string.racha_dias, racha, labelDia));
     }
 
     private void marcarRutinaCompletada(Long rutinaId) {
-        // En lugar de llamar directamente a la API, primero verificamos el estado actual si fuera necesario,
-        // pero el endpoint PATCH /completar suele ser un toggle o una acción de "marcar como hecho".
-        // Si el backend lo trata como un toggle, servirá para ambas acciones.
         RetrofitClient.getApiService().completarRutina(rutinaId).enqueue(new Callback<ApiResponseDto<RutinaResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<RutinaResponseDto>> call, Response<ApiResponseDto<RutinaResponseDto>> response) {
@@ -680,13 +701,13 @@ public class RutinasFragment extends Fragment {
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
                 actualizarVisibilidadFab(position);
-                
+
                 containerRutinas.setVisibility(View.GONE);
                 containerPlanes.setVisibility(View.GONE);
                 containerEjercicios.setVisibility(View.GONE);
                 containerRutinasGuardadas.setVisibility(View.GONE);
                 layoutSelectorFecha.setVisibility(View.GONE);
-                
+
                 // Nuevo: Ocultar también el progreso y el calendario horizontal si no es Agenda
                 View progress = getView().findViewById(R.id.progressRutina);
                 View calHorizontal = getView().findViewById(R.id.rvCalendarioHorizontal);
@@ -725,17 +746,15 @@ public class RutinasFragment extends Fragment {
         });
     }
 
-
-
     private void actualizarRutinasGuardadas() {
         if (userId == -1) return;
-        
+
         RetrofitClient.getApiService().getEntrenamientosUsuario(userId).enqueue(new Callback<ApiResponseDto<List<EntrenamientoResponseDto>>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Response<ApiResponseDto<List<EntrenamientoResponseDto>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<EntrenamientoResponseDto> entrenamientos = response.body().getDatos();
-                    
+
                     // Sincronizar el repositorio central con los datos frescos del servidor
                     RepositorioRutinas.sincronizarConServidor(requireContext(), entrenamientos);
 
@@ -778,10 +797,9 @@ public class RutinasFragment extends Fragment {
                 if (isAdded()) {
                     // Recargamos la agenda para ver los nuevos ejercicios del plan
                     cargarRutinaPorFecha();
-                    // Opcional: Podrías llamar a un método que actualice un TextView con el nombre del Plan
                     actualizarNombrePlanActivo();
                 }
-            }, 1000); // Subimos a 1 segundo para dar tiempo al servidor a procesar el "Master Plan"
+            }, 1000);
         });
 
         getChildFragmentManager().beginTransaction()
@@ -790,8 +808,6 @@ public class RutinasFragment extends Fragment {
     }
 
     private void actualizarNombrePlanActivo() {
-        // Aquí podrías hacer una petición rápida al perfil del usuario
-        // y poner el nombre del plan en un TextView que añadas arriba de la racha.
         android.util.Log.i("RutinasFragment", "Sincronizando interfaz con el nuevo Plan Maestro");
     }
 
@@ -877,7 +893,7 @@ public class RutinasFragment extends Fragment {
         }
 
         ejerciciosAdapter.updateLista(filtrada);
-        
+
         if (filtrada.isEmpty()) {
             layoutVacio.setVisibility(View.VISIBLE);
             rvEjercicios.setVisibility(View.GONE);
@@ -923,7 +939,7 @@ public class RutinasFragment extends Fragment {
             }
 
             EntrenamientoRequestDto request = new EntrenamientoRequestDto(
-                nombre, desc, Integer.parseInt(durStr), intensidad, cat
+                    nombre, desc, Integer.parseInt(durStr), intensidad, cat
             );
 
             RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
@@ -988,53 +1004,55 @@ public class RutinasFragment extends Fragment {
     }
 
     private void guardarEntrenamientoDesdeExterno(com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto exercise, androidx.appcompat.app.AlertDialog parentDialog) {
-        // En EntrenamientoRequestDto guardamos el GIF en urlVideo para mostrarlo en la app
-        String desc = exercise.getDescription() != null ? exercise.getDescription() : "Ejercicio para " + exercise.getTarget();
-        
-        // Si hay instrucciones, las añadimos a la descripción
+
+        // 1. Limpiamos y preparamos la descripción (para que no sea NULL)
+        String desc = exercise.getDescription() != null ? exercise.getDescription() : "Ejercicio de " + exercise.getTarget();
         if (exercise.getInstructions() != null && !exercise.getInstructions().isEmpty()) {
             desc += "\n\nInstrucciones:\n" + String.join("\n", exercise.getInstructions());
         }
 
-        EntrenamientoRequestDto request = new EntrenamientoRequestDto(
-                exercise.getName(),
-                desc,
-                10, // Duración defecto
-                "Media", // Intensidad defecto
-                exercise.getTarget().toUpperCase(), // Usamos el músculo objetivo como categoría
-                exercise.getGifUrl() // Pasamos la URL del GIF
-        );
+        // 2. Creamos el objeto Request usando SETTERS
+        // Esto asegura que cada campo del objeto de la API externa (exercise)
+        // se mapee correctamente a tu base de datos.
+        com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto request = new com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto();
 
+        request.setNombre(exercise.getName());
+        request.setDescripcion(desc);
+        request.setDuracion(10); // Duración por defecto
+        request.setIntensidad("MEDIA");
+        request.setUrlVideo(exercise.getGifUrl()); // <--- AQUÍ capturamos el video/gif
+        request.setCategoriaId(1L); // ID de categoría por defecto (ajustar si tienes mapeo)
+
+        // 3. Enviamos la petición al Backend
         RetrofitClient.getApiService().crearEntrenamiento(request).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "¡Entrenamiento añadido al catálogo!", Toast.LENGTH_SHORT).show();
-                    parentDialog.dismiss();
-                    cargarEjerciciosDesdeServidor();
+                    Toast.makeText(getContext(), "¡Ejercicio añadido al catálogo!", Toast.LENGTH_SHORT).show();
+                    parentDialog.dismiss(); // Cerramos el buscador
+                    cargarEjerciciosDesdeServidor(); // Refrescamos tu lista de "Explorar"
                 } else {
-                    Toast.makeText(getContext(), "Error al guardar entrenamiento", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error al guardar: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onFailure(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Fallo de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
-
     @Override
     public void onResume() {
         super.onResume();
 
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            // Verificamos que el fragmento siga en pantalla para evitar crasheos
             if (isAdded()) {
                 cargarRutinaPorFecha();
                 cargarEstadisticas();
                 cargarEjerciciosDesdeServidor();
                 actualizarRutinasGuardadas();
             }
-        }, 400); // 400 milisegundos de retraso
+        }, 400);
     }
 }

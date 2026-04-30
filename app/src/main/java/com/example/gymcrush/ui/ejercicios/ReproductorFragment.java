@@ -14,10 +14,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.fragment.app.Fragment;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -43,18 +45,31 @@ public class ReproductorFragment extends Fragment {
     private String descripcion;
     private Long tutorialId;
     private Long userId;
-
+    private String subtitulo;
+    private Integer duracionMin;
+    private String etiquetaExtra;
     private final Handler progressHandler = new Handler(Looper.getMainLooper());
     private Runnable progressRunnable;
     private long currentPosition = 0;
 
-    public static ReproductorFragment newInstance(Long tutorialId, String url, String titulo, String descripcion) {
+
+    @UnstableApi
+    public static ReproductorFragment newInstance(Long tutorialId, String url, String titulo, String descripcion, String subtitulo, Integer duracionMin, String etiquetaExtra) {
         ReproductorFragment fragment = new ReproductorFragment();
         Bundle args = new Bundle();
-        args.putLong("tutorialId", tutorialId);
+        if (tutorialId != null) {
+            args.putLong("tutorialId", tutorialId);
+        } else {
+            args.putLong("tutorialId", -1L);
+        }
         args.putString("url", url);
         args.putString("titulo", titulo);
         args.putString("descripcion", descripcion);
+        args.putString("subtitulo", subtitulo);
+        if (duracionMin != null) {
+            args.putInt("duracionMin", duracionMin);
+        }
+        args.putString("etiquetaExtra", etiquetaExtra);
         fragment.setArguments(args);
         return fragment;
     }
@@ -67,9 +82,12 @@ public class ReproductorFragment extends Fragment {
             videoUrl = getArguments().getString("url");
             titulo = getArguments().getString("titulo");
             descripcion = getArguments().getString("descripcion");
+            subtitulo = getArguments().getString("subtitulo");
+            duracionMin = getArguments().containsKey("duracionMin") ? getArguments().getInt("duracionMin") : null;
+            etiquetaExtra = getArguments().getString("etiquetaExtra");
         }
         SharedPreferences prefs = requireActivity().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
-        userId = prefs.getLong("usuario_id", -1L);
+        userId = prefs.getLong("user_id", -1L);
     }
 
     @Nullable
@@ -77,13 +95,43 @@ public class ReproductorFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reproductor, container, false);
 
+        // 2. ENLAZAMOS TODAS LAS VISTAS
         playerView = view.findViewById(R.id.player_view);
         TextView tvTitulo = view.findViewById(R.id.tvTituloVideo);
         TextView tvDesc = view.findViewById(R.id.tvDescripcionVideo);
+        TextView tvSubtitulo = view.findViewById(R.id.tvSubtituloVideo);
+        TextView tvDuracionTag = view.findViewById(R.id.tvDuracionTag);
+        TextView tvIntensidadTag = view.findViewById(R.id.tvIntensidadTag);
 
-        tvTitulo.setText(titulo);
-        tvDesc.setText(descripcion);
+        // 3. INYECTAMOS LOS DATOS Y MANEJAMOS VISIBILIDAD (Ocultar si están vacíos)
+        tvTitulo.setText(titulo != null ? titulo.toUpperCase() : "TUTORIAL");
+        tvDesc.setText(descripcion != null ? descripcion : "Sin descripción disponible.");
 
+        // Subtítulo
+        if (subtitulo != null && !subtitulo.isEmpty()) {
+            tvSubtitulo.setText(subtitulo);
+            tvSubtitulo.setVisibility(View.VISIBLE);
+        } else {
+            tvSubtitulo.setVisibility(View.GONE);
+        }
+
+        // Etiqueta Amarilla (Duración)
+        if (duracionMin != null && duracionMin > 0) {
+            tvDuracionTag.setText(duracionMin + " min");
+            tvDuracionTag.setVisibility(View.VISIBLE);
+        } else {
+            tvDuracionTag.setVisibility(View.GONE);
+        }
+
+        // Etiqueta Azul (Extra / Intensidad / Categoría)
+        if (etiquetaExtra != null && !etiquetaExtra.isEmpty()) {
+            tvIntensidadTag.setText(etiquetaExtra);
+            tvIntensidadTag.setVisibility(View.VISIBLE);
+        } else {
+            tvIntensidadTag.setVisibility(View.GONE);
+        }
+
+        // 4. INICIALIZAMOS REPRODUCTOR Y BOTÓN
         initializePlayer();
 
         view.findViewById(R.id.btnCerrarReproductor).setOnClickListener(v -> {
@@ -93,6 +141,7 @@ public class ReproductorFragment extends Fragment {
         return view;
     }
 
+    @OptIn(markerClass = UnstableApi.class)
     private void initializePlayer() {
         // 1. CONFIGURACIÓN DE CABECERAS (Vital para Pexels)
         // Usamos un User-Agent de navegador moderno para que el servidor no nos rechace
@@ -116,13 +165,14 @@ public class ReproductorFragment extends Fragment {
         playerView.setPlayer(player);
 
         // 3. CARGA DE LA URL
-        if (videoUrl != null && !videoUrl.isEmpty()) {
+        if (videoUrl != null && !videoUrl.isEmpty() && !videoUrl.equals("null")) {
             MediaItem mediaItem = MediaItem.fromUri(videoUrl);
             player.setMediaItem(mediaItem);
             player.prepare();
             player.setPlayWhenReady(true);
         } else {
-            Toast.makeText(requireContext(), "URL de vídeo no disponible", Toast.LENGTH_SHORT).show();
+            // Si no carga, es porque videoUrl llega como null desde la BD
+            Toast.makeText(requireContext(), "Error: Este ejercicio no tiene un video asignado en la base de datos", Toast.LENGTH_LONG).show();
         }
 
         // 4. LISTENERS DE ESTADO Y ERROR

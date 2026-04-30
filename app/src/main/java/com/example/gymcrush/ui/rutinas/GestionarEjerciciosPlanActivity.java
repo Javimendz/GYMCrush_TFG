@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -28,7 +29,10 @@ public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
     private PlanDetalleViewModel viewModel;
     private DetallePlanAdapter adapter;
     private List<EntrenamientoResponseDto> catalogoActual = new ArrayList<>();
-    private View layoutVacio; // Para evitar la "pantalla azul vacía"
+    private View layoutVacio;
+
+    // Vistas del Header
+    private TextView tvNombreHeader, tvNivel, tvObjetivo, tvDescripcion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,18 +41,32 @@ public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
 
         planId = getIntent().getLongExtra("PLAN_ID", -1);
         String nombrePlan = getIntent().getStringExtra("PLAN_NOMBRE");
+        String nivelPlan = getIntent().getStringExtra("PLAN_NIVEL");
+        String objetivoPlan = getIntent().getStringExtra("PLAN_OBJETIVO");
+        String descripcionPlan = getIntent().getStringExtra("PLAN_DESCRIPCION");
 
         // 1. Configurar Barra Superior
         Toolbar toolbar = findViewById(R.id.toolbarGestionPlan);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(nombrePlan != null ? nombrePlan : "Gestión del Plan");
+            getSupportActionBar().setTitle(""); // Título vacío para usar el header personalizado
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        // 2. Inicializar Vistas
-        layoutVacio = findViewById(R.id.layoutVacioPlan); // Debes añadir este ID a tu activity_gestionar_ejercicios_plan.xml
+        // 2. Inicializar Vistas del Header
+        tvNombreHeader = findViewById(R.id.tvNombrePlanHeader);
+        tvNivel = findViewById(R.id.tvNivelPlan);
+        tvObjetivo = findViewById(R.id.tvObjetivoPlan);
+        tvDescripcion = findViewById(R.id.tvDescripcionPlan);
+
+        if (tvNombreHeader != null) tvNombreHeader.setText(nombrePlan != null ? nombrePlan : "Gestión del Plan");
+        if (tvNivel != null) tvNivel.setText(nivelPlan != null ? nivelPlan : "PRINCIPIANTE");
+        if (tvObjetivo != null) tvObjetivo.setText(objetivoPlan != null ? objetivoPlan.replace("_", " ") : "GENERAL");
+        if (tvDescripcion != null) tvDescripcion.setText(descripcionPlan != null && !descripcionPlan.equals("null") ? descripcionPlan : "Sin descripción disponible para este plan.");
+
+        // 3. Inicializar Lista
+        layoutVacio = findViewById(R.id.layoutVacioPlan);
         RecyclerView rv = findViewById(R.id.rvDetallesPlan);
         rv.setLayoutManager(new LinearLayoutManager(this));
 
@@ -87,7 +105,7 @@ public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
     private void mostrarDialogoAñadir() {
         // Validación: No abrir si el catálogo no ha cargado
         if (catalogoActual == null || catalogoActual.isEmpty()) {
-            Toast.makeText(this, "Cargando catálogo de ejercicios...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Cargando catálogo, intenta de nuevo...", Toast.LENGTH_SHORT).show();
             viewModel.cargarCatalogoParaSpinner();
             return;
         }

@@ -82,6 +82,9 @@ public class PlanesFragment extends Fragment {
                 Intent intent = new Intent(requireContext(), GestionarEjerciciosPlanActivity.class);
                 intent.putExtra("PLAN_ID", plan.getId());
                 intent.putExtra("PLAN_NOMBRE", plan.getNombre());
+                intent.putExtra("PLAN_NIVEL", plan.getNivel());
+                intent.putExtra("PLAN_OBJETIVO", plan.getObjetivo());
+                intent.putExtra("PLAN_DESCRIPCION", plan.getDescripcion());
                 startActivity(intent);
             }
 
