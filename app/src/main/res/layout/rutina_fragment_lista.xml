@@ -47,6 +47,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="MIS RUTINAS" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BIBLIOTECA" />
         </com.google.android.material.tabs.TabLayout>
 
         <FrameLayout
@@ -397,6 +402,12 @@
                     <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRutinasGuardadas" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" />
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
+
+            <FrameLayout
+                android:id="@+id/containerBiblioteca"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
 
             <androidx.core.widget.NestedScrollView android:id="@+id/containerEntrenamientos" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:fillViewport="true">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="10dp" android:paddingBottom="100dp">
