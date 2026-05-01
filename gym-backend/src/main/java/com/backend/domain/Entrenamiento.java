@@ -1,5 +1,6 @@
 //Paquete
 package com.backend.domain;
+
 import java.util.List;
 
 import jakarta.persistence.*;//Importar todo el paquete
@@ -40,7 +41,6 @@ public class Entrenamiento {
      * Opcional, indica cuándo se realizará la sesión.
      * </p>
      */
-    
 
     @Column(nullable = false, length = 100)
     private String nombre; // Ej: "Pecho y Tríceps"
@@ -48,11 +48,10 @@ public class Entrenamiento {
     @Column(nullable = true)
     private String urlImagen;
 
-    
-@Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-     /**
+    /**
      * Descripción detallada de la sesión de entrenamiento.
      * <p>
      * Opcional, puede incluir información sobre el enfoque
@@ -61,7 +60,6 @@ public class Entrenamiento {
      */
     private Integer cantidadEjercicios;
 
- 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
     private CategoriaTutorial categoria;
@@ -83,9 +81,9 @@ public class Entrenamiento {
     @Column(name = "intensidad", length = 150)
     private String intensidad;
 
-  @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL)
-private List<Tutorial> tutoriales;
+    @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL)
+    private List<Tutorial> tutoriales;
 
-@OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, orphanRemoval = true)
-private List<Rutina> rutinas;
+    @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Rutina> rutinas;
 }

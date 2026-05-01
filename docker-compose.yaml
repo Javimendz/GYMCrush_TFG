@@ -19,7 +19,7 @@ services:
       - FATSECRET_CLIENT_ID=${FATSECRET_CLIENT_ID}
       - FATSECRET_CLIENT_SECRET=${FATSECRET_CLIENT_SECRET}
       - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRATION=3600000
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
     depends_on:
       db-service:
         condition: service_healthy
