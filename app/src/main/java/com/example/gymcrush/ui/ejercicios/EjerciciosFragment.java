@@ -497,8 +497,10 @@ public class EjerciciosFragment extends Fragment {
                     Toast.makeText(getContext(), "¡Tutorial añadido!", Toast.LENGTH_SHORT).show();
                     parentDialog.dismiss();
                     cargarTutoriales(); // Recargar lista principal
+                } else if (response.code() == 409) {
+                    Toast.makeText(getContext(), "Este ejercicio ya existe en tu biblioteca", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getContext(), "Error al guardar", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error al guardar (Código: " + response.code() + ")", Toast.LENGTH_SHORT).show();
                 }
             }
 

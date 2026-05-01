@@ -84,6 +84,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import androidx.annotation.OptIn;
+import androidx.media3.common.util.UnstableApi;
+
 public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap map;
@@ -360,15 +363,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             String etiquetaAzul = ""; // Ej: "Categoría: " + item.getCategoria()
 
             //  Llamamos al fragmento con los 7 parámetros
-            cargarFragmento(ReproductorFragment.newInstance(
-                    item.getId(),
-                    item.getImageUrl(), // o getUrlVideo() si es un video
-                    item.getTitle(),
-                    item.getFullDescription() != null ? item.getFullDescription() : item.getDescription(),
-                    subtitulo,
-                    duracion,
-                    etiquetaAzul
-            ));
+            initReproductor(item, subtitulo, duracion, etiquetaAzul);
         });
         viewPagerExerciseCarousel.setAdapter(exerciseCarouselAdapter);
 
@@ -823,6 +818,19 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         cargarDatosYFotoPerfil();
         cargarDatosDinamicosCarrusel();
         actualizarRendimientoSemanal();
+    }
+
+    @OptIn(markerClass = UnstableApi.class)
+    private void initReproductor(CarouselAdapter.CarouselItem item, String subtitulo, Integer duracion, String etiquetaAzul) {
+        cargarFragmento(ReproductorFragment.newInstance(
+                item.getId(),
+                item.getImageUrl(), // o getUrlVideo() si es un video
+                item.getTitle(),
+                item.getFullDescription() != null ? item.getFullDescription() : item.getDescription(),
+                subtitulo,
+                duracion,
+                etiquetaAzul
+        ));
     }
 
     private void cargarFragmento(Fragment fragment) {
