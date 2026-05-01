@@ -228,7 +228,7 @@ public interface ApiService {
     );
 
     @GET("api/v1/rutinas/usuario/{usuarioId}/rango")
-    Call<ApiResponseDto<List<RutinaResponseDto>>> getRutinasPorRango(
+    Call<List<RutinaResponseDto>> getRutinasPorRango(
             @Path("usuarioId") Long usuarioId,
             @Query("inicio") String inicio,
             @Query("fin") String fin

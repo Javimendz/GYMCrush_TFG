@@ -25,6 +25,7 @@ import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 import com.example.gymcrush.ui.ejercicios.Ejercicio;
 import com.example.gymcrush.ui.ejercicios.RepositorioEjercicios;
 
+import com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto;
 import com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -105,21 +106,21 @@ public class CrearRutinaActivity extends AppCompatActivity {
                     }
                 }
             }
-            @Override public void onFailure(Call<ApiResponseDto<List<com.example.gymcrush.data.remote.dto.PlanResponseDto>>> call, Throwable t) {}
+            @Override public void onFailure(Call<ApiResponseDto<List<PlanResponseDto>>> call, Throwable t) {}
         });
     }
 
     private void cargarCategorias() {
-        RetrofitClient.getApiService().getCategorias().enqueue(new retrofit2.Callback<com.example.gymcrush.data.remote.dto.ApiResponseDto<List<com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto>>>() {
+        RetrofitClient.getApiService().getCategorias().enqueue(new Callback<ApiResponseDto<List<CategoriaTutorialResponseDto>>>() {
             @Override
-            public void onResponse(Call<com.example.gymcrush.data.remote.dto.ApiResponseDto<List<com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto>>> call, Response<com.example.gymcrush.data.remote.dto.ApiResponseDto<List<com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto>>> response) {
+            public void onResponse(Call<ApiResponseDto<List<CategoriaTutorialResponseDto>>> call, Response<ApiResponseDto<List<CategoriaTutorialResponseDto>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null && !response.body().getDatos().isEmpty()) {
                     defaultCategoriaId = response.body().getDatos().get(0).getId();
                 }
             }
 
             @Override
-            public void onFailure(Call<com.example.gymcrush.data.remote.dto.ApiResponseDto<List<com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto>>> call, Throwable t) { }
+            public void onFailure(Call<ApiResponseDto<List<CategoriaTutorialResponseDto>>> call, Throwable t) { }
         });
     }
 
@@ -262,8 +263,8 @@ public class CrearRutinaActivity extends AppCompatActivity {
 
                     if (userId != -1 && cbAnadirAPlan != null && cbAnadirAPlan.isChecked()) {
                         // Si el usuario marcó la casilla, la añadimos al plan seleccionado o a la agenda
-                        if (spinnerPlanes != null && spinnerPlanes.getSelectedItemPosition() > 0) {
-                            PlanResponseDto planSeleccionado = (PlanResponseDto) spinnerPlanes.getSelectedItem();
+                        if (spinnerPlanes != null && spinnerPlanes.getSelectedItemPosition() >= 0 && !listaPlanes.isEmpty()) {
+                            PlanResponseDto planSeleccionado = listaPlanes.get(spinnerPlanes.getSelectedItemPosition());
                             anadirAPlanMaestro(planSeleccionado.getId(), entrenamientoId);
                             Toast.makeText(CrearRutinaActivity.this, "Rutina añadida al plan: " + planSeleccionado.getNombre(), Toast.LENGTH_SHORT).show();
                         } else {

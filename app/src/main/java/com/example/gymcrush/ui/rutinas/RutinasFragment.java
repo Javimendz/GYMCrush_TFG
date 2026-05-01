@@ -114,6 +114,7 @@ public class RutinasFragment extends Fragment {
 
         layoutSelectorFecha = vista.findViewById(R.id.layoutSelectorFecha);
         tvFechaSeleccionada = vista.findViewById(R.id.tvFechaSeleccionada);
+
         graphEvolucion = vista.findViewById(R.id.graphEvolucionRutinas);
         setupGraphEvolucion();
         tvStatTotal = vista.findViewById(R.id.tvStatTotal);
@@ -487,11 +488,11 @@ public class RutinasFragment extends Fragment {
         LocalDate hoy = LocalDate.now();
         LocalDate inicio = hoy.minusDays(6);
 
-        RetrofitClient.getApiService().getRutinasPorRango(userId, inicio.toString(), hoy.toString()).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
+        RetrofitClient.getApiService().getRutinasPorRango(userId, inicio.toString(), hoy.toString()).enqueue(new Callback<List<RutinaResponseDto>>() {
             @Override
-            public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
+            public void onResponse(Call<List<RutinaResponseDto>> call, Response<List<RutinaResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<RutinaResponseDto> todas = response.body().getDatos();
+                    List<RutinaResponseDto> todas = response.body();
 
                     Float[] puntos = new Float[7];
                     Integer[] totales = new Integer[7];
@@ -519,7 +520,7 @@ public class RutinasFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
+            public void onFailure(Call<List<RutinaResponseDto>> call, Throwable t) {
                 // Silently fail or log
             }
         });
