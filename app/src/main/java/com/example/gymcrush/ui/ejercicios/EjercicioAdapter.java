@@ -226,41 +226,16 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         final String finalEtiquetaAzul = etiquetaAzul;
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @OptIn(markerClass = UnstableApi.class)
             @Override
             public void onClick(View v) {
-                if (finalUrl != null && !finalUrl.isEmpty()) {
-
-                    // INVOCACIÓN AL REPRODUCTOR ACTUALIZADA
-                    ReproductorFragment reproductor = ReproductorFragment.newInstance(
-                            finalId,
-                            finalUrl,
-                            finalNombre,
-                            finalDesc,
-                            finalSubtitulo,
-                            finalDuracionMin,
-                            finalEtiquetaAzul
-                    );
-
-                    if (v.getContext() instanceof AppCompatActivity) {
-                        AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                        int containerId = R.id.fragment_container;
-                        if (activity.findViewById(containerId) != null) {
-                            activity.getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out, android.R.anim.fade_in, android.R.anim.fade_out)
-                                    .replace(containerId, reproductor)
-                                    .addToBackStack(null)
-                                    .commit();
-                        } else {
-                            activity.getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .replace(android.R.id.content, reproductor)
-                                    .addToBackStack(null)
-                                    .commit();
-                        }
-                    }
-                }
+                android.content.Intent intent = new android.content.Intent(v.getContext(), com.example.gymcrush.ui.rutinas.DetalleRutinaActivity.class);
+                intent.putExtra("NOMBRE_RUTINA", finalNombre);
+                intent.putExtra("URL_VIDEO", finalUrl);
+                intent.putExtra("DESCRIPCION", finalDesc);
+                intent.putExtra("DURACION", finalDuracionMin);
+                intent.putExtra("INTENSIDAD", finalEtiquetaAzul);
+                intent.putExtra("ES_EJERCICIO_BIBLIOTECA", true); // Bandera para diferenciar
+                v.getContext().startActivity(intent);
             }
         });
     }
