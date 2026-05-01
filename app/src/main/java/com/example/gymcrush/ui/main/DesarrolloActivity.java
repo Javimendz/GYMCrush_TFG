@@ -199,8 +199,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 cargarFragmento(new SaludFragment());
             } else if (id == R.id.nav_rutinas_drawer) {
                 cargarFragmento(new RutinasFragment());
-            } else if (id == R.id.nav_planes_entrenamiento) {
-                cargarFragmento(new PlanesFragment());
             } else if (id == R.id.nav_equipo) {
                 cargarFragmento(new EquipoFragment());
             } else if (id == R.id.nav_contacto) {
@@ -228,7 +226,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 mostrarHome();
                 return true;
             } else if (id == R.id.nav_workout) {
-                cargarFragmento(new EjerciciosFragment());
+                cargarFragmento(new RutinasFragment());
                 return true;
             } else if (id == R.id.nav_social) {
                 cargarFragmento(new SocialFragment());
@@ -723,10 +721,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         menuView.findViewById(R.id.menu_rutinas).setOnClickListener(v -> {
             slidingRootNav.closeMenu();
             cargarFragmento(new RutinasFragment());
-        });
-        menuView.findViewById(R.id.menu_planes).setOnClickListener(v -> {
-            slidingRootNav.closeMenu();
-            cargarFragmento(new PlanesFragment());
         });
         menuView.findViewById(R.id.menu_dieta).setOnClickListener(v -> {
             slidingRootNav.closeMenu();

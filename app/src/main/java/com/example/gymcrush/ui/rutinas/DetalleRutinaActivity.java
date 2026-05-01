@@ -170,6 +170,22 @@ public class DetalleRutinaActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (player != null) {
+            player.pause();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (player != null) {
+            player.stop();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (player != null) {

@@ -12,10 +12,6 @@
             android:icon="@drawable/ic_workout"
             android:title="Mis Rutinas" />
 
-        <item android:id="@+id/nav_planes_entrenamiento"
-            android:icon="@drawable/ic_workout"
-            android:title="Planes de Entrenamiento" />
-
         <item android:id="@+id/nav_reservas"
             android:icon="@drawable/ic_reservaclases"
             android:title="Mis reservas de clases" />
