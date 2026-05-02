@@ -98,7 +98,7 @@ public class Horario {
     @JoinColumn(name = "sala_id")
     private Sala sala;
 
-    @OneToMany(mappedBy = "horario", orphanRemoval = true)
+    @OneToMany(mappedBy = "horario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reserva> reservas;
 
     public void addReserva(Reserva reserva) {
