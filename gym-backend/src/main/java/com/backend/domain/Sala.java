@@ -51,4 +51,6 @@ public class Sala {
     @Builder.Default
     @ToString.Exclude
     private List<Horario> horarios = new ArrayList<>();
+
+    
 }

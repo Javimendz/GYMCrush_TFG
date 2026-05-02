@@ -3,6 +3,7 @@ package com.backend.domain;
 
 //Imports
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*; //Importo todo el paquete
@@ -98,8 +99,11 @@ public class Horario {
     @JoinColumn(name = "sala_id")
     private Sala sala;
 
+    
+
+   @Builder.Default 
     @OneToMany(mappedBy = "horario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reserva> reservas;
+    private List<Reserva> reservas = new ArrayList<>();
 
     public void addReserva(Reserva reserva) {
     if (this.reservas.size() >= this.aforoMax) {

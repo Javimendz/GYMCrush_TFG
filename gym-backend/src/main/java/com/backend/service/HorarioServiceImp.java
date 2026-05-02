@@ -228,17 +228,39 @@ public class HorarioServiceImp implements IHorarioService {
      * @param id ID del registro a eliminar.
      * @throws ResourceNotFoundException si el registro no existe.
      */
-    @Override
-    @Transactional
-    public void eliminar(Long id) {
-        log.info("Eliminando horario con ID: {}", id);
-        if (!horarioRepository.existsById(id)) {
-            log.warn("No se puede eliminar: Horario con ID {} no existe", id);
-            throw new ResourceNotFoundException("No se puede eliminar: ID " + id + " no existe");
-        }
-        horarioRepository.deleteById(id);
-        log.info("Horario {} eliminado exitosamente", id);
+   @Override
+@Transactional
+public void eliminar(Long id) {
+    log.info("Intentando eliminar horario con ID: {}", id);
+
+    Horario horario = horarioRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("No se puede eliminar: ID " + id + " no existe"));
+
+    // 1. EL TRUCO PARA EL BORRADO SILENCIOSO: 
+    // Romper el enlace bidireccional desde los padres (Sala, Actividad, Entrenador)
+    if (horario.getSala() != null && horario.getSala().getHorarios() != null) {
+        horario.getSala().getHorarios().remove(horario);
     }
+    
+    if (horario.getActividad() != null && horario.getActividad().getHorarios() != null) {
+        horario.getActividad().getHorarios().remove(horario);
+    }
+
+    if (horario.getEntrenador() != null && horario.getEntrenador().getHorarios() != null) {
+        horario.getEntrenador().getHorarios().remove(horario);
+    }
+
+    // 2. Limpiar las relaciones hijas
+    if (horario.getReservas() != null) {
+        horario.getReservas().clear();
+    }
+
+    // 3. Ahora sí, borrar (Hibernate ya no lo verá como una entidad "viva" en otra lista)
+    horarioRepository.delete(horario);
+    horarioRepository.flush(); 
+
+    log.info("Horario {} eliminado físicamente de la base de datos", id);
+}
 
     /**
      * Filtra los horarios disponibles según el día de la semana.

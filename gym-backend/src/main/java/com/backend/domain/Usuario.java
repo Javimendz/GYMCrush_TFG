@@ -145,5 +145,7 @@ public class Usuario {
 @JoinColumn(name = "plan_activo_id")
 private PlanEntrenamiento planActivo;
 
+@OneToMany(mappedBy = "entrenador")
+private List<Horario> horarios;
 
 }

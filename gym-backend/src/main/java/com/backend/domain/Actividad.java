@@ -50,6 +50,8 @@ public class Actividad {
     @JsonIgnoreProperties("actividad")
     private List<Horario> horarios;
 
+
+    
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
     @JsonIgnoreProperties("actividades")
