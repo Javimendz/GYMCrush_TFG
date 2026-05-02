@@ -272,7 +272,14 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
                     } else if (which == 1) {
                         confirmarCancelacionUsuario(reserva);
                     } else {
-                        Toast.makeText(getContext(), "Usuario ID: " + reserva.getUsuarioId(), Toast.LENGTH_SHORT).show();
+                        String detalles = "👤 Usuario: " + (reserva.getUsername() != null ? reserva.getUsername() : "No disponible") +
+                                         "\n🆔 ID: " + (reserva.getUsuarioId() != null ? reserva.getUsuarioId() : "Pendiente en Backend");
+                        
+                        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("Detalles del Cliente")
+                                .setMessage(detalles)
+                                .setPositiveButton("Cerrar", null)
+                                .show();
                     }
                 })
                 .show();

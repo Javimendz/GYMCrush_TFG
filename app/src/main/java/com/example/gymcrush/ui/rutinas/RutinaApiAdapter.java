@@ -75,14 +75,31 @@ public class RutinaApiAdapter extends RecyclerView.Adapter<RutinaApiAdapter.View
             holder.imgCheck.setVisibility(View.VISIBLE);
             holder.tvEstado.setText("COMPLETADO");
             holder.tvEstado.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_green_light));
+            holder.btnOpciones.setVisibility(View.GONE); // No permitir borrar si ya está hecho (opcional)
         } else {
             holder.imgCheck.setVisibility(View.GONE);
             holder.tvEstado.setText("PENDIENTE");
             holder.tvEstado.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.white));
+            holder.btnOpciones.setVisibility(View.VISIBLE);
         }
 
         holder.itemView.setOnClickListener(v -> listener.onClick(rutina));
-        holder.btnOpciones.setOnClickListener(v -> listener.onEliminar(rutina));
+        
+        holder.btnOpciones.setOnClickListener(v -> {
+            android.widget.PopupMenu popup = new android.widget.PopupMenu(v.getContext(), v);
+            popup.getMenu().add("Marcar como completado");
+            popup.getMenu().add("Eliminar de la agenda");
+            
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getTitle().equals("Marcar como completado")) {
+                    listener.onCompletar(rutina);
+                } else if (item.getTitle().equals("Eliminar de la agenda")) {
+                    listener.onEliminar(rutina);
+                }
+                return true;
+            });
+            popup.show();
+        });
 
         // 5. Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback)
         String imageUrl = (rutina.getUrlImagen() != null && !rutina.getUrlImagen().isEmpty())

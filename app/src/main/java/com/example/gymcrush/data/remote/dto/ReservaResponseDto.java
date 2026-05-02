@@ -12,39 +12,32 @@ public class ReservaResponseDto {
     @SerializedName("estado")
     private String estado;
     
-    @SerializedName("confirmado")
-    private Boolean confirmado;
-    
-    @SerializedName("horarioId")
-    private Long horarioId;
-
-    @SerializedName("usuarioId")
-    private Long usuarioId;
-    
-    @SerializedName("nombreActividad")
-    private String nombreActividad;
-    
-    @SerializedName("nombreSala")
-    private String nombreSala;
-    
-    @SerializedName("horaInicio")
-    private String horaInicio;
-
     @SerializedName("username")
     private String username;
 
+    @SerializedName("nombreActividad")
+    private String nombreActividad;
+    
     @SerializedName("diaSemana")
     private String diaSemana;
 
+    @SerializedName("horaInicio")
+    private String horaInicio;
+
+    @SerializedName("nombreSala")
+    private String nombreSala;
+
+    @SerializedName("usuarioId")
+    private Long usuarioId;
+
+    // Getters
     public Long getId() { return id; }
     public String getFecha() { return fecha; }
     public String getEstado() { return estado; }
-    public Boolean getConfirmado() { return confirmado; }
-    public Long getHorarioId() { return horarioId; }
-    public Long getUsuarioId() { return usuarioId; }
-    public String getNombreActividad() { return nombreActividad; }
-    public String getNombreSala() { return nombreSala; }
-    public String getHoraInicio() { return horaInicio; }
     public String getUsername() { return username; }
+    public String getNombreActividad() { return nombreActividad; }
     public String getDiaSemana() { return diaSemana; }
+    public String getHoraInicio() { return horaInicio; }
+    public String getNombreSala() { return nombreSala; }
+    public Long getUsuarioId() { return usuarioId; }
 }

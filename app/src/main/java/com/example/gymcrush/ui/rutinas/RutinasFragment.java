@@ -147,7 +147,14 @@ public class RutinasFragment extends Fragment {
 
             @Override
             public void onEliminar(RutinaResponseDto rutina) {
-                eliminarRutinaDeAgenda(rutina.getId());
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Quitar de la agenda")
+                        .setMessage("¿Estás seguro de que quieres eliminar '" + rutina.getNombreEntrenamiento() + "' de tu agenda de hoy?")
+                        .setPositiveButton("Eliminar", (dialog, which) -> {
+                            eliminarRutinaDeAgenda(rutina.getId());
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
             }
 
             @Override
