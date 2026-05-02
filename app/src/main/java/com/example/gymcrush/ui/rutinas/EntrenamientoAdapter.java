@@ -1,0 +1,134 @@
+package com.example.gymcrush.ui.rutinas;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.gymcrush.R;
+import com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto;
+import com.bumptech.glide.Glide;
+import java.util.List;
+
+public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdapter.ViewHolder> {
+
+    private List<EntrenamientoResponseDto> lista;
+    private OnItemClickListener listener;
+    private boolean isAdmin = false;
+
+    public interface OnItemClickListener {
+        void onStartWorkout(EntrenamientoResponseDto entrenamiento);
+        void onDeleteWorkout(EntrenamientoResponseDto entrenamiento);
+    }
+
+    public EntrenamientoAdapter(List<EntrenamientoResponseDto> lista) {
+        this.lista = lista;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.isAdmin = admin;
+        notifyDataSetChanged();
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.rutina_item_lista, parent, false);
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        EntrenamientoResponseDto item = lista.get(position);
+        holder.tvNombre.setText(item.getNombre());
+        String categoria = item.getCategoria() != null ? item.getCategoria() : "Sin categoría";
+        holder.tvDetalles.setText(categoria);
+
+        // Tags de Duración e Intensidad
+        if (item.getDuracion() != null && item.getDuracion() > 0) {
+            holder.layoutDuracionTag.setVisibility(View.VISIBLE);
+            holder.tvDuracionTag.setText(item.getDuracion() + " min");
+        } else {
+            holder.layoutDuracionTag.setVisibility(View.GONE);
+        }
+
+        if (item.getIntensidad() != null && !item.getIntensidad().isEmpty()) {
+            holder.layoutIntensidadTag.setVisibility(View.VISIBLE);
+            holder.tvIntensidadTag.setText(item.getIntensidad().toUpperCase());
+        } else {
+            holder.layoutIntensidadTag.setVisibility(View.GONE);
+        }
+
+        // Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback para GIFs)
+        String imageUrl = (item.getUrlImagen() != null && !item.getUrlImagen().isEmpty()) 
+                ? item.getUrlImagen() 
+                : item.getUrlVideo();
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_workout)
+                    .error(R.drawable.ic_workout)
+                    .into(holder.imgRutina);
+        } else {
+            holder.imgRutina.setImageResource(R.drawable.ic_workout);
+        }
+
+        holder.btnMasOpciones.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
+        holder.btnMasOpciones.setOnClickListener(v -> {
+            if (listener != null) {
+                android.widget.PopupMenu popup = new android.widget.PopupMenu(v.getContext(), v);
+                popup.getMenu().add("Eliminar Entrenamiento del Catálogo");
+
+                popup.setOnMenuItemClickListener(menuItem -> {
+                    if (menuItem.getTitle().equals("Eliminar Entrenamiento del Catálogo")) {
+                        listener.onDeleteWorkout(item);
+                    }
+                    return true;
+                });
+                popup.show();
+            }
+        });
+
+        holder.tvEstado.setOnClickListener(v -> {
+            if (listener != null) listener.onStartWorkout(item);
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return lista.size();
+    }
+
+    public void updateLista(List<EntrenamientoResponseDto> nuevaLista) {
+        this.lista = nuevaLista;
+        notifyDataSetChanged();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvNombre, tvDetalles, tvEstado;
+        TextView tvDuracionTag, tvIntensidadTag;
+        ImageView btnMasOpciones, imgRutina;
+        LinearLayout layoutDuracionTag, layoutIntensidadTag;
+
+        public ViewHolder(@NonNull View v) {
+            super(v);
+            tvNombre = v.findViewById(R.id.tvNombreRutina);
+            tvDetalles = v.findViewById(R.id.tvDetallesRutina);
+            tvEstado = v.findViewById(R.id.tvEstadoRutina);
+            tvDuracionTag = v.findViewById(R.id.tvDuracionTagItem);
+            tvIntensidadTag = v.findViewById(R.id.tvIntensidadTagItem);
+            btnMasOpciones = v.findViewById(R.id.btnMasOpciones);
+            imgRutina = v.findViewById(R.id.imgRutina);
+            layoutDuracionTag = v.findViewById(R.id.layoutDuracionTag);
+            layoutIntensidadTag = v.findViewById(R.id.layoutIntensidadTag);
+        }
+    }
+}

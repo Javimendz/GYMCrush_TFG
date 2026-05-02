@@ -1,0 +1,1139 @@
+package com.example.gymcrush.ui.clases;
+
+import android.text.InputType;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.gymcrush.R;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SearchView;
+import com.example.gymcrush.ui.actividades.ActividadesFragment;
+import com.example.gymcrush.ui.actividades.ActividadesAdapter;
+import com.google.android.material.tabs.TabLayout;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import com.example.gymcrush.data.model.Clase;
+import com.example.gymcrush.data.remote.RetrofitClient;
+import com.example.gymcrush.data.remote.dto.ActividadRequestDto;
+import com.example.gymcrush.data.remote.dto.ActividadResponseDto;
+import com.example.gymcrush.data.remote.dto.ApiResponseDto;
+import com.example.gymcrush.data.remote.dto.CategoriaRequestDto;
+import com.example.gymcrush.data.remote.dto.CategoriaResponseDto;
+import com.example.gymcrush.data.remote.dto.HorarioRequestDto;
+import com.example.gymcrush.data.remote.dto.HorarioResponseDto;
+import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
+import com.example.gymcrush.data.remote.dto.ReservaResponseDto;
+import com.example.gymcrush.data.remote.dto.SalaRequestDto;
+import com.example.gymcrush.data.remote.dto.SalaResponseDto;
+import com.example.gymcrush.data.repository.ReservasRepository;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseClickListener, ActividadesAdapter.OnActividadClickListener {
+
+    private RecyclerView rvClases, rvActividades;
+    private ClasesAdapter adapter;
+    private ActividadesAdapter actividadesAdapter;
+    private ClasesViewModel viewModel;
+    private List<MaterialButton> botonesDias;
+    private FloatingActionButton fabAddClase;
+    private String diaActual = "LUNES";
+    private ChipGroup chipGroupCategorias;
+    private String categoriaSeleccionada = null;
+    private List<HorarioResponseDto> listaHorariosOriginal = new ArrayList<>();
+    private List<ActividadResponseDto> todasLasActividades = new ArrayList<>();
+    
+    private View layoutTabHorario, layoutTabActividades;
+    private TabLayout tabLayout;
+    private SearchView searchViewActividades;
+    private boolean modoGestion = false;
+
+    public static ClasesFragment newInstance(boolean modoGestion) {
+        ClasesFragment fragment = new ClasesFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("modo_gestion", modoGestion);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            modoGestion = getArguments().getBoolean("modo_gestion", false);
+        }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_clases, container, false);
+
+        viewModel = new ViewModelProvider(this).get(ClasesViewModel.class);
+
+        // UI HORARIO
+        rvClases = view.findViewById(R.id.rvClases);
+        rvClases.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ClasesAdapter(new ArrayList<>(), this);
+        rvClases.setAdapter(adapter);
+
+        // UI ACTIVIDADES
+        rvActividades = view.findViewById(R.id.rvActividades);
+        rvActividades.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(getContext(), 2));
+        actividadesAdapter = new ActividadesAdapter(new ArrayList<>(), this);
+        rvActividades.setAdapter(actividadesAdapter);
+
+        layoutTabHorario = view.findViewById(R.id.layoutTabHorario);
+        layoutTabActividades = view.findViewById(R.id.layoutTabActividades);
+        tabLayout = view.findViewById(R.id.tabLayoutClases);
+        searchViewActividades = view.findViewById(R.id.searchViewActividades);
+
+        chipGroupCategorias = view.findViewById(R.id.chipGroupCategorias);
+
+        configurarTabs();
+        configurarBotonesDias(view);
+        setupObservers();
+        cargarCategorias();
+        setupSearchActividades();
+
+        fabAddClase = view.findViewById(R.id.fabAddClase);
+        checkAdminRole();
+        fabAddClase.setOnClickListener(v -> {
+            if (tabLayout.getSelectedTabPosition() == 0) {
+                mostrarOpcionesGestionHorario();
+            } else {
+                mostrarOpcionesGestionActividades();
+            }
+        });
+
+        diaActual = getDiaDeHoy();
+        marcarBotonDiaActual(view);
+        viewModel.cargarHorariosPorDia(diaActual);
+        cargarActividades();
+
+        return view;
+    }
+
+    private void configurarTabs() {
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    layoutTabHorario.setVisibility(View.VISIBLE);
+                    layoutTabActividades.setVisibility(View.GONE);
+                    fabAddClase.setOnClickListener(v -> mostrarOpcionesGestionHorario());
+                } else {
+                    layoutTabHorario.setVisibility(View.GONE);
+                    layoutTabActividades.setVisibility(View.VISIBLE);
+                    fabAddClase.setOnClickListener(v -> mostrarOpcionesGestionActividades());
+                }
+            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+    }
+
+    private void setupSearchActividades() {
+        if (searchViewActividades != null) {
+            // Prevenir crash de OneSearchSuggestProvider
+            searchViewActividades.setSuggestionsAdapter(null);
+            searchViewActividades.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        }
+        searchViewActividades.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                buscarActividad(query);
+                return true;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.isEmpty()) {
+                    actividadesAdapter.setActividades(todasLasActividades);
+                } else {
+                    List<ActividadResponseDto> filtradas = todasLasActividades.stream()
+                            .filter(a -> a.getNombre().toLowerCase().contains(newText.toLowerCase()))
+                            .collect(Collectors.toList());
+                    actividadesAdapter.setActividades(filtradas);
+                }
+                return true;
+            }
+        });
+    }
+
+    private void cargarActividades() {
+        RetrofitClient.getApiService().getTodasLasActividades().enqueue(new Callback<ApiResponseDto<List<ActividadResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<ActividadResponseDto>>> call, Response<ApiResponseDto<List<ActividadResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    todasLasActividades = response.body().getDatos();
+                    actividadesAdapter.setActividades(todasLasActividades);
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<ActividadResponseDto>>> call, Throwable t) {}
+        });
+    }
+
+    private void buscarActividad(String nombre) {
+        RetrofitClient.getApiService().buscarActividadPorNombre(nombre).enqueue(new Callback<ApiResponseDto<List<ActividadResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<ActividadResponseDto>>> call, Response<ApiResponseDto<List<ActividadResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    actividadesAdapter.setActividades(response.body().getDatos());
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<ActividadResponseDto>>> call, Throwable t) {}
+        });
+    }
+
+    private String getDiaDeHoy() {
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        int day = calendar.get(java.util.Calendar.DAY_OF_WEEK);
+        switch (day) {
+            case java.util.Calendar.MONDAY: return "LUNES";
+            case java.util.Calendar.TUESDAY: return "MARTES";
+            case java.util.Calendar.WEDNESDAY: return "MIERCOLES";
+            case java.util.Calendar.THURSDAY: return "JUEVES";
+            case java.util.Calendar.FRIDAY: return "VIERNES";
+            default: return "LUNES"; // Si es fin de semana, mostramos el Lunes por defecto
+        }
+    }
+
+    private void marcarBotonDiaActual(View view) {
+        String diaSimplificado = diaActual;
+        int btnId = R.id.btnLunes;
+        if (diaSimplificado.equals("MARTES")) btnId = R.id.btnMartes;
+        else if (diaSimplificado.equals("MIERCOLES")) btnId = R.id.btnMiercoles;
+        else if (diaSimplificado.equals("JUEVES")) btnId = R.id.btnJueves;
+        else if (diaSimplificado.equals("VIERNES")) btnId = R.id.btnViernes;
+        
+        MaterialButton btn = view.findViewById(btnId);
+        if (btn != null) actualizarEstiloBotones(btn);
+    }
+
+    private void checkAdminRole() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        
+        if (isAdmin) {
+            fabAddClase.setVisibility(View.VISIBLE);
+        } else {
+            fabAddClase.setVisibility(View.GONE);
+        }
+        
+        if (adapter != null) adapter.setAdminMode(isAdmin);
+        if (actividadesAdapter != null) actividadesAdapter.setAdminMode(isAdmin);
+    }
+
+    private void setupObservers() {
+        viewModel.getHorarios().observe(getViewLifecycleOwner(), horarios -> {
+            if (horarios != null) {
+                listaHorariosOriginal = new ArrayList<>(horarios);
+                filtrarYAplicarHorarios();
+            } else {
+                listaHorariosOriginal = new ArrayList<>();
+                adapter.setClases(new ArrayList<>());
+            }
+        });
+
+        viewModel.getError().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void cargarCategorias() {
+        RetrofitClient.getApiService().getCategoriasActividad().enqueue(new Callback<ApiResponseDto<List<CategoriaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Response<ApiResponseDto<List<CategoriaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<CategoriaResponseDto> categorias = response.body().getDatos();
+                    añadirChipsCategorias(categorias);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
+        });
+    }
+
+    private void añadirChipsCategorias(List<CategoriaResponseDto> categorias) {
+        if (chipGroupCategorias == null) return;
+        chipGroupCategorias.removeAllViews();
+
+        // Chip "Todas"
+        Chip chipTodas = new Chip(getContext());
+        chipTodas.setText("Todas");
+        chipTodas.setCheckable(true);
+        chipTodas.setChecked(true);
+        chipTodas.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                categoriaSeleccionada = null;
+                filtrarYAplicarHorarios();
+            }
+        });
+        chipGroupCategorias.addView(chipTodas);
+
+        for (CategoriaResponseDto cat : categorias) {
+            Chip chip = new Chip(getContext());
+            chip.setText(cat.getNombre());
+            chip.setCheckable(true);
+            chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    categoriaSeleccionada = cat.getNombre();
+                } else if (chipGroupCategorias.getCheckedChipId() == View.NO_ID) {
+                    categoriaSeleccionada = null;
+                }
+                filtrarYAplicarHorarios();
+            });
+            chipGroupCategorias.addView(chip);
+        }
+    }
+
+    private void filtrarYAplicarHorarios() {
+        if (listaHorariosOriginal == null) return;
+
+        List<Clase> listaMapeada = new ArrayList<>();
+        List<HorarioResponseDto> horariosFiltrados = listaHorariosOriginal;
+
+        if (categoriaSeleccionada != null) {
+            horariosFiltrados = listaHorariosOriginal.stream()
+                    .filter(h -> h.getNombreActividad().toLowerCase().contains(categoriaSeleccionada.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        for (HorarioResponseDto h : horariosFiltrados) {
+            int aforo = h.getAforoMax() != null ? h.getAforoMax() : 0;
+            int ocupacion = h.getOcupacion();
+            int disponibles = Math.max(0, aforo - ocupacion);
+
+            listaMapeada.add(new Clase(
+                    h.getId(),
+                    h.getNombreActividad(),
+                    h.getHoraInicio() + " - " + h.getHoraFin(),
+                    h.getNombreSala(),
+                    h.getNombreEntrenador(),
+                    disponibles,
+                    h.getDiaSemana()
+            ));
+        }
+        adapter.setClases(listaMapeada);
+    }
+
+    private void configurarBotonesDias(View view) {
+        botonesDias = new ArrayList<>();
+        botonesDias.add(view.findViewById(R.id.btnLunes));
+        botonesDias.add(view.findViewById(R.id.btnMartes));
+        botonesDias.add(view.findViewById(R.id.btnMiercoles));
+        botonesDias.add(view.findViewById(R.id.btnJueves));
+        botonesDias.add(view.findViewById(R.id.btnViernes));
+
+        String[] codigosDias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"};
+
+        for (int i = 0; i < botonesDias.size(); i++) {
+            final int index = i;
+            if (botonesDias.get(i) != null) {
+                botonesDias.get(i).setOnClickListener(v -> {
+                    actualizarEstiloBotones(botonesDias.get(index));
+                    diaActual = codigosDias[index];
+                    viewModel.cargarHorariosPorDia(diaActual);
+                });
+            }
+        }
+    }
+
+    private void actualizarEstiloBotones(MaterialButton botonSeleccionado) {
+        for (MaterialButton btn : botonesDias) {
+            if (btn == null) continue;
+            if (btn == botonSeleccionado) {
+                btn.setStrokeColorResource(R.color.accent_color);
+                btn.setAlpha(1.0f);
+            } else {
+                btn.setStrokeColorResource(android.R.color.transparent);
+                btn.setAlpha(0.6f);
+            }
+            btn.setTextColor(Color.WHITE);
+        }
+    }
+
+    private void mostrarOpcionesGestionHorario() {
+        String[] opciones = {"Nueva Clase (Horario)", "Gestionar Salas (Crear/Eliminar)"};
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Gestión de Horarios")
+                .setItems(opciones, (dialog, which) -> {
+                    if (which == 0) {
+                        abrirDialogoNuevaClase();
+                    } else {
+                        abrirDialogoGestionSalas();
+                    }
+                })
+                .show();
+    }
+
+    private void mostrarOpcionesGestionActividades() {
+        String[] opciones = {"Nueva Actividad"};
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Gestión de Actividades")
+                .setItems(opciones, (dialog, which) -> {
+                    if (which == 0) {
+                        mostrarDialogoNuevaActividad();
+                    }
+                })
+                .show();
+    }
+
+    private void mostrarDialogoNuevaActividad() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nueva_sala, null);
+        android.widget.EditText etNombre = dialogView.findViewById(R.id.etNombreSala);
+        android.widget.EditText etPrecio = dialogView.findViewById(R.id.etCapacidadSala);
+        android.widget.Spinner spinnerCategoria = new android.widget.Spinner(getContext());
+        android.widget.Spinner spinnerSala = new android.widget.Spinner(getContext());
+
+        com.google.android.material.textfield.TextInputLayout tilNombre = (com.google.android.material.textfield.TextInputLayout) etNombre.getParent().getParent();
+        com.google.android.material.textfield.TextInputLayout tilCapacidad = (com.google.android.material.textfield.TextInputLayout) etPrecio.getParent().getParent();
+        tilNombre.setHint("Nombre de la actividad");
+        tilCapacidad.setHint("Precio");
+
+        android.widget.LinearLayout layout = (android.widget.LinearLayout) dialogView;
+        layout.addView(crearLabel("Seleccionar Categoría:"));
+        layout.addView(spinnerCategoria);
+        layout.addView(crearLabel("Seleccionar Sala:"));
+        layout.addView(spinnerSala);
+
+        // Cargar Salas
+        RetrofitClient.getApiService().getTodasLasSalas().enqueue(new Callback<ApiResponseDto<List<SalaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<SalaResponseDto>>> call, Response<ApiResponseDto<List<SalaResponseDto>>> response) {
+                List<Object> items = new ArrayList<>();
+                if (response.isSuccessful() && response.body() != null) {
+                    items.addAll(response.body().getDatos());
+                }
+                items.add(" + Nueva Sala");
+                ArrayAdapter<Object> adapterSala = new ArrayAdapter<Object>(getContext(), android.R.layout.simple_spinner_item, items) {
+                    @Override public View getView(int p, View c, ViewGroup parent) {
+                        TextView v = (TextView) super.getView(p, c, parent);
+                        Object item = getItem(p);
+                        if (item instanceof SalaResponseDto) v.setText(((SalaResponseDto)item).getNombre());
+                        else if (item != null) v.setText(item.toString());
+                        return v;
+                    }
+                    @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                        TextView v = (TextView) super.getDropDownView(p, c, parent);
+                        Object item = getItem(p);
+                        if (item instanceof SalaResponseDto) v.setText(((SalaResponseDto)item).getNombre());
+                        else if (item != null) v.setText(item.toString());
+                        return v;
+                    }
+                };
+                adapterSala.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerSala.setAdapter(adapterSala);
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<SalaResponseDto>>> call, Throwable t) {}
+        });
+
+        // Cargar categorías
+        RetrofitClient.getApiService().getCategoriasActividad().enqueue(new Callback<ApiResponseDto<List<CategoriaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Response<ApiResponseDto<List<CategoriaResponseDto>>> response) {
+                List<Object> items = new ArrayList<>();
+                if (response.isSuccessful() && response.body() != null) {
+                    items.addAll(response.body().getDatos());
+                }
+                items.add(" + Nueva Categoría");
+                ArrayAdapter<Object> adapterCat = new ArrayAdapter<Object>(getContext(), android.R.layout.simple_spinner_item, items) {
+                    @Override
+                    public View getView(int pos, View convert, ViewGroup parent) {
+                        View v = super.getView(pos, convert, parent);
+                        Object item = getItem(pos);
+                        if (item instanceof CategoriaResponseDto) ((TextView)v).setText(((CategoriaResponseDto)item).getNombre());
+                        else if (item != null) ((TextView)v).setText(item.toString());
+                        return v;
+                    }
+                    @Override
+                    public View getDropDownView(int pos, View convert, ViewGroup parent) {
+                        View v = super.getDropDownView(pos, convert, parent);
+                        Object item = getItem(pos);
+                        if (item instanceof CategoriaResponseDto) ((TextView)v).setText(((CategoriaResponseDto)item).getNombre());
+                        else if (item != null) ((TextView)v).setText(item.toString());
+                        return v;
+                    }
+                };
+                adapterCat.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerCategoria.setAdapter(adapterCat);
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
+        });
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Nueva Actividad")
+                .setView(layout)
+                .setPositiveButton("Crear", (dialog, which) -> {
+                    String nombre = etNombre.getText().toString();
+                    String precioStr = etPrecio.getText().toString();
+                    Object selectedCat = spinnerCategoria.getSelectedItem();
+                    Object selectedSala = spinnerSala.getSelectedItem();
+
+                    if (nombre.isEmpty() || precioStr.isEmpty() || selectedCat == null || selectedSala == null) {
+                        Toast.makeText(getContext(), "Rellena todos los campos", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (selectedSala instanceof String && selectedSala.equals(" + Nueva Sala")) {
+                        mostrarDialogoCrearSala(nombreNuevaSala -> {
+                            if (selectedCat instanceof String && selectedCat.equals(" + Nueva Categoría")) {
+                                mostrarDialogoCrearCategoria(nombreNuevaCat -> {
+                                    crearActividadConTodoNuevo(nombre, precioStr, nombreNuevaCat, nombreNuevaSala);
+                                });
+                            } else if (selectedCat instanceof CategoriaResponseDto) {
+                                crearActividadConSalaNueva(nombre, precioStr, ((CategoriaResponseDto) selectedCat).getId(), nombreNuevaSala);
+                            }
+                        });
+                    } else if (selectedCat instanceof String && selectedCat.equals(" + Nueva Categoría")) {
+                        mostrarDialogoCrearCategoria(nombreNuevaCat -> {
+                            crearActividadConCategoriaNueva(nombre, precioStr, nombreNuevaCat, ((SalaResponseDto) selectedSala).getNombre());
+                        });
+                    } else if (selectedCat instanceof CategoriaResponseDto && selectedSala instanceof SalaResponseDto) {
+                        CategoriaResponseDto cat = (CategoriaResponseDto) selectedCat;
+                        SalaResponseDto sala = (SalaResponseDto) selectedSala;
+                        ActividadRequestDto request = new ActividadRequestDto(nombre, "Actividad de " + cat.getNombre(), 60, sala.getNombre(), Integer.parseInt(precioStr), cat.getId());
+                        enviarPeticionCrearActividad(request);
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void mostrarDialogoCrearSala(ActividadesFragment.OnNombreRecibidoListener listener) {
+        EditText et = new EditText(getContext());
+        et.setHint("Nombre de la nueva sala");
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Crear Sala")
+                .setView(et)
+                .setPositiveButton("Crear", (d, w) -> {
+                    String nombre = et.getText().toString();
+                    if (!nombre.isEmpty()) {
+                        com.example.gymcrush.data.remote.dto.SalaRequestDto req = new com.example.gymcrush.data.remote.dto.SalaRequestDto(nombre, 20, "Nueva sala", "Por definir", "Básico", true);
+                        RetrofitClient.getApiService().crearSala(req).enqueue(new Callback<ApiResponseDto<SalaResponseDto>>() {
+                            @Override
+                            public void onResponse(Call<ApiResponseDto<SalaResponseDto>> call, Response<ApiResponseDto<SalaResponseDto>> response) {
+                                if (response.isSuccessful()) listener.onNombreRecibido(nombre);
+                            }
+                            @Override public void onFailure(Call<ApiResponseDto<SalaResponseDto>> call, Throwable t) {}
+                        });
+                    }
+                }).show();
+    }
+
+    private void crearActividadConSalaNueva(String nombre, String precioStr, Long categoriaId, String nombreSala) {
+        ActividadRequestDto request = new ActividadRequestDto(nombre, "Actividad en " + nombreSala, 60, nombreSala, Integer.parseInt(precioStr), categoriaId);
+        enviarPeticionCrearActividad(request);
+    }
+
+    private void crearActividadConTodoNuevo(String nombre, String precioStr, String nombreCat, String nombreSala) {
+        RetrofitClient.getApiService().getCategoriasActividad().enqueue(new Callback<ApiResponseDto<List<CategoriaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Response<ApiResponseDto<List<CategoriaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (CategoriaResponseDto c : response.body().getDatos()) {
+                        if (c.getNombre().equalsIgnoreCase(nombreCat)) {
+                            ActividadRequestDto request = new ActividadRequestDto(nombre, "Actividad de " + nombreCat, 60, nombreSala, Integer.parseInt(precioStr), c.getId());
+                            enviarPeticionCrearActividad(request);
+                            break;
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
+        });
+    }
+
+    private void mostrarDialogoCrearCategoria(ActividadesFragment.OnNombreRecibidoListener listener) {
+        EditText et = new EditText(getContext());
+        et.setHint("Nombre de la nueva categoría");
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Crear Categoría")
+                .setView(et)
+                .setPositiveButton("Crear", (d, w) -> {
+                    String nombre = et.getText().toString();
+                    if (!nombre.isEmpty()) {
+                        CategoriaRequestDto req = new CategoriaRequestDto(nombre, "Categoría auto-creada");
+                        RetrofitClient.getApiService().crearCategoriaActividad(req).enqueue(new Callback<ApiResponseDto<CategoriaResponseDto>>() {
+                            @Override
+                            public void onResponse(Call<ApiResponseDto<CategoriaResponseDto>> call, Response<ApiResponseDto<CategoriaResponseDto>> response) {
+                                if (response.isSuccessful()) listener.onNombreRecibido(nombre);
+                            }
+                            @Override public void onFailure(Call<ApiResponseDto<CategoriaResponseDto>> call, Throwable t) {}
+                        });
+                    }
+                }).show();
+    }
+
+    private void crearActividadConCategoriaNueva(String nombre, String precioStr, String nombreCat, String nombreSala) {
+        RetrofitClient.getApiService().getCategoriasActividad().enqueue(new Callback<ApiResponseDto<List<CategoriaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Response<ApiResponseDto<List<CategoriaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (CategoriaResponseDto c : response.body().getDatos()) {
+                        if (c.getNombre().equalsIgnoreCase(nombreCat)) {
+                            ActividadRequestDto request = new ActividadRequestDto(nombre, "Actividad de " + nombreCat, 60, nombreSala, Integer.parseInt(precioStr), c.getId());
+                            enviarPeticionCrearActividad(request);
+                            break;
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
+        });
+    }
+
+    private void enviarPeticionCrearActividad(ActividadRequestDto request) {
+        RetrofitClient.getApiService().crearActividad(request).enqueue(new Callback<ApiResponseDto<ActividadResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<ActividadResponseDto>> call, Response<ApiResponseDto<ActividadResponseDto>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Actividad creada con éxito", Toast.LENGTH_SHORT).show();
+                    cargarActividades();
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<ActividadResponseDto>> call, Throwable t) {}
+        });
+    }
+
+    private void abrirDialogoNuevaClase() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_horario, null);
+        Spinner spinnerDia = dialogView.findViewById(R.id.spinnerDiaSemana);
+        Spinner spinnerSala = dialogView.findViewById(R.id.spinnerSala);
+        Spinner spinnerEntrenador = dialogView.findViewById(R.id.spinnerEntrenador);
+        Button btnHoraInicio = dialogView.findViewById(R.id.btnHoraInicio);
+        Button btnHoraFin = dialogView.findViewById(R.id.btnHoraFin);
+        EditText etAforo = dialogView.findViewById(R.id.etAforoMax);
+
+        // El layout dialog_admin_nuevo_horario no tiene spinner de Actividad, lo añadimos arriba
+        LinearLayout layout = (LinearLayout) dialogView;
+        Spinner spinnerActividad = new Spinner(getContext());
+        layout.addView(crearLabel("Seleccionar Actividad:"), 0);
+        layout.addView(spinnerActividad, 1);
+
+        // Configurar Spinner Días
+        String[] dias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
+        ArrayAdapter<String> adapterDias = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, dias);
+        adapterDias.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerDia.setAdapter(adapterDias);
+
+        // Cargar Actividades
+        RetrofitClient.getApiService().getTodasLasActividades().enqueue(new Callback<ApiResponseDto<List<ActividadResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<ActividadResponseDto>>> call, Response<ApiResponseDto<List<ActividadResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<ActividadResponseDto> lista = response.body().getDatos();
+                    ArrayAdapter<ActividadResponseDto> adapterAct = new ArrayAdapter<ActividadResponseDto>(getContext(), android.R.layout.simple_spinner_item, lista) {
+                        @Override public View getView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getView(p, c, parent);
+                            v.setText(getItem(p).getNombre());
+                            return v;
+                        }
+                        @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getDropDownView(p, c, parent);
+                            v.setText(getItem(p).getNombre());
+                            return v;
+                        }
+                    };
+                    spinnerActividad.setAdapter(adapterAct);
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<ActividadResponseDto>>> call, Throwable t) {}
+        });
+
+        // Cargar Salas
+        RetrofitClient.getApiService().getTodasLasSalas().enqueue(new Callback<ApiResponseDto<List<SalaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<SalaResponseDto>>> call, Response<ApiResponseDto<List<SalaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<SalaResponseDto> lista = response.body().getDatos();
+                    ArrayAdapter<SalaResponseDto> adapterSala = new ArrayAdapter<SalaResponseDto>(getContext(), android.R.layout.simple_spinner_item, lista) {
+                        @Override public View getView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getView(p, c, parent);
+                            v.setText(getItem(p).getNombre());
+                            return v;
+                        }
+                        @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getDropDownView(p, c, parent);
+                            v.setText(getItem(p).getNombre());
+                            return v;
+                        }
+                    };
+                    spinnerSala.setAdapter(adapterSala);
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<SalaResponseDto>>> call, Throwable t) {}
+        });
+
+        // Cargar Entrenadores
+        RetrofitClient.getApiService().findAllPerfiles().enqueue(new Callback<ApiResponseDto<List<PerfilResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Response<ApiResponseDto<List<PerfilResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<PerfilResponseDto> lista = response.body().getDatos();
+                    ArrayAdapter<PerfilResponseDto> adapterPerf = new ArrayAdapter<PerfilResponseDto>(getContext(), android.R.layout.simple_spinner_item, lista) {
+                        @Override public View getView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getView(p, c, parent);
+                            v.setText(getItem(p).getNombreCompleto());
+                            return v;
+                        }
+                        @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getDropDownView(p, c, parent);
+                            v.setText(getItem(p).getNombreCompleto());
+                            return v;
+                        }
+                    };
+                    spinnerEntrenador.setAdapter(adapterPerf);
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Throwable t) {}
+        });
+
+        final String[] horaInicio = {"10:00"};
+        final String[] horaFin = {"11:00"};
+
+        btnHoraInicio.setOnClickListener(v -> {
+            new TimePickerDialog(getContext(), (tp, h, m) -> {
+                horaInicio[0] = String.format(java.util.Locale.getDefault(), "%02d:%02d", h, m);
+                btnHoraInicio.setText("Inicio: " + horaInicio[0]);
+            }, 10, 0, true).show();
+        });
+
+        btnHoraFin.setOnClickListener(v -> {
+            new TimePickerDialog(getContext(), (tp, h, m) -> {
+                horaFin[0] = String.format(java.util.Locale.getDefault(), "%02d:%02d", h, m);
+                btnHoraFin.setText("Fin: " + horaFin[0]);
+            }, 11, 0, true).show();
+        });
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Nuevo Horario")
+                .setView(dialogView)
+                .setPositiveButton("Crear", (dialog, which) -> {
+                    String dia = (String) spinnerDia.getSelectedItem();
+                    ActividadResponseDto act = (ActividadResponseDto) spinnerActividad.getSelectedItem();
+                    SalaResponseDto sala = (SalaResponseDto) spinnerSala.getSelectedItem();
+                    PerfilResponseDto entrenador = (PerfilResponseDto) spinnerEntrenador.getSelectedItem();
+                    String aforoStr = etAforo.getText().toString();
+
+                    if (act == null || sala == null || entrenador == null || aforoStr.isEmpty()) {
+                        Toast.makeText(getContext(), "Rellena todos los campos", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    HorarioRequestDto request = new HorarioRequestDto(
+                            dia, horaInicio[0], horaFin[0], Integer.parseInt(aforoStr), act.getId(), sala.getId(), entrenador.getId()
+                    );
+
+                    RetrofitClient.getApiService().crearHorario(request).enqueue(new Callback<ApiResponseDto<HorarioResponseDto>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponseDto<HorarioResponseDto>> call, Response<ApiResponseDto<HorarioResponseDto>> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Horario creado con éxito", Toast.LENGTH_SHORT).show();
+                                diaActual = dia;
+                                for (MaterialButton btn : botonesDias) {
+                                    if (btn.getText().toString().equalsIgnoreCase(diaActual)) {
+                                        actualizarEstiloBotones(btn);
+                                        break;
+                                    }
+                                }
+                                viewModel.cargarHorariosPorDia(diaActual);
+                            } else {
+                                Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        @Override public void onFailure(Call<ApiResponseDto<HorarioResponseDto>> call, Throwable t) {
+                            Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private TextView crearLabel(String texto) {
+        TextView tv = new TextView(getContext());
+        tv.setText(texto);
+        tv.setPadding(0, 20, 0, 5);
+        tv.setTextColor(Color.GRAY);
+        return tv;
+    }
+
+    private void abrirDialogoGestionSalas() {
+        RetrofitClient.getApiService().getTodasLasSalas().enqueue(new Callback<ApiResponseDto<List<SalaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<SalaResponseDto>>> call, Response<ApiResponseDto<List<SalaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    mostrarListaSalas(response.body().getDatos());
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<SalaResponseDto>>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error al cargar salas", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void mostrarListaSalas(List<SalaResponseDto> salas) {
+        String[] nombres = new String[salas.size() + 1];
+        for (int i = 0; i < salas.size(); i++) {
+            nombres[i] = salas.get(i).getNombre() + " (" + salas.get(i).getCapacidadMax() + "p)";
+        }
+        nombres[salas.size()] = "➕ Añadir Nueva Sala";
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Gestión de Salas")
+                .setItems(nombres, (dialog, which) -> {
+                    if (which == salas.size()) {
+                        abrirDialogoCrearSala();
+                    } else {
+                        confirmarEliminarSala(salas.get(which));
+                    }
+                })
+                .show();
+    }
+
+    private void abrirDialogoCrearSala() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nueva_sala, null);
+        android.widget.EditText etNombre = dialogView.findViewById(R.id.etNombreSala);
+        android.widget.EditText etCapacidad = dialogView.findViewById(R.id.etCapacidadSala);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Nueva Sala")
+                .setView(dialogView)
+                .setPositiveButton("Crear", (dialog, which) -> {
+                    String nombre = etNombre.getText().toString();
+                    String capStr = etCapacidad.getText().toString();
+                    if (nombre.isEmpty() || capStr.isEmpty()) return;
+                    
+                    int cap = Integer.parseInt(capStr);
+                    SalaRequestDto request = new SalaRequestDto(nombre, cap, "Sala de entrenamiento", "Planta 1", "Equipamiento estándar", true);
+                    
+                    RetrofitClient.getApiService().crearSala(request).enqueue(new Callback<ApiResponseDto<SalaResponseDto>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponseDto<SalaResponseDto>> call, Response<ApiResponseDto<SalaResponseDto>> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Sala creada", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<ApiResponseDto<SalaResponseDto>> call, Throwable t) {}
+                    });
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void confirmarEliminarSala(SalaResponseDto sala) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Eliminar Sala")
+                .setMessage("¿Estás seguro de eliminar la sala: " + sala.getNombre() + "?")
+                .setPositiveButton("Eliminar", (dialog, which) -> {
+                    RetrofitClient.getApiService().eliminarSala(sala.getId()).enqueue(new Callback<ApiResponseDto<Void>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Sala eliminada", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {}
+                    });
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    @Override
+    public void onApuntarseClick(Clase clase) {
+        if (clase.getCuposDisponibles() <= 0) {
+            Toast.makeText(getContext(), "Lo sentimos, no quedan plazas libres", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        long userId = prefs.getLong("user_id", -1);
+        if (userId == -1) {
+            Toast.makeText(getContext(), "Error: Usuario no identificado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.dialog_confirmar_reserva);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvMensaje = dialog.findViewById(R.id.tv_mensaje_reserva);
+        tvMensaje.setText("¿Deseas apuntarte a la clase de " + clase.getNombre() + " a las " + clase.getHora() + "?");
+
+        dialog.findViewById(R.id.btn_cancelar_reserva).setOnClickListener(v -> dialog.dismiss());
+        dialog.findViewById(R.id.btn_confirmar_reserva).setOnClickListener(v -> {
+            viewModel.realizarReserva(userId, clase.getId(), new ReservasRepository.RepositoryCallback<ReservaResponseDto>() {
+                @Override
+                public void onSuccess(ReservaResponseDto result) {
+                    Toast.makeText(getContext(), "¡Reserva realizada con éxito!", Toast.LENGTH_SHORT).show();
+                    viewModel.cargarHorariosPorDia(diaActual);
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    Toast.makeText(getContext(), "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                }
+            });
+        });
+
+        dialog.show();
+    }
+
+    @Override
+    public void onActividadClick(ActividadResponseDto actividad) {
+        String mensaje = "Categoría: " + (actividad.getCategoria() != null ? actividad.getCategoria().getNombre() : "N/A") + "\n" +
+                         "Precio: " + actividad.getPrecio() + "€\n" +
+                         "Duración: " + actividad.getDuracion() + " min\n" +
+                         "Sala: " + actividad.getSala();
+
+        if (actividad.getDescripcion() != null && !actividad.getDescripcion().isEmpty()) {
+            mensaje += "\n\n" + actividad.getDescripcion();
+        }
+
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(actividad.getNombre())
+                .setMessage(mensaje)
+                .setPositiveButton("Cerrar", null);
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+
+        if (isAdmin) {
+            builder.setNeutralButton("Eliminar", (dialog, which) -> {
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("¿Eliminar actividad?")
+                        .setMessage("Esta acción no se puede deshacer.")
+                        .setPositiveButton("Eliminar", (d, w) -> {
+                            RetrofitClient.getApiService().eliminarActividad(actividad.getId()).enqueue(new Callback<ApiResponseDto<Void>>() {
+                                @Override
+                                public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
+                                    if (response.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Actividad eliminada", Toast.LENGTH_SHORT).show();
+                                        cargarActividades();
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {}
+                            });
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
+            });
+
+            builder.setNegativeButton("Editar", (dialog, which) -> {
+                mostrarDialogoEditarActividad(actividad);
+            });
+        }
+
+        builder.show();
+    }
+
+    private void mostrarDialogoEditarActividad(ActividadResponseDto actividad) {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nueva_sala, null);
+        android.widget.EditText etNombre = dialogView.findViewById(R.id.etNombreSala);
+        android.widget.EditText etPrecio = dialogView.findViewById(R.id.etCapacidadSala);
+        android.widget.Spinner spinnerCategoria = new android.widget.Spinner(getContext());
+        android.widget.Spinner spinnerSala = new android.widget.Spinner(getContext());
+
+        etNombre.setText(actividad.getNombre());
+        etPrecio.setText(String.valueOf(actividad.getPrecio()));
+
+        com.google.android.material.textfield.TextInputLayout tilNombre = (com.google.android.material.textfield.TextInputLayout) etNombre.getParent().getParent();
+        com.google.android.material.textfield.TextInputLayout tilCapacidad = (com.google.android.material.textfield.TextInputLayout) etPrecio.getParent().getParent();
+        tilNombre.setHint("Nombre de la actividad");
+        tilCapacidad.setHint("Precio");
+
+        android.widget.LinearLayout layout = (android.widget.LinearLayout) dialogView;
+        layout.addView(crearLabel("Seleccionar Categoría:"));
+        layout.addView(spinnerCategoria);
+        layout.addView(crearLabel("Seleccionar Sala:"));
+        layout.addView(spinnerSala);
+
+        // Cargar Salas
+        RetrofitClient.getApiService().getTodasLasSalas().enqueue(new Callback<ApiResponseDto<List<SalaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<SalaResponseDto>>> call, Response<ApiResponseDto<List<SalaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<SalaResponseDto> salas = response.body().getDatos();
+                    ArrayAdapter<SalaResponseDto> adapterSala = new ArrayAdapter<SalaResponseDto>(getContext(), android.R.layout.simple_spinner_item, salas) {
+                        @Override public View getView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getView(p, c, parent);
+                            v.setText(getItem(p).getNombre());
+                            return v;
+                        }
+                        @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getDropDownView(p, c, parent);
+                            v.setText(getItem(p).getNombre());
+                            return v;
+                        }
+                    };
+                    spinnerSala.setAdapter(adapterSala);
+                    for (int i = 0; i < salas.size(); i++) {
+                        if (salas.get(i).getNombre().equals(actividad.getSala())) {
+                            spinnerSala.setSelection(i);
+                            break;
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<SalaResponseDto>>> call, Throwable t) {}
+        });
+
+        // Cargar categorías
+        RetrofitClient.getApiService().getCategoriasActividad().enqueue(new Callback<ApiResponseDto<List<CategoriaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Response<ApiResponseDto<List<CategoriaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<CategoriaResponseDto> categorias = response.body().getDatos();
+                    ArrayAdapter<CategoriaResponseDto> adapterCat = new ArrayAdapter<CategoriaResponseDto>(getContext(), android.R.layout.simple_spinner_item, categorias) {
+                        @Override public View getView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getView(p, c, parent);
+                            v.setText(getItem(p).getNombre());
+                            return v;
+                        }
+                        @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                            TextView v = (TextView) super.getDropDownView(p, c, parent);
+                            v.setText(getItem(p).getNombre());
+                            return v;
+                        }
+                    };
+                    spinnerCategoria.setAdapter(adapterCat);
+                    if (actividad.getCategoria() != null) {
+                        for (int i = 0; i < categorias.size(); i++) {
+                            if (categorias.get(i).getId().equals(actividad.getCategoria().getId())) {
+                                spinnerCategoria.setSelection(i);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
+        });
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Editar Actividad")
+                .setView(layout)
+                .setPositiveButton("Guardar", (dialog, which) -> {
+                    String nombre = etNombre.getText().toString();
+                    String precioStr = etPrecio.getText().toString();
+                    CategoriaResponseDto selectedCat = (CategoriaResponseDto) spinnerCategoria.getSelectedItem();
+                    SalaResponseDto selectedSala = (SalaResponseDto) spinnerSala.getSelectedItem();
+
+                    if (nombre.isEmpty() || precioStr.isEmpty() || selectedCat == null || selectedSala == null) {
+                        Toast.makeText(getContext(), "Rellena todos los campos", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    ActividadRequestDto request = new ActividadRequestDto(
+                            nombre, actividad.getDescripcion(), actividad.getDuracion(), selectedSala.getNombre(), Integer.parseInt(precioStr), selectedCat.getId()
+                    );
+
+                    RetrofitClient.getApiService().actualizarActividad(actividad.getId(), request).enqueue(new Callback<ApiResponseDto<ActividadResponseDto>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponseDto<ActividadResponseDto>> call, Response<ApiResponseDto<ActividadResponseDto>> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(getContext(), "Actividad actualizada", Toast.LENGTH_SHORT).show();
+                                cargarActividades();
+                            }
+                        }
+                        @Override public void onFailure(Call<ApiResponseDto<ActividadResponseDto>> call, Throwable t) {}
+                    });
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    @Override
+    public void onEditClick(ActividadResponseDto actividad) {
+        mostrarDialogoEditarActividad(actividad);
+    }
+
+    @Override
+    public void onEliminarClick(Clase clase) {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Eliminar Clase")
+                .setMessage("¿Estás seguro de eliminar esta clase?")
+                .setPositiveButton("Eliminar", (dialog, which) -> {
+                    RetrofitClient.getApiService().eliminarHorario(clase.getId()).enqueue(new Callback<ApiResponseDto<Void>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
+                            if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                                Toast.makeText(getContext(), "Clase eliminada con éxito", Toast.LENGTH_SHORT).show();
+                                
+                                // Eliminar localmente para feedback inmediato
+                                if (listaHorariosOriginal != null) {
+                                    for (int i = 0; i < listaHorariosOriginal.size(); i++) {
+                                        if (listaHorariosOriginal.get(i).getId().equals(clase.getId())) {
+                                            listaHorariosOriginal.remove(i);
+                                            break;
+                                        }
+                                    }
+                                    filtrarYAplicarHorarios();
+                                }
+                                
+                                // Sincronizar con el servidor para asegurar coherencia
+                                viewModel.cargarHorariosPorDia(diaActual);
+                            } else {
+                                String errorMsg = "Error al eliminar";
+                                if (response.body() != null && response.body().getMensaje() != null) {
+                                    errorMsg += ": " + response.body().getMensaje();
+                                }
+                                Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {
+                            Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+}
