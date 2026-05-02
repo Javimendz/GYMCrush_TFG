@@ -226,9 +226,10 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
             public void onSuccess(List<ReservaResponseDto> result) {
                 List<ReservaResponseDto> filtradas = new ArrayList<>();
                 for (ReservaResponseDto r : result) {
-                    // Si el DTO de reserva tuviera el día, filtraríamos aquí.
-                    // Por ahora mostramos las del usuario.
-                    filtradas.add(r);
+                    // Filtrar por el día seleccionado
+                    if (r.getDiaSemana() != null && r.getDiaSemana().equalsIgnoreCase(codigoDia)) {
+                        filtradas.add(r);
+                    }
                 }
 
                 if (adapter == null) {

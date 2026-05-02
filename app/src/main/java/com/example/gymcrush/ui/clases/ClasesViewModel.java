@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.gymcrush.data.remote.dto.HorarioResponseDto;
 import com.example.gymcrush.data.remote.dto.ReservaResponseDto;
 import com.example.gymcrush.data.repository.ReservasRepository;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClasesViewModel extends ViewModel {
@@ -38,6 +39,15 @@ public class ClasesViewModel extends ViewModel {
                 loading.setValue(false);
             }
         });
+    }
+
+    public void eliminarHorarioLocal(Long id) {
+        List<HorarioResponseDto> actual = horarios.getValue();
+        if (actual != null) {
+            List<HorarioResponseDto> nuevaLista = new ArrayList<>(actual);
+            nuevaLista.removeIf(h -> h.getId().equals(id));
+            horarios.setValue(nuevaLista);
+        }
     }
 
     public void realizarReserva(Long usuarioId, Long horarioId, ReservasRepository.RepositoryCallback<ReservaResponseDto> callback) {

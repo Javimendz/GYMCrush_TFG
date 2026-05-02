@@ -123,12 +123,28 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         tabLayout = view.findViewById(R.id.tabLayoutClases);
         searchViewActividades = view.findViewById(R.id.searchViewActividades);
 
-        chipGroupCategorias = view.findViewById(R.id.chipGroupCategorias);
-
         configurarTabs();
         configurarBotonesDias(view);
         setupObservers();
         setupSearchActividades();
+
+        fabAddClase = view.findViewById(R.id.fabAddClase);
+        checkAdminRole();
+        fabAddClase.setOnClickListener(v -> {
+            if (tabLayout.getSelectedTabPosition() == 0) {
+                mostrarOpcionesGestionHorario();
+            } else {
+                mostrarOpcionesGestionActividades();
+            }
+        });
+
+        diaActual = getDiaDeHoy();
+        marcarBotonDiaActual(view);
+        viewModel.cargarHorariosPorDia(diaActual);
+        cargarActividades();
+
+        return view;
+    }
 
     private void configurarTabs() {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
