@@ -98,6 +98,14 @@ public class Horario {
     @JoinColumn(name = "sala_id")
     private Sala sala;
 
-    @OneToMany(mappedBy = "horario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "horario", orphanRemoval = true)
     private List<Reserva> reservas;
+
+    public void addReserva(Reserva reserva) {
+    if (this.reservas.size() >= this.aforoMax) {
+        throw new IllegalStateException("Capacidad máxima alcanzada para esta clase");
+    }
+    this.reservas.add(reserva);
+    reserva.setHorario(this);
+}
 }
