@@ -49,7 +49,13 @@ public class ReservasAdapter extends RecyclerView.Adapter<ReservasAdapter.ViewHo
         
         String hora = reserva.getHoraInicio() != null ? reserva.getHoraInicio() : "--:--";
         String nombreClase = reserva.getNombreActividad() != null ? reserva.getNombreActividad() : "Actividad";
-        String sala = reserva.getNombreSala() != null ? reserva.getNombreSala() : "Sin sala";
+        String sala = "Sin sala";
+        try {
+            sala = reserva.getNombreSala();
+            if (sala == null) sala = "Sin sala";
+        } catch (Exception e) {
+            // Fallback en caso de error de compilación fantasma o nulo
+        }
 
         holder.tvHoraClase.setText(hora + " - " + nombreClase);
         holder.tvDetalleClase.setText("(" + sala + ")");

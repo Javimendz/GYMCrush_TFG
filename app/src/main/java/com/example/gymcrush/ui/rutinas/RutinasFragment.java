@@ -40,9 +40,11 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -331,6 +333,7 @@ public class RutinasFragment extends Fragment {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Ejercicio eliminado de la agenda", Toast.LENGTH_SHORT).show();
                     cargarRutinaPorFecha();
+                    cargarEstadisticas();
                 }
             }
 
@@ -378,6 +381,7 @@ public class RutinasFragment extends Fragment {
             fechaSeleccionada = date;
             actualizarUIFecha();
             cargarRutinaPorFecha();
+            cargarEstadisticas();
         });
 
         rv.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -421,6 +425,16 @@ public class RutinasFragment extends Fragment {
     }
 
     private void actualizarResumenDiario(List<RutinaResponseDto> lista) {
+        TextView tvResumenTitulo = getView() != null ? getView().findViewById(R.id.tvResumenTitulo) : null;
+        if (tvResumenTitulo != null) {
+            if (fechaSeleccionada.equals(LocalDate.now())) {
+                tvResumenTitulo.setText("RESUMEN DE HOY");
+            } else {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'DE' MMMM", new Locale("es", "ES"));
+                tvResumenTitulo.setText("RESUMEN DEL " + fechaSeleccionada.format(formatter).toUpperCase());
+            }
+        }
+
         if (lista == null || lista.isEmpty()) {
             tvEstadoRutinaDia.setText("¡Día de descanso!");
             tvProgresoTexto.setText("Tómate un respiro hoy");
@@ -473,6 +487,10 @@ public class RutinasFragment extends Fragment {
         graphEvolucion.setScaleEnabled(true);
         graphEvolucion.setPinchZoom(true);
         graphEvolucion.getLegend().setEnabled(false);
+        
+        // Texto por defecto si no hay datos
+        graphEvolucion.setNoDataText("No hay datos de evolución disponibles");
+        graphEvolucion.setNoDataTextColor(Color.WHITE);
 
         XAxis xAxis = graphEvolucion.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -492,10 +510,10 @@ public class RutinasFragment extends Fragment {
     private void cargarEstadisticas() {
         if (userId == -1) return;
 
-        LocalDate hoy = LocalDate.now();
-        LocalDate inicio = hoy.minusDays(6);
+        LocalDate finalVentana = fechaSeleccionada;
+        LocalDate inicio = finalVentana.minusDays(6);
 
-        RetrofitClient.getApiService().getRutinasPorRango(userId, inicio.toString(), hoy.toString()).enqueue(new Callback<List<RutinaResponseDto>>() {
+        RetrofitClient.getApiService().getRutinasPorRango(userId, inicio.toString(), finalVentana.toString()).enqueue(new Callback<List<RutinaResponseDto>>() {
             @Override
             public void onResponse(Call<List<RutinaResponseDto>> call, Response<List<RutinaResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -507,11 +525,11 @@ public class RutinasFragment extends Fragment {
 
                     for (int i = 0; i < 7; i++) {
                         LocalDate dia = inicio.plusDays(i);
-                        String fechaStr = dia.toString();
+                        String diaStr = dia.toString(); // YYYY-MM-DD
                         etiquetas[i] = dia.getDayOfMonth() + "/" + dia.getMonthValue();
 
                         List<RutinaResponseDto> delDia = todas.stream()
-                                .filter(r -> r.getFechaAsignacion() != null && r.getFechaAsignacion().startsWith(fechaStr))
+                                .filter(r -> r.getFechaAsignacion() != null && r.getFechaAsignacion().contains(diaStr))
                                 .collect(Collectors.toList());
 
                         totales[i] = delDia.size();
@@ -523,12 +541,17 @@ public class RutinasFragment extends Fragment {
                     actualizarGrafica(puntos, etiquetas);
                     calcularYMostrarRacha(puntos);
                     actualizarMiniStats(puntos, totales);
+                } else {
+                    android.util.Log.e("STATS", "Error en respuesta: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<List<RutinaResponseDto>> call, Throwable t) {
-                // Silently fail or log
+                android.util.Log.e("STATS", "Fallo al cargar estadísticas", t);
+                if (isAdded()) {
+                    actualizarGrafica(new Float[]{0f,0f,0f,0f,0f,0f,0f}, new String[]{"","","","","","",""});
+                }
             }
         });
     }
@@ -561,47 +584,61 @@ public class RutinasFragment extends Fragment {
         if (graphEvolucion == null) return;
 
         ArrayList<Entry> entries = new ArrayList<>();
+        boolean hasData = false;
         for (int i = 0; i < puntos.length; i++) {
-            entries.add(new Entry(i, puntos[i]));
+            float val = (puntos[i] != null) ? puntos[i] : 0f;
+            entries.add(new Entry(i, val));
+            if (val > 0) hasData = true;
+        }
+
+        if (!hasData) {
+            graphEvolucion.clear();
+            graphEvolucion.setNoDataText("Sin datos de evolución esta semana");
+            graphEvolucion.setNoDataTextColor(Color.parseColor("#94A3B8"));
+            graphEvolucion.invalidate();
+            return;
         }
 
         LineDataSet dataSet = new LineDataSet(entries, "Ejercicios Completados");
         dataSet.setColor(Color.parseColor("#CD0277"));
         dataSet.setCircleColor(Color.WHITE);
-        dataSet.setLineWidth(3f);
-        dataSet.setCircleRadius(5f);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleRadius(3f);
         dataSet.setDrawCircleHole(true);
         dataSet.setCircleHoleColor(Color.parseColor("#CD0277"));
         dataSet.setValueTextColor(Color.WHITE);
-        dataSet.setValueTextSize(10f);
+        dataSet.setValueTextSize(8f);
         dataSet.setDrawFilled(true);
         dataSet.setFillDrawable(new android.graphics.drawable.GradientDrawable(
                 android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
                 new int[]{Color.parseColor("#4DCD0277"), Color.TRANSPARENT}
         ));
-        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
 
         LineData lineData = new LineData(dataSet);
         graphEvolucion.setData(lineData);
 
         XAxis xAxis = graphEvolucion.getXAxis();
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(etiquetas));
+        xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(etiquetas));
+        xAxis.setLabelCount(7);
 
+        graphEvolucion.notifyDataSetChanged();
         graphEvolucion.invalidate();
-        graphEvolucion.animateY(1000);
     }
 
     private void calcularYMostrarRacha(Float[] puntos) {
         int racha = 0;
-        // El índice 6 es 'hoy'. Recorremos hacia atrás.
+        boolean esFinalHoy = fechaSeleccionada.equals(LocalDate.now());
+
+        // El índice 6 es el final de la ventana (fechaSeleccionada). Recorremos hacia atrás.
         for (int i = 6; i >= 0; i--) {
             if (puntos[i] > 0) {
                 racha++;
-            } else if (i == 6) {
-                // Si hoy es 0, la racha no se rompe aún (esperamos a que termine el día)
+            } else if (i == 6 && esFinalHoy) {
+                // Si la ventana termina hoy y hoy es 0, la racha no se rompe aún (esperamos a que termine el día)
                 continue;
             } else {
-                // Se rompió la racha en algún día anterior
+                // Se rompió la racha
                 break;
             }
         }
