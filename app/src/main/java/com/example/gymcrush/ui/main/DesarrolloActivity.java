@@ -516,27 +516,41 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 public void onResponse(Call<ApiResponseDto<NutricionResponseDto>> call, Response<ApiResponseDto<NutricionResponseDto>> response) {
                     if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
                         NutricionResponseDto plan = response.body().getDatos();
-                        tvNombrePlanWidget.setText(plan.getNombreDieta());
-                        tvNombrePlanWidget.setTextColor(getResources().getColor(R.color.white));
-                        tvCaloriasWidget.setText(plan.getCaloriasObjetivo() + " kcal");
-                        tvCaloriasWidget.setTextColor(getResources().getColor(R.color.brand_pink));
-                        actualizarProgresoMacros(plan);
+                        runOnUiThread(() -> {
+                            if (plan.getNombreDieta() != null && !plan.getNombreDieta().isEmpty()) {
+                                tvNombrePlanWidget.setText(plan.getNombreDieta());
+                            } else {
+                                tvNombrePlanWidget.setText("Mi Plan Nutricional");
+                            }
+                            tvNombrePlanWidget.setTextColor(Color.WHITE);
+                            tvCaloriasWidget.setText(plan.getCaloriasObjetivo() + " kcal");
+                            tvCaloriasWidget.setTextColor(getResources().getColor(R.color.brand_pink));
+                            actualizarProgresoMacros(plan);
+                        });
                     } else {
-                        // Caso cuando no hay plan asignado
-                        tvNombrePlanWidget.setText("Plan no asignado");
-                        tvNombrePlanWidget.setTextColor(Color.parseColor("#FFEB3B")); // Amarillo vibrante
-                        tvCaloriasWidget.setText("--- kcal");
-                        tvCaloriasWidget.setTextColor(Color.parseColor("#FFEB3B"));
-                        progressProt.setProgress(100);
-                        progressCarb.setProgress(100);
-                        progressGras.setProgress(100);
+                        runOnUiThread(() -> mostrarPlanNoAsignado());
                     }
                 }
-                @Override public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
-                    tvNombrePlanWidget.setText("Error al cargar");
+
+                @Override 
+                public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
+                    runOnUiThread(() -> {
+                        tvNombrePlanWidget.setText("Error de conexión");
+                        tvNombrePlanWidget.setTextColor(Color.RED);
+                    });
                 }
             });
         }
+    }
+
+    private void mostrarPlanNoAsignado() {
+        tvNombrePlanWidget.setText("Plan no asignado");
+        tvNombrePlanWidget.setTextColor(Color.parseColor("#FFEB3B")); 
+        tvCaloriasWidget.setText("--- kcal");
+        tvCaloriasWidget.setTextColor(Color.parseColor("#FFEB3B"));
+        progressProt.setProgress(100);
+        progressCarb.setProgress(100);
+        progressGras.setProgress(100);
     }
 
     private void actualizarProgresoMacros(NutricionResponseDto plan) {
@@ -846,6 +860,8 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         homeContent.setVisibility(View.VISIBLE);
         cargarDatosYFotoPerfil();
+        cargarDatosDinamicosCarrusel();
+        actualizarRendimientoSemanal();
     }
 
     private void mostrarDialogoQR() {
