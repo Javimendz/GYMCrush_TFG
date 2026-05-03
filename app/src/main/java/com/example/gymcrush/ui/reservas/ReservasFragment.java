@@ -55,11 +55,8 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
         layoutWeeklyDays = view.findViewById(R.id.layoutWeeklyDays);
         fabAddReserva = view.findViewById(R.id.fabAddReserva);
 
-        // Detectar día de hoy para selección inicial
-        diaSeleccionadoCodigo = getDiaDeHoy();
-
-        configurarCalendarioSemanal(inflater);
-        actualizarListaPorDia(diaSeleccionadoCodigo);
+        // En lugar de cargar hoy directamente, buscamos el primer día con actividad
+        determinarDiaInicialYRefrescar(inflater);
 
         fabAddReserva.setOnClickListener(v -> abrirDialogoNuevaReserva());
 
@@ -225,6 +222,12 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
             ReservasRepository.getInstance().getTodasLasReservasPorDia(diaBusqueda, new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
                 @Override
                 public void onSuccess(List<ReservaResponseDto> result) {
+                    // Log de depuración
+                    if (result != null) {
+                        for (ReservaResponseDto r : result) {
+                            android.util.Log.d("DEBUG_RESERVA", "ID: " + r.getId() + " | UsuarioID: " + r.getUsuarioId());
+                        }
+                    }
                     actualizarAdapter(result, true);
                 }
 
@@ -334,6 +337,79 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
                 Toast.makeText(getContext(), "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void determinarDiaInicialYRefrescar(LayoutInflater inflater) {
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        long userId = prefs.getLong("user_id", -1);
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        String hoy = getDiaDeHoy();
+        String[] codigosDias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
+
+        if (isAdmin) {
+            buscarPrimerDiaAdmin(inflater, hoy, codigosDias, 0);
+        } else {
+            ReservasRepository.getInstance().getMisReservas(userId, new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
+                @Override
+                public void onSuccess(List<ReservaResponseDto> result) {
+                    String diaEncontrado = encontrarPrimerDiaConReserva(result, hoy, codigosDias);
+                    diaSeleccionadoCodigo = (diaEncontrado != null) ? diaEncontrado : hoy;
+                    configurarCalendarioSemanal(inflater);
+                    actualizarListaPorDia(diaSeleccionadoCodigo);
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    diaSeleccionadoCodigo = hoy;
+                    configurarCalendarioSemanal(inflater);
+                    actualizarListaPorDia(diaSeleccionadoCodigo);
+                }
+            });
+        }
+    }
+
+    private void buscarPrimerDiaAdmin(LayoutInflater inflater, String hoy, String[] todos, int offset) {
+        if (offset >= 7) {
+            diaSeleccionadoCodigo = hoy;
+            configurarCalendarioSemanal(inflater);
+            actualizarListaPorDia(diaSeleccionadoCodigo);
+            return;
+        }
+
+        int indexHoy = 0;
+        for(int i=0; i<7; i++) if(todos[i].equals(hoy)) indexHoy = i;
+        int targetIndex = (indexHoy + offset) % 7;
+        String diaABuscar = todos[targetIndex];
+
+        ReservasRepository.getInstance().getTodasLasReservasPorDia(diaABuscar, new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
+            @Override
+            public void onSuccess(List<ReservaResponseDto> result) {
+                if (result != null && !result.isEmpty()) {
+                    diaSeleccionadoCodigo = diaABuscar;
+                    configurarCalendarioSemanal(inflater);
+                    actualizarListaPorDia(diaSeleccionadoCodigo);
+                } else {
+                    buscarPrimerDiaAdmin(inflater, hoy, todos, offset + 1);
+                }
+            }
+            @Override
+            public void onError(String errorMessage) {
+                buscarPrimerDiaAdmin(inflater, hoy, todos, offset + 1);
+            }
+        });
+    }
+
+    private String encontrarPrimerDiaConReserva(List<ReservaResponseDto> reservas, String hoy, String[] todos) {
+        int indexHoy = 0;
+        for(int i=0; i<7; i++) if(todos[i].equals(hoy)) indexHoy = i;
+        for (int i = 0; i < 7; i++) {
+            int targetIndex = (indexHoy + i) % 7;
+            String dia = todos[targetIndex];
+            for (ReservaResponseDto r : reservas) {
+                if (r.getDiaSemana() != null && r.getDiaSemana().equalsIgnoreCase(dia)) return dia;
+            }
+        }
+        return null;
     }
 
     private void confirmarAsistencia(ReservaResponseDto reserva) {
