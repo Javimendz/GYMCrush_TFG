@@ -103,8 +103,24 @@ public class NotificacionesFragment extends Fragment {
 
     public void onNuevaNotificacionRecibida(NotificacionResponseDto notif) {
         if (listaNotificaciones != null && adapter != null) {
-            listaNotificaciones.add(0, notif); // Añadir al principio de la lista
-            actualizarUI();
+            // Si el servidor envía un error de validación, puede que falten campos.
+            // Los rellenamos para que se vea bien en la lista.
+            if (notif.getTitulo() == null || notif.getTitulo().isEmpty()) {
+                notif.setTitulo("Aviso del Sistema");
+            }
+            if (notif.getFecha() == null || notif.getFecha().isEmpty()) {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
+                notif.setFecha(sdf.format(new java.util.Date()));
+            }
+
+            listaNotificaciones.add(0, notif); // Añadir al principio
+            
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    actualizarUI();
+                    if (rv != null) rv.scrollToPosition(0);
+                });
+            }
         }
     }
 

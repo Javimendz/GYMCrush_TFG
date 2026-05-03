@@ -28,4 +28,12 @@ public class NotificacionResponseDto {
     public String getFecha() { return fecha; }
     public boolean isLeido() { return leido; }
     public TipoNotificacion getTipo() { return tipo; }
+
+    // Setters
+    public void setId(Long id) { this.id = id; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setMensaje(String mensaje) { this.mensaje = mensaje; }
+    public void setFecha(String fecha) { this.fecha = fecha; }
+    public void setLeido(boolean leido) { this.leido = leido; }
+    public void setTipo(TipoNotificacion tipo) { this.tipo = tipo; }
 }

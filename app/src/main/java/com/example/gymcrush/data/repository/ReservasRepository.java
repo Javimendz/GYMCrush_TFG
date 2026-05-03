@@ -71,7 +71,19 @@ public class ReservasRepository {
                         callback.onError(response.body().getMensaje());
                     }
                 } else {
-                    callback.onError("No se pudo realizar la reserva");
+                    String errorMsg = "No se pudo realizar la reserva";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            com.google.gson.JsonObject json = com.google.gson.JsonParser.parseString(errorBody).getAsJsonObject();
+                            if (json.has("mensaje")) {
+                                errorMsg = json.get("mensaje").getAsString();
+                            }
+                        }
+                    } catch (Exception e) {
+                        errorMsg = "Error en el servidor: " + response.code();
+                    }
+                    callback.onError(errorMsg);
                 }
             }
             @Override
