@@ -46,6 +46,8 @@ public interface IReservaService {
      */
     List<ReservaResponseDto> obtenerReservasUsuario(Long usuarioId);
 
+
+    List<ReservaResponseDto> obtenerReservasPorDia(String dia);
     /**
      * Cancela una reserva existente cambiando su estado a CANCELADA.
      * <p>

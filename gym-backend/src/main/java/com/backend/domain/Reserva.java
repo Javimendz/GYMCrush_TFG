@@ -62,10 +62,10 @@ public class Reserva {
      * </p>
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="usuario_id", referencedColumnName = "id")
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     @ToString.Exclude
     private Usuario usuario;
-    
+
     /**
      * Horario específico de la clase reservada.
      * <p>
@@ -74,8 +74,9 @@ public class Reserva {
      * </p>
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="horario_id", referencedColumnName = "id", nullable = false) 
-   @ToString.Exclude
+    @JoinColumn(name = "horario_id", referencedColumnName = "id", nullable = false)
+    @ToString.Exclude
+    // Evita bucles en logs
     @EqualsAndHashCode.Exclude
     private Horario horario;
 
@@ -92,6 +93,7 @@ public class Reserva {
             this.estado = EnumEstado.CONFIRMADA;
         }
     }
+
     @Column(name = "confirmado")
     private Boolean confirmado;
 }

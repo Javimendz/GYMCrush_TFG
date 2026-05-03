@@ -71,10 +71,13 @@ public class ReservaServiceImp implements IReservaService {
                 Usuario usuario = usuarioRepository.findById(usuarioId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
+                if (horario.getActividad() != null) {
+                        horario.getActividad().getNombre();
+                }
+
                 // CALCULAR LA FECHA REAL DE LA CLASE
 
-                LocalDate fechaClase = calcularProximaFecha(horario.getDiaSemana());
-
+                LocalDate fechaClase = calcularProximaFecha(horario.getDiaSemana(), horario.getHoraInicio());
                 java.time.LocalDateTime ahora = java.time.LocalDateTime.now();
                 java.time.LocalDateTime fechaHoraInicioClase = java.time.LocalDateTime.of(fechaClase,
                                 horario.getHoraInicio());
@@ -87,7 +90,8 @@ public class ReservaServiceImp implements IReservaService {
                 }
 
                 // ¿El usuario ya tiene ESTA misma clase este día?
-                if (reservaRepository.existsByUsuarioIdAndHorarioIdAndFecha(usuarioId, horarioId, fechaClase)) {
+                if (reservaRepository.existsByUsuarioIdAndHorarioIdAndFechaAndEstadoNot(
+                                usuarioId, horarioId, fechaClase, EnumEstado.CANCELADA)) {
                         throw new RuntimeException(
                                         "Ya tienes una reserva confirmada para esta sesión el día " + fechaClase);
                 }
@@ -133,11 +137,38 @@ public class ReservaServiceImp implements IReservaService {
         }
 
         /**
+         * Obtiene las reservas programadas para un día de la semana específico.
+         * <p>
+         * Retorna una lista de DTO con los datos de las reservas. Por defecto,
+         * excluye las reservas con estado CANCELADA para no saturar la vista del
+         * administrador
+         * (puedes ajustarlo si prefieres ver todo el histórico).
+         * </p>
+         *
+         * @param dia Nombre del día de la semana (LUNES, MARTES, etc.)
+         * @return Lista de DTO con los datos de las reservas para ese día
+         */
+        @Override
+        @Transactional(readOnly = true)
+        public List<ReservaResponseDto> obtenerReservasPorDia(String dia) {
+                log.info("Consultando todas las reservas activas para el día: {}", dia);
+
+                // Opción 1: Traer absolutamente TODAS las reservas (incluso canceladas)
+                // return reservaRepository.findByHorario_DiaSemanaIgnoreCase(dia)
+
+                // Opción 2 (Recomendada): Traer las reservas del día, excluyendo las canceladas
+                return reservaRepository.findByHorario_DiaSemanaIgnoreCaseAndEstadoNot(dia, EnumEstado.CANCELADA)
+                                .stream()
+                                .map(this::mapToDto) // Reutilizamos tu mapeador privado optimizado
+                                .collect(Collectors.toList());
+        }
+
+        /**
          * Calcula la fecha del próximo día de la semana indicado.
          * Si el día indicado es HOY y la hora aún no ha pasado, devuelve hoy.
          * Si no, devuelve la fecha del día la próxima semana.
          */
-        private LocalDate calcularProximaFecha(String diaSemana) {
+        private LocalDate calcularProximaFecha(String diaSemana, java.time.LocalTime horaInicio) {
                 java.time.DayOfWeek targetDay = switch (diaSemana.toUpperCase()) {
                         case "LUNES" -> java.time.DayOfWeek.MONDAY;
                         case "MARTES" -> java.time.DayOfWeek.TUESDAY;
@@ -149,7 +180,20 @@ public class ReservaServiceImp implements IReservaService {
                         default -> throw new IllegalArgumentException("Día de la semana no válido: " + diaSemana);
                 };
 
-                return LocalDate.now().with(java.time.temporal.TemporalAdjusters.nextOrSame(targetDay));
+                // Obtenemos el próximo día que coincida (o hoy si es el mismo día)
+                LocalDate proximaFecha = LocalDate.now()
+                                .with(java.time.temporal.TemporalAdjusters.nextOrSame(targetDay));
+
+                // Si la fecha calculada es HOY, comprobamos si la hora ya pasó (o quedan menos
+                // de 5 min)
+                if (proximaFecha.equals(LocalDate.now())) {
+                        if (java.time.LocalTime.now().isAfter(horaInicio.minusMinutes(5))) {
+                                // Si ya pasó, la reserva debe ser para la próxima semana
+                                proximaFecha = proximaFecha.plusWeeks(1);
+                        }
+                }
+
+                return proximaFecha;
         }
 
         /**
@@ -323,10 +367,14 @@ public class ReservaServiceImp implements IReservaService {
                                 .estado(reserva.getEstado().name())
                                 .diaSemana(reserva.getHorario() != null ? reserva.getHorario().getDiaSemana() : null)
                                 .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)
+                                .usuarioId(reserva.getUsuario() != null ? reserva.getUsuario().getId() : null)
                                 .nombreActividad(reserva.getHorario() != null
                                                 && reserva.getHorario().getActividad() != null
                                                                 ? reserva.getHorario().getActividad().getNombre()
                                                                 : "Sin Actividad")
+                                .nombreSala(reserva.getHorario() != null && reserva.getHorario().getSala() != null
+                                                ? reserva.getHorario().getSala().getNombre()
+                                                : "Sin sala")
                                 .build();
         }
 

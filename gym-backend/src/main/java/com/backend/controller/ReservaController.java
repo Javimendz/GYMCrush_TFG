@@ -17,9 +17,9 @@ import java.util.List;
  * <p>
  * Este controlador proporciona endpoints para:
  * <ul>
- *   <li>Crear reservas de horarios para usuarios</li>
- *   <li>Listar las reservas de un usuario específico</li>
- *   <li>Cancelar reservas existentes</li>
+ * <li>Crear reservas de horarios para usuarios</li>
+ * <li>Listar las reservas de un usuario específico</li>
+ * <li>Cancelar reservas existentes</li>
  * </ul>
  * </p>
  *
@@ -53,8 +53,8 @@ public class ReservaController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida, posiblemente el horario ya está reservado")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
     public ResponseEntity<ApiResponseDto<ReservaResponseDto>> reservar(
-           @PathVariable("uId") Long uId, 
-        @PathVariable("hId") Long hId){
+            @PathVariable("uId") Long uId,
+            @PathVariable("hId") Long hId) {
         log.info("Creando reserva para usuario {} en horario {}", uId, hId);
         ReservaResponseDto nuevaReserva = reservaService.crearReserva(uId, hId);
         log.info("Reserva creada exitosamente con ID: {}", nuevaReserva.getId());
@@ -63,6 +63,20 @@ public class ReservaController {
                 .mensaje("¡Reserva confirmada! Te esperamos en clase.")
                 .success(true)
                 .datos(nuevaReserva)
+                .build());
+    }
+
+    // ReservaController.java
+    @GetMapping("/dia/{dia}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerReservasPorDia(
+            @PathVariable("dia") String dia) {
+        // Asegúrate de que el Service implemente obtenerReservasPorDia
+        List<ReservaResponseDto> lista = reservaService.obtenerReservasPorDia(dia);
+        return ResponseEntity.ok(ApiResponseDto.<List<ReservaResponseDto>>builder()
+                .mensaje("OK")
+                .success(true)
+                .datos(lista)
                 .build());
     }
 
@@ -101,7 +115,7 @@ public class ReservaController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Reserva cancelada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Reserva no encontrada")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Error interno del servidor")
-        public ResponseEntity<ApiResponseDto<Void>> cancelarReserva(@PathVariable("reservaId") Long reservaId) {
+    public ResponseEntity<ApiResponseDto<Void>> cancelarReserva(@PathVariable("reservaId") Long reservaId) {
         reservaService.cancelarReserva(reservaId);
         return ResponseEntity.ok(ApiResponseDto.<Void>builder()
                 .mensaje("Reserva cancelada")
@@ -111,7 +125,8 @@ public class ReservaController {
 
     @GetMapping("/usuario/{usuarioId}")
     @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
-    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerReservas(@PathVariable("usuarioId") Long usuarioId) {
+    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerReservas(
+            @PathVariable("usuarioId") Long usuarioId) {
         List<ReservaResponseDto> reservas = reservaService.obtenerReservasUsuario(usuarioId);
         return ResponseEntity.ok(ApiResponseDto.<List<ReservaResponseDto>>builder()
                 .mensaje("Reservas obtenidas")
@@ -122,17 +137,17 @@ public class ReservaController {
 
     @GetMapping("/clase/{horarioId}/asistentes")
     @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
-    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerAsistentesClase(@PathVariable("horarioId") Long horarioId) {
+    public ResponseEntity<ApiResponseDto<List<ReservaResponseDto>>> obtenerAsistentesClase(
+            @PathVariable("horarioId") Long horarioId) {
         List<ReservaResponseDto> asistentes = reservaService.obtenerAsistentesPorHorario(horarioId);
         String ocupacion = reservaService.obtenerResumenAforo(horarioId);
-        
+
         return ResponseEntity.ok(ApiResponseDto.<List<ReservaResponseDto>>builder()
                 .mensaje("Lista de asistentes (" + ocupacion + ")")
                 .success(true)
                 .datos(asistentes)
                 .build());
     }
-
 
     @PatchMapping("/{reservaId}/confirmar")
     @PreAuthorize("hasAnyRole('ROLE_USUARIO', 'ROLE_ADMIN')")
@@ -144,5 +159,4 @@ public class ReservaController {
                 .build());
     }
 
-   
 }
