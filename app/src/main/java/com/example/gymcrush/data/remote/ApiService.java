@@ -194,6 +194,9 @@ public interface ApiService {
     @PATCH("api/v1/reservas/{reservaId}/confirmar")
     Call<ApiResponseDto<Void>> confirmarAsistencia(@Path("reservaId") Long reservaId);
 
+    @GET("api/v1/reservas/dia/{dia}")
+    Call<ApiResponseDto<List<ReservaResponseDto>>> getReservasPorDia(@Path("dia") String dia);
+
     // --- NUEVOS ENDPOINTS PARA SALAS ---
     @GET("api/v1/salas")
     Call<ApiResponseDto<List<SalaResponseDto>>> getTodasLasSalas();

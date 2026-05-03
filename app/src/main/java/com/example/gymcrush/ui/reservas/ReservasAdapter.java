@@ -58,7 +58,12 @@ public class ReservasAdapter extends RecyclerView.Adapter<ReservasAdapter.ViewHo
         }
 
         holder.tvHoraClase.setText(hora + " - " + nombreClase);
-        holder.tvDetalleClase.setText("(" + sala + ")");
+        
+        String detalle = "(" + sala + ")";
+        if (isAdmin && reserva.getUsuarioId() != null) {
+            detalle += " - User ID: " + reserva.getUsuarioId();
+        }
+        holder.tvDetalleClase.setText(detalle);
         
         if (position % 2 == 0) {
             holder.viewColor.setBackgroundColor(Color.parseColor("#FF4081"));
