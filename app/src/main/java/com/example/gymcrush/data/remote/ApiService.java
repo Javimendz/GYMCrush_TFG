@@ -8,6 +8,7 @@ import com.example.gymcrush.data.remote.dto.CategoriaTutorialResponseDto;
 import com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto;
 import com.example.gymcrush.data.remote.dto.LoginRequest;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
+import com.example.gymcrush.data.remote.dto.NotificacionResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilRequestDto;
 import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
 import com.example.gymcrush.data.remote.dto.RegisterRequest;
@@ -320,4 +321,17 @@ public interface ApiService {
     // --- NUEVO ENDPOINT PARA HISTORIAL DE CHAT ---
     @GET("api/v1/chat/historial")
     Call<List<com.example.gymcrush.ui.social.SocialFragment.ChatMessageDto>> getHistorialChat();
+
+    // --- NOTIFICACIONES ---
+    @GET("api/notificaciones/usuario/{usuarioId}")
+    Call<List<NotificacionResponseDto>> listarNotificaciones(@Path("usuarioId") Long usuarioId);
+
+    @PATCH("api/notificaciones/{id}/leer")
+    Call<Void> marcarNotificacionComoLeida(@Path("id") Long id);
+
+    @GET("api/notificaciones/usuario/{usuarioId}/count")
+    Call<Long> contarNotificacionesNoLeidas(@Path("usuarioId") Long usuarioId);
+
+    @DELETE("api/notificaciones/{id}")
+    Call<Void> eliminarNotificacion(@Path("id") Long id);
 }

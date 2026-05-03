@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -111,10 +112,16 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private List<CarouselAdapter.CarouselItem> carouselItemsList = new ArrayList<>();
     private List<CarouselAdapter.CarouselItem> exerciseCarouselItemsList = new ArrayList<>();
 
+    private com.example.gymcrush.data.remote.StompManager stompManager;
+    private LottieAnimationView notificationsAnim;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_desarrollo_prueba);
+
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
+        long usuarioId = prefs.getLong("user_id", -1);
 
         // 1. Configurar Fecha Actual
         TextView tvFecha = findViewById(R.id.tvFecha);
@@ -180,7 +187,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         cargarDatosYFotoPerfil();
 
         // Configurar roles y listener del menú
-        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
         Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
         boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
         
@@ -251,11 +257,14 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             mapFragment.getMapAsync(this);
         }
 
-        LottieAnimationView notificationsAnim = findViewById(R.id.btnNotificationsAnim);
+        notificationsAnim = findViewById(R.id.btnNotificationsAnim);
         notificationsAnim.setOnClickListener(v -> {
             notificationsAnim.playAnimation();
             cargarFragmento(new NotificacionesFragment());
         });
+
+        // 6. Iniciar WebSockets para Notificaciones
+        iniciarWebSockets(usuarioId);
 
         // Configurar el carrusel
         setupCarousel();
@@ -910,5 +919,41 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         LatLng gymLocation = new LatLng(39.4699, -0.3763);
         map.addMarker(new MarkerOptions().position(gymLocation).title("GYMCrush Valencia"));
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(gymLocation, 15f));
+    }
+    private void iniciarWebSockets(long usuarioId) {
+        if (usuarioId == -1) return;
+
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
+        String token = prefs.getString("auth_token", "");
+
+        stompManager = new com.example.gymcrush.data.remote.StompManager();
+        // IP de tu servidor (10.0.2.2 para emulador, o tu IP local)
+        String url = "ws://10.0.2.2:8080/ws/websocket"; 
+        
+        stompManager.connect(url, usuarioId, token, notification -> {
+            runOnUiThread(() -> {
+                // Notificación visual en la campana
+                if (notificationsAnim != null) {
+                    notificationsAnim.playAnimation();
+                }
+                
+                // Mostrar Toast o Snackbar
+                Toast.makeText(this, "🔔 " + notification.getTitulo() + ": " + notification.getMensaje(), Toast.LENGTH_LONG).show();
+                
+                // Si el fragmento de notificaciones está visible, actualizarlo en tiempo real
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (currentFragment instanceof NotificacionesFragment) {
+                    ((NotificacionesFragment) currentFragment).onNuevaNotificacionRecibida(notification);
+                }
+            });
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (stompManager != null) {
+            stompManager.disconnect();
+        }
+        super.onDestroy();
     }
 }
