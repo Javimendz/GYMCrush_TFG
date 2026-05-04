@@ -16,6 +16,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import jakarta.persistence.JoinColumn; 
+import jakarta.persistence.ManyToOne;
 
 @Entity
 @Table(name = "planes_entrenamiento")
@@ -42,4 +44,10 @@ public class PlanEntrenamiento {
         ejercicios.add(detalle);
         detalle.setPlan(this);
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = true) // null = Global
+    private Usuario usuario;
+
+    private boolean esGlobal;
 }

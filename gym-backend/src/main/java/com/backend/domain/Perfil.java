@@ -149,6 +149,13 @@ public class Perfil {
     @Column(name = "foto", length = 255, nullable = true, columnDefinition = "TEXT")
     private String foto;
 
+    public String getNombreCompleto() {
+        if (apellidos == null || apellidos.isEmpty()) {
+            return nombre;
+        }
+        return nombre + " " + apellidos;
+    }
+
     /**
      * Usuario asociado a este perfil.
      * <p>

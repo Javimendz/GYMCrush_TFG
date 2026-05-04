@@ -86,4 +86,11 @@ public class Entrenamiento {
 
     @OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rutina> rutinas;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = true) // nullable = true es clave aquí
+    private Usuario usuario;
+
+    @Column(name = "es_global")
+    private boolean esGlobal;
 }

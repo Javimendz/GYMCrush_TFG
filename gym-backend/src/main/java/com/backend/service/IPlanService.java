@@ -8,16 +8,11 @@ import java.util.List;
 
 public interface IPlanService {
     // Para el Administrador
-    PlanResponseDto crearPlan(PlanRequestDto dto);
-
+  PlanResponseDto crearPlan(PlanRequestDto dto, String username);
     void eliminarPlan(Long id);
-
-    // Para el Usuario
-    List<PlanResponseDto> listarTodos();
-
+    List<PlanResponseDto> listarTodos(); // Para Admin
+    List<PlanResponseDto> listarPlanesParaUsuario(Long usuarioId); // Para la App
     PlanResponseDto obtenerPorId(Long id);
-
     PlanResponseDto añadirEjercicioAlPlan(Long planId, List<DetallePlanRequestDto> ejerciciosDto);
-
     void suscribirUsuarioAPlan(Long usuarioId, Long planId, String usernameLogueado, boolean esAdmin);
 }

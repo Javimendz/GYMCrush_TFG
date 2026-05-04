@@ -173,4 +173,7 @@ public class ReservaResponseDto {
      */
     @Schema(description = "Hora de inicio de la actividad reservada")
     private LocalTime horaInicio;
+
+    private String nombreEntrenador; // Añadir esto
+    private Long entrenadorId;
 }

@@ -94,4 +94,10 @@ public class Tutorial {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entrenamiento_id") 
     private Entrenamiento entrenamiento;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = true) // null = Ejercicio Global (Biblioteca)
+    private Usuario usuario;
+
+    private boolean esGlobal;
 }

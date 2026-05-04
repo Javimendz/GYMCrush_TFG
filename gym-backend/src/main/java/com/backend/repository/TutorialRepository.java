@@ -1,7 +1,8 @@
 package com.backend.repository;
 
 import java.util.List;
-
+import org.springframework.data.jpa.repository.Query; 
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -41,6 +42,9 @@ public interface TutorialRepository extends JpaRepository<Tutorial, Long> {
     // Verifica si la URL del GIF ya está en uso
     boolean existsByUrlVideo(String urlVideo);
 
-    
-    
+    @Query("SELECT t FROM Tutorial t WHERE t.usuario.id = :usuarioId OR t.usuario IS NULL")
+    List<Tutorial> findGlobalesYDelUsuario(@Param("usuarioId") Long usuarioId);
+
+ 
+
 }

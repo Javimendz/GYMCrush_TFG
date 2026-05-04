@@ -31,7 +31,7 @@ public interface ReservaMapper {
      * @param reserva la entidad a convertir
      * @return el DTO de respuesta con datos enriquecidos
      */
-    @Mapping(target = "username", source = "usuario.username")
+    @Mapping(target = "username", source = "usuario.perfil.nombreCompleto")
     @Mapping(target = "nombreActividad", source = "horario.actividad.nombre")
     @Mapping(target = "diaSemana", source = "horario.diaSemana")
     @Mapping(target = "horaInicio", source = "horario.horaInicio")

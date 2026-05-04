@@ -121,3 +121,5 @@ TVisualizaciones(id PK, fecha_visualizacion, completado, progreso_segundos,usuar
 TNotificaciones(id PK, titulo, mensaje, tipo, leido, fecha_hora_creacion, url_accion,usuarioId FK)
 
 TTickets(id PK, asunto, mensaje, estado, fecha_creacion, fecha_resolucion,usuarioId FK)
+
+problemas estructurales, al no crear una relacion entre entrenamiento, tutoriales y usuario, los videos eran globales, no independientes de cada usuario

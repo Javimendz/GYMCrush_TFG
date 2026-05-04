@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.backend.domain.Usuario;
 import com.backend.dto.DetallePlanRequestDto;
 import com.backend.dto.DetallePlanResponseDto;
 import com.backend.dto.PlanRequestDto;
 import com.backend.dto.PlanResponseDto;
 import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.IPlanService;
-
+import com.backend.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -34,13 +34,21 @@ import lombok.extern.slf4j.Slf4j;
 public class PlanController {
 
     private final IPlanService planService;
-
+private final UsuarioRepository usuarioRepo; 
     // --- ENDPOINTS DEL PLAN MAESTRO ---
 
     @GetMapping
-    @Operation(summary = "Catálogo de planes", description = "Obtiene todos los planes disponibles creados por el admin")
-    public ResponseEntity<ApiResponseDto<List<PlanResponseDto>>> listarPlanes() {
-        return ResponseEntity.ok(ApiResponseDto.success("Catálogo obtenido", planService.listarTodos()));
+    @Operation(summary = "Catálogo de planes filtrado")
+    public ResponseEntity<ApiResponseDto<List<PlanResponseDto>>> listarPlanes(
+        org.springframework.security.core.Authentication auth) {
+    
+    //  Buscamos al usuario que hace la petición para filtrar por su ID
+        Usuario user = usuarioRepo.findByUsername(auth.getName()).orElseThrow();
+    
+    //  Llamamos al método filtrado
+        List<PlanResponseDto> planes = planService.listarPlanesParaUsuario(user.getId());
+    
+        return ResponseEntity.ok(ApiResponseDto.success("Catálogo obtenido", planes));
     }
 
     @GetMapping("/{id}")
@@ -50,17 +58,22 @@ public class PlanController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Crear un nuevo Plan Maestro")
-    public ResponseEntity<ApiResponseDto<PlanResponseDto>> crearPlan(@Valid @RequestBody PlanRequestDto dto) {
-        PlanResponseDto response = planService.crearPlan(dto);
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')") 
+    @Operation(summary = "Crear un nuevo Plan (Maestro o Personal)")
+    public ResponseEntity<ApiResponseDto<PlanResponseDto>> crearPlan(
+            @Valid @RequestBody PlanRequestDto dto,
+            org.springframework.security.core.Authentication auth) { 
+        
+        // Pasamos el username al servicio
+        PlanResponseDto response = planService.crearPlan(dto, auth.getName());
+        
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseDto.success("Plan maestro creado con éxito", response));
+                .body(ApiResponseDto.success("Plan creado con éxito", response));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Eliminar un Plan Maestro")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')") // Usuario puede borrar su propio plan 
+    @Operation(summary = "Eliminar un Plan")
     public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable Long id) {
         planService.eliminarPlan(id);
         return ResponseEntity.ok(ApiResponseDto.success("Plan eliminado correctamente", null));

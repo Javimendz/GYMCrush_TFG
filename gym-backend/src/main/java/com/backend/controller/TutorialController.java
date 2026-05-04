@@ -5,15 +5,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import com.backend.domain.Usuario; 
+import com.backend.repository.UsuarioRepository; 
+import org.springframework.security.core.Authentication;
 import com.backend.dto.TutorialResponseDto;
 import com.backend.dto.TutorialRequestDto;
 import com.backend.dto.CategoriaTutorialResponseDto;
-import com.backend.dto.ExerciseApiRequestDto; // Importado 1 sola vez
+import com.backend.dto.ExerciseApiRequestDto;
 import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.ITutorialService;
-import com.backend.service.IExerciseProxyService; // CORRECCIÓN: Importamos la Interfaz real
-
+import com.backend.service.IExerciseProxyService; 
+import com.backend.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TutorialController {
 
     private final ITutorialService tutorialService;
+    private final UsuarioRepository usuarioRepository;
     
     // CORRECCIÓN: Ahora sí inyectamos la interfaz
     private final IExerciseProxyService exerciseProxyService; 
@@ -40,13 +43,15 @@ public class TutorialController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
-    @io.swagger.v3.oas.annotations.Operation(summary = "Listar todos los tutoriales", description = "Recupera el catálogo completo de tutoriales guardados en el sistema")
-    public ResponseEntity<ApiResponseDto<List<TutorialResponseDto>>> listarTodos() {
-        log.info("Solicitando catálogo completo de tutoriales");
-        List<TutorialResponseDto> data = tutorialService.obtenerTodos();
+    public ResponseEntity<ApiResponseDto<List<TutorialResponseDto>>> listarTodos(
+            org.springframework.security.core.Authentication auth) {
+        
+        // Obtenemos el usuario logueado para filtrar su biblioteca
+        Usuario user = usuarioRepository.findByUsername(auth.getName()).orElseThrow();
+        List<TutorialResponseDto> data = tutorialService.listarParaUsuario(user.getId());
         
         return ResponseEntity.ok(ApiResponseDto.<List<TutorialResponseDto>>builder()
-                .mensaje("Catálogo completo de tutoriales recuperado")
+                .mensaje("Biblioteca de ejercicios recuperada")
                 .datos(data)
                 .success(true)
                 .build());
@@ -102,7 +107,7 @@ public class TutorialController {
     // =========================================================================
 
     @GetMapping("/biblioteca/buscar")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Buscar en ExerciseDB", description = "Busca ejercicios en la API externa para crear nuevos tutoriales")
     public ResponseEntity<ApiResponseDto<List<ExerciseApiRequestDto>>> buscarEnBiblioteca(@RequestParam String nombre) {
         log.info("Admin buscando en biblioteca externa: {}", nombre);
@@ -116,14 +121,15 @@ public class TutorialController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @io.swagger.v3.oas.annotations.Operation(summary = "Crear tutorial", description = "Guarda un nuevo tutorial en la base de datos local")
-    public ResponseEntity<ApiResponseDto<TutorialResponseDto>> crear(@Valid @RequestBody TutorialRequestDto dto) {
-        log.info("Admin creando nuevo tutorial: {}", dto.getTitulo());
-        TutorialResponseDto nuevo = tutorialService.crear(dto);
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')") 
+    public ResponseEntity<ApiResponseDto<TutorialResponseDto>> crear(
+            @Valid @RequestBody TutorialRequestDto dto,
+            org.springframework.security.core.Authentication auth) {
+        
+        TutorialResponseDto nuevo = tutorialService.crear(dto, auth.getName());
         
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.<TutorialResponseDto>builder()
-                .mensaje("Tutorial subido correctamente")
+                .mensaje("Ejercicio añadido a tu biblioteca")
                 .datos(nuevo)
                 .success(true)
                 .build());

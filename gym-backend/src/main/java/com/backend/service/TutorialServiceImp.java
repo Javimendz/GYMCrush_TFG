@@ -15,11 +15,12 @@ import com.backend.repository.CategoriaTutorialRepository;
 import com.backend.repository.TutorialRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import com.backend.repository.UsuarioRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.backend.domain.Usuario;          
+import com.backend.repository.UsuarioRepository;
 import java.util.List;
 
 /**
@@ -40,7 +41,7 @@ public class TutorialServiceImp implements ITutorialService {
 
     /** Repositorio para el acceso a datos de tutoriales */
     private final TutorialRepository tutorialRepository;
-
+    private final UsuarioRepository usuarioRepository;
     /** Repositorio para el acceso a datos de categorías */
     private final CategoriaTutorialRepository categoriaRepository;
 
@@ -118,43 +119,45 @@ public class TutorialServiceImp implements ITutorialService {
      */
     @Override
     @Transactional
-    public TutorialResponseDto crear(TutorialRequestDto dto) {
-        log.info("Iniciando validaciones para nuevo tutorial: {}", dto.getTitulo());
+    public TutorialResponseDto crear(TutorialRequestDto dto, String username) {
+        log.info("Creando tutorial por: {}", username);
 
-        // Evitar títulos duplicados
-        String tituloLimpio = dto.getTitulo().trim();
-        if (tutorialRepository.existsByTituloIgnoreCase(tituloLimpio)) {
-            throw new BusinessException("Ya existe un tutorial con el nombre: " + tituloLimpio);
+        Usuario autor = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException("Usuario no encontrado"));
+
+        // Validaciones de duplicados
+        if (tutorialRepository.existsByTituloIgnoreCase(dto.getTitulo().trim())) {
+            throw new BusinessException("Ya existe un ejercicio con ese nombre.");
         }
 
-        // Evitar videos/GIFs duplicados
-        if (tutorialRepository.existsByUrlVideo(dto.getUrlVideo())) {
-            throw new BusinessException("Este ejercicio (GIF) ya está registrado en la plataforma.");
-        }
-
-        // Categoría existente
         CategoriaTutorial categoria = categoriaRepository.findById(dto.getCategoriaId())
-                .orElseThrow(() -> new BusinessException("La categoría seleccionada no es válida."));
+                .orElseThrow(() -> new BusinessException("Categoría no válida."));
 
-        log.debug("Validaciones superadas con éxito.");
-
-        // Mapeo y persistencia
         Tutorial tutorial = tutorialMapper.toEntity(dto);
         tutorial.setCategoria(categoria);
-        tutorial.setTitulo(tituloLimpio); // Guardamos el título sin espacios extra
 
-        TutorialResponseDto resultado = tutorialMapper.toDto(tutorialRepository.save(tutorial));
+        
+        boolean isAdmin = autor.getRoles().stream()
+                .anyMatch(rol -> rol.getName().equals("ROLE_ADMIN"));
 
-        // Evento de notificación
-        eventPublisher.publishEvent(new TutorialEvent(
-                resultado.getId(),
-                "¡Nuevo Tutorial Disponible!",
-                "Se ha subido: '" + resultado.getTitulo() + "'",
-                TipoNotificacion.SISTEMA));
+        if (isAdmin) {
+            tutorial.setUsuario(null);
+            tutorial.setEsGlobal(true);
+        } else {
+            tutorial.setUsuario(autor);
+            tutorial.setEsGlobal(false);
+        }
 
-        return resultado;
+        return tutorialMapper.toDto(tutorialRepository.save(tutorial));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<TutorialResponseDto> listarParaUsuario(Long usuarioId) {
+        return tutorialRepository.findGlobalesYDelUsuario(usuarioId).stream()
+                .map(tutorialMapper::toDto)
+                .toList();
+    }
     /**
      * Elimina un tutorial por su ID.
      * <p>

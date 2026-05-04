@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,106 +26,73 @@ public class EntrenamientoController {
 
         private final IEntrenamientoService entrenamientoService;
 
-        @PostMapping
-        @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-        @Operation(summary = "Crear una nueva sesión de entrenamiento")
-        public ResponseEntity<ApiResponseDto<EntrenamientoResponseDto>> crear(
-                        @Valid @RequestBody EntrenamientoRequestDto dto) {
-                log.info("Solicitud para crear nueva sesión de entrenamiento");
-                EntrenamientoResponseDto nuevoEntrenamiento = entrenamientoService.crear(dto);
-
-                return ResponseEntity.status(HttpStatus.CREATED).body(
-                                ApiResponseDto.<EntrenamientoResponseDto>builder()
-                                                .mensaje("Sesión de entrenamiento creada con éxito")
-                                                .success(true)
-                                                .datos(nuevoEntrenamiento)
-                                                .build());
-        }
-
-        @GetMapping
-        @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-        @Operation(summary = "Listar catálogo completo de entrenamientos")
-        public ResponseEntity<ApiResponseDto<List<EntrenamientoResponseDto>>> listarTodos() {
-                log.info("Solicitud para listar el catálogo completo de entrenamientos");
-                List<EntrenamientoResponseDto> entrenamientos = entrenamientoService.listarTodos();
-
-                return ResponseEntity.ok(
-                                ApiResponseDto.<List<EntrenamientoResponseDto>>builder()
-                                                .mensaje("Catálogo recuperado con éxito")
-                                                .success(true)
-                                                .datos(entrenamientos)
-                                                .build());
-        }
-
-        @GetMapping("/usuario/{usuarioId}")
+       @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-    @Operation(summary = "Listar entrenamientos asociados a un usuario")
-    public ResponseEntity<ApiResponseDto<List<EntrenamientoResponseDto>>> listarPorUsuario(
-            @PathVariable("usuarioId") Long usuarioId) {
-            
-        log.info("Solicitud para listar entrenamientos del usuario ID: {}", usuarioId);
+    @Operation(summary = "Crear una nueva sesión de entrenamiento")
+    public ResponseEntity<ApiResponseDto<EntrenamientoResponseDto>> crear(
+            @Valid @RequestBody EntrenamientoRequestDto dto,
+            Authentication authentication) {
         
-        // NOTA: Si en tu 'entrenamientoService' tienes un método específico para el usuario,
-        // úsalo aquí (ej: entrenamientoService.listarPorUsuario(usuarioId)). 
-        // Si no lo tienes y quieres devolver el catálogo completo por ahora, usamos listarTodos():
-        List<EntrenamientoResponseDto> entrenamientos = entrenamientoService.listarTodos();
+        log.info("Creando entrenamiento para: {}", authentication.getName());
+        EntrenamientoResponseDto nuevo = entrenamientoService.crear(dto, authentication.getName());
 
-        return ResponseEntity.ok(
-                ApiResponseDto.<List<EntrenamientoResponseDto>>builder()
-                        .mensaje("Entrenamientos del usuario recuperados")
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponseDto.<EntrenamientoResponseDto>builder()
+                        .mensaje("Sesión creada con éxito")
                         .success(true)
-                        .datos(entrenamientos)
+                        .datos(nuevo)
                         .build());
     }
 
-        @GetMapping("/{id}")
-        @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-        @Operation(summary = "Obtener detalle de una sesión")
-        public ResponseEntity<ApiResponseDto<EntrenamientoResponseDto>> obtenerPorId(
-                        @PathVariable("id") Long id) {
+    // 2. LISTAR POR USUARIO (Este es el que tenías duplicado)
+    @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @Operation(summary = "Listar entrenamientos del usuario y globales")
+    public ResponseEntity<ApiResponseDto<List<EntrenamientoResponseDto>>> listarPorUsuario(
+            @PathVariable("usuarioId") Long usuarioId) {
+            
+        log.info("Listando entrenamientos filtrados para usuario: {}", usuarioId);
+        List<EntrenamientoResponseDto> data = entrenamientoService.listarPorUsuario(usuarioId);
 
-                log.info("Solicitud para obtener entrenamiento con ID: {}", id);
-                EntrenamientoResponseDto entrenamiento = entrenamientoService.obtenerPorId(id);
+        return ResponseEntity.ok(
+                ApiResponseDto.<List<EntrenamientoResponseDto>>builder()
+                        .mensaje("Entrenamientos recuperados")
+                        .success(true)
+                        .datos(data)
+                        .build());
+    }
 
-                return ResponseEntity.ok(
-                                ApiResponseDto.<EntrenamientoResponseDto>builder()
-                                                .mensaje("Detalle del entrenamiento recuperado")
-                                                .success(true)
-                                                .datos(entrenamiento)
-                                                .build());
-        }
+    // 3. LISTAR TODOS (Vista general, usualmente para el Admin)
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<ApiResponseDto<List<EntrenamientoResponseDto>>> listarTodos() {
+        List<EntrenamientoResponseDto> data = entrenamientoService.listarTodos();
+        return ResponseEntity.ok(ApiResponseDto.<List<EntrenamientoResponseDto>>builder()
+                .mensaje("Catálogo completo").success(true).datos(data).build());
+    }
 
-        @PutMapping("/{id}")
-        @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-        @Operation(summary = "Actualizar datos de la sesión")
-        public ResponseEntity<ApiResponseDto<EntrenamientoResponseDto>> actualizar(
-                        @PathVariable("id") Long id,
-                        @Valid @RequestBody EntrenamientoRequestDto dto) {
+    // 4. OBTENER POR ID
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<ApiResponseDto<EntrenamientoResponseDto>> obtenerPorId(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(ApiResponseDto.<EntrenamientoResponseDto>builder()
+                .datos(entrenamientoService.obtenerPorId(id)).success(true).build());
+    }
 
-                log.info("Solicitud para actualizar entrenamiento con ID: {}", id);
-                EntrenamientoResponseDto entrenamientoActualizado = entrenamientoService.actualizar(id, dto);
+    // 5. ACTUALIZAR
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<ApiResponseDto<EntrenamientoResponseDto>> actualizar(
+            @PathVariable("id") Long id, @Valid @RequestBody EntrenamientoRequestDto dto) {
+        return ResponseEntity.ok(ApiResponseDto.<EntrenamientoResponseDto>builder()
+                .datos(entrenamientoService.actualizar(id, dto)).success(true).build());
+    }
 
-                return ResponseEntity.ok(
-                                ApiResponseDto.<EntrenamientoResponseDto>builder()
-                                                .mensaje("Entrenamiento actualizado con éxito")
-                                                .success(true)
-                                                .datos(entrenamientoActualizado)
-                                                .build());
-        }
-
-        @DeleteMapping("/{id}")
-        @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
-        @Operation(summary = "Eliminar una sesión")
-        public ResponseEntity<ApiResponseDto<Void>> eliminar(
-                        @PathVariable("id") Long id) {
-
-                log.info("Solicitud para eliminar entrenamiento con ID: {}", id);
-                entrenamientoService.eliminar(id);
-
-                return ResponseEntity.ok(
-                                ApiResponseDto.<Void>builder()
-                                                .mensaje("Sesión de entrenamiento eliminada correctamente")
-                                                .success(true)
-                                                .build());
-        }
+    // 6. ELIMINAR
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) {
+        entrenamientoService.eliminar(id);
+        return ResponseEntity.ok(ApiResponseDto.<Void>builder().mensaje("Eliminado").success(true).build());
+    }
 }

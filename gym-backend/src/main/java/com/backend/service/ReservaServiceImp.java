@@ -375,7 +375,12 @@ public class ReservaServiceImp implements IReservaService {
                                 .nombreSala(reserva.getHorario() != null && reserva.getHorario().getSala() != null
                                                 ? reserva.getHorario().getSala().getNombre()
                                                 : "Sin sala")
-                                .build();
+                                .nombreEntrenador(reserva.getHorario() != null && reserva.getHorario().getEntrenador() != null 
+                    ? reserva.getHorario().getEntrenador().getUsername() : "Monitor pendiente")
+            .entrenadorId(reserva.getHorario() != null && reserva.getHorario().getEntrenador() != null 
+                    ? reserva.getHorario().getEntrenador().getId() : null)
+            
+            .build();
         }
 
 }

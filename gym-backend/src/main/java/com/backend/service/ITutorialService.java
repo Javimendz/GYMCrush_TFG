@@ -50,8 +50,7 @@ public interface ITutorialService {
      * @param dto DTO con los datos del tutorial a crear
      * @return DTO con los datos del tutorial creado incluyendo su ID
      */
-    TutorialResponseDto crear(TutorialRequestDto dto);
-
+    TutorialResponseDto crear(TutorialRequestDto dto, String username);
     /**
      * Elimina un tutorial del sistema por su identificador.
      * <p>
@@ -75,4 +74,7 @@ public interface ITutorialService {
     List<CategoriaTutorialResponseDto> listarCategorias();
 
     List<TutorialResponseDto> buscarPorTitulo(String titulo);
+
+    List<TutorialResponseDto> listarParaUsuario(Long usuarioId);
+
 }

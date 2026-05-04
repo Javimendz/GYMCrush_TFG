@@ -30,14 +30,14 @@ public interface HorarioMapper {
      * @param horario la entidad a convertir
      * @return el DTO de respuesta con datos de la actividad
      */
-    @Mapping(source = "entrenador.username", target = "nombreEntrenador")
+// EN EL BACKEND (HorarioMapper.java)
+@Mapping(source = "entrenador.perfil.nombre", target = "nombreEntrenador")
+    @Mapping(source = "entrenador.id", target = "entrenadorId")
     @Mapping(target = "actividadId", source = "actividad.id")
     @Mapping(target = "nombreActividad", source = "actividad.nombre")
     @Mapping(target = "salaId", source = "sala.id")
     @Mapping(target = "nombreSala", source = "sala.nombre")
-
     HorarioResponseDto toResponseDto(Horario horario);
-
     /**
      * Convierte un DTO de request a entidad Horario.
      * Ignora el ID y la actividad (se asignan en el servicio).

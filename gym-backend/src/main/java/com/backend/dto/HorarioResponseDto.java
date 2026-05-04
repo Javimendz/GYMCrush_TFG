@@ -145,4 +145,7 @@ public class HorarioResponseDto {
     // En el Backend (HorarioResponseDto.java)
 @Schema(description = "Nombre del entrenador", example = "Juan Pérez")
 private String nombreEntrenador; 
+
+@Schema(description = "ID del entrenador", example = "1")
+private Long entrenadorId;
 }
