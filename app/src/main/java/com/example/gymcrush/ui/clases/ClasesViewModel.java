@@ -80,6 +80,29 @@ public class ClasesViewModel extends ViewModel {
     }
 
     public void realizarReserva(Long usuarioId, Long horarioId, ReservasRepository.RepositoryCallback<ReservaResponseDto> callback) {
-        repository.crearReserva(usuarioId, horarioId, callback);
+        repository.crearReserva(usuarioId, horarioId, new ReservasRepository.RepositoryCallback<ReservaResponseDto>() {
+            @Override
+            public void onSuccess(ReservaResponseDto result) {
+                // Actualización optimista: Incrementamos la ocupación localmente de inmediato
+                List<HorarioResponseDto> listaActual = horarios.getValue();
+                if (listaActual != null) {
+                    for (HorarioResponseDto h : listaActual) {
+                        if (h.getId().equals(horarioId)) {
+                            int ocupacionActual = h.getOcupacion();
+                            h.setOcupacion(ocupacionActual + 1);
+                            break;
+                        }
+                    }
+                    // Notificamos a los observadores para que la UI se actualice al instante
+                    horarios.setValue(listaActual);
+                }
+                callback.onSuccess(result);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                callback.onError(errorMessage);
+            }
+        });
     }
 }
