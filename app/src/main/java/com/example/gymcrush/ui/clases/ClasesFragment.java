@@ -869,7 +869,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                         );
                     }
 
-                    viewModel.cargarHorariosPorDia(diaActual);
+                    // El ViewModel ya actualiza la ocupación localmente de forma optimista
                     dialog.dismiss();
                 }
 
