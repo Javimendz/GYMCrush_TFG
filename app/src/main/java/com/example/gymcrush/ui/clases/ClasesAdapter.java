@@ -39,10 +39,25 @@ public class ClasesAdapter extends RecyclerView.Adapter<ClasesAdapter.ClaseViewH
         holder.tvHora.setText(clase.getHora());
         holder.tvNombre.setText(clase.getNombre());
         
-        String infoExtra = (clase.getEntrenador() != null ? clase.getEntrenador() : "Sin entrenador") 
-                + " | " + (clase.getSala() != null ? clase.getSala() : "Sin sala");
-        holder.tvEntrenador.setText(infoExtra);
+        StringBuilder infoBuilder = new StringBuilder();
+        String entrenador = clase.getEntrenador();
+        String sala = clase.getSala();
 
+        // 1. Añadimos el monitor si existe
+        if (entrenador != null && !entrenador.trim().isEmpty() && 
+            !entrenador.equalsIgnoreCase("Sin entrenador") && 
+            !entrenador.equalsIgnoreCase("null")) {
+            infoBuilder.append(entrenador);
+        } else {
+            infoBuilder.append("Monitor pendiente"); // Texto profesional si no hay dato
+        }
+
+        // 2. Añadimos la sala con el separador
+        if (sala != null && !sala.trim().isEmpty()) {
+            infoBuilder.append(" | ").append(sala);
+        }
+
+        holder.tvEntrenador.setText(infoBuilder.toString());
         holder.tvCupos.setText(clase.getCuposDisponibles() + " plazas libres");
 
         holder.btnApuntarse.setOnClickListener(v -> {
