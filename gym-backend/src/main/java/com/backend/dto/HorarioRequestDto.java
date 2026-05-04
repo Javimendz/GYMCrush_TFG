@@ -156,4 +156,6 @@ public class HorarioRequestDto {
     @NotNull(message = "El ID del entrenador es obligatorio")
     @Schema(description = "ID del usuario con rol ENTRENADOR", example = "2")
     private Long entrenadorId;
+
+    
 }

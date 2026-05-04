@@ -2,6 +2,8 @@ package com.backend.service;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -56,10 +58,12 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional(readOnly = true)
     public List<HorarioResponseDto> listarTodos() {
-        log.info("Listando todos los horarios");
-        List<HorarioResponseDto> horarios = horarioMapper.toResponseDtoList(horarioRepository.findAll());
-        log.debug("Total de horarios encontrados: {}", horarios.size());
-        return horarios;
+        log.info("Listando todos los horarios con cálculo de plazas");
+        List<Horario> horarios = horarioRepository.findAll();
+
+        return horarios.stream()
+                .map(this::enriquecerHorarioConPlazas) // Método de apoyo que crearemos abajo
+                .toList();
     }
 
     /**
@@ -72,11 +76,9 @@ public class HorarioServiceImp implements IHorarioService {
     @Override
     @Transactional(readOnly = true)
     public HorarioResponseDto obtenerPorId(Long id) {
-        log.info("Buscando horario por ID: {}", id);
         Horario horario = horarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado con ID: " + id));
-        log.debug("Horario encontrado: {} - {}", horario.getDiaSemana(), horario.getHoraInicio());
-        return horarioMapper.toResponseDto(horario);
+        return enriquecerHorarioConPlazas(horario);
     }
 
     /**
@@ -115,17 +117,15 @@ public class HorarioServiceImp implements IHorarioService {
         Usuario entrenador = usuarioRepository.findById(dto.getEntrenadorId())
                 .orElseThrow(() -> new ResourceNotFoundException("No se puede crear: Entrenador no encontrado"));
 
-        // Mapear y asociar relaciones
         Horario nuevoHorario = horarioMapper.toEntity(dto);
         nuevoHorario.setActividad(actividad);
         nuevoHorario.setSala(sala);
-        nuevoHorario.setEntrenador(entrenador); // Asignación del entrenador corregida
+        nuevoHorario.setEntrenador(entrenador);
 
-        // Persistencia
         Horario guardado = horarioRepository.save(nuevoHorario);
         log.info("Horario creado con éxito. ID: {}", guardado.getId());
 
-        return horarioMapper.toResponseDto(guardado);
+        return enriquecerHorarioConPlazas(guardado); // <-- Devuelve el DTO con 15/15 plazas
     }
 
     /**
@@ -228,39 +228,40 @@ public class HorarioServiceImp implements IHorarioService {
      * @param id ID del registro a eliminar.
      * @throws ResourceNotFoundException si el registro no existe.
      */
-   @Override
-@Transactional
-public void eliminar(Long id) {
-    log.info("Intentando eliminar horario con ID: {}", id);
+    @Override
+    @Transactional
+    public void eliminar(Long id) {
+        log.info("Intentando eliminar horario con ID: {}", id);
 
-    Horario horario = horarioRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("No se puede eliminar: ID " + id + " no existe"));
+        Horario horario = horarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se puede eliminar: ID " + id + " no existe"));
 
-    // 1. EL TRUCO PARA EL BORRADO SILENCIOSO: 
-    // Romper el enlace bidireccional desde los padres (Sala, Actividad, Entrenador)
-    if (horario.getSala() != null && horario.getSala().getHorarios() != null) {
-        horario.getSala().getHorarios().remove(horario);
+        // 1. EL TRUCO PARA EL BORRADO SILENCIOSO:
+        // Romper el enlace bidireccional desde los padres (Sala, Actividad, Entrenador)
+        if (horario.getSala() != null && horario.getSala().getHorarios() != null) {
+            horario.getSala().getHorarios().remove(horario);
+        }
+
+        if (horario.getActividad() != null && horario.getActividad().getHorarios() != null) {
+            horario.getActividad().getHorarios().remove(horario);
+        }
+
+        if (horario.getEntrenador() != null && horario.getEntrenador().getHorarios() != null) {
+            horario.getEntrenador().getHorarios().remove(horario);
+        }
+
+        // 2. Limpiar las relaciones hijas
+        if (horario.getReservas() != null) {
+            horario.getReservas().clear();
+        }
+
+        // 3. Ahora sí, borrar (Hibernate ya no lo verá como una entidad "viva" en otra
+        // lista)
+        horarioRepository.delete(horario);
+        horarioRepository.flush();
+
+        log.info("Horario {} eliminado físicamente de la base de datos", id);
     }
-    
-    if (horario.getActividad() != null && horario.getActividad().getHorarios() != null) {
-        horario.getActividad().getHorarios().remove(horario);
-    }
-
-    if (horario.getEntrenador() != null && horario.getEntrenador().getHorarios() != null) {
-        horario.getEntrenador().getHorarios().remove(horario);
-    }
-
-    // 2. Limpiar las relaciones hijas
-    if (horario.getReservas() != null) {
-        horario.getReservas().clear();
-    }
-
-    // 3. Ahora sí, borrar (Hibernate ya no lo verá como una entidad "viva" en otra lista)
-    horarioRepository.delete(horario);
-    horarioRepository.flush(); 
-
-    log.info("Horario {} eliminado físicamente de la base de datos", id);
-}
 
     /**
      * Filtra los horarios disponibles según el día de la semana.
@@ -271,11 +272,27 @@ public void eliminar(Long id) {
     @Override
     @Transactional(readOnly = true)
     public List<HorarioResponseDto> listarPorDia(String dia) {
-        log.info("Listando horarios por día: {}", dia);
-        List<HorarioResponseDto> horarios = horarioMapper.toResponseDtoList(
-                horarioRepository.findByDiaSemanaIgnoreCase(dia));
-        log.debug("Horarios encontrados para día '{}': {}", dia, horarios.size());
-        return horarios;
+        return horarioRepository.findByDiaSemanaIgnoreCase(dia).stream()
+                .map(this::enriquecerHorarioConPlazas) // <-- Unificamos la lógica
+                .toList();
+    }
+
+    // MÉTODO DE APOYO PARA CALCULAR LAS PLAZAS
+
+    private HorarioResponseDto enriquecerHorarioConPlazas(Horario horario) {
+        HorarioResponseDto dto = horarioMapper.toResponseDto(horario);
+
+        // countBy siempre devuelve Long
+        Long ocupadas = reservaRepository.countByHorarioIdAndEstadoNot(
+                horario.getId(),
+                EnumEstado.CANCELADA);
+
+        // Convertimos ocupadas a intValue para operar con el Integer de aforoMax
+        int libres = horario.getAforoMax() - ocupadas.intValue();
+
+        dto.setPlazasLibres(libres);
+
+        return dto;
     }
 
     /**
@@ -293,4 +310,5 @@ public void eliminar(Long id) {
         log.debug("Horarios encontrados para actividad {}: {}", actividadId, horarios.size());
         return horarios;
     }
+
 }

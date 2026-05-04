@@ -99,7 +99,7 @@ public class CategoriaTutorialController {
      * @return ResponseEntity con la categoría creada
      */
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Crear nueva categoría", description = "Crea una nueva categoría de tutorial")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Categoría creada con éxito")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida. Verifique los datos proporcionados")

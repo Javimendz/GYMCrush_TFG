@@ -99,6 +99,7 @@ private final UsuarioRepository usuarioRepo;
     
 @Operation(summary = "Añadir ejercicios al plan", description = "Añade una lista de entrenamientos a un plan maestro")
 @PostMapping("/{id}/ejercicios") // Asegúrate de que la ruta sea esta
+@PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')") // Solo ADMIN o el propietario del plan pueden añadir ejercicios
 public ResponseEntity<ApiResponseDto<PlanResponseDto>> añadirEjerciciosAlPlan(
         @PathVariable Long id, 
         @Valid @RequestBody List<DetallePlanRequestDto> ejerciciosDto) {

@@ -1,7 +1,9 @@
 package com.backend.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import com.backend.dto.HorarioResponseDto;
 import com.backend.dto.ReservaResponseDto;
 import com.backend.exceptions.ResourceNotFoundException;
 
@@ -46,7 +48,7 @@ public interface IReservaService {
      */
     List<ReservaResponseDto> obtenerReservasUsuario(Long usuarioId);
 
-
+List<HorarioResponseDto> obtenerHorariosConPlazas(LocalDate fecha);
     List<ReservaResponseDto> obtenerReservasPorDia(String dia);
     /**
      * Cancela una reserva existente cambiando su estado a CANCELADA.

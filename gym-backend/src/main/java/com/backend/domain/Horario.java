@@ -71,7 +71,7 @@ public class Horario {
      * </p>
      */
     @Column(name = "aforo_max", nullable = false)
-    private Integer aforoMax;
+private Integer aforoMax;
 
     /**
      * Sala o ubicación específica donde se realiza la clase.

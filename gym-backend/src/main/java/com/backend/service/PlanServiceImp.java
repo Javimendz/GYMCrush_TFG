@@ -33,18 +33,21 @@ public class PlanServiceImp implements IPlanService {
         Usuario autor = usuarioRepo.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
+        // Determinamos si es Global (ADMIN) o Personal (USUARIO)
         boolean isAdmin = autor.getRoles().stream()
                 .anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
 
         if (isAdmin) {
-            plan.setUsuario(null);    
+            plan.setUsuario(null); // Los planes globales no tienen dueño individual
             plan.setEsGlobal(true);
         } else {
-            plan.setUsuario(autor);   
+            plan.setUsuario(autor);
             plan.setEsGlobal(false);
         }
 
-        return planMapper.toResponseDto(planRepo.saveAndFlush(plan));
+        // Persistimos y devolvemos el DTO mapeado (ahora con usuarioId lleno)
+        PlanEntrenamiento guardado = planRepo.saveAndFlush(plan);
+        return planMapper.toResponseDto(guardado);
     }
 
     @Override
@@ -77,7 +80,7 @@ public class PlanServiceImp implements IPlanService {
     public void eliminarPlan(Long id) {
         PlanEntrenamiento plan = planRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Plan no encontrado"));
-        
+
         rutinaRepo.deleteByUsuarioPlanActivoIdAndCompletado(id, false);
         usuarioRepo.desvincularPlanDeUsuarios(id);
         planRepo.delete(plan);

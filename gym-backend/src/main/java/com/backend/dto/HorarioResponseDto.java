@@ -57,6 +57,7 @@ public class HorarioResponseDto {
     @Schema(description = "ID único del horario", example = "1")
     private Long id;
 
+    private Integer plazasLibres;
     /**
      * Día de la semana en que se realiza la actividad.
      * <p>
@@ -96,7 +97,6 @@ public class HorarioResponseDto {
      */
     @Schema(description = "Aforo máximo permitido en el horario", example = "30")
     private Integer aforoMax;
-
     /**
      * Sala o instalación donde se realiza la actividad.
      * <p>
@@ -143,9 +143,9 @@ public class HorarioResponseDto {
     private Long salaId;
 
     // En el Backend (HorarioResponseDto.java)
-@Schema(description = "Nombre del entrenador", example = "Juan Pérez")
-private String nombreEntrenador; 
+    @Schema(description = "Nombre del entrenador", example = "Juan Pérez")
+    private String nombreEntrenador;
 
-@Schema(description = "ID del entrenador", example = "1")
-private Long entrenadorId;
+    @Schema(description = "ID del entrenador", example = "1")
+    private Long entrenadorId;
 }

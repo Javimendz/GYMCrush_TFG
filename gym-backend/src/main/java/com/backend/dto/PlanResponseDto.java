@@ -19,7 +19,11 @@ public class PlanResponseDto {
     private String nombre;
     private String objetivo;
     private String nivel;
-
+    @Schema(description = "ID del usuario creador (null si es global)")
+    private Long usuarioId;
+    @Schema(description = "Indica si es un plan oficial del gimnasio")
+    private boolean esGlobal;
+    private String descripcion;
     @Schema(description = "Lista de ejercicios asignados a este plan, ordenados por día y orden")
     private List<DetallePlanResponseDto> ejercicios;
 }

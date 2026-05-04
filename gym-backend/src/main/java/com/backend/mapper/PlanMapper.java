@@ -11,13 +11,16 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PlanMapper {
 
+  // Extraemos el ID del objeto Usuario asociado a la entidad PlanEntrenamiento
+    @Mapping(source = "usuario.id", target = "usuarioId")
     PlanResponseDto toResponseDto(PlanEntrenamiento entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "ejercicios", ignore = true)
+    @Mapping(target = "usuario", ignore = true)
+    @Mapping(target = "esGlobal", ignore = true) // Se determina en el servicio según el rol del usuario
     PlanEntrenamiento toEntity(PlanRequestDto dto);
 
-    // Este es el método que usa el endpoint de ejercicios
     @Mapping(target = "entrenamientoId", source = "entrenamiento.id")
     @Mapping(target = "nombreEntrenamiento", source = "entrenamiento.nombre")
     @Mapping(target = "descripcionEntrenamiento", source = "entrenamiento.descripcion")

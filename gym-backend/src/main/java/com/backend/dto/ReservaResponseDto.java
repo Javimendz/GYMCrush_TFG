@@ -153,7 +153,7 @@ public class ReservaResponseDto {
 
     @Schema(description = "Identificador único del usuario que realizó la reserva")
     private Long usuarioId;
-    
+    private Long plazasLibres;
      private String nombreSala;
     /**
      * Hora de inicio de la actividad reservada.
