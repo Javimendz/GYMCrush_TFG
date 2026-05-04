@@ -47,8 +47,7 @@ public class RetrofitClient {
                         okhttp3.Response response = chain.proceed(requestBuilder.build());
 
                         // Manejar errores de autorización (401 o 403)
-                        if (response.code() == 401 || response.code() == 403) {
-                            synchronized (RetrofitClient.class) {
+                        if (response.code() == 401 && !original.url().encodedPath().contains("auth/login")) {                            synchronized (RetrofitClient.class) {
                                 if (!isSessionExpiredHandled) {
                                     isSessionExpiredHandled = true;
                                     

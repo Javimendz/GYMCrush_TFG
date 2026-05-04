@@ -32,7 +32,9 @@ import com.google.gson.annotations.SerializedName;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,7 +50,7 @@ import ua.naiksoftware.stomp.dto.StompMessage;
 public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOptionsListener {
 
     private static final String TAG = "SocialFragment";
-    private static final String WS_URL = "ws://10.0.2.2:8080/ws";
+    private static final String WS_URL = "ws://10.0.2.2:8080/ws/websocket";
 
     private RecyclerView rvChat;
     private ChatAdapter adapter;
@@ -123,10 +125,17 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
     }
 
     private void initStomp(String token) {
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, WS_URL);
+        Map<String, String> handshakeHeaders = new HashMap<>();
+        if (token != null && !token.isEmpty()) {
+            handshakeHeaders.put("Authorization", "Bearer " + token);
+        }
+
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, WS_URL, handshakeHeaders);
 
         List<StompHeader> headers = new ArrayList<>();
-        headers.add(new StompHeader("Authorization", "Bearer " + token));
+        if (token != null && !token.isEmpty()) {
+            headers.add(new StompHeader("Authorization", "Bearer " + token));
+        }
 
         compositeDisposable = new CompositeDisposable();
 
@@ -145,7 +154,7 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                             Log.d(TAG, "Stomp connection closed");
                             break;
                     }
-                }));
+                }, throwable -> Log.e(TAG, "Lifecycle error", throwable)));
 
         // Suscribirse a mensajes nuevos
         compositeDisposable.add(mStompClient.topic("/topic/sala-publica")
@@ -170,7 +179,7 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                 .subscribe(topicMessage -> {
                     PeticionBorrado peticion = gson.fromJson(topicMessage.getPayload(), PeticionBorrado.class);
                     eliminarMensajeDeLista(peticion.id);
-                }));
+                }, throwable -> Log.e(TAG, "Error on topic/chat.borrados", throwable)));
 
         mStompClient.connect(headers);
     }
@@ -219,7 +228,9 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
             if (mensaje.getId() != null) {
                 PeticionBorrado peticion = new PeticionBorrado();
                 peticion.id = mensaje.getId();
-                mStompClient.send("/app/chat.borrar", gson.toJson(peticion)).subscribe();
+                mStompClient.send("/app/chat.borrar", gson.toJson(peticion)).subscribe(() -> {
+                    Log.d(TAG, "Borrado enviado");
+                }, throwable -> Log.e(TAG, "Error enviando borrado", throwable));
             }
             dialog.dismiss();
         });

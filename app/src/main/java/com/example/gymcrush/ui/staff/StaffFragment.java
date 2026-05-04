@@ -283,7 +283,7 @@ public class StaffFragment extends Fragment {
                     RegisterRequest request = new RegisterRequest();
                     request.setUsername(user);
                     request.setNombre(nom);
-                    request.setCorreo(mail);
+                    request.setEmail(mail);
                     request.setPassword(pass);
                     request.setRoles(new HashSet<>(Collections.singletonList("entrenador")));
 

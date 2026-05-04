@@ -151,7 +151,7 @@ public class RegisterActivity extends AppCompatActivity {
         request.setNombre(nombre);
         request.setApellidos(apellidos);
         request.setUsername(username);
-        request.setCorreo(correo);
+        request.setEmail(correo);
         request.setPassword(pass);
         request.setFechaNacimiento(fecha);
         request.setGenero(genero);

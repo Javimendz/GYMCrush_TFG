@@ -11,8 +11,8 @@ public class RegisterRequest {
     @SerializedName("password")
     private String password;
 
-    @SerializedName("correo")
-    private String correo;
+    @SerializedName("email")
+    private String email;
 
     @SerializedName("nombre")
     private String nombre;
@@ -54,8 +54,8 @@ public class RegisterRequest {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

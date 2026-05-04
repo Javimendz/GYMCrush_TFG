@@ -9,7 +9,9 @@ import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StompManager {
     private static final String TAG = "STOMP_MANAGER";
@@ -23,7 +25,12 @@ public class StompManager {
 
     public void connect(String url, Long usuarioId, String token, OnNotificationReceivedListener listener) {
         // La URL suele ser ws://10.0.2.2:8080/ws/websocket para el emulador
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, url);
+        Map<String, String> handshakeHeaders = new HashMap<>();
+        if (token != null && !token.isEmpty()) {
+            handshakeHeaders.put("Authorization", "Bearer " + token);
+        }
+
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, url, handshakeHeaders);
 
         List<StompHeader> headers = new ArrayList<>();
         if (token != null && !token.isEmpty()) {
@@ -43,7 +50,7 @@ public class StompManager {
                     Log.d(TAG, "STOMP connection closed");
                     break;
             }
-        });
+        }, throwable -> Log.e(TAG, "Lifecycle error", throwable));
 
         mStompClient.connect(headers);
     }
