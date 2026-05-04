@@ -201,6 +201,9 @@ public interface ApiService {
     @GET("api/v1/reservas/dia/{dia}")
     Call<ApiResponseDto<List<ReservaResponseDto>>> getReservasPorDia(@Path("dia") String dia);
 
+    @GET("api/v1/reservas/clase/{horarioId}/asistentes")
+    Call<ApiResponseDto<List<ReservaResponseDto>>> obtenerAsistentesClase(@Path("horarioId") Long horarioId);
+
     // --- NUEVOS ENDPOINTS PARA SALAS ---
     @GET("api/v1/salas")
     Call<ApiResponseDto<List<SalaResponseDto>>> getTodasLasSalas();

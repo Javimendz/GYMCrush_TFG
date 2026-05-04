@@ -30,6 +30,9 @@ public class ReservaResponseDto {
     @SerializedName("usuarioId")
     private Long usuarioId;
 
+    @SerializedName("horarioId")
+    private Long horarioId;
+
     // Getters
     public Long getId() { return id; }
     public String getFecha() { return fecha; }
@@ -40,4 +43,5 @@ public class ReservaResponseDto {
     public String getHoraInicio() { return horaInicio; }
     public String getNombreSala() { return nombreSala; }
     public Long getUsuarioId() { return usuarioId; }
+    public Long getHorarioId() { return horarioId; }
 }

@@ -119,13 +119,26 @@ public class ReservasRepository {
             @Override
             public void onResponse(@NonNull Call<ApiResponseDto<List<ReservaResponseDto>>> call, @NonNull Response<ApiResponseDto<List<ReservaResponseDto>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().isSuccess()) {
-                        callback.onSuccess(response.body().getDatos());
-                    } else {
-                        callback.onError(response.body().getMensaje());
-                    }
+                    callback.onSuccess(response.body().getDatos());
                 } else {
-                    callback.onError("Error al obtener reservas globales");
+                    callback.onError("Error al obtener reservas");
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<ApiResponseDto<List<ReservaResponseDto>>> call, @NonNull Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void getAsistentesClase(Long horarioId, RepositoryCallback<List<ReservaResponseDto>> callback) {
+        apiService.obtenerAsistentesClase(horarioId).enqueue(new Callback<ApiResponseDto<List<ReservaResponseDto>>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponseDto<List<ReservaResponseDto>>> call, @NonNull Response<ApiResponseDto<List<ReservaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().getDatos());
+                } else {
+                    callback.onError("Error al obtener asistentes");
                 }
             }
             @Override

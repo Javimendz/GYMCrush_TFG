@@ -80,4 +80,8 @@ public class HorarioResponseDto {
     public Long getSalaId() { return salaId; }
 
     public String getNombreEntrenador() { return nombreEntrenador; }
+
+    public void setOcupacion(Integer ocupacion) {
+        this.ocupacion = ocupacion;
+    }
 }

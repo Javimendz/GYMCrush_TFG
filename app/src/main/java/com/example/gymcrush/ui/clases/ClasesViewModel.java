@@ -28,9 +28,38 @@ public class ClasesViewModel extends ViewModel {
         loading.setValue(true);
         repository.getHorariosPorDia(dia, new ReservasRepository.RepositoryCallback<List<HorarioResponseDto>>() {
             @Override
-            public void onSuccess(List<HorarioResponseDto> result) {
-                horarios.setValue(result);
-                loading.setValue(false);
+            public void onSuccess(List<HorarioResponseDto> listaHorarios) {
+                if (listaHorarios == null || listaHorarios.isEmpty()) {
+                    horarios.setValue(new ArrayList<>());
+                    loading.setValue(false);
+                    return;
+                }
+
+                final int[] respondidos = {0};
+                for (HorarioResponseDto h : listaHorarios) {
+                    repository.getAsistentesClase(h.getId(), new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
+                        @Override
+                        public void onSuccess(List<ReservaResponseDto> asistentes) {
+                            if (asistentes != null) {
+                                h.setOcupacion(asistentes.size());
+                            }
+                            checkFinalizado();
+                        }
+
+                        @Override
+                        public void onError(String errorMessage) {
+                            checkFinalizado();
+                        }
+
+                        private void checkFinalizado() {
+                            respondidos[0]++;
+                            if (respondidos[0] == listaHorarios.size()) {
+                                horarios.setValue(listaHorarios);
+                                loading.setValue(false);
+                            }
+                        }
+                    });
+                }
             }
 
             @Override

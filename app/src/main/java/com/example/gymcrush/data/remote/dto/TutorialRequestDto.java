@@ -22,7 +22,7 @@ public class TutorialRequestDto {
 
     public TutorialRequestDto() {}
 
-    public TutorialRequestDto(String titulo, String descripcion, String urlVideo, Integer duracionMin, Long categoriaId, String musculoObjetivo, String equipamiento) {
+    public TutorialRequestDto(String titulo, String descripcion, String urlVideo, Integer duracionMin, Long categoriaId, String musculoObjetivo, String equipamiento, boolean esGlobal) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.urlVideo = urlVideo;
@@ -30,6 +30,7 @@ public class TutorialRequestDto {
         this.categoriaId = categoriaId;
         this.musculoObjetivo = musculoObjetivo;
         this.equipamiento = equipamiento;
+        this.esGlobal = esGlobal;
     }
 
     // Getters y Setters
@@ -50,4 +51,6 @@ public class TutorialRequestDto {
 
     public boolean isEsGlobal() { return esGlobal; }
     public void setEsGlobal(boolean esGlobal) { this.esGlobal = esGlobal; }
+    // Otros getters y setters
+
 }
