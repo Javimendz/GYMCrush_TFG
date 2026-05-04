@@ -12,6 +12,9 @@ public interface RutinaMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "usuario", ignore = true)
     @Mapping(target = "entrenamiento", ignore = true)
+    @Mapping(target = "series", ignore = true)
+    @Mapping(target = "peso", ignore = true)
+    @Mapping(target = "repeticiones", ignore = true)
     Rutina toEntity(RutinaRequestDto dto);
 
     // Entidad Rutina -> RutinaResponseDto
@@ -19,5 +22,6 @@ public interface RutinaMapper {
     @Mapping(target = "nombreEntrenamiento", source = "entrenamiento.nombre")
     @Mapping(target = "intensidad", source = "entrenamiento.intensidad")
     @Mapping(target = "duracion", source = "entrenamiento.duracion")
+    @Mapping(target = "urlImagen", source = "entrenamiento.urlImagen")
     RutinaResponseDto toResponseDto(Rutina rutina);
 }

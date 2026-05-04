@@ -7,23 +7,21 @@ import com.backend.dto.EntrenamientoResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy; 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EntrenamientoMapper {
 
-// ✅ Entity -> DTO (Para listas simples)
+//  Entity -> DTO (Para listas simples)
     @Mapping(target = "categoria", source = "categoria.nombre")
     EntrenamientoResponseDto toDto(Entrenamiento entrenamiento);
 
-    // ✅ DTO -> Entity
+    //  DTO -> Entity
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tutoriales", ignore = true)
     @Mapping(target = "categoria", ignore = true)
     Entrenamiento toEntity(EntrenamientoRequestDto dto);
 
-    // ✅ CORRECCIÓN: Se añaden los campos que faltaban para que Android los vea
     @Mapping(target = "id", source = "entrenamiento.id")
     @Mapping(target = "nombre", source = "entrenamiento.nombre")
     @Mapping(target = "descripcion", source = "entrenamiento.descripcion")

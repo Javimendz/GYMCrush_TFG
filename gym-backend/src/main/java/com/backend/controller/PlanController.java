@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.backend.domain.Usuario;
 import com.backend.dto.DetallePlanRequestDto;
-import com.backend.dto.DetallePlanResponseDto;
 import com.backend.dto.PlanRequestDto;
 import com.backend.dto.PlanResponseDto;
 import com.backend.security.dto.ApiResponseDto;
