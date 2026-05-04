@@ -91,7 +91,7 @@ public class Horario {
     @JoinColumn(name = "actividad_id", referencedColumnName = "id")
     private Actividad actividad;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "entrenador_id")
     private Usuario entrenador;
 
