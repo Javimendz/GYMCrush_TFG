@@ -105,7 +105,10 @@ public class EjerciciosFragment extends Fragment {
     private void checkAdminRole() {
         SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
         Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        long userId = prefs.getLong("user_id", -1);
         isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        
+        android.util.Log.d("EjerciciosFragment", "User ID: " + userId + " | Roles: " + roles + " | isAdmin: " + isAdmin);
     }
 
     private void mostrarOpcionesCrear() {
@@ -246,12 +249,22 @@ public class EjerciciosFragment extends Fragment {
                         @Override
                         public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
                             if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), "Eliminado", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Ejercicio eliminado correctamente", Toast.LENGTH_SHORT).show();
                                 cargarTutoriales();
+                            } else {
+                                if (response.code() == 403) {
+                                    Toast.makeText(getContext(), "Error 403: No tienes permisos para eliminar este ejercicio. Solo el creador o un administrador pueden hacerlo.", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getContext(), "Error al eliminar (" + response.code() + ")", Toast.LENGTH_SHORT).show();
+                                }
+                                android.util.Log.e("EjerciciosFragment", "Error 403 al eliminar tutorial ID " + t.getId() + ". Usuario actual: " + 
+                                    requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE).getLong("user_id", -1));
                             }
                         }
                         @Override
-                        public void onFailure(Call<ApiResponseDto<Void>> call, Throwable th) {}
+                        public void onFailure(Call<ApiResponseDto<Void>> call, Throwable th) {
+                            Toast.makeText(getContext(), "Error de red: " + th.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     });
                 })
                 .setNegativeButton("Cancelar", null)
