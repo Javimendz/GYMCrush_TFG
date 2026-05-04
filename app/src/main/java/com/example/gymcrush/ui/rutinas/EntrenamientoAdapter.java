@@ -18,6 +18,7 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
     private List<EntrenamientoResponseDto> lista;
     private OnItemClickListener listener;
     private boolean isAdmin = false;
+    private long currentUserId = -1;
 
     public interface OnItemClickListener {
         void onStartWorkout(EntrenamientoResponseDto entrenamiento);
@@ -32,8 +33,9 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         this.listener = listener;
     }
 
-    public void setAdmin(boolean admin) {
+    public void setAdmin(boolean admin, long currentUserId) {
         this.isAdmin = admin;
+        this.currentUserId = currentUserId;
         notifyDataSetChanged();
     }
 
@@ -66,6 +68,15 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
             holder.layoutIntensidadTag.setVisibility(View.GONE);
         }
 
+        // Tag Global/Personal
+        if (item.isEsGlobal()) {
+            holder.tvGlobalTag.setText("OFICIAL");
+            holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
+        } else {
+            holder.tvGlobalTag.setText("PERSONAL");
+            holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
+        }
+
         // Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback para GIFs)
         String imageUrl = (item.getUrlImagen() != null && !item.getUrlImagen().isEmpty()) 
                 ? item.getUrlImagen() 
@@ -81,14 +92,17 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
             holder.imgRutina.setImageResource(R.drawable.ic_workout);
         }
 
-        holder.btnMasOpciones.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
+        boolean isOwner = item.getUsuarioId() != null && item.getUsuarioId() == currentUserId;
+        boolean canManage = isAdmin || isOwner;
+
+        holder.btnMasOpciones.setVisibility(canManage ? View.VISIBLE : View.GONE);
         holder.btnMasOpciones.setOnClickListener(v -> {
             if (listener != null) {
                 android.widget.PopupMenu popup = new android.widget.PopupMenu(v.getContext(), v);
-                popup.getMenu().add("Eliminar Entrenamiento del Catálogo");
+                popup.getMenu().add("Eliminar Entrenamiento");
 
                 popup.setOnMenuItemClickListener(menuItem -> {
-                    if (menuItem.getTitle().equals("Eliminar Entrenamiento del Catálogo")) {
+                    if (menuItem.getTitle().equals("Eliminar Entrenamiento")) {
                         listener.onDeleteWorkout(item);
                     }
                     return true;
@@ -113,10 +127,10 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvNombre, tvDetalles, tvEstado;
+        TextView tvNombre, tvDetalles, tvEstado, tvGlobalTag;
         TextView tvDuracionTag, tvIntensidadTag;
         ImageView btnMasOpciones, imgRutina;
-        LinearLayout layoutDuracionTag, layoutIntensidadTag;
+        LinearLayout layoutDuracionTag, layoutIntensidadTag, layoutGlobalTag;
 
         public ViewHolder(@NonNull View v) {
             super(v);
@@ -125,10 +139,12 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
             tvEstado = v.findViewById(R.id.tvEstadoRutina);
             tvDuracionTag = v.findViewById(R.id.tvDuracionTagItem);
             tvIntensidadTag = v.findViewById(R.id.tvIntensidadTagItem);
+            tvGlobalTag = v.findViewById(R.id.tvGlobalTagEntrenamiento);
             btnMasOpciones = v.findViewById(R.id.btnMasOpciones);
             imgRutina = v.findViewById(R.id.imgRutina);
             layoutDuracionTag = v.findViewById(R.id.layoutDuracionTag);
             layoutIntensidadTag = v.findViewById(R.id.layoutIntensidadTag);
+            layoutGlobalTag = v.findViewById(R.id.layoutGlobalTagEntrenamiento);
         }
     }
 }

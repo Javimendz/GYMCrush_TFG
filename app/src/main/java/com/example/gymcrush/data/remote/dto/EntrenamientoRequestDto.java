@@ -30,6 +30,9 @@ public class EntrenamientoRequestDto {
     @SerializedName("categoria")
     private String categoria;   // Para el texto "GENERAL"
 
+    @SerializedName("esGlobal")
+    private boolean esGlobal;
+
 
     // ❌ OPCIONAL (solo si backend lo soporta)
     @SerializedName("tutorialesIds")
@@ -136,4 +139,7 @@ public class EntrenamientoRequestDto {
 
     public List<Long> getTutorialesIds() { return tutorialesIds; }
     public void setTutorialesIds(List<Long> tutorialesIds) { this.tutorialesIds = tutorialesIds; }
+
+    public boolean isEsGlobal() { return esGlobal; }
+    public void setEsGlobal(boolean esGlobal) { this.esGlobal = esGlobal; }
 }

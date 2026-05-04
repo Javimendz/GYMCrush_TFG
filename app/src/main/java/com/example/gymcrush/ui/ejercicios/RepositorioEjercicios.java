@@ -34,7 +34,7 @@ public class RepositorioEjercicios {
                     List<TutorialResponseDto> datos = response.body().getDatos();
                     List<Ejercicio> lista = new ArrayList<>();
                     for (TutorialResponseDto t : datos) {
-                        lista.add(new Ejercicio(
+                        Ejercicio e = new Ejercicio(
                                 t.getId(),
                                 t.getTitulo(),
                                 t.getNombreCategoria(),
@@ -43,7 +43,9 @@ public class RepositorioEjercicios {
                                 t.getUrlVideo(),
                                 R.drawable.ic_launcher_background,
                                 t.getMusculoObjetivo() // Usamos músculo como dificultad/info extra
-                        ));
+                        );
+                        e.setEsGlobal(t.isEsGlobal());
+                        lista.add(e);
                     }
                     callback.onLoaded(lista);
                 } else {

@@ -16,6 +16,7 @@ public class PlanesAdapter extends RecyclerView.Adapter<PlanesAdapter.ViewHolder
     private List<PlanResponseDto> planes;
     private OnPlanClickListener listener;
     private boolean isAdmin = false;
+    private long currentUserId = -1;
 
     public interface OnPlanClickListener {
         void onSuscribir(PlanResponseDto plan);
@@ -28,8 +29,9 @@ public class PlanesAdapter extends RecyclerView.Adapter<PlanesAdapter.ViewHolder
         this.listener = listener;
     }
 
-    public void setAdmin(boolean isAdmin) {
+    public void setAdmin(boolean isAdmin, long currentUserId) {
         this.isAdmin = isAdmin;
+        this.currentUserId = currentUserId;
         notifyDataSetChanged();
     }
 
@@ -50,12 +52,24 @@ public class PlanesAdapter extends RecyclerView.Adapter<PlanesAdapter.ViewHolder
         
         String nivel = plan.getNivel() != null ? plan.getNivel() : "INTERMEDIO";
         holder.tvNivel.setText(nivel.toUpperCase());
+
+        // Tag Global/Personal
+        if (plan.isEsGlobal()) {
+            holder.tvGlobalTag.setText("OFICIAL");
+            holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
+        } else {
+            holder.tvGlobalTag.setText("PERSONAL");
+            holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
+        }
         
         holder.btnSuscribir.setOnClickListener(v -> {
             if (listener != null) listener.onSuscribir(plan);
         });
 
-        if (isAdmin) {
+        boolean isOwner = plan.getUsuarioId() != null && plan.getUsuarioId() == currentUserId;
+        boolean canManage = isAdmin || isOwner;
+
+        if (canManage) {
             holder.btnEditar.setVisibility(View.VISIBLE);
             holder.btnEliminar.setVisibility(View.VISIBLE);
             holder.btnEditar.setOnClickListener(v -> {
@@ -81,17 +95,20 @@ public class PlanesAdapter extends RecyclerView.Adapter<PlanesAdapter.ViewHolder
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvNombre, tvObjetivo, tvNivel;
+        TextView tvNombre, tvObjetivo, tvNivel, tvGlobalTag;
         MaterialButton btnSuscribir, btnEditar, btnEliminar;
+        View layoutGlobalTag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNombre = itemView.findViewById(R.id.tvNombrePlan);
             tvObjetivo = itemView.findViewById(R.id.tvObjetivoPlan);
             tvNivel = itemView.findViewById(R.id.tvNivelPlan);
+            tvGlobalTag = itemView.findViewById(R.id.tvGlobalTagPlan);
             btnSuscribir = itemView.findViewById(R.id.btnSuscribirPlan);
             btnEditar = itemView.findViewById(R.id.btnEditarPlan);
             btnEliminar = itemView.findViewById(R.id.btnEliminarPlan);
+            layoutGlobalTag = itemView.findViewById(R.id.layoutGlobalTagPlan);
         }
     }
 }

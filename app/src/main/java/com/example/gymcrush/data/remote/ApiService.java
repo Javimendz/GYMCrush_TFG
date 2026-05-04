@@ -100,6 +100,9 @@ public interface ApiService {
     @GET("api/v1/tutoriales")
     Call<ApiResponseDto<List<TutorialResponseDto>>> getTutoriales();
 
+    @GET("api/v1/tutoriales/publicos")
+    Call<ApiResponseDto<List<TutorialResponseDto>>> getTutorialesPublicos();
+
     @GET("api/v1/tutoriales/categoria/{catId}")
     Call<ApiResponseDto<List<TutorialResponseDto>>> getTutorialesByCategoria(@Path("catId") Long catId);
 

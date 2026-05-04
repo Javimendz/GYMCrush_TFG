@@ -11,6 +11,8 @@ public class PlanRequestDto {
     private String objetivo;
     @SerializedName("nivel")
     private String nivel;
+    @SerializedName("esGlobal")
+    private boolean esGlobal;
 
     public PlanRequestDto(String nombre, String descripcion, String objetivo, String nivel) {
         this.nombre = nombre;
@@ -28,4 +30,7 @@ public class PlanRequestDto {
     public void setObjetivo(String objetivo) { this.objetivo = objetivo; }
     public String getNivel() { return nivel; }
     public void setNivel(String nivel) { this.nivel = nivel; }
+
+    public boolean isEsGlobal() { return esGlobal; }
+    public void setEsGlobal(boolean esGlobal) { this.esGlobal = esGlobal; }
 }

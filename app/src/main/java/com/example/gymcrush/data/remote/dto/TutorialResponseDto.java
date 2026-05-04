@@ -21,6 +21,10 @@ public class TutorialResponseDto {
     private String musculoObjetivo;
     @SerializedName("equipamiento")
     private String equipamiento;
+    @SerializedName("esGlobal")
+    private boolean esGlobal;
+    @SerializedName("usuarioId")
+    private Long usuarioId;
 
     public TutorialResponseDto() {}
 
@@ -33,4 +37,10 @@ public class TutorialResponseDto {
     public String getNombreCategoria() { return nombreCategoria; }
     public String getMusculoObjetivo() { return musculoObjetivo; }
     public String getEquipamiento() { return equipamiento; }
+
+    public boolean isEsGlobal() { return esGlobal; }
+    public void setEsGlobal(boolean esGlobal) { this.esGlobal = esGlobal; }
+
+    public Long getUsuarioId() { return usuarioId; }
+    public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
 }

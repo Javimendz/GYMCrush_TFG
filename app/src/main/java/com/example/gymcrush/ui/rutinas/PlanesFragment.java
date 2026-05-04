@@ -70,15 +70,14 @@ public class PlanesFragment extends Fragment {
         Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
         isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
 
-        if (isAdmin) {
-            fabAddPlan.setVisibility(View.VISIBLE);
-            fabAddPlan.setOnClickListener(v -> startCrearPlan.launch(new Intent(requireContext(), CrearPlanActivity.class)));
+        // Todos pueden ver el botón de añadir ahora
+        fabAddPlan.setVisibility(View.VISIBLE);
+        fabAddPlan.setOnClickListener(v -> startCrearPlan.launch(new Intent(requireContext(), CrearPlanActivity.class)));
 
-            View btnNuevoPlanToolbar = view.findViewById(R.id.btnNuevoPlanToolbar);
-            if (btnNuevoPlanToolbar != null) {
-                btnNuevoPlanToolbar.setVisibility(View.VISIBLE);
-                btnNuevoPlanToolbar.setOnClickListener(v -> startCrearPlan.launch(new Intent(requireContext(), CrearPlanActivity.class)));
-            }
+        View btnNuevoPlanToolbar = view.findViewById(R.id.btnNuevoPlanToolbar);
+        if (btnNuevoPlanToolbar != null) {
+            btnNuevoPlanToolbar.setVisibility(View.VISIBLE);
+            btnNuevoPlanToolbar.setOnClickListener(v -> startCrearPlan.launch(new Intent(requireContext(), CrearPlanActivity.class)));
         }
 
         adapter = new PlanesAdapter(new ArrayList<>(), new PlanesAdapter.OnPlanClickListener() {
@@ -110,7 +109,7 @@ public class PlanesFragment extends Fragment {
             }
         });
 
-        adapter.setAdmin(isAdmin);
+        adapter.setAdmin(isAdmin, userId);
         rvPlanes.setAdapter(adapter);
         cargarPlanes();
 

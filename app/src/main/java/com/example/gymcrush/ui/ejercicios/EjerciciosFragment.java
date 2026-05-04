@@ -45,6 +45,7 @@ public class EjerciciosFragment extends Fragment {
     private EjercicioAdapter adapter;
     private List<TutorialResponseDto> listaCompleta = new ArrayList<>();
     private List<TutorialResponseDto> listaFiltrada = new ArrayList<>();
+    private com.google.android.material.textfield.TextInputEditText etBuscador;
     private ChipGroup chipGroup;
     private FloatingActionButton fabAdd;
     private List<CategoriaTutorialResponseDto> categoriasBackend = new ArrayList<>();
@@ -59,9 +60,11 @@ public class EjerciciosFragment extends Fragment {
         rv = root.findViewById(R.id.rvEjerciciosBiblio);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
         
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        long userId = prefs.getLong("user_id", -1);
         checkAdminRole();
         
-        adapter = new EjercicioAdapter(listaFiltrada, isAdmin, new EjercicioAdapter.OnEjercicioAdminListener() {
+        adapter = new EjercicioAdapter(listaFiltrada, isAdmin, userId, new EjercicioAdapter.OnEjercicioAdminListener() {
             @Override
             public void onEdit(TutorialResponseDto tutorial) {
                 mostrarDialogoEditarEjercicio(tutorial);
@@ -74,17 +77,23 @@ public class EjerciciosFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        // 2. Chips
+        // 2. Chips y Buscador
         chipGroup = root.findViewById(R.id.chipGroupCategorias);
-
-        // 3. FAB para Admin
-        fabAdd = root.findViewById(R.id.fabAddExercise);
-        if (isAdmin) {
-            fabAdd.setVisibility(View.VISIBLE);
-            fabAdd.setOnClickListener(v -> mostrarOpcionesCrear());
-        } else {
-            fabAdd.setVisibility(View.GONE);
+        etBuscador = root.findViewById(R.id.etBuscarTutorial);
+        if (etBuscador != null) {
+            etBuscador.addTextChangedListener(new android.text.TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    filtrarPorNombre(s.toString());
+                }
+                @Override public void afterTextChanged(android.text.Editable s) {}
+            });
         }
+
+        // 3. FAB (Ahora visible para todos)
+        fabAdd = root.findViewById(R.id.fabAddExercise);
+        fabAdd.setVisibility(View.VISIBLE);
+        fabAdd.setOnClickListener(v -> mostrarOpcionesCrear());
 
         // 4. Cargar datos desde el Backend
         cargarTutoriales();
@@ -201,6 +210,11 @@ public class EjerciciosFragment extends Fragment {
                 }
             }
             request.setCategoriaId(catId);
+            
+            SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+            Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+            boolean isAdminUser = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+            request.setEsGlobal(isAdminUser);
 
             if (catId != -1L) {
                 RetrofitClient.getApiService().actualizarTutorial(t.getId(), request).enqueue(new Callback<ApiResponseDto<TutorialResponseDto>>() {
@@ -246,6 +260,12 @@ public class EjerciciosFragment extends Fragment {
 
     private void crearCategoriaYGuardarTutorial(String nombre, String desc, int duracion, String equipamiento, String catNombre, AlertDialog dialog) {
         CategoriaTutorialRequestDto catReq = new CategoriaTutorialRequestDto(catNombre, "Ejercicios de " + catNombre);
+        
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        boolean isAdminUser = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        catReq.setEsGlobal(isAdminUser);
+
         RetrofitClient.getApiService().crearCategoria(catReq).enqueue(new Callback<ApiResponseDto<CategoriaTutorialResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Response<ApiResponseDto<CategoriaTutorialResponseDto>> response) {
@@ -283,6 +303,11 @@ public class EjerciciosFragment extends Fragment {
         request.setCategoriaId(catId);
         request.setEquipamiento(equipamiento);
         request.setUrlVideo(""); // Manual no suele tener video al crear así
+        
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        boolean isAdminUser = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        request.setEsGlobal(isAdminUser);
 
         RetrofitClient.getApiService().crearTutorial(request).enqueue(new Callback<ApiResponseDto<TutorialResponseDto>>() {
             @Override
@@ -429,6 +454,12 @@ public class EjerciciosFragment extends Fragment {
     private void crearCategoriaYContinuar(ExerciseApiRequestDto exercise, String nombreCat, AlertDialog parentDialog) {
         String nombreLimpio = nombreCat.trim();
         CategoriaTutorialRequestDto nuevaCatDto = new CategoriaTutorialRequestDto(nombreLimpio, "Ejercicios de " + nombreLimpio);
+        
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        boolean isAdminUser = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        nuevaCatDto.setEsGlobal(isAdminUser);
+
         RetrofitClient.getApiService().crearCategoria(nuevaCatDto).enqueue(new Callback<ApiResponseDto<CategoriaTutorialResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Response<ApiResponseDto<CategoriaTutorialResponseDto>> response) {
@@ -498,6 +529,12 @@ public class EjerciciosFragment extends Fragment {
                     if (nombreCat.isEmpty()) return;
 
                     CategoriaTutorialRequestDto nuevaCatDto = new CategoriaTutorialRequestDto(nombreCat, "Ejercicios de " + nombreCat);
+                    
+                    SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+                    Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+                    boolean isAdminUser = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+                    nuevaCatDto.setEsGlobal(isAdminUser);
+
                     RetrofitClient.getApiService().crearCategoria(nuevaCatDto).enqueue(new Callback<ApiResponseDto<CategoriaTutorialResponseDto>>() {
                         @Override
                         public void onResponse(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Response<ApiResponseDto<CategoriaTutorialResponseDto>> response) {
@@ -542,6 +579,11 @@ public class EjerciciosFragment extends Fragment {
         request.setCategoriaId(cat.getId());
         request.setMusculoObjetivo(exercise.getTarget());
         request.setEquipamiento(exercise.getEquipment());
+        
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        boolean isAdminUser = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        request.setEsGlobal(isAdminUser);
 
         RetrofitClient.getApiService().crearTutorial(request).enqueue(new Callback<ApiResponseDto<TutorialResponseDto>>() {
             @Override
@@ -662,9 +704,20 @@ public class EjerciciosFragment extends Fragment {
             listaFiltrada.addAll(listaCompleta);
         } else {
             for (TutorialResponseDto t : listaCompleta) {
-                if (t.getNombreCategoria().equalsIgnoreCase(categoria)) {
+                if (t.getNombreCategoria() != null && t.getNombreCategoria().equalsIgnoreCase(categoria)) {
                     listaFiltrada.add(t);
                 }
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void filtrarPorNombre(String query) {
+        listaFiltrada.clear();
+        String lowQuery = query.toLowerCase();
+        for (TutorialResponseDto t : listaCompleta) {
+            if (t.getTitulo() != null && t.getTitulo().toLowerCase().contains(lowQuery)) {
+                listaFiltrada.add(t);
             }
         }
         adapter.notifyDataSetChanged();

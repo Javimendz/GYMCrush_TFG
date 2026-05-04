@@ -203,7 +203,7 @@ public class RutinasFragment extends Fragment {
         rvEjercicios.setLayoutManager(new LinearLayoutManager(getContext()));
         rvEjercicios.setNestedScrollingEnabled(false);
         ejerciciosAdapter = new EntrenamientoAdapter(new ArrayList<>());
-        ejerciciosAdapter.setAdmin(isAdmin);
+        ejerciciosAdapter.setAdmin(isAdmin, userId);
         ejerciciosAdapter.setOnItemClickListener(new EntrenamientoAdapter.OnItemClickListener() {
             @Override
             public void onStartWorkout(EntrenamientoResponseDto entrenamiento) {
@@ -693,7 +693,8 @@ public class RutinasFragment extends Fragment {
         SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
         Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
         isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
-        if (ejerciciosAdapter != null) ejerciciosAdapter.setAdmin(isAdmin);
+        userId = prefs.getLong("user_id", -1);
+        if (ejerciciosAdapter != null) ejerciciosAdapter.setAdmin(isAdmin, userId);
         actualizarVisibilidadFab(tabLayoutPrincipal.getSelectedTabPosition());
     }
 
@@ -856,9 +857,12 @@ public class RutinasFragment extends Fragment {
                 });
             }
         } else if (tabPosition == 1) {
-            // Explorar: FAB oculto
+            // Explorar: Mostrar FAB para todos ahora
             if (btnIrACrear != null) btnIrACrear.hide();
-            if (fabAddEjercicio != null) fabAddEjercicio.hide();
+            if (fabAddEjercicio != null) {
+                fabAddEjercicio.show();
+                fabAddEjercicio.setOnClickListener(v -> mostrarDialogoNuevoEjercicio());
+            }
         } else if (tabPosition == 2) {
             // Mis Rutinas: Botón para crear nueva plantilla (Entrenamiento)
             if (fabAddEjercicio != null) fabAddEjercicio.hide();
@@ -883,9 +887,10 @@ public class RutinasFragment extends Fragment {
 
         // Cargar asociaciones de ejercicios guardadas localmente
         RepositorioRutinas.cargarDatosDesdeLocal(requireContext());
-        if (userId == -1) return;
 
-        RetrofitClient.getApiService().getEntrenamientosUsuario(userId).enqueue(new Callback<ApiResponseDto<List<EntrenamientoResponseDto>>>() {
+        // Usamos el endpoint del catálogo general en lugar del específico del usuario
+        // para que todos los usuarios puedan ver los entrenamientos disponibles.
+        RetrofitClient.getApiService().listarEntrenamientosCatalogo().enqueue(new Callback<ApiResponseDto<List<EntrenamientoResponseDto>>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<List<EntrenamientoResponseDto>>> call, Response<ApiResponseDto<List<EntrenamientoResponseDto>>> response) {
                 if (response.isSuccessful() && response.body() != null) {

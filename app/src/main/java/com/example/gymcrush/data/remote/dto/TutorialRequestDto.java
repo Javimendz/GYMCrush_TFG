@@ -17,6 +17,8 @@ public class TutorialRequestDto {
     private String musculoObjetivo;
     @SerializedName("equipamiento")
     private String equipamiento;
+    @SerializedName("esGlobal")
+    private boolean esGlobal;
 
     public TutorialRequestDto() {}
 
@@ -45,4 +47,7 @@ public class TutorialRequestDto {
     public void setMusculoObjetivo(String musculoObjetivo) { this.musculoObjetivo = musculoObjetivo; }
     public String getEquipamiento() { return equipamiento; }
     public void setEquipamiento(String equipamiento) { this.equipamiento = equipamiento; }
+
+    public boolean isEsGlobal() { return esGlobal; }
+    public void setEsGlobal(boolean esGlobal) { this.esGlobal = esGlobal; }
 }

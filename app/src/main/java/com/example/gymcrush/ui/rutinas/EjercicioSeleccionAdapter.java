@@ -37,6 +37,16 @@ public class EjercicioSeleccionAdapter extends RecyclerView.Adapter<EjercicioSel
         Ejercicio ejercicio = listaEjercicios.get(position);
         holder.tvNombre.setText(ejercicio.getNombre());
 
+        // Manejar el tag Global/Personal
+        holder.layoutGlobalTag.setVisibility(View.VISIBLE);
+        if (ejercicio.isEsGlobal()) {
+            holder.tvGlobalTag.setText("OFICIAL");
+            holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
+        } else {
+            holder.tvGlobalTag.setText("PERSONAL");
+            holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
+        }
+
         // 1. Limpiar TextWatchers antiguos para evitar que afecten a otras celdas recicladas
         if (holder.etSeries.getTag() instanceof TextWatcher) {
             holder.etSeries.removeTextChangedListener((TextWatcher) holder.etSeries.getTag());
@@ -85,16 +95,19 @@ public class EjercicioSeleccionAdapter extends RecyclerView.Adapter<EjercicioSel
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvNombre;
+        TextView tvNombre, tvGlobalTag;
         CheckBox cbSeleccionado;
         LinearLayout layoutDetalles;
+        View layoutGlobalTag;
         EditText etSeries, etRepeticiones;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNombre = itemView.findViewById(R.id.tvNombreEjercicio);
+            tvGlobalTag = itemView.findViewById(R.id.tvGlobalTagItem);
             cbSeleccionado = itemView.findViewById(R.id.cbSeleccionado);
             layoutDetalles = itemView.findViewById(R.id.layoutDetallesSeleccion);
+            layoutGlobalTag = itemView.findViewById(R.id.layoutGlobalTag);
             etSeries = itemView.findViewById(R.id.etSeries);
             etRepeticiones = itemView.findViewById(R.id.etRepeticiones);
         }

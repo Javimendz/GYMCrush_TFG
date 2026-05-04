@@ -16,6 +16,10 @@ public class PlanResponseDto {
     private String nivel;
     @SerializedName("ejercicios")
     private List<DetallePlanResponseDto> ejercicios;
+    @SerializedName("esGlobal")
+    private boolean esGlobal;
+    @SerializedName("usuarioId")
+    private Long usuarioId;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -30,4 +34,10 @@ public class PlanResponseDto {
     public void setNivel(String nivel) { this.nivel = nivel; }
     public List<DetallePlanResponseDto> getEjercicios() { return ejercicios; }
     public void setEjercicios(List<DetallePlanResponseDto> ejercicios) { this.ejercicios = ejercicios; }
+
+    public boolean isEsGlobal() { return esGlobal; }
+    public void setEsGlobal(boolean esGlobal) { this.esGlobal = esGlobal; }
+
+    public Long getUsuarioId() { return usuarioId; }
+    public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
 }

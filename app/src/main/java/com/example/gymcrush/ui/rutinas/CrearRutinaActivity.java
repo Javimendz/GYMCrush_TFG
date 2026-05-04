@@ -153,6 +153,8 @@ public class CrearRutinaActivity extends AppCompatActivity {
                                         R.drawable.ic_launcher_foreground,
                                         dto.getDifficulty() != null ? dto.getDifficulty() : "Media"
                                 );
+                                // Por defecto, los de la API externa se consideran personales del usuario si los añade
+                                nuevo.setEsGlobal(false);
                                 listaEjercicios.add(0, nuevo);
                             }
                         }
@@ -239,6 +241,12 @@ public class CrearRutinaActivity extends AppCompatActivity {
                 seleccionados.size(), // cantidadEjercicios
                 null                  // urlImagen
         );
+        // Por defecto para usuarios normales, no es global
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        java.util.Set<String> roles = prefs.getStringSet("roles", new java.util.HashSet<>());
+        boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        entrenamientoReq.setEsGlobal(isAdmin);
+
         // 6. Llamada al API para crear el Entrenamiento
         RetrofitClient.getApiService().crearEntrenamiento(entrenamientoReq).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
             @Override

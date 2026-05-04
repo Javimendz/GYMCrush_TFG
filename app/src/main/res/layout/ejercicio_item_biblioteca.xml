@@ -101,13 +101,35 @@
                     android:background="@drawable/bg_neon_card"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="4dp"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:layout_marginEnd="8dp">
 
                     <TextView
                         android:id="@+id/tvMusculoTagItem"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="PECHO"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Tag Global/Personal -->
+                <LinearLayout
+                    android:id="@+id/layoutGlobalTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_chip_global"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvGlobalTagItem"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="OFICIAL"
                         android:textColor="#FFFFFF"
                         android:textSize="10sp"
                         android:textStyle="bold" />

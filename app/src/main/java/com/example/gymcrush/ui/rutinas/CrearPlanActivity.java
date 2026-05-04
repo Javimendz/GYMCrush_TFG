@@ -67,6 +67,12 @@ public class CrearPlanActivity extends AppCompatActivity {
 
         PlanRequestDto dto = new PlanRequestDto(nombre, descripcion, objetivo, nivel);
 
+        // Por defecto para usuarios normales, no es global
+        android.content.SharedPreferences prefs = getSharedPreferences("DatosUsuario", android.content.Context.MODE_PRIVATE);
+        java.util.Set<String> roles = prefs.getStringSet("roles", new java.util.HashSet<>());
+        boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        dto.setEsGlobal(isAdmin);
+
         RetrofitClient.getApiService().crearPlan(dto).enqueue(new Callback<ApiResponseDto<PlanResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<PlanResponseDto>> call, Response<ApiResponseDto<PlanResponseDto>> response) {

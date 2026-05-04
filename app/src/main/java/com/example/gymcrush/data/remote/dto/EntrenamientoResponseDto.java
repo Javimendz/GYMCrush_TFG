@@ -29,6 +29,12 @@ public class EntrenamientoResponseDto {
     @SerializedName("urlImagen")
     private String urlImagen;
 
+    @SerializedName("esGlobal")
+    private boolean esGlobal;
+
+    @SerializedName("usuarioId")
+    private Long usuarioId;
+
     public EntrenamientoResponseDto() {
     }
 
@@ -51,4 +57,10 @@ public class EntrenamientoResponseDto {
     public void setCategoria(String categoria) { this.categoria = categoria; }
     public void setUrlVideo(String urlVideo) { this.urlVideo = urlVideo; }
     public void setUrlImagen(String urlImagen) { this.urlImagen = urlImagen; }
+
+    public boolean isEsGlobal() { return esGlobal; }
+    public void setEsGlobal(boolean esGlobal) { this.esGlobal = esGlobal; }
+
+    public Long getUsuarioId() { return usuarioId; }
+    public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
 }

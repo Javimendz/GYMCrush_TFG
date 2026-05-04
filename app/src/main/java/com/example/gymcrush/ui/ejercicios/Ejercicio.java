@@ -10,6 +10,7 @@ public class Ejercicio {
     private int imagenResId;
     private String dificultad;
     private boolean seleccionado;
+    private boolean esGlobal;
     
     // Nuevos campos para rutinas personalizadas
     private String series = "0";
@@ -50,6 +51,8 @@ public class Ejercicio {
     public String getDificultad() { return dificultad; }
     public boolean isSeleccionado() { return seleccionado; }
     public void setSeleccionado(boolean seleccionado) { this.seleccionado = seleccionado; }
+    public boolean isEsGlobal() { return esGlobal; }
+    public void setEsGlobal(boolean esGlobal) { this.esGlobal = esGlobal; }
 
     public String getSeries() { return series; }
     public void setSeries(String series) { this.series = series; }

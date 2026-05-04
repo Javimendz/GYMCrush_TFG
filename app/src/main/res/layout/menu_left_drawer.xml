@@ -83,6 +83,20 @@
                     android:text="Mis Rutinas" />
             </LinearLayout>
 
+            <!-- Item: Planes -->
+            <LinearLayout
+                android:id="@+id/menu_planes"
+                style="@style/ModernMenuItem">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_workout"
+                    app:tint="#CD0277" />
+                <TextView
+                    style="@style/ModernMenuText"
+                    android:text="Planes de Entrenamiento" />
+            </LinearLayout>
+
             <!-- Item: Dieta -->
             <LinearLayout
                 android:id="@+id/menu_dieta"

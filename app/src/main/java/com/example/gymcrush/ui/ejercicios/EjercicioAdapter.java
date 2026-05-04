@@ -23,6 +23,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
     private List<Ejercicio> listaEjercicios;
     private boolean mostrarReps = false;
     private boolean isAdmin = false;
+    private long currentUserId = -1;
     private OnEjercicioAdminListener adminListener;
 
     public interface OnEjercicioAdminListener {
@@ -34,9 +35,10 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         this.listaTutoriales = listaTutoriales;
     }
 
-    public EjercicioAdapter(List<TutorialResponseDto> listaTutoriales, boolean isAdmin, OnEjercicioAdminListener listener) {
+    public EjercicioAdapter(List<TutorialResponseDto> listaTutoriales, boolean isAdmin, long currentUserId, OnEjercicioAdminListener listener) {
         this.listaTutoriales = listaTutoriales;
         this.isAdmin = isAdmin;
+        this.currentUserId = currentUserId;
         this.adminListener = listener;
     }
 
@@ -172,7 +174,39 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             holder.layoutMusculoTag.setVisibility(View.GONE);
         }
 
-        if (isAdmin && listaTutoriales != null) {
+        // Tag Global vs Personal
+        if (listaTutoriales != null) {
+            TutorialResponseDto t = listaTutoriales.get(position);
+            holder.layoutGlobalTag.setVisibility(View.VISIBLE);
+            if (t.isEsGlobal()) {
+                holder.tvGlobalTagItem.setText("OFICIAL");
+                holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
+            } else {
+                holder.tvGlobalTagItem.setText("PERSONAL");
+                holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
+            }
+        } else if (listaEjercicios != null) {
+            Ejercicio e = listaEjercicios.get(position);
+            holder.layoutGlobalTag.setVisibility(View.VISIBLE);
+            if (e.isEsGlobal()) {
+                holder.tvGlobalTagItem.setText("OFICIAL");
+                holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
+            } else {
+                holder.tvGlobalTagItem.setText("PERSONAL");
+                holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
+            }
+        } else {
+            holder.layoutGlobalTag.setVisibility(View.GONE);
+        }
+
+        boolean isOwner = false;
+        if (listaTutoriales != null) {
+            TutorialResponseDto t = listaTutoriales.get(position);
+            isOwner = t.getUsuarioId() != null && t.getUsuarioId() == currentUserId;
+        }
+        boolean canManage = isAdmin || isOwner;
+
+        if (canManage && listaTutoriales != null) {
             holder.imgMenu.setVisibility(View.VISIBLE);
             holder.imgMenu.setOnClickListener(v -> {
                 android.widget.PopupMenu popup = new android.widget.PopupMenu(v.getContext(), v);
@@ -249,10 +283,10 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtNombre, txtCategoria, txtDescripcion, txtDificultad, txtRepsSeries;
-        TextView tvDuracionTag, tvMusculoTag;
+        TextView tvDuracionTag, tvMusculoTag, tvGlobalTagItem;
         ImageView imgFoto, imgMenu;
         CheckBox cbCompletado;
-        View layoutDuracionTag, layoutMusculoTag;
+        View layoutDuracionTag, layoutMusculoTag, layoutGlobalTag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -263,11 +297,13 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             txtRepsSeries = itemView.findViewById(R.id.tvRepsSeries);
             tvDuracionTag = itemView.findViewById(R.id.tvDuracionTagItem);
             tvMusculoTag = itemView.findViewById(R.id.tvMusculoTagItem);
+            tvGlobalTagItem = itemView.findViewById(R.id.tvGlobalTagItem);
             imgFoto = itemView.findViewById(R.id.imgEjercicioIcono);
             cbCompletado = itemView.findViewById(R.id.cbCompletado);
             imgMenu = itemView.findViewById(R.id.imgMenuEjercicio);
             layoutDuracionTag = itemView.findViewById(R.id.layoutDuracionTag);
             layoutMusculoTag = itemView.findViewById(R.id.layoutMusculoTag);
+            layoutGlobalTag = itemView.findViewById(R.id.layoutGlobalTag);
         }
     }
 }

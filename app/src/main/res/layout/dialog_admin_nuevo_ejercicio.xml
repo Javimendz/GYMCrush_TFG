@@ -30,8 +30,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:hint="Nombre"
+            android:textColorHint="#CBD5E1"
             app:boxStrokeColor="#CD0277"
-            app:hintTextColor="#CD0277">
+            app:hintTextColor="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNombreEjercicio"
@@ -46,8 +47,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:hint="Descripción"
+            android:textColorHint="#CBD5E1"
             app:boxStrokeColor="#CD0277"
-            app:hintTextColor="#CD0277">
+            app:hintTextColor="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDescripcionEjercicio"
@@ -64,8 +66,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:hint="Categoría (Ej: Pecho, Espalda, Cardio)"
+            android:textColorHint="#CBD5E1"
             app:boxStrokeColor="#CD0277"
-            app:hintTextColor="#CD0277">
+            app:hintTextColor="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etCategoriaEjercicio"
@@ -80,8 +83,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:hint="Duración (min)"
+            android:textColorHint="#CBD5E1"
             app:boxStrokeColor="#CD0277"
-            app:hintTextColor="#CD0277">
+            app:hintTextColor="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDuracionEjercicio"
@@ -97,8 +101,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:hint="Equipamiento (Ej: Mancuernas, Barra)"
+            android:textColorHint="#CBD5E1"
             app:boxStrokeColor="#CD0277"
-            app:hintTextColor="#CD0277">
+            app:hintTextColor="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etIntensidadEjercicio"
