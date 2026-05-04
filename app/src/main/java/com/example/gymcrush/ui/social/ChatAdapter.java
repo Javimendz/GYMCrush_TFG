@@ -46,23 +46,35 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         holder.tvTexto.setText(mensaje.getTexto());
         holder.tvHora.setText(mensaje.getHora());
 
-        // Comprobación de autoría: intentamos por ID, y si falla o no hay IDs, comparamos por nombre
+        // Mejora de la comprobación de autoría
         boolean esMio = false;
         
-        if (usuarioIdActual != null && usuarioIdActual != -1L && mensaje.getUsuarioId() != null && mensaje.getUsuarioId() != 0) {
-            esMio = usuarioIdActual.equals(mensaje.getUsuarioId());
+        // 1. Comparación por ID (más fiable)
+        if (usuarioIdActual != null && usuarioIdActual != -1L && mensaje.getUsuarioId() != null) {
+            // Comparamos los valores long directamente
+            esMio = usuarioIdActual.longValue() == mensaje.getUsuarioId().longValue();
         }
         
-        // Fallback por nombre de usuario (ignorando mayúsculas/minúsculas)
+        // 2. Fallback por nombre de usuario si el ID no está o no coincide
         if (!esMio && mensaje.getUsuario() != null && usuarioActual != null) {
-            esMio = mensaje.getUsuario().equalsIgnoreCase(usuarioActual.trim());
+            String nombreMsg = mensaje.getUsuario().trim().toLowerCase();
+            String nombreYo = usuarioActual.trim().toLowerCase();
+            esMio = nombreMsg.equals(nombreYo);
         }
 
+        // Log para depurar si hay problemas de reconocimiento
+        android.util.Log.d("ChatAdapter", "Msg de: " + mensaje.getUsuario() + " (ID:" + mensaje.getUsuarioId() + ") | Yo: " + usuarioActual + " (ID:" + usuarioIdActual + ") | esMio: " + esMio);
+
         final boolean finalEsMio = esMio;
-        holder.itemView.setOnLongClickListener(v -> {
+        
+        // Aplicamos el click largo tanto al texto como al contenedor para asegurar que se detecte
+        View.OnLongClickListener longClickListener = v -> {
             showCustomOptionsDialog(v, position, finalEsMio);
             return true;
-        });
+        };
+        
+        holder.itemView.setOnLongClickListener(longClickListener);
+        holder.tvTexto.setOnLongClickListener(longClickListener);
     }
 
     private void showCustomOptionsDialog(View view, int position, boolean esMio) {
