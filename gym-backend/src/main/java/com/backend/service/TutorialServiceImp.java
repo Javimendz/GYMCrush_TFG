@@ -75,6 +75,15 @@ public class TutorialServiceImp implements ITutorialService {
         return tutoriales;
     }
 
+
+    @Override
+@Transactional(readOnly = true)
+public List<TutorialResponseDto> listarGlobales() {
+    log.info("Recuperando catálogo global de tutoriales (Biblioteca oficial)");
+    return tutorialRepository.findByEsGlobalTrue().stream()
+            .map(tutorialMapper::toDto)
+            .toList();
+}
     @Override
     @Transactional(readOnly = true)
     public List<TutorialResponseDto> buscarPorTitulo(String titulo) {
@@ -83,6 +92,36 @@ public class TutorialServiceImp implements ITutorialService {
         return tutorialRepository.findByTituloContainingIgnoreCase(titulo).stream()
                 .map(tutorialMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public TutorialResponseDto actualizar(Long id, TutorialRequestDto dto) {
+        log.info("Actualizando tutorial ID: {}", id);
+
+        Tutorial tutorial = tutorialRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("El tutorial no existe."));
+
+        // 1. Actualizamos campos básicos
+        tutorial.setTitulo(dto.getTitulo().trim());
+        tutorial.setDescripcion(dto.getDescripcion());
+        tutorial.setUrlVideo(dto.getUrlVideo());
+        tutorial.setMusculoObjetivo(dto.getMusculoObjetivo());
+        tutorial.setEquipamiento(dto.getEquipamiento());
+        tutorial.setDuracionMin(dto.getDuracionMin());
+
+        // 2. Lógica de la etiqueta (Global vs Personal)
+        if (dto.getEsGlobal() != null) {
+            tutorial.setEsGlobal(dto.getEsGlobal());
+            
+            // Si se vuelve personal y no tiene dueño, podrías asignar uno aquí
+            if (!dto.getEsGlobal() && tutorial.getUsuario() == null) {
+                log.info("Asignando dueño al tutorial que ahora es personal");
+                // Aquí puedes añadir lógica para asignar el usuario actual si es necesario
+            }
+        }
+
+        return tutorialMapper.toDto(tutorialRepository.save(tutorial));
     }
 
     /**
@@ -157,6 +196,14 @@ public class TutorialServiceImp implements ITutorialService {
         return tutorialRepository.findGlobalesYDelUsuario(usuarioId).stream()
                 .map(tutorialMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TutorialResponseDto> listarParaUsuarioYGlobales(String username) {
+        Usuario user = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException("Usuario no encontrado"));
+        return listarParaUsuario(user.getId());
     }
     /**
      * Elimina un tutorial por su ID.

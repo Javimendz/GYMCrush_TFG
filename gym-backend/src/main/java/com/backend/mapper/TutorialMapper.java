@@ -28,6 +28,7 @@ public interface TutorialMapper {
      * @param entity la entidad a convertir
      * @return el DTO de respuesta
      */
+    @Mapping(target = "usuarioId", source = "usuario.id")
     @Mapping(target = "categoriaId", source = "categoria.id")
     @Mapping(target = "nombreCategoria", source = "categoria.nombre")
     TutorialResponseDto toDto(Tutorial entity);
@@ -42,5 +43,6 @@ public interface TutorialMapper {
     @Mapping(target = "categoria", ignore = true) // Se busca el objeto Categoria en el Service
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "visualizaciones", ignore = true)
+    @Mapping(target = "usuario", ignore = true)
     Tutorial toEntity(TutorialRequestDto dto);
 }

@@ -19,7 +19,7 @@ import com.backend.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import io.swagger.v3.oas.annotations.Operation;
 /**
  * Controlador REST para gestionar los tutoriales de ejercicios.
  * Centraliza la búsqueda en biblioteca externa y el catálogo local.
@@ -41,17 +41,41 @@ public class TutorialController {
     // CONSULTA DE CATÁLOGO (USUARIOS Y ADMIN)
     // =========================================================================
 
-    @GetMapping
+   @GetMapping
     @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
-    public ResponseEntity<ApiResponseDto<List<TutorialResponseDto>>> listarTodos(
-            org.springframework.security.core.Authentication auth) {
-        
-        // Obtenemos el usuario logueado para filtrar su biblioteca
-        Usuario user = usuarioRepository.findByUsername(auth.getName()).orElseThrow();
-        List<TutorialResponseDto> data = tutorialService.listarParaUsuario(user.getId());
+    public ResponseEntity<ApiResponseDto<List<TutorialResponseDto>>> listarTodos(Authentication auth) {
+        log.info("Recuperando catálogo combinado");
+        List<TutorialResponseDto> data = tutorialService.listarParaUsuarioYGlobales(auth.getName()); 
         
         return ResponseEntity.ok(ApiResponseDto.<List<TutorialResponseDto>>builder()
-                .mensaje("Biblioteca de ejercicios recuperada")
+                .mensaje("Biblioteca combinada recuperada")
+                .datos(data)
+                .success(true)
+                .build());
+    }
+
+    @PutMapping("/{id}") 
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')") 
+    public ResponseEntity<ApiResponseDto<TutorialResponseDto>> actualizar(
+            @PathVariable Long id, 
+            @Valid @RequestBody TutorialRequestDto dto) {
+        
+        TutorialResponseDto actualizado = tutorialService.actualizar(id, dto);
+        
+        return ResponseEntity.ok(ApiResponseDto.<TutorialResponseDto>builder()
+                .mensaje("Tutorial actualizado correctamente")
+                .datos(actualizado)
+                .success(true)
+                .build());
+    }
+    @GetMapping("/mis-tutoriales")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+    public ResponseEntity<ApiResponseDto<List<TutorialResponseDto>>> listarMisTutoriales(
+            org.springframework.security.core.Authentication auth) {
+        Usuario user = usuarioRepository.findByUsername(auth.getName()).orElseThrow();
+        List<TutorialResponseDto> data = tutorialService.listarParaUsuario(user.getId());
+        return ResponseEntity.ok(ApiResponseDto.<List<TutorialResponseDto>>builder()
+                .mensaje("Tu biblioteca personal recuperada")
                 .datos(data)
                 .success(true)
                 .build());
@@ -131,6 +155,18 @@ public class TutorialController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.<TutorialResponseDto>builder()
                 .mensaje("Ejercicio añadido a tu biblioteca")
                 .datos(nuevo)
+                .success(true)
+                .build());
+    }
+
+    @GetMapping("/publicos")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+    public ResponseEntity<ApiResponseDto<List<TutorialResponseDto>>> listarPublicos() {
+        log.info("Recuperando catálogo puramente público");
+        List<TutorialResponseDto> data = tutorialService.listarGlobales();
+        return ResponseEntity.ok(ApiResponseDto.<List<TutorialResponseDto>>builder()
+                .mensaje("Biblioteca pública recuperada")
+                .datos(data)
                 .success(true)
                 .build());
     }

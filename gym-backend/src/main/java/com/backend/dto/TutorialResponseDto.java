@@ -223,4 +223,6 @@ public class TutorialResponseDto {
 
     private String musculoObjetivo;
     private String equipamiento;
+    private Boolean esGlobal;
+    private Long usuarioId;
 }

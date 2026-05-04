@@ -238,4 +238,8 @@ public class TutorialRequestDto {
     @Schema(description = "Equipamiento necesario (Mancuernas, Barra, etc.)")
     @NotBlank(message = "El equipamiento es obligatorio")
     private String equipamiento;
+
+    @Schema(description = "Si el tutorial es global (Biblioteca) o no")
+    @NotNull(message = "Debe indicar si el tutorial es global o no")
+    private Boolean esGlobal;
 }

@@ -62,6 +62,8 @@ public interface ITutorialService {
      */
     void eliminar(Long id);
 
+    TutorialResponseDto actualizar(Long id, TutorialRequestDto dto);
+
     /**
      * Obtiene todas las categorías de tutoriales disponibles.
      * <p>
@@ -74,7 +76,8 @@ public interface ITutorialService {
     List<CategoriaTutorialResponseDto> listarCategorias();
 
     List<TutorialResponseDto> buscarPorTitulo(String titulo);
-
+    List<TutorialResponseDto> listarGlobales();
     List<TutorialResponseDto> listarParaUsuario(Long usuarioId);
+    List<TutorialResponseDto> listarParaUsuarioYGlobales(String username);
 
 }

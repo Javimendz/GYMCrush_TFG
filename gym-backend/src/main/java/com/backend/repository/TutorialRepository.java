@@ -41,10 +41,9 @@ public interface TutorialRepository extends JpaRepository<Tutorial, Long> {
 
     // Verifica si la URL del GIF ya está en uso
     boolean existsByUrlVideo(String urlVideo);
-
+    List<Tutorial> findByEsGlobalTrue();
     @Query("SELECT t FROM Tutorial t WHERE t.usuario.id = :usuarioId OR t.usuario IS NULL")
     List<Tutorial> findGlobalesYDelUsuario(@Param("usuarioId") Long usuarioId);
 
- 
 
 }

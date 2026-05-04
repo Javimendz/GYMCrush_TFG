@@ -99,5 +99,5 @@ public class Tutorial {
     @JoinColumn(name = "usuario_id", nullable = true) // null = Ejercicio Global (Biblioteca)
     private Usuario usuario;
 
-    private boolean esGlobal;
+    private Boolean esGlobal;
 }
