@@ -657,28 +657,30 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             @Override public void onFailure(Call<ApiResponseDto<List<SalaResponseDto>>> call, Throwable t) {}
         });
 
-        // Cargar Entrenadores
-        RetrofitClient.getApiService().findAllPerfiles().enqueue(new Callback<ApiResponseDto<List<PerfilResponseDto>>>() {
+        // Cargar Entrenadores (Filtrado solo por aquellos con rol de entrenador)
+        RetrofitClient.getApiService().findEntrenadores().enqueue(new Callback<ApiResponseDto<List<PerfilResponseDto>>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Response<ApiResponseDto<List<PerfilResponseDto>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<PerfilResponseDto> lista = response.body().getDatos();
-                    ArrayAdapter<PerfilResponseDto> adapterPerf = new ArrayAdapter<PerfilResponseDto>(getContext(), android.R.layout.simple_spinner_item, lista) {
-                        @Override public View getView(int p, View c, ViewGroup parent) {
-                            TextView v = (TextView) super.getView(p, c, parent);
-                            v.setText(getItem(p).getNombreCompleto());
-                            return v;
-                        }
-                        @Override public View getDropDownView(int p, View c, ViewGroup parent) {
-                            TextView v = (TextView) super.getDropDownView(p, c, parent);
-                            v.setText(getItem(p).getNombreCompleto());
-                            return v;
-                        }
-                    };
-                    spinnerEntrenador.setAdapter(adapterPerf);
+                List<PerfilResponseDto> listaAMostrar = new ArrayList<>();
+                
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null && !response.body().getDatos().isEmpty()) {
+                    listaAMostrar = response.body().getDatos();
+                    android.util.Log.d("ClasesFragment", "Entrenadores filtrados cargados: " + listaAMostrar.size());
+                } else {
+                    android.util.Log.w("ClasesFragment", "El endpoint de entrenadores falló o está vacío (Código: " + response.code() + "). Cargando todos los perfiles como respaldo...");
+                    // PLAN B: Si no hay entrenadores filtrados, cargamos todos para no dejar el spinner vacío durante las pruebas
+                    cargarTodosLosPerfilesComoRespaldo(spinnerEntrenador);
+                    return;
                 }
+
+                configurarAdapterEntrenador(spinnerEntrenador, listaAMostrar);
             }
-            @Override public void onFailure(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Throwable t) {}
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Throwable t) {
+                android.util.Log.e("ClasesFragment", "Error de red. Cargando respaldo...", t);
+                cargarTodosLosPerfilesComoRespaldo(spinnerEntrenador);
+            }
         });
 
         final String[] horaInicio = {"10:00"};
@@ -1077,5 +1079,37 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
+    }
+
+    private void cargarTodosLosPerfilesComoRespaldo(android.widget.Spinner spinner) {
+        RetrofitClient.getApiService().findAllPerfiles().enqueue(new Callback<ApiResponseDto<List<PerfilResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Response<ApiResponseDto<List<PerfilResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    configurarAdapterEntrenador(spinner, response.body().getDatos());
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Throwable t) {}
+        });
+    }
+
+    private void configurarAdapterEntrenador(android.widget.Spinner spinner, List<PerfilResponseDto> lista) {
+        if (lista == null) lista = new ArrayList<>();
+        ArrayAdapter<PerfilResponseDto> adapter = new ArrayAdapter<PerfilResponseDto>(getContext(), android.R.layout.simple_spinner_item, lista) {
+            @Override public View getView(int p, View c, ViewGroup parent) {
+                TextView v = (TextView) super.getView(p, c, parent);
+                v.setText(getItem(p).getNombreCompleto());
+                v.setTextColor(Color.BLACK); // Asegurar visibilidad
+                return v;
+            }
+            @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                TextView v = (TextView) super.getDropDownView(p, c, parent);
+                v.setText(getItem(p).getNombreCompleto());
+                v.setTextColor(Color.BLACK); // Asegurar visibilidad
+                return v;
+            }
+        };
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 }
