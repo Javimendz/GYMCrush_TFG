@@ -40,9 +40,11 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -64,7 +66,7 @@ public class RutinasFragment extends Fragment {
 
     private TabLayout tabLayoutPrincipal, tabLayoutCategorias;
     private NestedScrollView containerRutinas, containerEjercicios, containerRutinasGuardadas;
-    private FrameLayout containerPlanes;
+    private FrameLayout containerPlanes, containerBiblioteca;
     private LinearLayout layoutVacio, layoutSelectorFecha;
     private android.widget.EditText etBuscador;
     private LineChart graphEvolucion;
@@ -78,6 +80,8 @@ public class RutinasFragment extends Fragment {
     private boolean isAdmin;
     private ExtendedFloatingActionButton fabAddEjercicio;
     private LocalDate fechaSeleccionada = LocalDate.now();
+
+    private boolean isDataLoaded = false;
 
     @Nullable
     @Override
@@ -105,12 +109,14 @@ public class RutinasFragment extends Fragment {
         containerRutinas = vista.findViewById(R.id.containerRutinas);
         containerEjercicios = vista.findViewById(R.id.containerEntrenamientos);
         containerPlanes = vista.findViewById(R.id.containerPlanes);
+        containerBiblioteca = vista.findViewById(R.id.containerBiblioteca);
         containerRutinasGuardadas = vista.findViewById(R.id.containerRutinasGuardadas);
         layoutVacio = vista.findViewById(R.id.layoutEjerciciosVacio);
         fabAddEjercicio = vista.findViewById(R.id.fabAddEjercicioAdmin);
 
         layoutSelectorFecha = vista.findViewById(R.id.layoutSelectorFecha);
         tvFechaSeleccionada = vista.findViewById(R.id.tvFechaSeleccionada);
+
         graphEvolucion = vista.findViewById(R.id.graphEvolucionRutinas);
         setupGraphEvolucion();
         tvStatTotal = vista.findViewById(R.id.tvStatTotal);
@@ -143,7 +149,14 @@ public class RutinasFragment extends Fragment {
 
             @Override
             public void onEliminar(RutinaResponseDto rutina) {
-                eliminarRutinaDeAgenda(rutina.getId());
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Quitar de la agenda")
+                        .setMessage("¿Estás seguro de que quieres eliminar '" + rutina.getNombreEntrenamiento() + "' de tu agenda de hoy?")
+                        .setPositiveButton("Eliminar", (dialog, which) -> {
+                            eliminarRutinaDeAgenda(rutina.getId());
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
             }
 
             @Override
@@ -252,9 +265,10 @@ public class RutinasFragment extends Fragment {
         }
 
         actualizarUIFecha();
-        cargarRutinaPorFecha();
-        cargarEjerciciosDesdeServidor();
-        cargarEstadisticas();
+        // No cargamos aquí, dejamos que onResume lo haga para evitar duplicidad en el arranque
+        // cargarRutinaPorFecha();
+        // cargarEjerciciosDesdeServidor();
+        // cargarEstadisticas();
 
         return vista;
     }
@@ -319,6 +333,7 @@ public class RutinasFragment extends Fragment {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Ejercicio eliminado de la agenda", Toast.LENGTH_SHORT).show();
                     cargarRutinaPorFecha();
+                    cargarEstadisticas();
                 }
             }
 
@@ -366,6 +381,7 @@ public class RutinasFragment extends Fragment {
             fechaSeleccionada = date;
             actualizarUIFecha();
             cargarRutinaPorFecha();
+            cargarEstadisticas();
         });
 
         rv.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -409,6 +425,16 @@ public class RutinasFragment extends Fragment {
     }
 
     private void actualizarResumenDiario(List<RutinaResponseDto> lista) {
+        TextView tvResumenTitulo = getView() != null ? getView().findViewById(R.id.tvResumenTitulo) : null;
+        if (tvResumenTitulo != null) {
+            if (fechaSeleccionada.equals(LocalDate.now())) {
+                tvResumenTitulo.setText("RESUMEN DE HOY");
+            } else {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'DE' MMMM", new Locale("es", "ES"));
+                tvResumenTitulo.setText("RESUMEN DEL " + fechaSeleccionada.format(formatter).toUpperCase());
+            }
+        }
+
         if (lista == null || lista.isEmpty()) {
             tvEstadoRutinaDia.setText("¡Día de descanso!");
             tvProgresoTexto.setText("Tómate un respiro hoy");
@@ -461,6 +487,10 @@ public class RutinasFragment extends Fragment {
         graphEvolucion.setScaleEnabled(true);
         graphEvolucion.setPinchZoom(true);
         graphEvolucion.getLegend().setEnabled(false);
+        
+        // Texto por defecto si no hay datos
+        graphEvolucion.setNoDataText("No hay datos de evolución disponibles");
+        graphEvolucion.setNoDataTextColor(Color.WHITE);
 
         XAxis xAxis = graphEvolucion.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -480,51 +510,50 @@ public class RutinasFragment extends Fragment {
     private void cargarEstadisticas() {
         if (userId == -1) return;
 
-        final Float[] puntos = new Float[7];
-        final Integer[] totales = new Integer[7];
-        final String[] etiquetas = new String[7];
-        final AtomicInteger peticionesFinalizadas = new AtomicInteger(0);
-        LocalDate hoy = LocalDate.now();
+        LocalDate finalVentana = fechaSeleccionada;
+        LocalDate inicio = finalVentana.minusDays(6);
 
-        for (int i = 0; i < 7; i++) {
-            final int index = i;
-            LocalDate dia = hoy.minusDays(6 - i);
-            etiquetas[index] = dia.getDayOfMonth() + "/" + dia.getMonthValue();
-            String fechaStr = dia.toString();
+        RetrofitClient.getApiService().getRutinasPorRango(userId, inicio.toString(), finalVentana.toString()).enqueue(new Callback<List<RutinaResponseDto>>() {
+            @Override
+            public void onResponse(Call<List<RutinaResponseDto>> call, Response<List<RutinaResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<RutinaResponseDto> todas = response.body();
 
-            RetrofitClient.getApiService().getRutinaDiaria(userId, fechaStr).enqueue(new Callback<ApiResponseDto<List<RutinaResponseDto>>>() {
-                @Override
-                public void onResponse(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Response<ApiResponseDto<List<RutinaResponseDto>>> response) {
-                    float completadas = 0;
-                    int total = 0;
-                    if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
-                        List<RutinaResponseDto> lista = response.body().getDatos();
-                        total = lista.size();
-                        completadas = (float) lista.stream()
+                    Float[] puntos = new Float[7];
+                    Integer[] totales = new Integer[7];
+                    String[] etiquetas = new String[7];
+
+                    for (int i = 0; i < 7; i++) {
+                        LocalDate dia = inicio.plusDays(i);
+                        String diaStr = dia.toString(); // YYYY-MM-DD
+                        etiquetas[i] = dia.getDayOfMonth() + "/" + dia.getMonthValue();
+
+                        List<RutinaResponseDto> delDia = todas.stream()
+                                .filter(r -> r.getFechaAsignacion() != null && r.getFechaAsignacion().contains(diaStr))
+                                .collect(Collectors.toList());
+
+                        totales[i] = delDia.size();
+                        puntos[i] = (float) delDia.stream()
                                 .filter(r -> Boolean.TRUE.equals(r.getCompletado()))
                                 .count();
                     }
-                    puntos[index] = completadas;
-                    totales[index] = total;
-                    verificarYActualizar();
-                }
 
-                @Override
-                public void onFailure(Call<ApiResponseDto<List<RutinaResponseDto>>> call, Throwable t) {
-                    puntos[index] = 0f;
-                    totales[index] = 0;
-                    verificarYActualizar();
+                    actualizarGrafica(puntos, etiquetas);
+                    calcularYMostrarRacha(puntos);
+                    actualizarMiniStats(puntos, totales);
+                } else {
+                    android.util.Log.e("STATS", "Error en respuesta: " + response.code());
                 }
+            }
 
-                private void verificarYActualizar() {
-                    if (peticionesFinalizadas.incrementAndGet() == 7) {
-                        actualizarGrafica(puntos, etiquetas);
-                        calcularYMostrarRacha(puntos);
-                        actualizarMiniStats(puntos, totales);
-                    }
+            @Override
+            public void onFailure(Call<List<RutinaResponseDto>> call, Throwable t) {
+                android.util.Log.e("STATS", "Fallo al cargar estadísticas", t);
+                if (isAdded()) {
+                    actualizarGrafica(new Float[]{0f,0f,0f,0f,0f,0f,0f}, new String[]{"","","","","","",""});
                 }
-            });
-        }
+            }
+        });
     }
 
     private void actualizarMiniStats(Float[] puntos, Integer[] totales) {
@@ -555,47 +584,61 @@ public class RutinasFragment extends Fragment {
         if (graphEvolucion == null) return;
 
         ArrayList<Entry> entries = new ArrayList<>();
+        boolean hasData = false;
         for (int i = 0; i < puntos.length; i++) {
-            entries.add(new Entry(i, puntos[i]));
+            float val = (puntos[i] != null) ? puntos[i] : 0f;
+            entries.add(new Entry(i, val));
+            if (val > 0) hasData = true;
+        }
+
+        if (!hasData) {
+            graphEvolucion.clear();
+            graphEvolucion.setNoDataText("Sin datos de evolución esta semana");
+            graphEvolucion.setNoDataTextColor(Color.parseColor("#94A3B8"));
+            graphEvolucion.invalidate();
+            return;
         }
 
         LineDataSet dataSet = new LineDataSet(entries, "Ejercicios Completados");
         dataSet.setColor(Color.parseColor("#CD0277"));
         dataSet.setCircleColor(Color.WHITE);
-        dataSet.setLineWidth(3f);
-        dataSet.setCircleRadius(5f);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleRadius(3f);
         dataSet.setDrawCircleHole(true);
         dataSet.setCircleHoleColor(Color.parseColor("#CD0277"));
         dataSet.setValueTextColor(Color.WHITE);
-        dataSet.setValueTextSize(10f);
+        dataSet.setValueTextSize(8f);
         dataSet.setDrawFilled(true);
         dataSet.setFillDrawable(new android.graphics.drawable.GradientDrawable(
                 android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
                 new int[]{Color.parseColor("#4DCD0277"), Color.TRANSPARENT}
         ));
-        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
 
         LineData lineData = new LineData(dataSet);
         graphEvolucion.setData(lineData);
 
         XAxis xAxis = graphEvolucion.getXAxis();
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(etiquetas));
+        xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(etiquetas));
+        xAxis.setLabelCount(7);
 
+        graphEvolucion.notifyDataSetChanged();
         graphEvolucion.invalidate();
-        graphEvolucion.animateY(1000);
     }
 
     private void calcularYMostrarRacha(Float[] puntos) {
         int racha = 0;
-        // El índice 6 es 'hoy'. Recorremos hacia atrás.
+        boolean esFinalHoy = fechaSeleccionada.equals(LocalDate.now());
+
+        // El índice 6 es el final de la ventana (fechaSeleccionada). Recorremos hacia atrás.
         for (int i = 6; i >= 0; i--) {
             if (puntos[i] > 0) {
                 racha++;
-            } else if (i == 6) {
-                // Si hoy es 0, la racha no se rompe aún (esperamos a que termine el día)
+            } else if (i == 6 && esFinalHoy) {
+                // Si la ventana termina hoy y hoy es 0, la racha no se rompe aún (esperamos a que termine el día)
                 continue;
             } else {
-                // Se rompió la racha en algún día anterior
+                // Se rompió la racha
                 break;
             }
         }
@@ -682,6 +725,7 @@ public class RutinasFragment extends Fragment {
                 containerPlanes.setVisibility(View.GONE);
                 containerEjercicios.setVisibility(View.GONE);
                 containerRutinasGuardadas.setVisibility(View.GONE);
+                containerBiblioteca.setVisibility(View.GONE);
                 layoutSelectorFecha.setVisibility(View.GONE);
 
                 // Nuevo: Ocultar también el progreso y el calendario horizontal si no es Agenda
@@ -704,6 +748,11 @@ public class RutinasFragment extends Fragment {
                 } else if (position == 2) { // MIS RUTINAS
                     containerRutinasGuardadas.setVisibility(View.VISIBLE);
                     actualizarRutinasGuardadas();
+                    if (progress != null) progress.setVisibility(View.GONE);
+                    if (calHorizontal != null) calHorizontal.setVisibility(View.GONE);
+                } else if (position == 3) { // BIBLIOTECA
+                    containerBiblioteca.setVisibility(View.VISIBLE);
+                    mostrarFragmentBiblioteca();
                     if (progress != null) progress.setVisibility(View.GONE);
                     if (calHorizontal != null) calHorizontal.setVisibility(View.GONE);
                 }
@@ -783,6 +832,13 @@ public class RutinasFragment extends Fragment {
                 .commit();
     }
 
+    private void mostrarFragmentBiblioteca() {
+        com.example.gymcrush.ui.ejercicios.EjerciciosFragment fragment = new com.example.gymcrush.ui.ejercicios.EjerciciosFragment();
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.containerBiblioteca, fragment)
+                .commit();
+    }
+
     private void actualizarNombrePlanActivo() {
         android.util.Log.i("RutinasFragment", "Sincronizando interfaz con el nuevo Plan Maestro");
     }
@@ -813,6 +869,10 @@ public class RutinasFragment extends Fragment {
                     startActivity(intent);
                 });
             }
+        } else if (tabPosition == 3) {
+            // Biblioteca: Botones ocultos (se gestionan dentro del fragmento de biblioteca)
+            if (btnIrACrear != null) btnIrACrear.hide();
+            if (fabAddEjercicio != null) fabAddEjercicio.hide();
         }
     }
 
@@ -1039,14 +1099,16 @@ public class RutinasFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Cargamos los datos. El delay de 400ms se mantiene si se considera necesario por la transición de fragmentos,
+        // pero eliminamos llamadas redundantes si ya se está cargando o es innecesario.
+        refreshAllData();
+    }
 
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            if (isAdded()) {
-                cargarRutinaPorFecha();
-                cargarEstadisticas();
-                cargarEjerciciosDesdeServidor();
-                actualizarRutinasGuardadas();
-            }
-        }, 400);
+    private void refreshAllData() {
+        if (!isAdded()) return;
+        cargarRutinaPorFecha();
+        cargarEstadisticas();
+        cargarEjerciciosDesdeServidor();
+        actualizarRutinasGuardadas();
     }
 }

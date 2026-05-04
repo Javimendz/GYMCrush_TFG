@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -84,6 +85,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import androidx.annotation.OptIn;
+import androidx.media3.common.util.UnstableApi;
+
 public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap map;
@@ -108,10 +112,16 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private List<CarouselAdapter.CarouselItem> carouselItemsList = new ArrayList<>();
     private List<CarouselAdapter.CarouselItem> exerciseCarouselItemsList = new ArrayList<>();
 
+    private com.example.gymcrush.data.remote.StompManager stompManager;
+    private LottieAnimationView notificationsAnim;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_desarrollo_prueba);
+
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
+        long usuarioId = prefs.getLong("user_id", -1);
 
         // 1. Configurar Fecha Actual
         TextView tvFecha = findViewById(R.id.tvFecha);
@@ -177,7 +187,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         cargarDatosYFotoPerfil();
 
         // Configurar roles y listener del menú
-        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
         Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
         boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
         
@@ -199,8 +208,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 cargarFragmento(new SaludFragment());
             } else if (id == R.id.nav_rutinas_drawer) {
                 cargarFragmento(new RutinasFragment());
-            } else if (id == R.id.nav_planes_entrenamiento) {
-                cargarFragmento(new PlanesFragment());
             } else if (id == R.id.nav_equipo) {
                 cargarFragmento(new EquipoFragment());
             } else if (id == R.id.nav_contacto) {
@@ -228,7 +235,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 mostrarHome();
                 return true;
             } else if (id == R.id.nav_workout) {
-                cargarFragmento(new EjerciciosFragment());
+                cargarFragmento(new RutinasFragment());
                 return true;
             } else if (id == R.id.nav_social) {
                 cargarFragmento(new SocialFragment());
@@ -250,11 +257,14 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             mapFragment.getMapAsync(this);
         }
 
-        LottieAnimationView notificationsAnim = findViewById(R.id.btnNotificationsAnim);
+        notificationsAnim = findViewById(R.id.btnNotificationsAnim);
         notificationsAnim.setOnClickListener(v -> {
             notificationsAnim.playAnimation();
             cargarFragmento(new NotificacionesFragment());
         });
+
+        // 6. Iniciar WebSockets para Notificaciones
+        iniciarWebSockets(usuarioId);
 
         // Configurar el carrusel
         setupCarousel();
@@ -362,15 +372,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             String etiquetaAzul = ""; // Ej: "Categoría: " + item.getCategoria()
 
             //  Llamamos al fragmento con los 7 parámetros
-            cargarFragmento(ReproductorFragment.newInstance(
-                    item.getId(),
-                    item.getImageUrl(), // o getUrlVideo() si es un video
-                    item.getTitle(),
-                    item.getFullDescription() != null ? item.getFullDescription() : item.getDescription(),
-                    subtitulo,
-                    duracion,
-                    etiquetaAzul
-            ));
+            initReproductor(item, subtitulo, duracion, etiquetaAzul);
         });
         viewPagerExerciseCarousel.setAdapter(exerciseCarouselAdapter);
 
@@ -523,27 +525,41 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 public void onResponse(Call<ApiResponseDto<NutricionResponseDto>> call, Response<ApiResponseDto<NutricionResponseDto>> response) {
                     if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
                         NutricionResponseDto plan = response.body().getDatos();
-                        tvNombrePlanWidget.setText(plan.getNombreDieta());
-                        tvNombrePlanWidget.setTextColor(getResources().getColor(R.color.white));
-                        tvCaloriasWidget.setText(plan.getCaloriasObjetivo() + " kcal");
-                        tvCaloriasWidget.setTextColor(getResources().getColor(R.color.brand_pink));
-                        actualizarProgresoMacros(plan);
+                        runOnUiThread(() -> {
+                            if (plan.getNombreDieta() != null && !plan.getNombreDieta().isEmpty()) {
+                                tvNombrePlanWidget.setText(plan.getNombreDieta());
+                            } else {
+                                tvNombrePlanWidget.setText("Mi Plan Nutricional");
+                            }
+                            tvNombrePlanWidget.setTextColor(Color.WHITE);
+                            tvCaloriasWidget.setText(plan.getCaloriasObjetivo() + " kcal");
+                            tvCaloriasWidget.setTextColor(getResources().getColor(R.color.brand_pink));
+                            actualizarProgresoMacros(plan);
+                        });
                     } else {
-                        // Caso cuando no hay plan asignado
-                        tvNombrePlanWidget.setText("Plan no asignado");
-                        tvNombrePlanWidget.setTextColor(Color.parseColor("#FFEB3B")); // Amarillo vibrante
-                        tvCaloriasWidget.setText("--- kcal");
-                        tvCaloriasWidget.setTextColor(Color.parseColor("#FFEB3B"));
-                        progressProt.setProgress(100);
-                        progressCarb.setProgress(100);
-                        progressGras.setProgress(100);
+                        runOnUiThread(() -> mostrarPlanNoAsignado());
                     }
                 }
-                @Override public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
-                    tvNombrePlanWidget.setText("Error al cargar");
+
+                @Override 
+                public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
+                    runOnUiThread(() -> {
+                        tvNombrePlanWidget.setText("Error de conexión");
+                        tvNombrePlanWidget.setTextColor(Color.RED);
+                    });
                 }
             });
         }
+    }
+
+    private void mostrarPlanNoAsignado() {
+        tvNombrePlanWidget.setText("Plan no asignado");
+        tvNombrePlanWidget.setTextColor(Color.parseColor("#FFEB3B")); 
+        tvCaloriasWidget.setText("--- kcal");
+        tvCaloriasWidget.setTextColor(Color.parseColor("#FFEB3B"));
+        progressProt.setProgress(100);
+        progressCarb.setProgress(100);
+        progressGras.setProgress(100);
     }
 
     private void actualizarProgresoMacros(NutricionResponseDto plan) {
@@ -724,10 +740,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             slidingRootNav.closeMenu();
             cargarFragmento(new RutinasFragment());
         });
-        menuView.findViewById(R.id.menu_planes).setOnClickListener(v -> {
-            slidingRootNav.closeMenu();
-            cargarFragmento(new PlanesFragment());
-        });
         menuView.findViewById(R.id.menu_dieta).setOnClickListener(v -> {
             slidingRootNav.closeMenu();
             cargarFragmento(new DietaFragment());
@@ -831,6 +843,19 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         actualizarRendimientoSemanal();
     }
 
+    @OptIn(markerClass = UnstableApi.class)
+    private void initReproductor(CarouselAdapter.CarouselItem item, String subtitulo, Integer duracion, String etiquetaAzul) {
+        cargarFragmento(ReproductorFragment.newInstance(
+                item.getId(),
+                item.getImageUrl(), // o getUrlVideo() si es un video
+                item.getTitle(),
+                item.getFullDescription() != null ? item.getFullDescription() : item.getDescription(),
+                subtitulo,
+                duracion,
+                etiquetaAzul
+        ));
+    }
+
     private void cargarFragmento(Fragment fragment) {
         homeContent.setVisibility(View.GONE);
         FragmentManager fm = getSupportFragmentManager();
@@ -844,6 +869,8 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         homeContent.setVisibility(View.VISIBLE);
         cargarDatosYFotoPerfil();
+        cargarDatosDinamicosCarrusel();
+        actualizarRendimientoSemanal();
     }
 
     private void mostrarDialogoQR() {
@@ -892,5 +919,41 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         LatLng gymLocation = new LatLng(39.4699, -0.3763);
         map.addMarker(new MarkerOptions().position(gymLocation).title("GYMCrush Valencia"));
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(gymLocation, 15f));
+    }
+    private void iniciarWebSockets(long usuarioId) {
+        if (usuarioId == -1) return;
+
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
+        String token = prefs.getString("auth_token", "");
+
+        stompManager = new com.example.gymcrush.data.remote.StompManager();
+        // IP de tu servidor (10.0.2.2 para emulador, o tu IP local)
+        String url = "ws://10.0.2.2:8080/ws/websocket"; 
+        
+        stompManager.connect(url, usuarioId, token, notification -> {
+            runOnUiThread(() -> {
+                // Notificación visual en la campana
+                if (notificationsAnim != null) {
+                    notificationsAnim.playAnimation();
+                }
+                
+                // Mostrar Toast o Snackbar
+                Toast.makeText(this, "🔔 " + notification.getTitulo() + ": " + notification.getMensaje(), Toast.LENGTH_LONG).show();
+                
+                // Si el fragmento de notificaciones está visible, actualizarlo en tiempo real
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (currentFragment instanceof NotificacionesFragment) {
+                    ((NotificacionesFragment) currentFragment).onNuevaNotificacionRecibida(notification);
+                }
+            });
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (stompManager != null) {
+            stompManager.disconnect();
+        }
+        super.onDestroy();
     }
 }

@@ -32,6 +32,7 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     private ExoPlayer player;
     private PlayerView playerView;
     private ImageView imgDetalle;
+    private TextView tvDuracionTagVideo;
 
 
     @Override
@@ -47,6 +48,10 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         TextView tvIntensidadDetalle = findViewById(R.id.tvIntensidadDetalle);
         TextView tvDescripcion = findViewById(R.id.tvDescripcionDetalle);
         RecyclerView rvEjercicios = findViewById(R.id.rvEjerciciosDetalle);
+        TextView tvLabelEjercicios = findViewById(R.id.tvLabelEjercicios);
+        tvDuracionTagVideo = findViewById(R.id.tvDuracionTagVideo);
+        Button btnVolver = findViewById(R.id.btnVolver);
+        Button btnCompletar = findViewById(R.id.btnCompletarRutina);
 
         // Obtener datos
         nombreRutina = getIntent().getStringExtra("NOMBRE_RUTINA");
@@ -63,34 +68,65 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         if (tvTitulo != null) tvTitulo.setText(nombreRutina);
         if (tvDescripcion != null) tvDescripcion.setText(descripcion);
         if (tvDuracionDetalle != null) tvDuracionDetalle.setText(duracionStr);
-        if (tvIntensidadDetalle != null) tvIntensidadDetalle.setText("Intensidad: " + (intensidad != null ? intensidad.toUpperCase() : "MEDIA"));
+        if (tvIntensidadDetalle != null) tvIntensidadDetalle.setText(intensidad != null && intensidad.startsWith("Categoría") ? intensidad : "Intensidad: " + (intensidad != null ? intensidad.toUpperCase() : "MEDIA"));
 
-        // Cargar imagen o video inicial
-        if (urlVideo != null && !urlVideo.isEmpty()) {
-            // Si quieres que empiece con el video, llama a setupVideoPlayer. 
-            // Si quieres que empiece con la imagen, llama a cargarImagen.
-            cargarImagen(urlVideo); 
-        } else {
-            imgDetalle.setImageResource(R.drawable.ic_launcher_background);
-            imgDetalle.setVisibility(View.VISIBLE);
-            playerView.setVisibility(View.GONE);
+        // Ajustes si viene de la biblioteca (ejercicio individual)
+        boolean esEjercicio = getIntent().getBooleanExtra("ES_EJERCICIO_BIBLIOTECA", false);
+        if (esEjercicio) {
+            if (btnCompletar != null) {
+                btnCompletar.setVisibility(View.GONE);
+            }
+            if (tvLabelEjercicios != null) tvLabelEjercicios.setVisibility(View.GONE);
+            if (btnVolver != null) btnVolver.setText("VOLVER A BIBLIOTECA");
+            
+            // Mostrar tag de duración bajo el video si aplica
+            if (tvDuracionTagVideo != null) {
+                tvDuracionTagVideo.setText(duracionStr);
+                tvDuracionTagVideo.setVisibility(View.VISIBLE);
+            }
+
+            // Si es un ejercicio, habilitamos el video directamente si existe
+            if (urlVideo != null && !urlVideo.isEmpty()) {
+                setupVideoPlayer(urlVideo);
+            }
+        }
+
+        // Cargar imagen o video inicial (solo si no se ha configurado el reproductor arriba)
+        if (!esEjercicio) {
+            if (urlVideo != null && !urlVideo.isEmpty()) {
+                cargarImagen(urlVideo); 
+            } else {
+                imgDetalle.setImageResource(R.drawable.ic_launcher_background);
+                imgDetalle.setVisibility(View.VISIBLE);
+                playerView.setVisibility(View.GONE);
+            }
         }
 
         // Configurar RecyclerView
         listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
-        if (listaEjercicios != null) {
-            rvEjercicios.setLayoutManager(new LinearLayoutManager(this));
-            EjercicioAdapter adapter = new EjercicioAdapter(listaEjercicios, true);
-            rvEjercicios.setAdapter(adapter);
-            findViewById(R.id.tvLabelEjercicios).setVisibility(View.VISIBLE);
+        if (listaEjercicios != null && !listaEjercicios.isEmpty() && !esEjercicio) {
+            if (rvEjercicios != null) {
+                rvEjercicios.setLayoutManager(new LinearLayoutManager(this));
+                EjercicioAdapter adapter = new EjercicioAdapter(listaEjercicios, true);
+                rvEjercicios.setAdapter(adapter);
+            }
+            if (tvLabelEjercicios != null) tvLabelEjercicios.setVisibility(View.VISIBLE);
+        } else {
+            if (tvLabelEjercicios != null) tvLabelEjercicios.setVisibility(View.GONE);
+            if (rvEjercicios != null) rvEjercicios.setVisibility(View.GONE);
         }
 
-        findViewById(R.id.btnVolver).setOnClickListener(v -> finish());
-        findViewById(R.id.btnCompletarRutina).setOnClickListener(v -> {
-            long id = getIntent().getLongExtra("RUTINA_ID", -1L);
-            if (id != -1) completarRutinaEnServidor(id);
-            else finish();
-        });
+        if (btnVolver != null) {
+            btnVolver.setOnClickListener(v -> finish());
+        }
+
+        if (btnCompletar != null) {
+            btnCompletar.setOnClickListener(v -> {
+                long id = getIntent().getLongExtra("RUTINA_ID", -1L);
+                if (id != -1) completarRutinaEnServidor(id);
+                else finish();
+            });
+        }
     }
     private void setupVideoPlayer(String url) {
         if (player != null) player.release();
@@ -133,19 +169,29 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     }
 
 
-    private void setupVideo(String url) {
-        player = new ExoPlayer.Builder(this).build();
-        playerView.setPlayer(player);
-        MediaItem mediaItem = MediaItem.fromUri(url);
-        player.setMediaItem(mediaItem);
-        player.setRepeatMode(Player.REPEAT_MODE_ALL);
-        player.prepare();
-        player.play();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (player != null) {
+            player.pause();
+        }
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (player != null) {
+            player.stop();
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (player != null) player.release();
+        if (player != null) {
+            player.release();
+            player = null;
+        }
     }
 
     private void completarRutinaEnServidor(long id) {

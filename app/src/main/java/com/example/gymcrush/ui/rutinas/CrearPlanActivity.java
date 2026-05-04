@@ -72,6 +72,7 @@ public class CrearPlanActivity extends AppCompatActivity {
             public void onResponse(Call<ApiResponseDto<PlanResponseDto>> call, Response<ApiResponseDto<PlanResponseDto>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(CrearPlanActivity.this, "Plan creado correctamente", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
                     finish();
                 } else {
                     Toast.makeText(CrearPlanActivity.this, "Error al crear el plan", Toast.LENGTH_SHORT).show();

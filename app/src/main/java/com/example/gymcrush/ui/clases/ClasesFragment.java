@@ -75,8 +75,6 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
     private List<MaterialButton> botonesDias;
     private FloatingActionButton fabAddClase;
     private String diaActual = "LUNES";
-    private ChipGroup chipGroupCategorias;
-    private String categoriaSeleccionada = null;
     private List<HorarioResponseDto> listaHorariosOriginal = new ArrayList<>();
     private List<ActividadResponseDto> todasLasActividades = new ArrayList<>();
     
@@ -125,12 +123,9 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         tabLayout = view.findViewById(R.id.tabLayoutClases);
         searchViewActividades = view.findViewById(R.id.searchViewActividades);
 
-        chipGroupCategorias = view.findViewById(R.id.chipGroupCategorias);
-
         configurarTabs();
         configurarBotonesDias(view);
         setupObservers();
-        cargarCategorias();
         setupSearchActividades();
 
         fabAddClase = view.findViewById(R.id.fabAddClase);
@@ -231,7 +226,9 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             case java.util.Calendar.WEDNESDAY: return "MIERCOLES";
             case java.util.Calendar.THURSDAY: return "JUEVES";
             case java.util.Calendar.FRIDAY: return "VIERNES";
-            default: return "LUNES"; // Si es fin de semana, mostramos el Lunes por defecto
+            case java.util.Calendar.SATURDAY: return "SABADO";
+            case java.util.Calendar.SUNDAY: return "DOMINGO";
+            default: return "LUNES";
         }
     }
 
@@ -242,6 +239,8 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         else if (diaSimplificado.equals("MIERCOLES")) btnId = R.id.btnMiercoles;
         else if (diaSimplificado.equals("JUEVES")) btnId = R.id.btnJueves;
         else if (diaSimplificado.equals("VIERNES")) btnId = R.id.btnViernes;
+        else if (diaSimplificado.equals("SABADO")) btnId = R.id.btnSabado;
+        else if (diaSimplificado.equals("DOMINGO")) btnId = R.id.btnDomingo;
         
         MaterialButton btn = view.findViewById(btnId);
         if (btn != null) actualizarEstiloBotones(btn);
@@ -266,7 +265,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         viewModel.getHorarios().observe(getViewLifecycleOwner(), horarios -> {
             if (horarios != null) {
                 listaHorariosOriginal = horarios;
-                filtrarYAplicarHorarios();
+                aplicarHorarios();
             } else {
                 listaHorariosOriginal = new ArrayList<>();
                 adapter.setClases(new ArrayList<>());
@@ -280,67 +279,12 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         });
     }
 
-    private void cargarCategorias() {
-        RetrofitClient.getApiService().getCategoriasActividad().enqueue(new Callback<ApiResponseDto<List<CategoriaResponseDto>>>() {
-            @Override
-            public void onResponse(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Response<ApiResponseDto<List<CategoriaResponseDto>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<CategoriaResponseDto> categorias = response.body().getDatos();
-                    añadirChipsCategorias(categorias);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
-        });
-    }
-
-    private void añadirChipsCategorias(List<CategoriaResponseDto> categorias) {
-        if (chipGroupCategorias == null) return;
-        chipGroupCategorias.removeAllViews();
-
-        // Chip "Todas"
-        Chip chipTodas = new Chip(getContext());
-        chipTodas.setText("Todas");
-        chipTodas.setCheckable(true);
-        chipTodas.setChecked(true);
-        chipTodas.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                categoriaSeleccionada = null;
-                filtrarYAplicarHorarios();
-            }
-        });
-        chipGroupCategorias.addView(chipTodas);
-
-        for (CategoriaResponseDto cat : categorias) {
-            Chip chip = new Chip(getContext());
-            chip.setText(cat.getNombre());
-            chip.setCheckable(true);
-            chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isChecked) {
-                    categoriaSeleccionada = cat.getNombre();
-                } else if (chipGroupCategorias.getCheckedChipId() == View.NO_ID) {
-                    categoriaSeleccionada = null;
-                }
-                filtrarYAplicarHorarios();
-            });
-            chipGroupCategorias.addView(chip);
-        }
-    }
-
-    private void filtrarYAplicarHorarios() {
+    private void aplicarHorarios() {
         if (listaHorariosOriginal == null) return;
 
         List<Clase> listaMapeada = new ArrayList<>();
-        List<HorarioResponseDto> horariosFiltrados = listaHorariosOriginal;
 
-        if (categoriaSeleccionada != null) {
-            horariosFiltrados = listaHorariosOriginal.stream()
-                    .filter(h -> h.getNombreActividad().toLowerCase().contains(categoriaSeleccionada.toLowerCase()))
-                    .collect(Collectors.toList());
-        }
-
-        for (HorarioResponseDto h : horariosFiltrados) {
+        for (HorarioResponseDto h : listaHorariosOriginal) {
             int aforo = h.getAforoMax() != null ? h.getAforoMax() : 0;
             int ocupacion = h.getOcupacion();
             int disponibles = Math.max(0, aforo - ocupacion);
@@ -365,8 +309,10 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         botonesDias.add(view.findViewById(R.id.btnMiercoles));
         botonesDias.add(view.findViewById(R.id.btnJueves));
         botonesDias.add(view.findViewById(R.id.btnViernes));
+        botonesDias.add(view.findViewById(R.id.btnSabado));
+        botonesDias.add(view.findViewById(R.id.btnDomingo));
 
-        String[] codigosDias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"};
+        String[] codigosDias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
 
         for (int i = 0; i < botonesDias.size(); i++) {
             final int index = i;

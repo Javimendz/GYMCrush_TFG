@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -35,6 +37,15 @@ public class PlanesFragment extends Fragment {
     private long userId;
     private boolean isAdmin = false;
 
+    private final ActivityResultLauncher<Intent> startCrearPlan = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == android.app.Activity.RESULT_OK) {
+                    cargarPlanes();
+                }
+            }
+    );
+
     public interface OnPlanSubscriptionListener {
         void onPlanSubscribed();
     }
@@ -61,12 +72,12 @@ public class PlanesFragment extends Fragment {
 
         if (isAdmin) {
             fabAddPlan.setVisibility(View.VISIBLE);
-            fabAddPlan.setOnClickListener(v -> startActivity(new Intent(requireContext(), CrearPlanActivity.class)));
+            fabAddPlan.setOnClickListener(v -> startCrearPlan.launch(new Intent(requireContext(), CrearPlanActivity.class)));
 
             View btnNuevoPlanToolbar = view.findViewById(R.id.btnNuevoPlanToolbar);
             if (btnNuevoPlanToolbar != null) {
                 btnNuevoPlanToolbar.setVisibility(View.VISIBLE);
-                btnNuevoPlanToolbar.setOnClickListener(v -> startActivity(new Intent(requireContext(), CrearPlanActivity.class)));
+                btnNuevoPlanToolbar.setOnClickListener(v -> startCrearPlan.launch(new Intent(requireContext(), CrearPlanActivity.class)));
             }
         }
 

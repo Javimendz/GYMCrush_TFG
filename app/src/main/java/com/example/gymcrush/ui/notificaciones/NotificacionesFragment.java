@@ -1,29 +1,55 @@
 package com.example.gymcrush.ui.notificaciones;
 
-import android.graphics.Color;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.gymcrush.R;
+import com.example.gymcrush.data.remote.RetrofitClient;
+import com.example.gymcrush.data.remote.dto.NotificacionResponseDto;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class NotificacionesFragment extends Fragment {
+
+    private RecyclerView rv;
+    private View layoutEmpty;
+    private NotificacionesAdapter adapter;
+    private List<NotificacionResponseDto> listaNotificaciones = new ArrayList<>();
+    private long usuarioId;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notificaciones, container, false);
 
-        // Configurar botón Volver
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        usuarioId = prefs.getLong("user_id", -1);
+
+        initViews(view);
+        cargarNotificaciones();
+
+        return view;
+    }
+
+    private void initViews(View view) {
         View btnVolver = view.findViewById(R.id.btnVolverNotificaciones);
         btnVolver.setOnClickListener(v -> {
             if (getParentFragmentManager() != null) {
@@ -31,42 +57,96 @@ public class NotificacionesFragment extends Fragment {
             }
         });
 
-        RecyclerView rv = view.findViewById(R.id.rvNotificaciones);
-        View layoutEmpty = view.findViewById(R.id.layoutEmpty);
+        rv = view.findViewById(R.id.rvNotificaciones);
+        layoutEmpty = view.findViewById(R.id.layoutEmpty);
 
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        
-        // Datos del Gimnasio (Simulados)
-        // En una app real, esto vendría de una base de datos o API del gimnasio
-        List<Notificacion> lista = new ArrayList<>();
-        lista.add(new Notificacion("¡Nueva promo en batidos!", "Solo esta semana, 2x1 en todos los batidos de proteínas post-entreno.", "10:30 AM"));
-        lista.add(new Notificacion("Mantenimiento de Máquinas", "La zona de peso libre estará cerrada mañana de 8:00 a 10:00 por mantenimiento.", "Ayer"));
-        lista.add(new Notificacion("Evento Especial: Masterclass", "Inscríbete en la recepción para la Masterclass de Zumba del próximo sábado.", "Lunes"));
+        adapter = new NotificacionesAdapter(listaNotificaciones, this::marcarComoLeida);
+        rv.setAdapter(adapter);
+    }
 
-        if (lista.isEmpty()) {
+    private void cargarNotificaciones() {
+        if (usuarioId == -1) return;
+
+        RetrofitClient.getApiService().listarNotificaciones(usuarioId).enqueue(new Callback<List<NotificacionResponseDto>>() {
+            @Override
+            public void onResponse(Call<List<NotificacionResponseDto>> call, Response<List<NotificacionResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    listaNotificaciones.clear();
+                    listaNotificaciones.addAll(response.body());
+                    actualizarUI();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<NotificacionResponseDto>> call, Throwable t) {
+                Log.e("NOTIF_ERROR", "Error al cargar: " + t.getMessage());
+            }
+        });
+    }
+
+    private void marcarComoLeida(NotificacionResponseDto notif) {
+        if (notif.isLeido()) return;
+
+        RetrofitClient.getApiService().marcarNotificacionComoLeida(notif.getId()).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    cargarNotificaciones(); // Recargar para actualizar estado visual
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {}
+        });
+    }
+
+    public void onNuevaNotificacionRecibida(NotificacionResponseDto notif) {
+        if (listaNotificaciones != null && adapter != null) {
+            // Si el servidor envía un error de validación, puede que falten campos.
+            // Los rellenamos para que se vea bien en la lista.
+            if (notif.getTitulo() == null || notif.getTitulo().isEmpty()) {
+                notif.setTitulo("Aviso del Sistema");
+            }
+            if (notif.getFecha() == null || notif.getFecha().isEmpty()) {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
+                notif.setFecha(sdf.format(new java.util.Date()));
+            }
+
+            listaNotificaciones.add(0, notif); // Añadir al principio
+            
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    actualizarUI();
+                    if (rv != null) rv.scrollToPosition(0);
+                });
+            }
+        }
+    }
+
+    private void actualizarUI() {
+        if (listaNotificaciones.isEmpty()) {
             layoutEmpty.setVisibility(View.VISIBLE);
             rv.setVisibility(View.GONE);
         } else {
             layoutEmpty.setVisibility(View.GONE);
             rv.setVisibility(View.VISIBLE);
-            rv.setAdapter(new NotificacionesAdapter(lista));
+            adapter.notifyDataSetChanged();
         }
-
-        return view;
     }
 
-    public static class Notificacion {
-        String titulo, mensaje, fecha;
-        public Notificacion(String titulo, String mensaje, String fecha) {
-            this.titulo = titulo;
-            this.mensaje = mensaje;
-            this.fecha = fecha;
-        }
+    private interface OnNotificacionClickListener {
+        void onClick(NotificacionResponseDto notif);
     }
 
     private static class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.ViewHolder> {
-        List<Notificacion> items;
-        NotificacionesAdapter(List<Notificacion> items) { this.items = items; }
+        private final List<NotificacionResponseDto> items;
+        private final OnNotificacionClickListener listener;
+
+        NotificacionesAdapter(List<NotificacionResponseDto> items, OnNotificacionClickListener listener) {
+            this.items = items;
+            this.listener = listener;
+        }
 
         @NonNull
         @Override
@@ -77,10 +157,21 @@ public class NotificacionesFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Notificacion n = items.get(position);
-            holder.tvTitulo.setText(n.titulo);
-            holder.tvMensaje.setText(n.mensaje);
-            holder.tvFecha.setText(n.fecha);
+            NotificacionResponseDto n = items.get(position);
+            holder.tvTitulo.setText(n.getTitulo());
+            holder.tvMensaje.setText(n.getMensaje());
+            holder.tvFecha.setText(n.getFecha());
+
+            // Estilo según si está leída o no
+            if (n.isLeido()) {
+                holder.itemView.setAlpha(0.6f);
+                holder.tvTitulo.setTextColor(holder.itemView.getContext().getColor(android.R.color.darker_gray));
+            } else {
+                holder.itemView.setAlpha(1.0f);
+                holder.tvTitulo.setTextColor(holder.itemView.getContext().getColor(R.color.white));
+            }
+
+            holder.itemView.setOnClickListener(v -> listener.onClick(n));
         }
 
         @Override

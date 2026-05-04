@@ -22,6 +22,7 @@ import com.example.gymcrush.data.model.Clase;
 import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.HorarioResponseDto;
+import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
 import com.example.gymcrush.data.remote.dto.ReservaResponseDto;
 import com.example.gymcrush.data.repository.ReservasRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -54,11 +55,8 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
         layoutWeeklyDays = view.findViewById(R.id.layoutWeeklyDays);
         fabAddReserva = view.findViewById(R.id.fabAddReserva);
 
-        // Detectar día de hoy para selección inicial
-        diaSeleccionadoCodigo = getDiaDeHoy();
-
-        configurarCalendarioSemanal(inflater);
-        actualizarListaPorDia(diaSeleccionadoCodigo);
+        // En lugar de cargar hoy directamente, buscamos el primer día con actividad
+        determinarDiaInicialYRefrescar(inflater);
 
         fabAddReserva.setOnClickListener(v -> abrirDialogoNuevaReserva());
 
@@ -217,35 +215,60 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
 
         if (userId == -1) return;
 
-        // Si es admin, podríamos querer ver TODAS las reservas del sistema para ese día,
-        // pero tu API actual 'getMisReservas(userId)' solo trae las del usuario.
-        // Asumiremos que el admin quiere gestionar las suyas o que existe un endpoint de gestión global.
-        
-        ReservasRepository.getInstance().getMisReservas(userId, new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
-            @Override
-            public void onSuccess(List<ReservaResponseDto> result) {
-                List<ReservaResponseDto> filtradas = new ArrayList<>();
-                for (ReservaResponseDto r : result) {
-                    // Si el DTO de reserva tuviera el día, filtraríamos aquí.
-                    // Por ahora mostramos las del usuario.
-                    filtradas.add(r);
+        // Convertimos a mayúsculas para asegurar compatibilidad con el backend
+        final String diaBusqueda = codigoDia.toUpperCase();
+
+        if (isAdmin) {
+            ReservasRepository.getInstance().getTodasLasReservasPorDia(diaBusqueda, new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
+                @Override
+                public void onSuccess(List<ReservaResponseDto> result) {
+                    // Log de depuración
+                    if (result != null) {
+                        for (ReservaResponseDto r : result) {
+                            android.util.Log.d("DEBUG_RESERVA", "ID: " + r.getId() + " | UsuarioID: " + r.getUsuarioId());
+                        }
+                    }
+                    actualizarAdapter(result, true);
                 }
 
-                if (adapter == null) {
-                    adapter = new ReservasAdapter(filtradas, ReservasFragment.this);
-                    adapter.setAdminMode(isAdmin); // Pasar el rol al adaptador
-                    rvReservas.setAdapter(adapter);
-                } else {
-                    adapter.setAdminMode(isAdmin);
-                    adapter.setReservas(filtradas);
+                @Override
+                public void onError(String errorMessage) {
+                    // Si el error es un 404 o 500, notificamos que falta el endpoint
+                    String msg = errorMessage.contains("404") ? "Endpoint no encontrado en backend" : errorMessage;
+                    Toast.makeText(getContext(), "Error Admin: " + msg, Toast.LENGTH_SHORT).show();
+                    actualizarAdapter(new ArrayList<>(), true);
                 }
-            }
+            });
+        } else {
+            ReservasRepository.getInstance().getMisReservas(userId, new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
+                @Override
+                public void onSuccess(List<ReservaResponseDto> result) {
+                    List<ReservaResponseDto> filtradas = new ArrayList<>();
+                    for (ReservaResponseDto r : result) {
+                        if (r.getDiaSemana() != null && r.getDiaSemana().equalsIgnoreCase(diaBusqueda)) {
+                            filtradas.add(r);
+                        }
+                    }
+                    actualizarAdapter(filtradas, false);
+                }
 
-            @Override
-            public void onError(String errorMessage) {
-                Toast.makeText(getContext(), "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onError(String errorMessage) {
+                    Toast.makeText(getContext(), "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void actualizarAdapter(List<ReservaResponseDto> lista, boolean isAdmin) {
+        if (adapter == null) {
+            adapter = new ReservasAdapter(lista, ReservasFragment.this);
+            adapter.setAdminMode(isAdmin);
+            rvReservas.setAdapter(adapter);
+        } else {
+            adapter.setAdminMode(isAdmin);
+            adapter.setReservas(lista);
+        }
     }
 
     @Override
@@ -271,10 +294,122 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
                     } else if (which == 1) {
                         confirmarCancelacionUsuario(reserva);
                     } else {
-                        Toast.makeText(getContext(), "Usuario ID: " + reserva.getUsuarioId(), Toast.LENGTH_SHORT).show();
+                        obtenerYMostrarDetallesUsuario(reserva.getUsuarioId());
                     }
                 })
                 .show();
+    }
+
+    private void obtenerYMostrarDetallesUsuario(Long usuarioId) {
+        if (usuarioId == null) {
+            Toast.makeText(getContext(), "ID de usuario no disponible", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RetrofitClient.getApiService().getPerfilByUsuarioId(usuarioId).enqueue(new Callback<ApiResponseDto<PerfilResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<PerfilResponseDto>> call, Response<ApiResponseDto<PerfilResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                    PerfilResponseDto perfil = response.body().getDatos();
+                    
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("👤 Usuario: ").append(perfil.getUsername()).append("\n");
+                    sb.append("📛 Nombre: ").append(perfil.getNombreCompleto()).append("\n");
+                    if (perfil.getDni() != null && !perfil.getDni().isEmpty()) 
+                        sb.append("🆔 DNI: ").append(perfil.getDni()).append("\n");
+                    if (perfil.getCorreo() != null && !perfil.getCorreo().isEmpty())
+                        sb.append("📧 Correo: ").append(perfil.getCorreo()).append("\n");
+                    if (perfil.getTelefono() != null && !perfil.getTelefono().isEmpty())
+                        sb.append("📞 Teléfono: ").append(perfil.getTelefono());
+
+                    new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                            .setTitle("Detalles del Cliente")
+                            .setMessage(sb.toString())
+                            .setPositiveButton("Cerrar", null)
+                            .show();
+                } else {
+                    Toast.makeText(getContext(), "No se pudieron obtener los detalles del usuario", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<PerfilResponseDto>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void determinarDiaInicialYRefrescar(LayoutInflater inflater) {
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        long userId = prefs.getLong("user_id", -1);
+        Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
+        boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        String hoy = getDiaDeHoy();
+        String[] codigosDias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
+
+        if (isAdmin) {
+            buscarPrimerDiaAdmin(inflater, hoy, codigosDias, 0);
+        } else {
+            ReservasRepository.getInstance().getMisReservas(userId, new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
+                @Override
+                public void onSuccess(List<ReservaResponseDto> result) {
+                    String diaEncontrado = encontrarPrimerDiaConReserva(result, hoy, codigosDias);
+                    diaSeleccionadoCodigo = (diaEncontrado != null) ? diaEncontrado : hoy;
+                    configurarCalendarioSemanal(inflater);
+                    actualizarListaPorDia(diaSeleccionadoCodigo);
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    diaSeleccionadoCodigo = hoy;
+                    configurarCalendarioSemanal(inflater);
+                    actualizarListaPorDia(diaSeleccionadoCodigo);
+                }
+            });
+        }
+    }
+
+    private void buscarPrimerDiaAdmin(LayoutInflater inflater, String hoy, String[] todos, int offset) {
+        if (offset >= 7) {
+            diaSeleccionadoCodigo = hoy;
+            configurarCalendarioSemanal(inflater);
+            actualizarListaPorDia(diaSeleccionadoCodigo);
+            return;
+        }
+
+        int indexHoy = 0;
+        for(int i=0; i<7; i++) if(todos[i].equals(hoy)) indexHoy = i;
+        int targetIndex = (indexHoy + offset) % 7;
+        String diaABuscar = todos[targetIndex];
+
+        ReservasRepository.getInstance().getTodasLasReservasPorDia(diaABuscar, new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
+            @Override
+            public void onSuccess(List<ReservaResponseDto> result) {
+                if (result != null && !result.isEmpty()) {
+                    diaSeleccionadoCodigo = diaABuscar;
+                    configurarCalendarioSemanal(inflater);
+                    actualizarListaPorDia(diaSeleccionadoCodigo);
+                } else {
+                    buscarPrimerDiaAdmin(inflater, hoy, todos, offset + 1);
+                }
+            }
+            @Override
+            public void onError(String errorMessage) {
+                buscarPrimerDiaAdmin(inflater, hoy, todos, offset + 1);
+            }
+        });
+    }
+
+    private String encontrarPrimerDiaConReserva(List<ReservaResponseDto> reservas, String hoy, String[] todos) {
+        int indexHoy = 0;
+        for(int i=0; i<7; i++) if(todos[i].equals(hoy)) indexHoy = i;
+        for (int i = 0; i < 7; i++) {
+            int targetIndex = (indexHoy + i) % 7;
+            String dia = todos[targetIndex];
+            for (ReservaResponseDto r : reservas) {
+                if (r.getDiaSemana() != null && r.getDiaSemana().equalsIgnoreCase(dia)) return dia;
+            }
+        }
+        return null;
     }
 
     private void confirmarAsistencia(ReservaResponseDto reserva) {
@@ -283,9 +418,26 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
             public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Asistencia confirmada", Toast.LENGTH_SHORT).show();
+                    actualizarListaPorDia(diaSeleccionadoCodigo);
+                } else {
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            com.google.gson.JsonObject jsonObject = com.google.gson.JsonParser.parseString(errorJson).getAsJsonObject();
+                            String mensaje = jsonObject.has("mensaje") ? jsonObject.get("mensaje").getAsString() : "Error al confirmar asistencia";
+                            Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(getContext(), "Error al procesar la respuesta", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
-            @Override public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {}
+            @Override
+            public void onFailure(Call<ApiResponseDto<Void>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

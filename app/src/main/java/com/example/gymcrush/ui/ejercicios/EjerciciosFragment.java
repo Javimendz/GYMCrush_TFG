@@ -287,6 +287,7 @@ public class EjerciciosFragment extends Fragment {
             public void onResponse(Call<ApiResponseDto<List<CategoriaTutorialResponseDto>>> call, Response<ApiResponseDto<List<CategoriaTutorialResponseDto>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     categoriasBackend = response.body().getDatos();
+                    setupChips(); // Actualizar chips cuando cargan las categorías
                 }
             }
             @Override
@@ -340,6 +341,84 @@ public class EjerciciosFragment extends Fragment {
     }
 
     private void mostrarConfirmacionAgregar(ExerciseApiRequestDto exercise, AlertDialog parentDialog) {
+        // Priorizamos una categoría descriptiva (BodyPart o Target) sobre el genérico 'strength'
+        // ya que la API externa suele devolver 'strength' en el campo category para todo.
+        String categoryName = exercise.getBodyPart();
+        if (categoryName == null || categoryName.isEmpty() || categoryName.equalsIgnoreCase("strength")) {
+            categoryName = exercise.getTarget();
+        }
+        if (categoryName == null || categoryName.isEmpty()) {
+            categoryName = exercise.getCategory();
+        }
+
+        if (categoryName != null && !categoryName.isEmpty()) {
+            // Capitalizar para que se vea bien en el diálogo y en los chips
+            categoryName = categoryName.substring(0, 1).toUpperCase() + categoryName.substring(1).toLowerCase();
+
+            final String finalCategoryName = categoryName;
+
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Categoría Detectada")
+                    .setMessage("El ejercicio seleccionado tiene la categoría: '" + finalCategoryName + "'\n\n¿Deseas guardarlo en esta categoría?")
+                    .setPositiveButton("Usar '" + finalCategoryName + "'", (dialog, which) -> {
+                        procesarCategoriaYGuardar(exercise, finalCategoryName, parentDialog);
+                    })
+                    .setNegativeButton("Elegir otra", (dialog, which) -> {
+                        mostrarSeleccionCategoriaManual(exercise, parentDialog);
+                    })
+                    .show();
+        } else {
+            // Si el video no tiene category debe insertarse una a mano
+            Toast.makeText(getContext(), "El video no tiene categoría. Selecciona una manualmente.", Toast.LENGTH_SHORT).show();
+            mostrarSeleccionCategoriaManual(exercise, parentDialog);
+        }
+    }
+
+    private void procesarCategoriaYGuardar(ExerciseApiRequestDto exercise, String categoryName, AlertDialog parentDialog) {
+        CategoriaTutorialResponseDto categoryFound = null;
+        if (categoriasBackend != null) {
+            for (CategoriaTutorialResponseDto cat : categoriasBackend) {
+                if (cat.getNombre().equalsIgnoreCase(categoryName)) {
+                    categoryFound = cat;
+                    break;
+                }
+            }
+        }
+
+        if (categoryFound != null) {
+            guardarTutorial(exercise, categoryFound, parentDialog);
+        } else {
+            // Si no existe la crea
+            crearCategoriaYContinuar(exercise, categoryName, parentDialog);
+        }
+    }
+
+    private void crearCategoriaYContinuar(ExerciseApiRequestDto exercise, String nombreCat, AlertDialog parentDialog) {
+        String nombreLimpio = nombreCat.trim();
+        CategoriaTutorialRequestDto nuevaCatDto = new CategoriaTutorialRequestDto(nombreLimpio, "Ejercicios de " + nombreLimpio);
+        RetrofitClient.getApiService().crearCategoria(nuevaCatDto).enqueue(new Callback<ApiResponseDto<CategoriaTutorialResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Response<ApiResponseDto<CategoriaTutorialResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    CategoriaTutorialResponseDto catCreada = response.body().getDatos();
+                    if (categoriasBackend == null) categoriasBackend = new ArrayList<>();
+                    categoriasBackend.add(catCreada);
+                    guardarTutorial(exercise, catCreada, parentDialog);
+                    cargarCategorias();
+                } else {
+                    String error = "Error al crear categoría";
+                    if (response.code() == 409) error = "La categoría ya existe";
+                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Throwable t) {
+                Toast.makeText(getContext(), "Fallo de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void mostrarSeleccionCategoriaManual(ExerciseApiRequestDto exercise, AlertDialog parentDialog) {
         List<String> opciones = new ArrayList<>();
         for (CategoriaTutorialResponseDto cat : categoriasBackend) {
             opciones.add(cat.getNombre());
@@ -381,15 +460,19 @@ public class EjerciciosFragment extends Fragment {
                         public void onResponse(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Response<ApiResponseDto<CategoriaTutorialResponseDto>> response) {
                             if (response.isSuccessful() && response.body() != null) {
                                 CategoriaTutorialResponseDto catCreada = response.body().getDatos();
+                                if (categoriasBackend == null) categoriasBackend = new ArrayList<>();
+                                categoriasBackend.add(catCreada);
                                 guardarTutorial(exercise, catCreada, parentDialog);
                                 cargarCategorias();
                             } else {
-                                Toast.makeText(getContext(), "Error al crear categoría", Toast.LENGTH_SHORT).show();
+                                String error = "Error al crear categoría";
+                                if (response.code() == 409) error = "La categoría ya existe";
+                                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                             }
                         }
                         @Override
                         public void onFailure(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Throwable t) {
-                            Toast.makeText(getContext(), "Fallo de red", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Fallo de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 })
@@ -414,8 +497,10 @@ public class EjerciciosFragment extends Fragment {
                     Toast.makeText(getContext(), "¡Tutorial añadido!", Toast.LENGTH_SHORT).show();
                     parentDialog.dismiss();
                     cargarTutoriales(); // Recargar lista principal
+                } else if (response.code() == 409) {
+                    Toast.makeText(getContext(), "Este ejercicio ya existe en tu biblioteca", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getContext(), "Error al guardar", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error al guardar (Código: " + response.code() + ")", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -431,7 +516,21 @@ public class EjerciciosFragment extends Fragment {
             @Override
             public void onResponse(Call<ApiResponseDto<List<TutorialResponseDto>>> call, Response<ApiResponseDto<List<TutorialResponseDto>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    listaCompleta = response.body().getDatos();
+                    List<TutorialResponseDto> deLaApi = response.body().getDatos();
+                    listaCompleta.clear();
+                    if (deLaApi != null) {
+                        for (TutorialResponseDto t : deLaApi) {
+                            // Filtramos para mostrar solo ejercicios reales (tutoriales)
+                            // 1. Debe tener categoría
+                            // 2. La categoría no debe decir "rutina"
+                            // 3. Debe tener duración (los entrenamientos/rutinas suelen venir con duracionMin null en esta API)
+                            if (t.getNombreCategoria() != null && 
+                                !t.getNombreCategoria().toLowerCase().contains("rutina") &&
+                                t.getDuracionMin() != null) {
+                                listaCompleta.add(t);
+                            }
+                        }
+                    }
                     listaFiltrada.clear();
                     listaFiltrada.addAll(listaCompleta);
                     adapter.notifyDataSetChanged();
@@ -449,11 +548,25 @@ public class EjerciciosFragment extends Fragment {
     }
 
     private void setupChips() {
-        if (getContext() == null) return;
+        if (getContext() == null || chipGroup == null) return;
         chipGroup.removeAllViews();
+        chipGroup.setSingleSelection(true);
+        chipGroup.setSelectionRequired(true);
+
         List<String> categorias = new ArrayList<>();
         categorias.add("Todos");
         
+        // 1. Añadimos las categorías del backend para que aparezcan siempre las creadas
+        if (categoriasBackend != null) {
+            for (CategoriaTutorialResponseDto cat : categoriasBackend) {
+                String n = cat.getNombre();
+                if (n != null && !categorias.contains(n) && !n.toLowerCase().contains("rutina")) {
+                    categorias.add(n);
+                }
+            }
+        }
+
+        // 2. Por si hay ejercicios con categorías no listadas explícitamente en el backend global
         for (TutorialResponseDto t : listaCompleta) {
             if (t.getNombreCategoria() != null && !categorias.contains(t.getNombreCategoria())) {
                 categorias.add(t.getNombreCategoria());
@@ -461,10 +574,17 @@ public class EjerciciosFragment extends Fragment {
         }
 
         for (String cat : categorias) {
-            Chip chip = new Chip(getContext());
+            Chip chip = new Chip(requireContext());
             chip.setText(cat);
             chip.setCheckable(true);
-            if (cat.equals("Todos")) chip.setChecked(true);
+            chip.setClickable(true);
+            
+            // Estética similar a la imagen (opcional, ajustando según estilo del proyecto)
+            // chip.setChipBackgroundColorResource(R.color.white); 
+            
+            if (cat.equals("Todos")) {
+                chip.setChecked(true);
+            }
 
             chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) filtrar(cat);

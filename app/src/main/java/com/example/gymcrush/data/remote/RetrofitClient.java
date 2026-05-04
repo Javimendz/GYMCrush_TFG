@@ -14,6 +14,7 @@ public class RetrofitClient {
     private static final String BASE_URL = "http://10.0.2.2:8080/";
     private static Retrofit retrofit = null;
     private static Context context;
+    private static boolean isSessionExpiredHandled = false;
 
     public static void init(Context ctx) {
         context = ctx.getApplicationContext();
@@ -36,15 +37,38 @@ public class RetrofitClient {
                         SharedPreferences prefs = context.getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
                         String token = prefs.getString("auth_token", "");
 
+                        Request.Builder requestBuilder = original.newBuilder();
                         if (!token.isEmpty()) {
-                            Request request = original.newBuilder()
-                                    .header("Authorization", "Bearer " + token)
-                                    .method(original.method(), original.body())
-                                    .build();
-                            return chain.proceed(request);
+                            requestBuilder.header("Authorization", "Bearer " + token);
+                            // Si enviamos un token, permitimos que se maneje una posible expiración
+                            isSessionExpiredHandled = false;
                         }
                         
-                        return chain.proceed(original);
+                        okhttp3.Response response = chain.proceed(requestBuilder.build());
+
+                        // Manejar errores de autorización (401 o 403)
+                        if (response.code() == 401 || response.code() == 403) {
+                            synchronized (RetrofitClient.class) {
+                                if (!isSessionExpiredHandled) {
+                                    isSessionExpiredHandled = true;
+                                    
+                                    // Limpiar token caducado
+                                    prefs.edit().remove("auth_token").apply();
+
+                                    // Mostrar mensaje de sesión expirada usando un Handler para el hilo principal
+                                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                                        android.widget.Toast.makeText(context, "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", android.widget.Toast.LENGTH_LONG).show();
+                                    });
+
+                                    // Redirigir al login
+                                    android.content.Intent intent = new android.content.Intent(context, com.example.gymcrush.ui.auth.LoginActivity.class);
+                                    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    context.startActivity(intent);
+                                }
+                            }
+                        }
+
+                        return response;
                     })
                     .build();
 

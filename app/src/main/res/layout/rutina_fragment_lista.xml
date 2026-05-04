@@ -47,6 +47,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="MIS RUTINAS" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BIBLIOTECA" />
         </com.google.android.material.tabs.TabLayout>
 
         <FrameLayout
@@ -98,7 +103,8 @@
             android:id="@+id/rvCalendarioHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="12dp"
+            android:paddingVertical="1dp"
+
             android:paddingHorizontal="10dp"
             android:background="#0A1128"
             android:clipToPadding="false"
@@ -155,7 +161,9 @@
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vpRutinasFavoritas"
                         android:layout_width="match_parent"
-                        android:layout_height="200dp"
+                        android:layout_marginLeft="25dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_height="190dp"
                         android:layout_marginTop="8dp"
                         android:visibility="gone"/>
 
@@ -164,6 +172,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
+                        android:background="@android:color/transparent"
                         app:tabBackground="@drawable/tab_selector_dot"
                         app:tabGravity="center"
                         app:tabIndicatorHeight="0dp"
@@ -186,7 +195,7 @@
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardResumenDia"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="190dp"
                         android:layout_marginHorizontal="20dp"
                         android:layout_marginTop="12dp"
                         app:cardCornerRadius="20dp"
@@ -210,68 +219,22 @@
                                 android:background="#B30A1128" />
 
                             <LinearLayout
-                                android:layout_width="390dp"
-                                android:layout_height="wrap_content"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
                                 android:orientation="vertical"
-                                android:padding="16dp">
-
-                                <TextView
-                                    android:id="@+id/tvResumenTitulo"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:letterSpacing="0.1"
-                                    android:text="RESUMEN DE HOY"
-                                    android:textColor="#94A3B8"
-                                    android:textSize="12sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:id="@+id/tvEstadoRutinaDia"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="No has empezado tu rutina todavía"
-                                    android:textColor="#FFFFFF"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    android:id="@+id/tvProgresoTexto"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:text="0% completado"
-                                    android:textColor="#CD0277"
-                                    android:textSize="12sp" />
-
-                                <com.google.android.material.progressindicator.LinearProgressIndicator
-                                    android:id="@+id/progressRutinaDetalle"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:progress="0"
-                                    app:indicatorColor="#CD0277"
-                                    app:trackColor="#33FFFFFF"
-                                    app:trackCornerRadius="4dp" />
-
-                                <View
-                                    android:layout_width="match_parent"
-                                    android:layout_height="1dp"
-                                    android:layout_marginTop="16dp"
-                                    android:layout_marginBottom="16dp"
-                                    android:background="#20FFFFFF" />
+                                android:padding="12dp">
 
                                 <RelativeLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content">
-
                                     <TextView
+                                        android:id="@+id/tvResumenTitulo"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:alpha="0.7"
-                                        android:text="TU EVOLUCIÓN (7 DÍAS)"
-                                        android:textColor="#FFFFFF"
-                                        android:textSize="12sp"
+                                        android:letterSpacing="0.1"
+                                        android:text="RESUMEN DE HOY"
+                                        android:textColor="#94A3B8"
+                                        android:textSize="10sp"
                                         android:textStyle="bold" />
 
                                     <TextView
@@ -280,18 +243,47 @@
                                         android:layout_height="wrap_content"
                                         android:layout_alignParentEnd="true"
                                         android:background="@drawable/bg_racha_badge"
-                                        android:paddingHorizontal="8dp"
-                                        android:paddingVertical="2dp"
+                                        android:paddingHorizontal="6dp"
+                                        android:paddingVertical="1dp"
                                         android:text="Racha: --"
                                         android:textColor="#FFD700"
-                                        android:textSize="12sp"
+                                        android:textSize="10sp"
                                         android:textStyle="bold" />
                                 </RelativeLayout>
+
+                                <TextView
+                                    android:id="@+id/tvEstadoRutinaDia"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="Día de descanso"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvProgresoTexto"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0% completado"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="11sp"
+                                    android:layout_marginTop="2dp"/>
+
+                                <com.google.android.material.progressindicator.LinearProgressIndicator
+                                    android:id="@+id/progressRutinaDetalle"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:progress="0"
+                                    app:indicatorColor="#CD0277"
+                                    app:trackColor="#33FFFFFF"
+                                    app:trackCornerRadius="4dp" />
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="12dp"
+                                    android:layout_marginTop="8dp"
                                     android:orientation="horizontal"
                                     android:weightSum="3">
 
@@ -301,22 +293,20 @@
                                         android:layout_weight="1"
                                         android:gravity="center"
                                         android:orientation="vertical">
-
                                         <TextView
                                             android:id="@+id/tvStatTotal"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="--"
                                             android:textColor="#FFFFFF"
-                                            android:textSize="16sp"
+                                            android:textSize="14sp"
                                             android:textStyle="bold" />
-
                                         <TextView
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="Total"
                                             android:textColor="#94A3B8"
-                                            android:textSize="10sp" />
+                                            android:textSize="9sp" />
                                     </LinearLayout>
 
                                     <LinearLayout
@@ -325,22 +315,20 @@
                                         android:layout_weight="1"
                                         android:gravity="center"
                                         android:orientation="vertical">
-
                                         <TextView
                                             android:id="@+id/tvStatMedia"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="--"
                                             android:textColor="#FFFFFF"
-                                            android:textSize="16sp"
+                                            android:textSize="14sp"
                                             android:textStyle="bold" />
-
                                         <TextView
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
-                                            android:text="Media/día"
+                                            android:text="Media"
                                             android:textColor="#94A3B8"
-                                            android:textSize="10sp" />
+                                            android:textSize="9sp" />
                                     </LinearLayout>
 
                                     <LinearLayout
@@ -349,30 +337,28 @@
                                         android:layout_weight="1"
                                         android:gravity="center"
                                         android:orientation="vertical">
-
                                         <TextView
                                             android:id="@+id/tvStatEfectividad"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="--"
                                             android:textColor="#CD0277"
-                                            android:textSize="16sp"
+                                            android:textSize="14sp"
                                             android:textStyle="bold" />
-
                                         <TextView
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="Efectividad"
                                             android:textColor="#94A3B8"
-                                            android:textSize="10sp" />
+                                            android:textSize="9sp" />
                                     </LinearLayout>
                                 </LinearLayout>
 
                                 <com.github.mikephil.charting.charts.LineChart
                                     android:id="@+id/graphEvolucionRutinas"
                                     android:layout_width="match_parent"
-                                    android:layout_height="180dp"
-                                    android:layout_marginTop="16dp" />
+                                    android:layout_height="65dp"
+                                    android:layout_marginTop="8dp" />
 
                             </LinearLayout>
                         </FrameLayout>
@@ -397,6 +383,12 @@
                     <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRutinasGuardadas" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" />
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
+
+            <FrameLayout
+                android:id="@+id/containerBiblioteca"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
 
             <androidx.core.widget.NestedScrollView android:id="@+id/containerEntrenamientos" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" android:fillViewport="true">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="10dp" android:paddingBottom="100dp">

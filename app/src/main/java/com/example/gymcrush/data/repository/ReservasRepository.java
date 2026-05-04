@@ -71,7 +71,19 @@ public class ReservasRepository {
                         callback.onError(response.body().getMensaje());
                     }
                 } else {
-                    callback.onError("No se pudo realizar la reserva");
+                    String errorMsg = "No se pudo realizar la reserva";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            com.google.gson.JsonObject json = com.google.gson.JsonParser.parseString(errorBody).getAsJsonObject();
+                            if (json.has("mensaje")) {
+                                errorMsg = json.get("mensaje").getAsString();
+                            }
+                        }
+                    } catch (Exception e) {
+                        errorMsg = "Error en el servidor: " + response.code();
+                    }
+                    callback.onError(errorMsg);
                 }
             }
             @Override
@@ -93,6 +105,27 @@ public class ReservasRepository {
                     }
                 } else {
                     callback.onError("Error al obtener tus reservas");
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<ApiResponseDto<List<ReservaResponseDto>>> call, @NonNull Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
+    }
+
+    public void getTodasLasReservasPorDia(String dia, RepositoryCallback<List<ReservaResponseDto>> callback) {
+        apiService.getReservasPorDia(dia).enqueue(new Callback<ApiResponseDto<List<ReservaResponseDto>>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponseDto<List<ReservaResponseDto>>> call, @NonNull Response<ApiResponseDto<List<ReservaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (response.body().isSuccess()) {
+                        callback.onSuccess(response.body().getDatos());
+                    } else {
+                        callback.onError(response.body().getMensaje());
+                    }
+                } else {
+                    callback.onError("Error al obtener reservas globales");
                 }
             }
             @Override

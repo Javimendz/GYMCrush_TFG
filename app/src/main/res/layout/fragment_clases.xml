@@ -151,6 +151,32 @@
                     app:cornerRadius="12dp"
                     app:strokeColor="#33FFFFFF" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSabado"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="SABADO"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:alpha="0.6"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="#33FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDomingo"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="DOMINGO"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:alpha="0.6"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="#33FFFFFF" />
+
             </LinearLayout>
         </HorizontalScrollView>
 
