@@ -15,11 +15,9 @@ import com.backend.dto.ExerciseApiRequestDto;
 import com.backend.security.dto.ApiResponseDto;
 import com.backend.service.ITutorialService;
 import com.backend.service.IExerciseProxyService; 
-import com.backend.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import io.swagger.v3.oas.annotations.Operation;
 /**
  * Controlador REST para gestionar los tutoriales de ejercicios.
  * Centraliza la búsqueda en biblioteca externa y el catálogo local.
@@ -172,7 +170,7 @@ public class TutorialController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Eliminar tutorial", description = "Borra un tutorial del sistema")
     public ResponseEntity<ApiResponseDto<Void>> eliminar(@PathVariable("id") Long id) {
         log.info("Eliminando tutorial con ID: {}", id);

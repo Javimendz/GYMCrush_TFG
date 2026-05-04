@@ -4,6 +4,7 @@ import java.util.List;
 import com.backend.domain.Perfil;
 import com.backend.dto.PerfilRequestDto;
 import com.backend.dto.PerfilResponseDto;
+import com.backend.exceptions.ResourceNotFoundException;
 
 /**
  * Interfaz del servicio para la gestión de perfiles de usuario.
@@ -28,7 +29,8 @@ public interface IPerfilService {
      * @return Lista de DTOs con todos los perfiles enriquecidos
      */
     List<PerfilResponseDto> findAll();
-
+    
+List<PerfilResponseDto> listarEntrenadores(); //
     /**
      * Guarda un nuevo perfil de usuario en la base de datos.
      * <p>

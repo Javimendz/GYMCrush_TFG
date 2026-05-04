@@ -55,6 +55,24 @@ public class PerfilController {
     private final SaludRepository saludRepository;
 
     /**
+     * 1. RUTAS ESPECÍFICAS (ESTÁTICAS)
+     * Deben declararse ANTES que las rutas con @PathVariable para evitar el error 400.
+     */
+
+    @GetMapping("/entrenadores")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USUARIO')")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Listar entrenadores", description = "Recupera los perfiles de usuarios con rol ENTRENADOR")
+    public ResponseEntity<ApiResponseDto<List<PerfilResponseDto>>> listarEntrenadores() {
+        log.info("Petición REST para listar todos los entrenadores");
+        List<PerfilResponseDto> entrenadores = perfilService.listarEntrenadores();
+        return ResponseEntity.ok(ApiResponseDto.<List<PerfilResponseDto>>builder()
+                .mensaje("Entrenadores obtenidos con éxito")
+                .datos(entrenadores)
+                .success(true)
+                .build());
+    }
+
+    /**
      * Lista todos los perfiles de usuarios con datos de salud enriquecidos.
      * <p>
      * Solo los usuarios con rol ADMIN pueden listar todos los perfiles.
@@ -126,6 +144,11 @@ public class PerfilController {
                 .success(true)
                 .build());
     }
+
+    /**
+     * 2. RUTAS DINÁMICAS (@PathVariable)
+     * Deben ir al final para no interceptar rutas estáticas como /entrenadores.
+     */
 
     /**
      * Obtiene los detalles de un perfil específico por su ID.

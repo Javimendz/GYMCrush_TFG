@@ -38,6 +38,26 @@ public class PerfilServiceImp implements IPerfilService {
     private final SaludRepository saludRepository;
     private final PerfilMapper perfilMapper;
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<PerfilResponseDto> listarEntrenadores() {
+        log.info("Buscando todos los usuarios con rol ENTRENADOR");
+
+        List<Perfil> entrenadores = perfilRepository.findAll().stream()
+                .filter(p -> p.getUsuario().getRoles().stream()
+                        .anyMatch(rol -> rol.getName().equals("ROLE_ENTRENADOR")))
+                .toList(); //
+
+        
+        return entrenadores.stream()
+                .map(perfil -> {
+                    PerfilResponseDto dto = perfilMapper.toDto(perfil);
+                    dto.setUsuarioId(perfil.getUsuario().getId()); // Aseguramos el ID para el Spinner
+                    return dto;
+                })
+                .toList(); //
+    }
+
     /**
      * Obtiene todos los perfiles de usuarios del sistema.
      * <p>
@@ -94,14 +114,13 @@ public class PerfilServiceImp implements IPerfilService {
 
         PerfilResponseDto dto = perfilMapper.toDto(perfil);
 
-
         if (perfil.getUsuario() != null) {
-        dto.setCorreo(perfil.getUsuario().getEmail()); // Asegúrate de que PerfilResponseDto tenga setCorreo
-        // Si el nombre del perfil está vacío, usa el username como fallback
-        if (dto.getNombre() == null || dto.getNombre().isEmpty()) {
-            dto.setNombre(perfil.getUsuario().getUsername());
+            dto.setCorreo(perfil.getUsuario().getEmail()); // Asegúrate de que PerfilResponseDto tenga setCorreo
+            // Si el nombre del perfil está vacío, usa el username como fallback
+            if (dto.getNombre() == null || dto.getNombre().isEmpty()) {
+                dto.setNombre(perfil.getUsuario().getUsername());
+            }
         }
-    }
         saludRepository.findFirstByUsuarioOrderByFechaMedicionDesc(perfil.getUsuario())
                 .ifPresent(salud -> {
                     dto.setPeso(salud.getPeso());
@@ -170,7 +189,8 @@ public class PerfilServiceImp implements IPerfilService {
             String nombreRolAEliminar = "ROLE_" + EnumRol.ENTRENADOR.name();
             // Usamos un iterador o removeIf sobre la colección de roles del usuario
             usuario.getRoles().removeIf(rol -> rol.getName().equalsIgnoreCase(nombreRolAEliminar));
-            // Importante: No llamar a delete del perfil, solo guardar el usuario si es necesario, 
+            // Importante: No llamar a delete del perfil, solo guardar el usuario si es
+            // necesario,
             // aunque al ser Transactional y estar la entidad gestionada, se guardará solo.
             log.info("Rol ENTRENADOR eliminado para el usuario: {}", usuario.getUsername());
         }
