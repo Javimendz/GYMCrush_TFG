@@ -174,13 +174,16 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             holder.layoutMusculoTag.setVisibility(View.GONE);
         }
 
-        // Tag Global vs Personal
+        // Tag Global vs Personal vs Clásico
         if (listaTutoriales != null) {
             TutorialResponseDto t = listaTutoriales.get(position);
             holder.layoutGlobalTag.setVisibility(View.VISIBLE);
             if (t.isEsGlobal()) {
                 holder.tvGlobalTagItem.setText("OFICIAL");
                 holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
+            } else if (t.getUsuarioId() != null && t.getUsuarioId() == currentUserId) {
+                holder.tvGlobalTagItem.setText("EJERCICIO CLÁSICO");
+                holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal); // Podríamos usar uno específico si existiera
             } else {
                 holder.tvGlobalTagItem.setText("PERSONAL");
                 holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
@@ -191,6 +194,9 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
             if (e.isEsGlobal()) {
                 holder.tvGlobalTagItem.setText("OFICIAL");
                 holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
+            } else if (!e.isEsGlobal() && e.getId() != null) { // Para Ejercicio (clase local) es más ambiguo
+                holder.tvGlobalTagItem.setText("EJERCICIO CLÁSICO");
+                holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
             } else {
                 holder.tvGlobalTagItem.setText("PERSONAL");
                 holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);

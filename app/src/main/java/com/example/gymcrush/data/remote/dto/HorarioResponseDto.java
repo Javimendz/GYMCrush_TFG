@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * DTO para recibir la respuesta de horarios desde el Backend.
- * Optimizado para mostrar en RecyclerView (Clases de CrossFit, Yoga, etc.)
+ * Sincronizado con el backend para usar plazasLibres.
  */
 public class HorarioResponseDto {
 
@@ -15,16 +15,18 @@ public class HorarioResponseDto {
     private String diaSemana;
 
     @SerializedName("horaInicio")
-    private String horaInicio; // Recibido como "HH:mm:ss" o "HH:mm"
+    private String horaInicio; 
 
     @SerializedName("horaFin")
     private String horaFin;
 
+    @SerializedName("plazasLibres")
+    private Integer plazasLibres;
+
     @SerializedName("aforoMax")
     private Integer aforoMax;
 
-    @SerializedName("ocupacion")
-    private Integer ocupacion;
+
 
     @SerializedName("nombreSala")
     private String nombreSala;
@@ -41,47 +43,38 @@ public class HorarioResponseDto {
     @SerializedName("nombreEntrenador")
     private String nombreEntrenador;
 
-    // Constructor vacío requerido por Retrofit/GSON
-    public HorarioResponseDto() {
-    }
-
-    // --- GETTERS ---
-    // En Android solemos usar solo Getters para los DTOs de respuesta (inmutabilidad)
+    public HorarioResponseDto() {}
 
     public Long getId() { return id; }
-
     public String getDiaSemana() { return diaSemana; }
 
     public String getHoraInicio() {
-        // Opcional: Limpiar el formato si viene con segundos (08:00:00 -> 08:00)
-        if (horaInicio != null && horaInicio.length() > 5) {
-            return horaInicio.substring(0, 5);
-        }
+        if (horaInicio != null && horaInicio.length() > 5) return horaInicio.substring(0, 5);
         return horaInicio;
     }
 
     public String getHoraFin() {
-        if (horaFin != null && horaFin.length() > 5) {
-            return horaFin.substring(0, 5);
-        }
+        if (horaFin != null && horaFin.length() > 5) return horaFin.substring(0, 5);
         return horaFin;
+    }
+    public void setPlazasLibres(Integer plazasLibres) {
+        this.plazasLibres = plazasLibres;
+    }
+
+    public Integer getOcupacion() {
+        int aforo = (aforoMax != null) ? aforoMax : 0;
+        return aforo - getPlazasLibres();
     }
 
     public Integer getAforoMax() { return aforoMax; }
+    public Integer getPlazasLibres() {
+        return (plazasLibres != null) ? plazasLibres : (aforoMax != null ? aforoMax : 0);
+    }
 
-    public Integer getOcupacion() { return ocupacion != null ? ocupacion : 0; }
 
     public String getNombreSala() { return nombreSala; }
-
     public Long getActividadId() { return actividadId; }
-
     public String getNombreActividad() { return nombreActividad; }
-
     public Long getSalaId() { return salaId; }
-
     public String getNombreEntrenador() { return nombreEntrenador; }
-
-    public void setOcupacion(Integer ocupacion) {
-        this.ocupacion = ocupacion;
-    }
 }
