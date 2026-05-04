@@ -114,11 +114,14 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
 
     private com.example.gymcrush.data.remote.StompManager stompManager;
     private LottieAnimationView notificationsAnim;
+    private TextView notificationBadge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_desarrollo_prueba);
+
+        notificationBadge = findViewById(R.id.notificationBadge);
 
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
         long usuarioId = prefs.getLong("user_id", -1);
@@ -947,6 +950,45 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 }
             });
         });
+    }
+
+    public void reproducirAnimacionNotificacion() {
+        if (notificationsAnim != null) {
+            notificationsAnim.playAnimation();
+        }
+        mostrarBadgeNotificacion();
+    }
+
+    public void crearNotificacionManual(String titulo, String mensaje) {
+        reproducirAnimacionNotificacion();
+        
+        // Crear el objeto de notificación DTO localmente
+        com.example.gymcrush.data.remote.dto.NotificacionResponseDto notif = new com.example.gymcrush.data.remote.dto.NotificacionResponseDto();
+        notif.setTitulo(titulo);
+        notif.setMensaje(mensaje);
+        notif.setLeido(false);
+        
+        // Formatear fecha actual
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
+        notif.setFecha(sdf.format(new java.util.Date()));
+
+        // Si el fragmento de notificaciones está abierto ahora mismo, añadirla a la lista visual
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (currentFragment instanceof NotificacionesFragment) {
+            ((NotificacionesFragment) currentFragment).onNuevaNotificacionRecibida(notif);
+        }
+    }
+
+    public void mostrarBadgeNotificacion() {
+        if (notificationBadge != null) {
+            notificationBadge.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void ocultarBadgeNotificacion() {
+        if (notificationBadge != null) {
+            notificationBadge.setVisibility(View.GONE);
+        }
     }
 
     @Override

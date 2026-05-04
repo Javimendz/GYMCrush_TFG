@@ -46,6 +46,11 @@ public class NotificacionesFragment extends Fragment {
         initViews(view);
         cargarNotificaciones();
 
+        // Ocultar el badge de la campana al entrar
+        if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+            ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).ocultarBadgeNotificacion();
+        }
+
         return view;
     }
 

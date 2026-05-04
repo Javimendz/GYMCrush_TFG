@@ -860,6 +860,15 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 @Override
                 public void onSuccess(ReservaResponseDto result) {
                     Toast.makeText(getContext(), "¡Reserva realizada con éxito!", Toast.LENGTH_SHORT).show();
+                    
+                    // Notificación Visual y Datos
+                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                        ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                "Reserva Confirmada",
+                                "Te has apuntado a la clase de " + clase.getNombre() + " (" + clase.getHora() + ")"
+                        );
+                    }
+
                     viewModel.cargarHorariosPorDia(diaActual);
                     dialog.dismiss();
                 }
