@@ -709,7 +709,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                     }
 
                     HorarioRequestDto request = new HorarioRequestDto(
-                            dia, horaInicio[0], horaFin[0], Integer.parseInt(aforoStr), act.getId(), sala.getId(), entrenador.getId()
+                            dia, horaInicio[0], horaFin[0], Integer.parseInt(aforoStr), act.getId(), sala.getId(), entrenador.getUsuarioId()
                     );
 
                     RetrofitClient.getApiService().crearHorario(request).enqueue(new Callback<ApiResponseDto<HorarioResponseDto>>() {
