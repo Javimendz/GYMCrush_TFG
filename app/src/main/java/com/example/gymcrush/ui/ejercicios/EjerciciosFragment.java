@@ -28,6 +28,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -251,10 +252,26 @@ public class EjerciciosFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     categoriasBackend.add(response.body().getDatos());
                     enviarTutorialBackend(nombre, desc, duracion, equipamiento, response.body().getDatos().getId(), dialog);
+                } else {
+                    String mensaje = "Error al crear categoría: " + response.code();
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            ApiResponseDto<?> errorDto = new Gson().fromJson(errorJson, ApiResponseDto.class);
+                            if (errorDto != null && errorDto.getMensaje() != null) {
+                                mensaje = errorDto.getMensaje();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
                 }
             }
             @Override
-            public void onFailure(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Throwable t) {}
+            public void onFailure(Call<ApiResponseDto<CategoriaTutorialResponseDto>> call, Throwable t) {
+                Toast.makeText(getContext(), "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -274,10 +291,26 @@ public class EjerciciosFragment extends Fragment {
                     Toast.makeText(getContext(), "Ejercicio creado", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                     cargarTutoriales();
+                } else {
+                    String mensaje = "Error: " + response.code();
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            ApiResponseDto<?> errorDto = new Gson().fromJson(errorJson, ApiResponseDto.class);
+                            if (errorDto != null && errorDto.getMensaje() != null) {
+                                mensaje = errorDto.getMensaje();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
                 }
             }
             @Override
-            public void onFailure(Call<ApiResponseDto<TutorialResponseDto>> call, Throwable t) {}
+            public void onFailure(Call<ApiResponseDto<TutorialResponseDto>> call, Throwable t) {
+                Toast.makeText(getContext(), "Fallo de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -406,9 +439,19 @@ public class EjerciciosFragment extends Fragment {
                     guardarTutorial(exercise, catCreada, parentDialog);
                     cargarCategorias();
                 } else {
-                    String error = "Error al crear categoría";
-                    if (response.code() == 409) error = "La categoría ya existe";
-                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                    String mensaje = "Error al crear categoría";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            ApiResponseDto<?> errorDto = new Gson().fromJson(errorJson, ApiResponseDto.class);
+                            if (errorDto != null && errorDto.getMensaje() != null) {
+                                mensaje = errorDto.getMensaje();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
                 }
             }
             @Override
@@ -465,9 +508,19 @@ public class EjerciciosFragment extends Fragment {
                                 guardarTutorial(exercise, catCreada, parentDialog);
                                 cargarCategorias();
                             } else {
-                                String error = "Error al crear categoría";
-                                if (response.code() == 409) error = "La categoría ya existe";
-                                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                                String mensaje = "Error al crear categoría";
+                                try {
+                                    if (response.errorBody() != null) {
+                                        String errorJson = response.errorBody().string();
+                                        ApiResponseDto<?> errorDto = new Gson().fromJson(errorJson, ApiResponseDto.class);
+                                        if (errorDto != null && errorDto.getMensaje() != null) {
+                                            mensaje = errorDto.getMensaje();
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
                             }
                         }
                         @Override
@@ -497,10 +550,20 @@ public class EjerciciosFragment extends Fragment {
                     Toast.makeText(getContext(), "¡Tutorial añadido!", Toast.LENGTH_SHORT).show();
                     parentDialog.dismiss();
                     cargarTutoriales(); // Recargar lista principal
-                } else if (response.code() == 409) {
-                    Toast.makeText(getContext(), "Este ejercicio ya existe en tu biblioteca", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getContext(), "Error al guardar (Código: " + response.code() + ")", Toast.LENGTH_SHORT).show();
+                    String mensaje = "Error al guardar (Código: " + response.code() + ")";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            ApiResponseDto<?> errorDto = new Gson().fromJson(errorJson, ApiResponseDto.class);
+                            if (errorDto != null && errorDto.getMensaje() != null) {
+                                mensaje = errorDto.getMensaje();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
                 }
             }
 

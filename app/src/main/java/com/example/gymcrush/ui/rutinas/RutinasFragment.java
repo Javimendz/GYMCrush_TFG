@@ -39,6 +39,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 
+import com.google.gson.Gson;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -1086,7 +1087,19 @@ public class RutinasFragment extends Fragment {
                     parentDialog.dismiss(); // Cerramos el buscador
                     cargarEjerciciosDesdeServidor(); // Refrescamos tu lista de "Explorar"
                 } else {
-                    Toast.makeText(getContext(), "Error al guardar: " + response.code(), Toast.LENGTH_SHORT).show();
+                    String mensaje = "Error al guardar: " + response.code();
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            ApiResponseDto<?> errorDto = new Gson().fromJson(errorJson, ApiResponseDto.class);
+                            if (errorDto != null && errorDto.getMensaje() != null) {
+                                mensaje = errorDto.getMensaje();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
                 }
             }
 
