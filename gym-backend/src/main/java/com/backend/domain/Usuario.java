@@ -14,7 +14,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.*;//Importar todo el paquete
 import lombok.*;
 
-@Data
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -83,6 +83,7 @@ public class Usuario {
                                                                                                               // par //
                                                                                                               // Login
     @OnDelete(action = OnDeleteAction.CASCADE)
+    
     @ToString.Exclude // Para evitar bucle infinito con Lombok
     private Perfil perfil; // Relación 1:1 con Perfil
 

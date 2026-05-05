@@ -140,5 +140,27 @@ public class NutricionController {
                                                 .build());
         }
 
-        
+        // -----------------------------------------------------------------------
+        // POST /api/v1/nutricion/guardar-plan/{usuarioId}
+        // Persiste un plan generado previamente (transient) en la base de datos
+        // -----------------------------------------------------------------------
+        @PostMapping("/guardar-plan/{usuarioId}")
+        @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
+        @io.swagger.v3.oas.annotations.Operation(summary = "Guardar plan", description = "Persiste un plan nutricional generado o editado por el usuario")
+        public ResponseEntity<ApiResponseDto<NutricionResponseDto>> guardarPlan(
+                        @PathVariable("usuarioId") Long usuarioId,
+                        @RequestBody NutricionResponseDto plan) {
+
+                log.info("Petición para guardar plan del usuario ID: {}", usuarioId);
+
+                NutricionResponseDto guardado = nutricionService.guardarPlan(usuarioId, plan);
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(
+                                ApiResponseDto.<NutricionResponseDto>builder()
+                                                .mensaje("Plan nutricional guardado correctamente")
+                                                .success(true)
+                                                .datos(guardado)
+                                                .build());
+        }
+
 }

@@ -99,5 +99,6 @@ public class Tutorial {
     @JoinColumn(name = "usuario_id", nullable = true) // null = Ejercicio Global (Biblioteca)
     private Usuario usuario;
 
-    private Boolean esGlobal;
-}
+    @Column(name = "es_global", nullable = false)
+    @Builder.Default
+private Boolean esGlobal = false;}

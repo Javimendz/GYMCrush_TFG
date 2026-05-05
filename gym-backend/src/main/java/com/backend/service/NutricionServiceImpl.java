@@ -98,7 +98,7 @@ public class NutricionServiceImpl implements INutricionService {
                 crearComida("Cena", getNombre(r3, "Ensalada Ligera"), getImagen(r3, dImg), kcalObjetivo, proteinas,
                         carbs, grasas, 0.3, plan)));
 
-        return nutricionMapper.toResponseDto(nutricionRepository.save(plan));
+        return nutricionMapper.toResponseDto(plan);
     }
 
     @Override
@@ -254,5 +254,25 @@ public class NutricionServiceImpl implements INutricionService {
         return nutricionRepository.findById(id)
                 .map(nutricionMapper::toResponseDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Plan nutricional no encontrado"));
+    }
+
+    @Override
+    @Transactional
+    public NutricionResponseDto guardarPlan(Long usuarioId, NutricionResponseDto planDto) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        // 1. Convertimos el DTO a Entidad usando el método correcto del mapper
+        Nutricion plan = nutricionMapper.toEntity(planDto);
+        
+        plan.setUsuario(usuario);
+        plan.setFechaGeneracion(LocalDateTime.now());
+
+        // 2. Corregimos el nombre del setter: es setPlan(), no setPlanNutricional()
+        if (plan.getComidas() != null) {
+            plan.getComidas().forEach(c -> c.setPlan(plan));
+        }
+
+        return nutricionMapper.toResponseDto(nutricionRepository.save(plan));
     }
 }

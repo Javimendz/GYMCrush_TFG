@@ -16,4 +16,6 @@ public interface INutricionService {
     Page<NutricionResponseDto> obtenerHistorial(Long usuarioId, int page, int size);
 
     NutricionResponseDto obtenerPlanPorId(Long id);
+
+    NutricionResponseDto guardarPlan(Long usuarioId, NutricionResponseDto planDto);
 }

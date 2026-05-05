@@ -18,10 +18,17 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import jakarta.persistence.JoinColumn; 
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 
 @Entity
 @Table(name = "planes_entrenamiento")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -46,6 +53,7 @@ public class PlanEntrenamiento {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "usuario_id", nullable = true) // null = Global
     private Usuario usuario;
 

@@ -31,10 +31,19 @@ public interface ReservaMapper {
      * @param reserva la entidad a convertir
      * @return el DTO de respuesta con datos enriquecidos
      */
-    @Mapping(target = "username", source = "usuario.perfil.nombreCompleto")
+   @Mapping(target = "username", source = "usuario.perfil.nombreCompleto")
+    @Mapping(target = "usuarioId", source = "usuario.id") // 👈 Mapeo del ID de usuario
     @Mapping(target = "nombreActividad", source = "horario.actividad.nombre")
     @Mapping(target = "diaSemana", source = "horario.diaSemana")
     @Mapping(target = "horaInicio", source = "horario.horaInicio")
+    
+    // Mapeos para Sala y Entrenador
+    @Mapping(target = "nombreSala", source = "horario.sala.nombre")
+    @Mapping(target = "nombreEntrenador", source = "horario.entrenador.perfil.nombreCompleto")
+    @Mapping(target = "entrenadorId", source = "horario.entrenador.id")
+    
+    // Ignoramos el campo que se calcula en el Service para que no de Warning
+    @Mapping(target = "plazasLibres", ignore = true) 
     ReservaResponseDto toDto(Reserva reserva);
 
     /**
