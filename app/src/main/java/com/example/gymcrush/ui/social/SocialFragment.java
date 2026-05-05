@@ -50,7 +50,7 @@ import ua.naiksoftware.stomp.dto.StompMessage;
 public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOptionsListener {
 
     private static final String TAG = "SocialFragment";
-    private static final String WS_URL = "ws://10.0.2.2:8080/ws/websocket";
+    private static final String WS_URL = "ws://10.0.2.2:8080/ws"; // Eliminado /websocket
 
     private RecyclerView rvChat;
     private ChatAdapter adapter;
@@ -125,17 +125,21 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
     }
 
     private void initStomp(String token) {
-        Map<String, String> handshakeHeaders = new HashMap<>();
-        if (token != null && !token.isEmpty()) {
-            handshakeHeaders.put("Authorization", "Bearer " + token);
+        if (token == null || token.isEmpty()) {
+            Log.e(TAG, "No hay token de autenticación, cancelando conexión Stomp");
+            return;
         }
+
+        Log.d(TAG, "Iniciando Stomp en URL: " + WS_URL);
+        
+        Map<String, String> handshakeHeaders = new HashMap<>();
+        handshakeHeaders.put("Authorization", "Bearer " + token);
 
         mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, WS_URL, handshakeHeaders);
 
-        List<StompHeader> headers = new ArrayList<>();
-        if (token != null && !token.isEmpty()) {
-            headers.add(new StompHeader("Authorization", "Bearer " + token));
-        }
+        List<StompHeader> connectHeaders = new ArrayList<>();
+        connectHeaders.add(new StompHeader("Authorization", "Bearer " + token));
+        connectHeaders.add(new StompHeader("userId", String.valueOf(usuarioId)));
 
         compositeDisposable = new CompositeDisposable();
 
@@ -145,32 +149,37 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                 .subscribe(lifecycleEvent -> {
                     switch (lifecycleEvent.getType()) {
                         case OPENED:
-                            Log.d(TAG, "Stomp connection opened");
+                            Log.i(TAG, "¡Conexión Stomp ABIERTA!");
                             break;
                         case ERROR:
-                            Log.e(TAG, "Stomp connection error", lifecycleEvent.getException());
+                            Log.e(TAG, "Error en el ciclo de vida de Stomp", lifecycleEvent.getException());
+                            if (lifecycleEvent.getException() != null && lifecycleEvent.getException().getMessage().contains("500")) {
+                                Log.e(TAG, "El servidor rechazó la conexión con un error 500. Revisa los logs del backend.");
+                            }
                             break;
                         case CLOSED:
-                            Log.d(TAG, "Stomp connection closed");
+                            Log.w(TAG, "Conexión Stomp CERRADA");
                             break;
                     }
-                }, throwable -> Log.e(TAG, "Lifecycle error", throwable)));
+                }, throwable -> Log.e(TAG, "Error crítico en lifecycle", throwable)));
 
         // Suscribirse a mensajes nuevos
         compositeDisposable.add(mStompClient.topic("/topic/sala-publica")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
-                    Log.d(TAG, "Received message: " + topicMessage.getPayload());
+                    Log.d(TAG, "Mensaje recibido: " + topicMessage.getPayload());
                     ChatMessageDto dto = gson.fromJson(topicMessage.getPayload(), ChatMessageDto.class);
                     MensajeChat mensaje = new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada());
                     
-                    getActivity().runOnUiThread(() -> {
-                        listaMensajes.add(mensaje);
-                        adapter.notifyItemInserted(listaMensajes.size() - 1);
-                        rvChat.scrollToPosition(listaMensajes.size() - 1);
-                    });
-                }, throwable -> Log.e(TAG, "Error on subscribe", throwable)));
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            listaMensajes.add(mensaje);
+                            adapter.notifyItemInserted(listaMensajes.size() - 1);
+                            rvChat.scrollToPosition(listaMensajes.size() - 1);
+                        });
+                    }
+                }, throwable -> Log.e(TAG, "Error en suscripción a mensajes", throwable)));
 
         // Suscribirse a borrados
         compositeDisposable.add(mStompClient.topic("/topic/chat.borrados")
@@ -179,9 +188,9 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                 .subscribe(topicMessage -> {
                     PeticionBorrado peticion = gson.fromJson(topicMessage.getPayload(), PeticionBorrado.class);
                     eliminarMensajeDeLista(peticion.id);
-                }, throwable -> Log.e(TAG, "Error on topic/chat.borrados", throwable)));
+                }, throwable -> Log.e(TAG, "Error en suscripción a borrados", throwable)));
 
-        mStompClient.connect(headers);
+        mStompClient.connect(connectHeaders);
     }
 
     private void eliminarMensajeDeLista(String id) {
@@ -228,8 +237,9 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
             if (mensaje.getId() != null) {
                 PeticionBorrado peticion = new PeticionBorrado();
                 peticion.id = mensaje.getId();
+                peticion.usuarioId = usuarioId; // Añadido ID de usuario para el backend
                 mStompClient.send("/app/chat.borrar", gson.toJson(peticion)).subscribe(() -> {
-                    Log.d(TAG, "Borrado enviado");
+                    Log.d(TAG, "Borrado enviado para mensaje: " + mensaje.getId());
                 }, throwable -> Log.e(TAG, "Error enviando borrado", throwable));
             }
             dialog.dismiss();
@@ -291,5 +301,6 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
     private static class PeticionBorrado {
         String id;
+        Long usuarioId;
     }
 }

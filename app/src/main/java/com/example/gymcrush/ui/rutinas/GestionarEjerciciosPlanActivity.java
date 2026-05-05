@@ -125,15 +125,17 @@ public class GestionarEjerciciosPlanActivity extends AppCompatActivity {
         EditText etOrden = dialog.findViewById(R.id.etOrdenPlan);
         Button btnGuardar = dialog.findViewById(R.id.btnGuardarDetallePlan);
 
-        // Llenar Spinner de Ejercicios
+        // Llenar Spinner de Ejercicios con estilo legible
         List<String> nombres = new ArrayList<>();
         for (EntrenamientoResponseDto e : catalogoActual) nombres.add(e.getNombre());
-        ArrayAdapter<String> adapterEj = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, nombres);
+        ArrayAdapter<String> adapterEj = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, nombres);
+        adapterEj.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerEjercicios.setAdapter(adapterEj);
 
-        // Llenar Spinner de Días
+        // Llenar Spinner de Días con estilo legible
         String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
-        ArrayAdapter<String> adapterDi = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, dias);
+        ArrayAdapter<String> adapterDi = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dias);
+        adapterDi.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerDias.setAdapter(adapterDi);
 
         btnGuardar.setOnClickListener(v -> {

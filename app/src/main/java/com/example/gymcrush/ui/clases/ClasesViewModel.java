@@ -29,37 +29,8 @@ public class ClasesViewModel extends ViewModel {
         repository.getHorariosPorDia(dia, new ReservasRepository.RepositoryCallback<List<HorarioResponseDto>>() {
             @Override
             public void onSuccess(List<HorarioResponseDto> listaHorarios) {
-                if (listaHorarios == null || listaHorarios.isEmpty()) {
-                    horarios.setValue(new ArrayList<>());
-                    loading.setValue(false);
-                    return;
-                }
-
-                final int[] respondidos = {0};
-                for (HorarioResponseDto h : listaHorarios) {
-                    repository.getAsistentesClase(h.getId(), new ReservasRepository.RepositoryCallback<List<ReservaResponseDto>>() {
-                        @Override
-                        public void onSuccess(List<ReservaResponseDto> asistentes) {
-                            if (asistentes != null) {
-                                h.setOcupacion(asistentes.size());
-                            }
-                            checkFinalizado();
-                        }
-
-                        @Override
-                        public void onError(String errorMessage) {
-                            checkFinalizado();
-                        }
-
-                        private void checkFinalizado() {
-                            respondidos[0]++;
-                            if (respondidos[0] == listaHorarios.size()) {
-                                horarios.setValue(listaHorarios);
-                                loading.setValue(false);
-                            }
-                        }
-                    });
-                }
+                horarios.setValue(listaHorarios != null ? listaHorarios : new ArrayList<>());
+                loading.setValue(false);
             }
 
             @Override
@@ -83,18 +54,17 @@ public class ClasesViewModel extends ViewModel {
         repository.crearReserva(usuarioId, horarioId, new ReservasRepository.RepositoryCallback<ReservaResponseDto>() {
             @Override
             public void onSuccess(ReservaResponseDto result) {
-                // Actualización optimista: Incrementamos la ocupación localmente de inmediato
+                // Actualización optimista: Restamos una plaza libre localmente
                 List<HorarioResponseDto> listaActual = horarios.getValue();
                 if (listaActual != null) {
                     for (HorarioResponseDto h : listaActual) {
                         if (h.getId().equals(horarioId)) {
-                            int ocupacionActual = h.getOcupacion();
-                            h.setOcupacion(ocupacionActual + 1);
+                            int actuales = h.getPlazasLibres();
+                            if (actuales > 0) h.setPlazasLibres(actuales - 1); // ✅ Esta es la única resta necesaria
                             break;
                         }
                     }
-                    // Notificamos a los observadores para que la UI se actualice al instante
-                    horarios.setValue(listaActual);
+                    horarios.setValue(listaActual); // Notifica al Fragment
                 }
                 callback.onSuccess(result);
             }

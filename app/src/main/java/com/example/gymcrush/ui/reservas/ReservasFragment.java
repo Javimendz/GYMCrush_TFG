@@ -94,13 +94,23 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
         ReservasRepository.getInstance().getHorariosPorDia(diaSeleccionadoCodigo, new ReservasRepository.RepositoryCallback<List<HorarioResponseDto>>() {
             @Override
             public void onSuccess(List<HorarioResponseDto> result) {
-                // Adaptador simple o reutilizar ClasesAdapter
                 List<Clase> clases = new ArrayList<>();
                 for (HorarioResponseDto h : result) {
-                    int disponibles = (h.getAforoMax() != null ? h.getAforoMax() : 0) - h.getOcupacion();
-                    clases.add(new Clase(h.getId(), h.getNombreActividad(), h.getHoraInicio() + " - " + h.getHoraFin(), h.getNombreSala(), h.getNombreEntrenador(), disponibles, h.getDiaSemana()));
+                    // Usa directamente el campo que calculamos en el backend
+                    int disponibles = h.getPlazasLibres();
+                    int aforo = (h.getAforoMax() != null ? h.getAforoMax() : 0);
+
+                    clases.add(new Clase(
+                            h.getId(),
+                            h.getNombreActividad(),
+                            h.getHoraInicio() + " - " + h.getHoraFin(),
+                            h.getNombreSala(),
+                            h.getNombreEntrenador(),
+                            disponibles,
+                            aforo,
+                            h.getDiaSemana()
+                    ));
                 }
-                
                 com.example.gymcrush.ui.clases.ClasesAdapter clasesAdapter = new com.example.gymcrush.ui.clases.ClasesAdapter(clases, new com.example.gymcrush.ui.clases.ClasesAdapter.OnClaseClickListener() {
                     @Override
                     public void onApuntarseClick(Clase clase) {

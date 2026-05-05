@@ -283,11 +283,10 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         if (listaHorariosOriginal == null) return;
 
         List<Clase> listaMapeada = new ArrayList<>();
-
         for (HorarioResponseDto h : listaHorariosOriginal) {
+            // USA EL CAMPO DIRECTAMENTE
+            int disponibles = h.getPlazasLibres();
             int aforo = h.getAforoMax() != null ? h.getAforoMax() : 0;
-            int ocupacion = h.getOcupacion();
-            int disponibles = Math.max(0, aforo - ocupacion);
 
             listaMapeada.add(new Clase(
                     h.getId(),
@@ -295,7 +294,8 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                     h.getHoraInicio() + " - " + h.getHoraFin(),
                     h.getNombreSala(),
                     h.getNombreEntrenador(),
-                    disponibles,
+                    disponibles, // <--- No más restas aquí
+                    aforo,
                     h.getDiaSemana()
             ));
         }
@@ -496,11 +496,16 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 .setPositiveButton("Crear", (d, w) -> {
                     String nombre = et.getText().toString();
                     if (!nombre.isEmpty()) {
-                        com.example.gymcrush.data.remote.dto.SalaRequestDto req = new com.example.gymcrush.data.remote.dto.SalaRequestDto(nombre, 20, "Nueva sala", "Por definir", "Básico", true);
+                        // Nota: Asegúrate que el DTO del request use 'capacidad' si lo cambiaste en el backend
+                        SalaRequestDto req = new SalaRequestDto(nombre, 20, "Sala nueva", "Planta 1", "Eándar", true);
                         RetrofitClient.getApiService().crearSala(req).enqueue(new Callback<ApiResponseDto<SalaResponseDto>>() {
                             @Override
                             public void onResponse(Call<ApiResponseDto<SalaResponseDto>> call, Response<ApiResponseDto<SalaResponseDto>> response) {
-                                if (response.isSuccessful()) listener.onNombreRecibido(nombre);
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(getContext(), "Sala " + nombre + " lista.", Toast.LENGTH_SHORT).show();
+                                    listener.onNombreRecibido(nombre);
+                                    // IMPORTANTE: Podrías disparar un refresco de la lista de salas aquí
+                                }
                             }
                             @Override public void onFailure(Call<ApiResponseDto<SalaResponseDto>> call, Throwable t) {}
                         });
@@ -652,28 +657,30 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             @Override public void onFailure(Call<ApiResponseDto<List<SalaResponseDto>>> call, Throwable t) {}
         });
 
-        // Cargar Entrenadores
-        RetrofitClient.getApiService().findAllPerfiles().enqueue(new Callback<ApiResponseDto<List<PerfilResponseDto>>>() {
+        // Cargar Entrenadores (Filtrado solo por aquellos con rol de entrenador)
+        RetrofitClient.getApiService().findEntrenadores().enqueue(new Callback<ApiResponseDto<List<PerfilResponseDto>>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Response<ApiResponseDto<List<PerfilResponseDto>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<PerfilResponseDto> lista = response.body().getDatos();
-                    ArrayAdapter<PerfilResponseDto> adapterPerf = new ArrayAdapter<PerfilResponseDto>(getContext(), android.R.layout.simple_spinner_item, lista) {
-                        @Override public View getView(int p, View c, ViewGroup parent) {
-                            TextView v = (TextView) super.getView(p, c, parent);
-                            v.setText(getItem(p).getNombreCompleto());
-                            return v;
-                        }
-                        @Override public View getDropDownView(int p, View c, ViewGroup parent) {
-                            TextView v = (TextView) super.getDropDownView(p, c, parent);
-                            v.setText(getItem(p).getNombreCompleto());
-                            return v;
-                        }
-                    };
-                    spinnerEntrenador.setAdapter(adapterPerf);
+                List<PerfilResponseDto> listaAMostrar = new ArrayList<>();
+                
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null && !response.body().getDatos().isEmpty()) {
+                    listaAMostrar = response.body().getDatos();
+                    android.util.Log.d("ClasesFragment", "Entrenadores filtrados cargados: " + listaAMostrar.size());
+                } else {
+                    android.util.Log.w("ClasesFragment", "El endpoint de entrenadores falló o está vacío (Código: " + response.code() + "). Cargando todos los perfiles como respaldo...");
+                    // PLAN B: Si no hay entrenadores filtrados, cargamos todos para no dejar el spinner vacío durante las pruebas
+                    cargarTodosLosPerfilesComoRespaldo(spinnerEntrenador);
+                    return;
                 }
+
+                configurarAdapterEntrenador(spinnerEntrenador, listaAMostrar);
             }
-            @Override public void onFailure(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Throwable t) {}
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Throwable t) {
+                android.util.Log.e("ClasesFragment", "Error de red. Cargando respaldo...", t);
+                cargarTodosLosPerfilesComoRespaldo(spinnerEntrenador);
+            }
         });
 
         final String[] horaInicio = {"10:00"};
@@ -834,14 +841,18 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
     @Override
     public void onApuntarseClick(Clase clase) {
         if (clase.getCuposDisponibles() <= 0) {
-            Toast.makeText(getContext(), "Lo sentimos, no quedan plazas libres", Toast.LENGTH_SHORT).show();
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("¡Llegas tarde, guerrero!")
+                    .setMessage("Esta clase de " + clase.getNombre() + " ya está a tope. No te quedes lamentándote, ¡busca otra sesión y dale duro!")
+                    .setPositiveButton("Entendido", null)
+                    .show();
             return;
         }
 
         SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
         long userId = prefs.getLong("user_id", -1);
         if (userId == -1) {
-            Toast.makeText(getContext(), "Error: Usuario no identificado", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Identifícate primero si quieres entrenar conmigo.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -852,25 +863,18 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         }
 
         TextView tvMensaje = dialog.findViewById(R.id.tv_mensaje_reserva);
-        tvMensaje.setText("¿Deseas apuntarte a la clase de " + clase.getNombre() + " a las " + clase.getHora() + "?");
+        String mensaje = "¿Listo para sudar en " + clase.getNombre() + "?";
+        if (clase.getCuposDisponibles() <= 3) {
+            mensaje = "¡Solo quedan " + clase.getCuposDisponibles() + " plazas! ¿Vas a dejar que te la quiten?";
+        }
+        tvMensaje.setText(mensaje);
 
         dialog.findViewById(R.id.btn_cancelar_reserva).setOnClickListener(v -> dialog.dismiss());
         dialog.findViewById(R.id.btn_confirmar_reserva).setOnClickListener(v -> {
             viewModel.realizarReserva(userId, clase.getId(), new ReservasRepository.RepositoryCallback<ReservaResponseDto>() {
-                @Override
                 public void onSuccess(ReservaResponseDto result) {
-                    Toast.makeText(getContext(), "¡Reserva realizada con éxito!", Toast.LENGTH_SHORT).show();
-                    
-                    // Notificación Visual y Datos
-                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
-                        ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
-                                "Reserva Confirmada",
-                                "Te has apuntado a la clase de " + clase.getNombre() + " (" + clase.getHora() + ")"
-                        );
-                    }
-
-                    // El ViewModel ya actualiza la ocupación localmente de forma optimista
-                    dialog.dismiss();
+                    Toast.makeText(getContext(), "¡Dentro! Te veo en la sala.", Toast.LENGTH_SHORT).show();
+                   dialog.dismiss();
                 }
 
                 @Override
@@ -1075,5 +1079,37 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
+    }
+
+    private void cargarTodosLosPerfilesComoRespaldo(android.widget.Spinner spinner) {
+        RetrofitClient.getApiService().findAllPerfiles().enqueue(new Callback<ApiResponseDto<List<PerfilResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Response<ApiResponseDto<List<PerfilResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    configurarAdapterEntrenador(spinner, response.body().getDatos());
+                }
+            }
+            @Override public void onFailure(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Throwable t) {}
+        });
+    }
+
+    private void configurarAdapterEntrenador(android.widget.Spinner spinner, List<PerfilResponseDto> lista) {
+        if (lista == null) lista = new ArrayList<>();
+        ArrayAdapter<PerfilResponseDto> adapter = new ArrayAdapter<PerfilResponseDto>(getContext(), android.R.layout.simple_spinner_item, lista) {
+            @Override public View getView(int p, View c, ViewGroup parent) {
+                TextView v = (TextView) super.getView(p, c, parent);
+                v.setText(getItem(p).getNombreCompleto());
+                v.setTextColor(Color.BLACK); // Asegurar visibilidad
+                return v;
+            }
+            @Override public View getDropDownView(int p, View c, ViewGroup parent) {
+                TextView v = (TextView) super.getDropDownView(p, c, parent);
+                v.setText(getItem(p).getNombreCompleto());
+                v.setTextColor(Color.BLACK); // Asegurar visibilidad
+                return v;
+            }
+        };
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 }

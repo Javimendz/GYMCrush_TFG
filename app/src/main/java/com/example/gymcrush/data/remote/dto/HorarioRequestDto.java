@@ -2,6 +2,9 @@ package com.example.gymcrush.data.remote.dto;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * DTO para enviar solicitudes de creación/actualización de horarios al Backend.
+ */
 public class HorarioRequestDto {
     @SerializedName("diaSemana")
     private String diaSemana;
@@ -25,16 +28,6 @@ public class HorarioRequestDto {
     private Long entrenadorId;
 
     public HorarioRequestDto() {}
-
-    public HorarioRequestDto(String diaSemana, String horaInicio, String horaFin, Integer aforoMax, Long actividadId, Long salaId) {
-        this.diaSemana = diaSemana;
-        this.horaInicio = horaInicio;
-        this.horaFin = horaFin;
-        this.aforoMax = aforoMax;
-        this.actividadId = actividadId;
-        this.salaId = salaId;
-        this.entrenadorId = null;
-    }
 
     public HorarioRequestDto(String diaSemana, String horaInicio, String horaFin, Integer aforoMax, Long actividadId, Long salaId, Long entrenadorId) {
         this.diaSemana = diaSemana;

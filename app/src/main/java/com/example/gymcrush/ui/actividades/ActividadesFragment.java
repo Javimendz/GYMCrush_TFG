@@ -787,7 +787,8 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
                     String[] items = new String[horariosFiltrados.size()];
                     for (int i = 0; i < horariosFiltrados.size(); i++) {
                         HorarioResponseDto h = horariosFiltrados.get(i);
-                        items[i] = h.getDiaSemana() + " " + h.getHoraInicio() + " - " + h.getNombreSala() + " (" + h.getOcupacion() + "/" + h.getAforoMax() + ")";
+                        items[i] = h.getDiaSemana() + " " + h.getHoraInicio() + " - " + h.getNombreSala() + 
+                                   " (Plazas: " + h.getPlazasLibres() + " / " + h.getAforoMax() + ")";
                     }
 
                     new MaterialAlertDialogBuilder(requireContext())

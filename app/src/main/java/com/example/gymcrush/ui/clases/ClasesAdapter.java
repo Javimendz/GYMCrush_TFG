@@ -59,15 +59,22 @@ public class ClasesAdapter extends RecyclerView.Adapter<ClasesAdapter.ClaseViewH
 
         holder.tvEntrenador.setText(infoBuilder.toString());
         int cupos = clase.getCuposDisponibles();
+        int aforo = clase.getAforoMax();
+        
+        holder.tvCupos.setText("Plazas: " + cupos + " / " + aforo);
+
         if (cupos == 0) {
-            holder.tvCupos.setText("Sin plazas libres");
             holder.tvCupos.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_red_light));
-        } else if (cupos == 1) {
-            holder.tvCupos.setText("1 plaza libre");
-            holder.tvCupos.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.white));
+            holder.btnApuntarse.setText("COMPLETO");
+            holder.btnApuntarse.setAlpha(0.5f);
+        } else if (cupos <= 3) {
+            holder.tvCupos.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_orange_light));
+            holder.btnApuntarse.setText("¡ÚLTIMAS PLAZAS!");
+            holder.btnApuntarse.setAlpha(1.0f);
         } else {
-            holder.tvCupos.setText(cupos + " plazas libres");
             holder.tvCupos.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.white));
+            holder.btnApuntarse.setText("APUNTARSE");
+            holder.btnApuntarse.setAlpha(1.0f);
         }
 
         holder.btnApuntarse.setOnClickListener(v -> {
