@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.backend.domain.MensajeChat;
@@ -17,17 +18,6 @@ import com.backend.repository.MensajeChatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Controlador WebSocket para gestionar el chat en tiempo real.
- * <p>
- * Este controlador maneja la mensajería WebSocket para comunicación
- * instantánea entre usuarios del gimnasio.
- * </p>
- *
- * @author Backend Team
- * @version 1.0
- * @since 2026
- */
 @Controller
 @RequiredArgsConstructor
 @Slf4j
@@ -35,60 +25,52 @@ public class WSChatController {
     
     private final MensajeChatRepository mensajeRepository;
     private final ChatMapper chatMapper;
-    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
+
     /**
-     * Procesa un mensaje de chat entrante y lo difunde a todos los usuarios conectados.
-     * <p>
-     * El mensaje se guarda en la base de datos con el nombre del usuario emisor
-     * y se envía a todos los suscriptores del canal /topic/canal1.
-     * </p>
-     *
-     * @param request el DTO con el contenido y tipo del mensaje
-     * @param principal el usuario autenticado (puede ser null si es anónimo)
-     * @return ChatResponseDto el mensaje procesado para difusión
+     * CANAL 1: CHAT NORMAL (Público)
+     * Para que todos los usuarios hablen en general.
      */
-    @MessageMapping("/chat1")
-    @SendTo("/topic/canal1")
+    @MessageMapping("/chat1") // Envío desde Android a: /app/chat1
+    @SendTo("/topic/canal1")  // Suscripción en Android a: /topic/canal1
     public ChatResponseDto processMessage(ChatRequestDto request, Principal principal) {
         String username = (principal != null) ? principal.getName() : "Anónimo";
-        log.info("Mensaje recibido de {}: {}", username, request.contenido());
         
         MensajeChat entidad = MensajeChat.builder()
                 .contenido(request.contenido())
                 .emisor(username)
                 .fechaEnvio(LocalDateTime.now())
                 .tipo(request.tipo())
+                .ticketId(null) // Es nulo porque es el chat global
                 .build();
         
-        MensajeChat guardado = mensajeRepository.save(entidad);
-        log.debug("Mensaje guardado con ID: {}", guardado.getId());
-        
-        return chatMapper.toDto(guardado);
+        return chatMapper.toDto(mensajeRepository.save(entidad));
     }
 
-    @MessageMapping("/chat.ticket.{ticketId}")
+    /**
+     * CANAL 2: CHAT DE TICKETS (Salas dinámicas)
+     * Para comunicación privada por cada ticket de soporte/entreno.
+     */
+    @MessageMapping("/chat.ticket.{ticketId}") // Envío: /app/chat.ticket.5
     public void procesarMensajeTicket(@DestinationVariable String ticketId, 
                                       ChatRequestDto request, 
                                       Principal principal) {
         
         String username = (principal != null) ? principal.getName() : "Anónimo";
-        log.info("Mensaje para Ticket #{}: de {}: {}", ticketId, username, request.contenido());
+        log.info("Mensaje para Ticket #{}: de {}", ticketId, username);
 
-        // 1. Guardar en BD (Asegúrate de que tu entidad MensajeChat tenga un campo ticketId)
         MensajeChat entidad = MensajeChat.builder()
                 .contenido(request.contenido())
                 .emisor(username)
                 .fechaEnvio(LocalDateTime.now())
                 .tipo(request.tipo())
-                // .ticketId(ticketId) // <-- Sería ideal guardar a qué ticket pertenece
+                .ticketId(ticketId) // Guardamos el ID del ticket para el historial
                 .build();
         
         MensajeChat guardado = mensajeRepository.save(entidad);
         ChatResponseDto response = chatMapper.toDto(guardado);
 
-        // 2. Enviar el mensaje solo a los suscritos a este ticket específico
-        // Esto equivale a un @SendTo dinámico
+        // Difusión dinámica: Solo llega a los suscritos a ese ticket
         messagingTemplate.convertAndSend("/topic/tickets." + ticketId, response);
     }
-
 }
