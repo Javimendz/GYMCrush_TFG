@@ -46,6 +46,13 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
                 android:layout_margin="10dp"/>
+
+            <ProgressBar
+                android:id="@+id/progressQr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.button.MaterialButton

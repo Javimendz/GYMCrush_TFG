@@ -43,7 +43,7 @@ import com.example.gymcrush.data.remote.dto.DetallePlanResponseDto;
 import com.example.gymcrush.data.remote.dto.PageResponseDto;
 
 import java.util.List;
-
+import java.util.Map;
 import retrofit2.Call;
 import retrofit2.http.*;
 

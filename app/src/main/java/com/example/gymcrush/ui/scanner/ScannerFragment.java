@@ -22,9 +22,14 @@ import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.data.remote.dto.AccesoResponseDto;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
+import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.CompoundBarcodeView;
+
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,10 +43,27 @@ public class ScannerFragment extends Fragment {
     private boolean isFlashOn = false;
     private boolean isProcessing = false;
 
+    private final BarcodeCallback callback = new BarcodeCallback() {
+        @Override
+        public void barcodeResult(BarcodeResult result) {
+            if (result.getText() != null && !isProcessing) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> procesarToken(result.getText()));
+                }
+            }
+        }
+
+        @Override
+        public void possibleResultPoints(List<ResultPoint> resultPoints) {
+            // Requerido por la interfaz BarcodeCallback
+        }
+    };
+
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     barcodeScanner.resume();
+                    barcodeScanner.decodeContinuous(callback);
                 } else {
                     Toast.makeText(getContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show();
                 }
@@ -56,7 +78,8 @@ public class ScannerFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressScanner);
         btnFlash = view.findViewById(R.id.btnToggleFlash);
 
-        barcodeScanner.decodeContinuous(callback);
+        // Limpiar el texto por defecto de ZXing
+        barcodeScanner.setStatusText("");
 
         btnFlash.setOnClickListener(v -> {
             if (isFlashOn) {
@@ -81,15 +104,6 @@ public class ScannerFragment extends Fragment {
         }
     }
 
-    private final BarcodeCallback callback = new BarcodeCallback() {
-        @Override
-        public void barcodeResult(BarcodeResult result) {
-            if (result.getText() != null && !isProcessing) {
-                procesarToken(result.getText());
-            }
-        }
-    };
-
     private void procesarToken(String token) {
         isProcessing = true;
         progressBar.setVisibility(View.VISIBLE);
@@ -97,31 +111,55 @@ public class ScannerFragment extends Fragment {
         RetrofitClient.getApiService().procesarQr(token).enqueue(new Callback<ApiResponseDto<AccesoResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<AccesoResponseDto>> call, Response<ApiResponseDto<AccesoResponseDto>> response) {
+                if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponseDto<AccesoResponseDto> apiResponse = response.body();
                     if (apiResponse.isSuccess()) {
-                        mostrarResultado(apiResponse.getDatos());
+                        mostrarResultado(apiResponse.getDatos(), apiResponse.getMensaje());
                     } else {
                         mostrarError(apiResponse.getMensaje());
                     }
                 } else {
-                    mostrarError("Error al procesar el código");
+                    String errorMsg = "Error del servidor: " + response.code();
+                    try {
+                        if (response.errorBody() != null) {
+                            // Intentar extraer el mensaje de error del JSON si el servidor lo envía
+                            String errorJson = response.errorBody().string();
+                            errorMsg += "\n" + errorJson;
+                        }
+                    } catch (Exception e) {
+                        // Ignorar fallos al leer el errorBody
+                    }
+                    mostrarError(errorMsg);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseDto<AccesoResponseDto>> call, Throwable t) {
+                if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
-                mostrarError("Error de conexión");
+                mostrarError("Error de conexión: " + t.getMessage());
             }
         });
     }
 
-    private void mostrarResultado(AccesoResponseDto acceso) {
-        String mensaje = "Usuario: " + acceso.getUsername() + "\n" +
-                "Tipo: " + acceso.getTipo() + "\n" +
-                "Fecha: " + (acceso.getTipo().equals("ENTRADA") ? acceso.getFechaHoraEntrada() : acceso.getFechaHoraSalida());
+    private void mostrarResultado(AccesoResponseDto acceso, String mensajeServidor) {
+        if (!isAdded()) return;
+
+        String mensaje;
+        if (acceso != null) {
+            String username = acceso.getUsername() != null ? acceso.getUsername() : "Usuario";
+            String tipo = acceso.getTipo() != null ? acceso.getTipo() : "N/A";
+            String fecha = "ENTRADA".equals(tipo) ? acceso.getFechaHoraEntrada() : acceso.getFechaHoraSalida();
+            if (fecha == null) fecha = "N/A";
+
+            mensaje = "Usuario: " + username + "\n" +
+                    "Tipo: " + tipo + "\n" +
+                    "Fecha: " + fecha;
+        } else {
+            mensaje = mensajeServidor != null ? mensajeServidor : "Acceso procesado correctamente";
+        }
 
         new AlertDialog.Builder(requireContext())
                 .setTitle("Acceso Registrado")
@@ -132,6 +170,7 @@ public class ScannerFragment extends Fragment {
     }
 
     private void mostrarError(String error) {
+        if (!isAdded()) return;
         new AlertDialog.Builder(requireContext())
                 .setTitle("Error de Acceso")
                 .setMessage(error)
@@ -146,6 +185,7 @@ public class ScannerFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
             barcodeScanner.resume();
+            barcodeScanner.decodeContinuous(callback);
         }
     }
 

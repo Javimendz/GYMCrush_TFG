@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -894,20 +895,38 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         ImageView ivQR = dialog.findViewById(R.id.ivQrCode);
-        String userId = UUID.randomUUID().toString();
+        ProgressBar progress = dialog.findViewById(R.id.progressQr);
+        if (progress != null) progress.setVisibility(View.VISIBLE);
 
-        try {
-            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-            BitMatrix bitMatrix = multiFormatWriter.encode(userId, BarcodeFormat.QR_CODE, 500, 500);
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-            ivQR.setImageBitmap(bitmap);
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
+        // Obtener un token válido del servidor en lugar de uno aleatorio
+        RetrofitClient.getApiService().generarTokenQr().enqueue(new Callback<ApiResponseDto<String>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<String>> call, Response<ApiResponseDto<String>> response) {
+                if (progress != null) progress.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null) {
+                    String token = response.body().getDatos();
+                    try {
+                        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+                        BitMatrix bitMatrix = multiFormatWriter.encode(token, BarcodeFormat.QR_CODE, 500, 500);
+                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                        Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                        ivQR.setImageBitmap(bitmap);
+                    } catch (WriterException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(DesarrolloActivity.this, "Error al generar token", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<String>> call, Throwable t) {
+                if (progress != null) progress.setVisibility(View.GONE);
+                Toast.makeText(DesarrolloActivity.this, "Error de conexión", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         dialog.findViewById(R.id.btnCerrarQr).setOnClickListener(v -> dialog.dismiss());
-
         dialog.show();
     }
 

@@ -46,6 +46,15 @@ public class AccesoFragment extends Fragment {
     private RecyclerView rvHistorial;
     private AccesoAdapter adapter;
     private String currentToken;
+    private final android.os.Handler aforoHandler = new android.os.Handler();
+    private final Runnable aforoRunnable = new Runnable() {
+        @Override
+        public void run() {
+            cargarAforo();
+            cargarHistorial(); // Ahora también actualiza el historial automáticamente
+            aforoHandler.postDelayed(this, 3000); 
+        }
+    };
 
     @Nullable
     @Override
@@ -77,8 +86,8 @@ public class AccesoFragment extends Fragment {
         });
 
         obtenerNuevoToken();
-        cargarAforo();
-        cargarHistorial();
+        // cargarHistorial(); // Ya no hace falta aquí, lo hace el aforoRunnable
+        aforoHandler.post(aforoRunnable);
 
         return view;
     }
@@ -166,12 +175,16 @@ public class AccesoFragment extends Fragment {
                     if (isAdded()) {
                         tvAforo.setText("Aforo actual: " + personas + " personas");
                         progressAforo.setProgress((int) personas);
+                        // Log para depuración
+                        android.util.Log.d("AforoUpdate", "Aforo recibido: " + personas);
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<ApiResponseDto<Long>> call, Throwable t) {}
+            public void onFailure(Call<ApiResponseDto<Long>> call, Throwable t) {
+                android.util.Log.e("AforoUpdate", "Error al obtener aforo: " + t.getMessage());
+            }
         });
     }
 
@@ -226,5 +239,6 @@ public class AccesoFragment extends Fragment {
         if (timer != null) {
             timer.cancel();
         }
+        aforoHandler.removeCallbacks(aforoRunnable); // Detiene el polling
     }
 }
