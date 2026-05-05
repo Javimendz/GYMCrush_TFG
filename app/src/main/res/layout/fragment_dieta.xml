@@ -421,21 +421,6 @@
                             android:gravity="center_vertical">
 
                             <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnMarcarTodoCompletadoHome"
-                                style="@style/Widget.MaterialComponents.Button.TextButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="0dp"
-                                android:paddingHorizontal="4dp"
-                                android:text="Completado"
-                                android:textColor="@color/brand_pink"
-                                android:textSize="10sp"
-                                app:icon="@android:drawable/checkbox_on_background"
-                                app:iconPadding="2dp"
-                                app:iconSize="14dp"
-                                app:iconTint="@color/brand_pink" />
-
-                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnBuscarComida"
                                 style="@style/Widget.MaterialComponents.Button.TextButton"
                                 android:layout_width="wrap_content"

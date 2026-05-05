@@ -476,15 +476,13 @@ public class DietaFragment extends Fragment {
         double p = 0, c = 0, g = 0, calConsumidas = 0;
         int calObjetivo = plan.getCaloriasObjetivo() != null ? plan.getCaloriasObjetivo() : 2000;
 
-        // Sumar todas las calorías de las comidas marcadas como "seleccionadas" (consumidas hoy)
+        // Sumar todos los macros de las comidas mostradas, ya que no hay selección de "completado"
         if (comidaAdapter != null && comidaAdapter.getComidas() != null) {
             for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : comidaAdapter.getComidas()) {
-                if (item.isSelected()) {
-                    if (item.getProteina() != null) p += item.getProteina();
-                    if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
-                    if (item.getGrasas() != null) g += item.getGrasas();
-                    if (item.getCalorias() != null) calConsumidas += item.getCalorias();
-                }
+                if (item.getProteina() != null) p += item.getProteina();
+                if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
+                if (item.getGrasas() != null) g += item.getGrasas();
+                if (item.getCalorias() != null) calConsumidas += item.getCalorias();
             }
         }
 

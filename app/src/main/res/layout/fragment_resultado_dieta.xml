@@ -224,7 +224,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.2"
-                    android:text="RECOMENDACIÓN DIARIA"
+                    android:text="TU MENÚ DIARIO"
                     android:textColor="@color/white"
                     android:textSize="13sp"
                     android:textStyle="bold"
@@ -238,21 +238,6 @@
                     android:layout_weight="2.8"
                     android:orientation="horizontal"
                     android:gravity="end|center_vertical">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnCompletarTodo"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="0dp"
-                        android:paddingHorizontal="2dp"
-                        android:text="Completado"
-                        android:textColor="#CD0277"
-                        android:textSize="10sp"
-                        app:icon="@android:drawable/checkbox_on_background"
-                        app:iconPadding="2dp"
-                        app:iconSize="14dp"
-                        app:iconTint="#CD0277" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnBuscarComidaResultado"

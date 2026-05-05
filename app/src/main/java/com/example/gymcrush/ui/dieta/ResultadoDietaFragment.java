@@ -86,28 +86,6 @@ public class ResultadoDietaFragment extends Fragment {
         rvComidas.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new ComidaAdapter();
         adapter.setOnComidaClickListener(this::onComidaClick);
-        adapter.setOnHechaClickListener((comida, isChecked) -> {
-            if (isChecked && comida.getId() == null) {
-                // Marcar sugerencia: Guardar en el servidor para que persista
-                ComidaDiariaRequestDto request = new ComidaDiariaRequestDto();
-                request.setNombreAlimento(comida.getNombreAlimento());
-                request.setMomento(comida.getMomento());
-                request.setCalorias(comida.getCalorias());
-                request.setProteina(comida.getProteina());
-                request.setCarbohidratos(comida.getCarbohidratos());
-                request.setGrasas(comida.getGrasas());
-                request.setPlanNutricionalId(planNutricional.getId());
-                request.setImagenUrl(comida.getImagenUrl());
-                request.setDescripcion(comida.getDescripcion());
-                request.setRecipeUrl(comida.getRecipeUrl());
-
-                viewModel.añadirComida(request, usuarioId);
-            } else if (!isChecked && comida.getId() != null) {
-                // Desmarcar: Eliminar del servidor
-                viewModel.eliminarComida(comida.getId(), planNutricional.getId(), usuarioId);
-            }
-            actualizarResumenMacros(view);
-        });
         adapter.setOnMenuClickListener((v, comida) -> {
             android.widget.PopupMenu popup = new android.widget.PopupMenu(getContext(), v);
             popup.getMenu().add("Eliminar");
@@ -324,6 +302,7 @@ public class ResultadoDietaFragment extends Fragment {
             }
         }
         adapter.setComidas(listaAMostrar);
+
         actualizarResumenMacros(view);
 
         if (planNutricional.getMacronutrientes() != null &&
@@ -352,15 +331,13 @@ public class ResultadoDietaFragment extends Fragment {
         double p = 0, c = 0, g = 0, calConsumidas = 0;
         int calObjetivo = planNutricional.getCaloriasObjetivo() != null ? planNutricional.getCaloriasObjetivo() : 2000;
 
-        // Usamos las comidas del adapter ya que contienen el estado 'selected' actualizado
+        // Sumar todos los macros del plan, ya que no hay selección de "completado"
         if (adapter != null && adapter.getComidas() != null) {
             for (ComidaDiariaResponseDto item : adapter.getComidas()) {
-                if (item.isSelected()) {
-                    if (item.getProteina() != null) p += item.getProteina();
-                    if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
-                    if (item.getGrasas() != null) g += item.getGrasas();
-                    if (item.getCalorias() != null) calConsumidas += item.getCalorias();
-                }
+                if (item.getProteina() != null) p += item.getProteina();
+                if (item.getCarbohidratos() != null) c += item.getCarbohidratos();
+                if (item.getGrasas() != null) g += item.getGrasas();
+                if (item.getCalorias() != null) calConsumidas += item.getCalorias();
             }
         }
 

@@ -25,10 +25,6 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         void onComidaLongClick(ComidaDiariaResponseDto comida);
     }
 
-    public interface OnHechaClickListener {
-        void onHechaClick(ComidaDiariaResponseDto comida, boolean isChecked);
-    }
-
     public interface OnMenuClickListener {
         void onMenuClick(View view, ComidaDiariaResponseDto comida);
     }
@@ -36,7 +32,6 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
     private List<ComidaDiariaResponseDto> comidas = new ArrayList<>();
     private OnComidaClickListener clickListener;
     private OnComidaLongClickListener longClickListener;
-    private OnHechaClickListener hechaClickListener;
     private OnMenuClickListener menuClickListener;
 
     public void setComidas(List<ComidaDiariaResponseDto> comidas) {
@@ -56,10 +51,6 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
         this.longClickListener = listener;
     }
 
-    public void setOnHechaClickListener(OnHechaClickListener listener) {
-        this.hechaClickListener = listener;
-    }
-
     public void setOnMenuClickListener(OnMenuClickListener listener) {
         this.menuClickListener = listener;
     }
@@ -74,7 +65,7 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
     @Override
     public void onBindViewHolder(@NonNull ComidaViewHolder holder, int position) {
         ComidaDiariaResponseDto comida = comidas.get(position);
-        holder.bind(comida, clickListener, longClickListener, hechaClickListener, menuClickListener);
+        holder.bind(comida, clickListener, longClickListener, menuClickListener);
     }
 
     @Override
@@ -85,7 +76,6 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
     static class ComidaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDesc, tvHora, tvMacros;
         ImageView ivIcono, ivMenu;
-        CheckBox cbHecha;
 
         public ComidaViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,10 +85,9 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
             tvMacros = itemView.findViewById(R.id.tvMacrosComida);
             ivIcono = itemView.findViewById(R.id.ivIconoComida);
             ivMenu = itemView.findViewById(R.id.ivMenuComida);
-            cbHecha = itemView.findViewById(R.id.cbComidaHecha);
         }
 
-        public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener, OnComidaLongClickListener longClickListener, OnHechaClickListener hechaClickListener, OnMenuClickListener menuClickListener) {
+        public void bind(ComidaDiariaResponseDto comida, OnComidaClickListener clickListener, OnComidaLongClickListener longClickListener, OnMenuClickListener menuClickListener) {
             tvTitulo.setText(comida.getNombreAlimento() != null ? comida.getNombreAlimento() : comida.getMomento());
             tvDesc.setText(comida.getMomento()); // Invertimos para que el plato sea el título
 
@@ -127,20 +116,6 @@ public class ComidaAdapter extends RecyclerView.Adapter<ComidaAdapter.ComidaView
                     }
                 });
             }
-
-            // Lógica del Checkbox para selección de consumo
-            cbHecha.setOnCheckedChangeListener(null);
-            cbHecha.setChecked(comida.isSelected());
-            itemView.setAlpha(comida.isSelected() ? 0.6f : 1.0f);
-
-            cbHecha.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                comida.setSelected(isChecked);
-                itemView.setAlpha(isChecked ? 0.6f : 1.0f);
-
-                if (hechaClickListener != null) {
-                    hechaClickListener.onHechaClick(comida, isChecked);
-                }
-            });
 
             if (comida.getImagenUrl() != null && !comida.getImagenUrl().isEmpty()) {
                 Glide.with(itemView.getContext())
