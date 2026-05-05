@@ -196,6 +196,21 @@
                     android:text="Gestionar Staff" />
             </LinearLayout>
 
+            <!-- Item: Escanear QR (Solo Admin/Staff) -->
+            <LinearLayout
+                android:id="@+id/menu_escanear_qr"
+                style="@style/ModernMenuItem"
+                android:visibility="gone">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_qr_code"
+                    app:tint="#CD0277" />
+                <TextView
+                    style="@style/ModernMenuText"
+                    android:text="Escanear QR" />
+            </LinearLayout>
+
             <!-- Item: Salir -->
             <LinearLayout
                 android:id="@+id/menu_salir"

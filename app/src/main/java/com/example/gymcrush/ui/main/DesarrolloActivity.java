@@ -727,19 +727,29 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         // Verificar si es ADMIN para mostrar gestión de staff
         java.util.Set<String> roles = prefs.getStringSet("roles", new java.util.HashSet<>());
         boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+        boolean isStaff = roles.contains("ROLE_STAFF") || roles.contains("STAFF") || isAdmin;
+
         View menuStaffAdmin = menuView.findViewById(R.id.menu_staff_admin);
         if (menuStaffAdmin != null) {
             menuStaffAdmin.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
             menuStaffAdmin.setOnClickListener(v -> {
                 slidingRootNav.closeMenu();
-                // Abrimos el fragmento de GESTIÓN de staff (StaffFragment)
                 cargarFragmento(new com.example.gymcrush.ui.staff.StaffFragment());
+            });
+        }
+
+        View menuScanner = menuView.findViewById(R.id.menu_escanear_qr);
+        if (menuScanner != null) {
+            menuScanner.setVisibility(isStaff ? View.VISIBLE : View.GONE);
+            menuScanner.setOnClickListener(v -> {
+                slidingRootNav.closeMenu();
+                cargarFragmento(new com.example.gymcrush.ui.scanner.ScannerFragment());
             });
         }
 
         menuView.findViewById(R.id.menu_qr).setOnClickListener(v -> {
             slidingRootNav.closeMenu();
-            mostrarDialogoQR();
+            cargarFragmento(new com.example.gymcrush.ui.acceso.AccesoFragment());
         });
         menuView.findViewById(R.id.menu_rutinas).setOnClickListener(v -> {
             slidingRootNav.closeMenu();

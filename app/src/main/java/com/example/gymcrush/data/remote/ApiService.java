@@ -20,6 +20,7 @@ import com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto;
 import com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto;
 import com.example.gymcrush.data.remote.dto.HorarioRequestDto;
 import com.example.gymcrush.data.remote.dto.HorarioResponseDto;
+import com.example.gymcrush.data.remote.dto.AccesoResponseDto;
 import com.example.gymcrush.data.remote.dto.ActividadRequestDto;
 import com.example.gymcrush.data.remote.dto.ActividadResponseDto;
 import com.example.gymcrush.data.remote.dto.ReservaResponseDto;
@@ -340,4 +341,17 @@ public interface ApiService {
 
     @DELETE("api/notificaciones/{id}")
     Call<Void> eliminarNotificacion(@Path("id") Long id);
+
+    // --- ACCESOS (QR Y AFORO) ---
+    @GET("api/v1/accesos/generar-qr")
+    Call<ApiResponseDto<String>> generarTokenQr();
+
+    @GET("api/v1/accesos/aforo")
+    Call<ApiResponseDto<Long>> obtenerAforoActual();
+
+    @GET("api/v1/accesos/historial")
+    Call<ApiResponseDto<List<AccesoResponseDto>>> obtenerHistorialAccesos();
+
+    @POST("api/v1/accesos/procesar-qr")
+    Call<ApiResponseDto<AccesoResponseDto>> procesarQr(@Query("token") String token);
 }
