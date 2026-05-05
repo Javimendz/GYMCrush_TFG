@@ -268,11 +268,8 @@ public class ResultadoDietaFragment extends Fragment {
         // El botón de guardar estará siempre visible ahora
         btnGuardar.setVisibility(View.VISIBLE);
         
-        if (planNutricional.getId() == null) {
-            btnRenombrar.setVisibility(View.GONE);
-        } else {
-            btnRenombrar.setVisibility(View.VISIBLE);
-        }
+        // Siempre permitimos renombrar, incluso si el plan es transitorio (ID null)
+        btnRenombrar.setVisibility(View.VISIBLE);
 
         String titulo = planNutricional.getNombreDieta() != null && !planNutricional.getNombreDieta().isEmpty()
                 ? planNutricional.getNombreDieta()
@@ -455,7 +452,14 @@ public class ResultadoDietaFragment extends Fragment {
                 .setPositiveButton("Actualizar", (dialog, which) -> {
                     String nuevoNombre = et.getText().toString().trim();
                     if (!nuevoNombre.isEmpty()) {
-                        viewModel.actualizarNombrePlan(planNutricional.getId(), nuevoNombre, usuarioId);
+                        if (planNutricional.getId() == null) {
+                            // Si el plan es transitorio, actualizamos localmente y refrescamos la UI
+                            planNutricional.setNombreDieta(nuevoNombre);
+                            mostrarDatos(getView());
+                        } else {
+                            // Si el plan ya existe en BD, llamamos al backend
+                            viewModel.actualizarNombrePlan(planNutricional.getId(), nuevoNombre, usuarioId);
+                        }
                     }
                 })
                 .setNegativeButton("Cancelar", null)
