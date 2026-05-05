@@ -6,6 +6,7 @@ public class MensajeChat {
     private Long usuarioId;
     private String texto;
     private String hora;
+    private boolean esMio;
 
     public MensajeChat() {}
 
@@ -31,4 +32,6 @@ public class MensajeChat {
     public void setTexto(String texto) { this.texto = texto; }
     public String getHora() { return hora; }
     public void setHora(String hora) { this.hora = hora; }
+    public boolean isEsMio() { return esMio; }
+    public void setEsMio(boolean esMio) { this.esMio = esMio; }
 }

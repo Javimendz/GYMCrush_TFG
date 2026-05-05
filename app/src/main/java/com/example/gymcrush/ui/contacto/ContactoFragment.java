@@ -1,16 +1,22 @@
 package com.example.gymcrush.ui.contacto;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.example.gymcrush.R;
+import com.example.gymcrush.ui.support.ChatSupportFragment;
+import com.example.gymcrush.ui.support.TicketListFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -33,6 +39,41 @@ public class ContactoFragment extends Fragment implements OnMapReadyCallback {
         view.findViewById(R.id.btnBackContacto).setOnClickListener(v -> {
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
+
+        // Botón AI Support
+        view.findViewById(R.id.btnAiSupport).setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new ChatSupportFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        // Botón Gestión de Tickets
+        View btnTickets = view.findViewById(R.id.btnMisTickets);
+        TextView tvTicketsTitle = view.findViewById(R.id.tvTicketsTitle);
+        TextView tvTicketsSubtitle = view.findViewById(R.id.tvTicketsSubtitle);
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        java.util.Set<String> roles = prefs.getStringSet("roles", new java.util.HashSet<>());
+        boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
+
+        if (isAdmin) {
+            tvTicketsTitle.setText("Panel de Tickets");
+            tvTicketsSubtitle.setText("Gestionar incidencias de usuarios");
+        }
+
+        btnTickets.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new TicketListFragment())
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 

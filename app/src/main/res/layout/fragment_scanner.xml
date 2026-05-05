@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#0F111A">
 
-    <com.journeyapps.barcodescanner.CompoundBarcodeView
+    <com.journeyapps.barcodescanner.BarcodeView
         android:id="@+id/barcodeScanner"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -43,9 +43,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Escanea el código QR del cliente para registrar su entrada o salida."
+            android:text="Selecciona el modo y escanea el QR del cliente."
             android:textColor="#B0B3B8"
             android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroupAcceso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:checkedButton="@+id/btnModoEntrada">
+
+            <Button
+                android:id="@+id/btnModoEntrada"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ENTRADA"
+                android:textColor="@color/white"
+                app:strokeColor="#4CAF50" />
+
+            <Button
+                android:id="@+id/btnModoSalida"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SALIDA"
+                android:textColor="@color/white"
+                app:strokeColor="#FF4081" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <ProgressBar
             android:id="@+id/progressScanner"
@@ -56,12 +87,12 @@
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:indeterminate="true" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnToggleFlash"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#FF4081"
+            app:backgroundTint="#FF4081"
             android:text="Encender Linterna"
             android:textColor="@color/white" />
 

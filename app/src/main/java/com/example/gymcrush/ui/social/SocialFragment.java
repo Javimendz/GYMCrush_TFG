@@ -50,7 +50,7 @@ import ua.naiksoftware.stomp.dto.StompMessage;
 public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOptionsListener {
 
     private static final String TAG = "SocialFragment";
-    private static final String WS_URL = "ws://10.0.2.2:8080/ws"; // Eliminado /websocket
+    private static final String WS_URL = "ws://192.168.1.96:8080/ws"; // Sincronizado con la IP del servidor real
 
     private RecyclerView rvChat;
     private ChatAdapter adapter;
@@ -104,9 +104,21 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                     Log.d(TAG, "Historial recibido: " + historial.size() + " mensajes");
                     
                     listaMensajes.clear();
+                    // Recorremos al revés para que el más nuevo quede abajo
                     for (int i = historial.size() - 1; i >= 0; i--) {
                         ChatMessageDto dto = historial.get(i);
-                        listaMensajes.add(new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada()));
+                        
+                        // Determinar si es mío para el historial
+                        boolean esMio = false;
+                        if (dto.usuarioId != null && dto.usuarioId != 0) {
+                            esMio = dto.usuarioId.equals(usuarioId);
+                        } else if (dto.remitente != null) {
+                            esMio = dto.remitente.equalsIgnoreCase(nombreUsuario);
+                        }
+
+                        MensajeChat mensaje = new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada());
+                        mensaje.setEsMio(esMio);
+                        listaMensajes.add(mensaje);
                     }
                     adapter.notifyDataSetChanged();
                     if (!listaMensajes.isEmpty()) {
@@ -163,21 +175,36 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                     }
                 }, throwable -> Log.e(TAG, "Error crítico en lifecycle", throwable)));
 
-        // Suscribirse a mensajes nuevos
-        compositeDisposable.add(mStompClient.topic("/topic/sala-publica")
+        // Suscribirse a mensajes nuevos en el canal1 según el nuevo backend
+        compositeDisposable.add(mStompClient.topic("/topic/canal1")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
                     Log.d(TAG, "Mensaje recibido: " + topicMessage.getPayload());
-                    ChatMessageDto dto = gson.fromJson(topicMessage.getPayload(), ChatMessageDto.class);
-                    MensajeChat mensaje = new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada());
-                    
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> {
-                            listaMensajes.add(mensaje);
-                            adapter.notifyItemInserted(listaMensajes.size() - 1);
-                            rvChat.scrollToPosition(listaMensajes.size() - 1);
-                        });
+                    try {
+                        ChatMessageDto dto = gson.fromJson(topicMessage.getPayload(), ChatMessageDto.class);
+                        if (dto != null) {
+                            // Lógica robusta para determinar si el mensaje es mío
+                            boolean esMio = false;
+                            if (dto.usuarioId != null && dto.usuarioId != 0) {
+                                esMio = dto.usuarioId.equals(usuarioId);
+                            } else if (dto.remitente != null) {
+                                esMio = dto.remitente.equalsIgnoreCase(nombreUsuario);
+                            }
+
+                            MensajeChat mensaje = new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada());
+                            mensaje.setEsMio(esMio);
+                            
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    listaMensajes.add(mensaje);
+                                    adapter.notifyItemInserted(listaMensajes.size() - 1);
+                                    rvChat.scrollToPosition(listaMensajes.size() - 1);
+                                });
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parseando mensaje social", e);
                     }
                 }, throwable -> Log.e(TAG, "Error en suscripción a mensajes", throwable)));
 
@@ -209,16 +236,17 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
     private void enviarMensaje() {
         String texto = etMensaje.getText().toString().trim();
         if (!texto.isEmpty() && mStompClient.isConnected()) {
-            ChatMessageDto dto = new ChatMessageDto();
-            dto.remitente = nombreUsuario;
-            dto.contenido = texto;
-            dto.usuarioId = usuarioId;
+            // El nuevo backend usa ChatRequestDto que espera contenido y tipo
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("contenido", texto);
+            payload.put("tipo", "CHAT"); // Cambiado a CHAT para coincidir con el backend
 
-            compositeDisposable.add(mStompClient.send("/app/chat.enviar", gson.toJson(dto))
+            // Ajustado para usar el MessageMapping "/chat1" del nuevo backend
+            compositeDisposable.add(mStompClient.send("/app/chat1", gson.toJson(payload))
                     .subscribe(() -> {
-                        Log.d(TAG, "Message sent with userId: " + usuarioId);
+                        Log.d(TAG, "Mensaje enviado a /chat1");
                         getActivity().runOnUiThread(() -> etMensaje.setText(""));
-                    }, throwable -> Log.e(TAG, "Error sending message", throwable)));
+                    }, throwable -> Log.e(TAG, "Error enviando mensaje", throwable)));
         }
     }
 

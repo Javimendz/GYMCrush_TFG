@@ -47,23 +47,36 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         holder.tvHora.setText(mensaje.getHora());
 
         // Mejora de la comprobación de autoría
-        boolean esMio = false;
+        boolean esMio = mensaje.isEsMio();
         
-        // 1. Comparación por ID (más fiable)
-        if (usuarioIdActual != null && usuarioIdActual != -1L && mensaje.getUsuarioId() != null) {
-            // Comparamos los valores long directamente
-            esMio = usuarioIdActual.longValue() == mensaje.getUsuarioId().longValue();
-        }
-        
-        // 2. Fallback por nombre de usuario si el ID no está o no coincide
-        if (!esMio && mensaje.getUsuario() != null && usuarioActual != null) {
-            String nombreMsg = mensaje.getUsuario().trim().toLowerCase();
-            String nombreYo = usuarioActual.trim().toLowerCase();
-            esMio = nombreMsg.equals(nombreYo);
+        // Si el flag no está configurado (null o false por defecto), intentamos calcularlo de nuevo como respaldo
+        if (!esMio) {
+            // 1. Comparación por ID (más fiable)
+            if (usuarioIdActual != null && usuarioIdActual != -1L && mensaje.getUsuarioId() != null) {
+                esMio = usuarioIdActual.longValue() == mensaje.getUsuarioId().longValue();
+            }
+            
+            // 2. Fallback por nombre de usuario
+            if (!esMio && mensaje.getUsuario() != null && usuarioActual != null) {
+                String nombreMsg = mensaje.getUsuario().trim().toLowerCase();
+                String nombreYo = usuarioActual.trim().toLowerCase();
+                esMio = nombreMsg.equals(nombreYo);
+            }
         }
 
-        // Log para depurar si hay problemas de reconocimiento
-        android.util.Log.d("ChatAdapter", "Msg de: " + mensaje.getUsuario() + " (ID:" + mensaje.getUsuarioId() + ") | Yo: " + usuarioActual + " (ID:" + usuarioIdActual + ") | esMio: " + esMio);
+        // Aplicamos la lógica visual según si es mío o no
+        if (esMio) {
+            // Alineación a la derecha y colores neón (personaliza según tus recursos)
+            holder.itemView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+            holder.tvTexto.setBackgroundResource(R.drawable.bg_bubble_user);
+        } else {
+            // Alineación a la izquierda y colores sobrios
+            holder.itemView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+            holder.tvTexto.setBackgroundResource(R.drawable.bg_bubble_bot);
+        }
+
+        // Log para depurar
+        android.util.Log.d("ChatAdapter", "Msg de: " + mensaje.getUsuario() + " | esMio: " + esMio);
 
         final boolean finalEsMio = esMio;
         

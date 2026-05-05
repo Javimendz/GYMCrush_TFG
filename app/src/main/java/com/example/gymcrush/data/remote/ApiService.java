@@ -14,6 +14,8 @@ import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
 import com.example.gymcrush.data.remote.dto.RegisterRequest;
 import com.example.gymcrush.data.remote.dto.SaludRequestDto;
 import com.example.gymcrush.data.remote.dto.SaludResponseDto;
+import com.example.gymcrush.data.remote.dto.TicketRequestDto;
+import com.example.gymcrush.data.remote.dto.TicketResponseDto;
 import com.example.gymcrush.data.remote.dto.TutorialRequestDto;
 import com.example.gymcrush.data.remote.dto.TutorialResponseDto;
 import com.example.gymcrush.data.remote.dto.EntrenamientoRequestDto;
@@ -326,8 +328,11 @@ public interface ApiService {
     Call<ApiResponseDto<Void>> quitarRolEntrenador(@Path("id") Long id);
 
     // --- NUEVO ENDPOINT PARA HISTORIAL DE CHAT ---
-    @GET("api/v1/chat/historial")
+    @GET("api/v1/chat/historial-publico")
     Call<List<com.example.gymcrush.ui.social.SocialFragment.ChatMessageDto>> getHistorialChat();
+
+    @GET("api/v1/chat/historial/{ticketId}")
+    Call<List<com.example.gymcrush.ui.social.SocialFragment.ChatMessageDto>> getHistorialTicket(@Path("ticketId") String ticketId);
 
     // --- NOTIFICACIONES ---
     @GET("api/notificaciones/usuario/{usuarioId}")
@@ -354,4 +359,23 @@ public interface ApiService {
 
     @POST("api/v1/accesos/procesar-qr")
     Call<ApiResponseDto<AccesoResponseDto>> procesarQr(@Query("token") String token);
+
+    @POST("api/v1/accesos/validar-entrada")
+    Call<ApiResponseDto<Void>> validarEntrada(@Body Map<String, String> body);
+
+    @POST("api/v1/accesos/validar-salida")
+    Call<ApiResponseDto<Void>> validarSalida(@Body Map<String, String> body);
+
+    // --- TICKETS DE SOPORTE ---
+    @POST("api/v1/tickets/usuario/{usuarioId}")
+    Call<ApiResponseDto<TicketResponseDto>> crearTicket(@Path("usuarioId") Long usuarioId, @Body TicketRequestDto dto);
+
+    @GET("api/v1/tickets/usuario/{usuarioId}")
+    Call<ApiResponseDto<List<TicketResponseDto>>> verMisTickets(@Path("usuarioId") Long usuarioId);
+
+    @GET("api/v1/tickets")
+    Call<ApiResponseDto<List<TicketResponseDto>>> verTodosLosTickets();
+
+    @PATCH("api/v1/tickets/{id}/estado")
+    Call<ApiResponseDto<TicketResponseDto>> resolverTicket(@Path("id") Long id, @Query("nuevoEstado") String nuevoEstado);
 }
