@@ -228,30 +228,39 @@ public class DietaFragment extends Fragment {
         });
 
         comidaAdapter = new ComidaAdapter();
-        comidaAdapter.setOnHechaClickListener((comida, isChecked) -> {
-            NutricionResponseDto plan = viewModel.getPlanActual().getValue();
-            if (plan != null) {
-                if (isChecked && comida.getId() == null) {
-                    // Marcar sugerencia: Guardar en el servidor
-                    com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto request = new com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto();
-                    request.setNombreAlimento(comida.getNombreAlimento());
-                    request.setMomento(comida.getMomento());
-                    request.setCalorias(comida.getCalorias());
-                    request.setProteina(comida.getProteina());
-                    request.setCarbohidratos(comida.getCarbohidratos());
-                    request.setGrasas(comida.getGrasas());
-                    request.setPlanNutricionalId(plan.getId());
-                    request.setImagenUrl(comida.getImagenUrl());
-                    request.setDescripcion(comida.getDescripcion());
-                    request.setRecipeUrl(comida.getRecipeUrl());
-
-                    viewModel.añadirComida(request, usuarioId);
-                } else if (!isChecked && comida.getId() != null) {
-                    // Desmarcar: Eliminar del servidor
-                    viewModel.eliminarComida(comida.getId(), plan.getId(), usuarioId);
-                }
+        comidaAdapter.setOnMenuClickListener((v, comida) -> {
+            android.widget.PopupMenu popup = new android.widget.PopupMenu(getContext(), v);
+            if (comida.getId() != null) {
+                popup.getMenu().add("Eliminar");
+            } else {
+                popup.getMenu().add("Añadir al registro");
             }
-            actualizarResumenMacros(getView());
+
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getTitle().equals("Eliminar")) {
+                    NutricionResponseDto currentPlan = viewModel.getPlanActual().getValue();
+                    Long planId = (currentPlan != null) ? currentPlan.getId() : null;
+                    viewModel.eliminarComida(comida.getId(), planId, usuarioId);
+                } else if (item.getTitle().equals("Añadir al registro")) {
+                    NutricionResponseDto plan = viewModel.getPlanActual().getValue();
+                    if (plan != null) {
+                        com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto request = new com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto();
+                        request.setNombreAlimento(comida.getNombreAlimento());
+                        request.setMomento(comida.getMomento());
+                        request.setCalorias(comida.getCalorias());
+                        request.setProteina(comida.getProteina());
+                        request.setCarbohidratos(comida.getCarbohidratos());
+                        request.setGrasas(comida.getGrasas());
+                        request.setPlanNutricionalId(plan.getId());
+                        request.setImagenUrl(comida.getImagenUrl());
+                        request.setDescripcion(comida.getDescripcion());
+                        request.setRecipeUrl(comida.getRecipeUrl());
+                        viewModel.añadirComida(request, usuarioId);
+                    }
+                }
+                return true;
+            });
+            popup.show();
         });
         comidaAdapter.setOnComidaClickListener(comida -> {
             // Intentar enriquecer con descripción e imagen del plan actual
@@ -274,18 +283,6 @@ public class DietaFragment extends Fragment {
                     .replace(R.id.fragment_container, DetalleComidaFragment.newInstance(comida))
                     .addToBackStack(null)
                     .commit();
-        });
-        comidaAdapter.setOnComidaLongClickListener(comida -> {
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Eliminar plato")
-                    .setMessage("¿Estás seguro de que quieres eliminar " + comida.getNombreAlimento() + " de tu plan?")
-                    .setPositiveButton("Eliminar", (dialog, which) -> {
-                        NutricionResponseDto currentPlan = viewModel.getPlanActual().getValue();
-                        Long planId = (currentPlan != null) ? currentPlan.getId() : null;
-                        viewModel.eliminarComida(comida.getId(), planId, usuarioId);
-                    })
-                    .setNegativeButton("Cancelar", null)
-                    .show();
         });
         rvComidas.setLayoutManager(new LinearLayoutManager(getContext()) {
             @Override
