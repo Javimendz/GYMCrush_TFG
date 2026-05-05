@@ -66,7 +66,7 @@ public class NotificacionesFragment extends Fragment {
         layoutEmpty = view.findViewById(R.id.layoutEmpty);
 
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new NotificacionesAdapter(listaNotificaciones, this::marcarComoLeida);
+        adapter = new NotificacionesAdapter(listaNotificaciones, this::marcarYBorrar);
         rv.setAdapter(adapter);
     }
 
@@ -116,20 +116,45 @@ public class NotificacionesFragment extends Fragment {
             }
         });
     }
-    private void marcarComoLeida(NotificacionResponseDto notif) {
-        if (notif.isLeido()) return;
+    private void marcarYBorrar(NotificacionResponseDto notif) {
+        // 1. Eliminar de la lista visual inmediatamente (UI optimista)
+        int position = listaNotificaciones.indexOf(notif);
+        if (position != -1) {
+            listaNotificaciones.remove(position);
+            adapter.notifyItemRemoved(position);
+            actualizarUI();
+        }
 
-        RetrofitClient.getApiService().marcarNotificacionComoLeida(notif.getId()).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    cargarNotificaciones(); // Recargar para actualizar estado visual
+        // 2. Eliminar de la lista de sesión de DesarrolloActivity si existe (para notificaciones locales)
+        if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+            ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).getNotificacionesSesion().remove(notif);
+        }
+
+        // 3. Procesar en el servidor si tiene un ID válido (para notificaciones persistidas)
+        if (notif.getId() != null) {
+            // Primero marcamos como leída (opcional según lógica de negocio, pero solicitado)
+            RetrofitClient.getApiService().marcarNotificacionComoLeida(notif.getId()).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    // Después eliminamos definitivamente
+                    RetrofitClient.getApiService().eliminarNotificacion(notif.getId()).enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            Log.d("NOTIF", "Notificación eliminada en servidor");
+                        }
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Log.e("NOTIF", "Error al borrar en servidor");
+                        }
+                    });
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {}
-        });
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Log.e("NOTIF", "Error al marcar como leída");
+                }
+            });
+        }
     }
 
     public void onNuevaNotificacionRecibida(NotificacionResponseDto notif) {
