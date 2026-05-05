@@ -35,6 +35,8 @@ public class MensajeChat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "ticket_id")
+    private String ticketId;
     /**
      * Contenido del mensaje enviado.
      * <p>

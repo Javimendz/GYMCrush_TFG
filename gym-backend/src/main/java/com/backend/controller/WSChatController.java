@@ -3,6 +3,7 @@ package com.backend.controller;
 import java.security.Principal;
 import java.time.LocalDateTime;
 
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -34,7 +35,7 @@ public class WSChatController {
     
     private final MensajeChatRepository mensajeRepository;
     private final ChatMapper chatMapper;
-
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
     /**
      * Procesa un mensaje de chat entrante y lo difunde a todos los usuarios conectados.
      * <p>
@@ -63,6 +64,31 @@ public class WSChatController {
         log.debug("Mensaje guardado con ID: {}", guardado.getId());
         
         return chatMapper.toDto(guardado);
+    }
+
+    @MessageMapping("/chat.ticket.{ticketId}")
+    public void procesarMensajeTicket(@DestinationVariable String ticketId, 
+                                      ChatRequestDto request, 
+                                      Principal principal) {
+        
+        String username = (principal != null) ? principal.getName() : "Anónimo";
+        log.info("Mensaje para Ticket #{}: de {}: {}", ticketId, username, request.contenido());
+
+        // 1. Guardar en BD (Asegúrate de que tu entidad MensajeChat tenga un campo ticketId)
+        MensajeChat entidad = MensajeChat.builder()
+                .contenido(request.contenido())
+                .emisor(username)
+                .fechaEnvio(LocalDateTime.now())
+                .tipo(request.tipo())
+                // .ticketId(ticketId) // <-- Sería ideal guardar a qué ticket pertenece
+                .build();
+        
+        MensajeChat guardado = mensajeRepository.save(entidad);
+        ChatResponseDto response = chatMapper.toDto(guardado);
+
+        // 2. Enviar el mensaje solo a los suscritos a este ticket específico
+        // Esto equivale a un @SendTo dinámico
+        messagingTemplate.convertAndSend("/topic/tickets." + ticketId, response);
     }
 
 }
