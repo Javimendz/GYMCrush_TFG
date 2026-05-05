@@ -581,6 +581,14 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             public void onResponse(Call<ApiResponseDto<ActividadResponseDto>> call, Response<ApiResponseDto<ActividadResponseDto>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Actividad creada con éxito", Toast.LENGTH_SHORT).show();
+                    
+                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                        ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                "Nueva Actividad",
+                                "Se ha creado la actividad: " + request.getNombre()
+                        );
+                    }
+
                     cargarActividades();
                 }
             }
@@ -724,6 +732,14 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                         public void onResponse(Call<ApiResponseDto<HorarioResponseDto>> call, Response<ApiResponseDto<HorarioResponseDto>> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(getContext(), "Horario creado con éxito", Toast.LENGTH_SHORT).show();
+                                
+                                if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                                    ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                            "Nueva Clase Programada",
+                                            "Se ha añadido " + act.getNombre() + " al horario del " + dia
+                                    );
+                                }
+
                                 diaActual = dia;
                                 for (MaterialButton btn : botonesDias) {
                                     if (btn.getText().toString().equalsIgnoreCase(diaActual)) {
@@ -874,7 +890,15 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             viewModel.realizarReserva(userId, clase.getId(), new ReservasRepository.RepositoryCallback<ReservaResponseDto>() {
                 public void onSuccess(ReservaResponseDto result) {
                     Toast.makeText(getContext(), "¡Dentro! Te veo en la sala.", Toast.LENGTH_SHORT).show();
-                   dialog.dismiss();
+                    
+                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                        ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                "Reserva Confirmada",
+                                "Te has apuntado a " + clase.getNombre() + " (" + clase.getHora() + ")"
+                        );
+                    }
+
+                    dialog.dismiss();
                 }
 
                 @Override

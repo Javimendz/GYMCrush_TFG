@@ -142,6 +142,14 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
             @Override
             public void onSuccess(ReservaResponseDto result) {
                 Toast.makeText(getContext(), "Reserva confirmada!", Toast.LENGTH_SHORT).show();
+                
+                if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                    ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                            "Reserva Realizada",
+                            "Has reservado plaza en " + clase.getNombre() + " (" + clase.getHora() + ")"
+                    );
+                }
+
                 parentDialog.dismiss();
                 actualizarListaPorDia(diaSeleccionadoCodigo);
             }

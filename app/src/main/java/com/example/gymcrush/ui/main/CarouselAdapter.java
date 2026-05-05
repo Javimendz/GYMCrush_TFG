@@ -43,6 +43,9 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
         notifyDataSetChanged();
     }
 
+
+
+
     @NonNull
     @Override
     public CarouselViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

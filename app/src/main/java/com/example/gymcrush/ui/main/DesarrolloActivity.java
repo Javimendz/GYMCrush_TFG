@@ -1,6 +1,7 @@
 package com.example.gymcrush.ui.main;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -115,6 +116,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private com.example.gymcrush.data.remote.StompManager stompManager;
     private LottieAnimationView notificationsAnim;
     private TextView notificationBadge;
+    private List<com.example.gymcrush.data.remote.dto.NotificacionResponseDto> notificacionesSesion = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -936,12 +938,16 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         stompManager.connect(url, usuarioId, token, notification -> {
             runOnUiThread(() -> {
                 // Notificación visual en la campana
-                if (notificationsAnim != null) {
-                    notificationsAnim.playAnimation();
-                }
+                reproducirAnimacionNotificacion();
                 
                 // Mostrar Toast o Snackbar
                 Toast.makeText(this, "🔔 " + notification.getTitulo() + ": " + notification.getMensaje(), Toast.LENGTH_LONG).show();
+                
+                // Enviar notificación al sistema (Barra de estado)
+                mostrarNotificacionPush(notification.getTitulo(), notification.getMensaje());
+                
+                // Guardar en la sesión para que aparezca al abrir el fragmento
+                notificacionesSesion.add(0, notification);
                 
                 // Si el fragmento de notificaciones está visible, actualizarlo en tiempo real
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
@@ -962,20 +968,61 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     public void crearNotificacionManual(String titulo, String mensaje) {
         reproducirAnimacionNotificacion();
         
-        // Crear el objeto de notificación DTO localmente
+        // 1. Mostrar Toast visual
+        runOnUiThread(() -> {
+            Toast.makeText(this, "🔔 " + titulo + "\n" + mensaje, Toast.LENGTH_LONG).show();
+        });
+
+        // 2. Enviar notificación al sistema (Barra de estado)
+        mostrarNotificacionPush(titulo, mensaje);
+
+        // 3. Crear el objeto DTO para la UI
         com.example.gymcrush.data.remote.dto.NotificacionResponseDto notif = new com.example.gymcrush.data.remote.dto.NotificacionResponseDto();
         notif.setTitulo(titulo);
         notif.setMensaje(mensaje);
         notif.setLeido(false);
         
-        // Formatear fecha actual
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
         notif.setFecha(sdf.format(new java.util.Date()));
 
-        // Si el fragmento de notificaciones está abierto ahora mismo, añadirla a la lista visual
+        // Guardar en la sesión para que aparezca al abrir el fragmento
+        notificacionesSesion.add(0, notif);
+
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (currentFragment instanceof NotificacionesFragment) {
             ((NotificacionesFragment) currentFragment).onNuevaNotificacionRecibida(notif);
+        }
+    }
+
+    private void mostrarNotificacionPush(String titulo, String mensaje) {
+        // Verificar permiso para Android 13+
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) 
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                // Si no tiene permiso, lo pedimos (aunque en un flujo ideal se pediría al inicio)
+                androidx.core.app.ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+                return;
+            }
+        }
+
+        String channelId = "gymcrush_notifications";
+        android.app.NotificationManager notificationManager = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        android.app.NotificationChannel channel = new android.app.NotificationChannel(
+                channelId, "Notificaciones GYMCrush", android.app.NotificationManager.IMPORTANCE_HIGH);
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_notifications) // Corregido el nombre del icono
+                .setContentTitle(titulo)
+                .setContentText(mensaje)
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true);
+
+        if (notificationManager != null) {
+            notificationManager.notify((int) System.currentTimeMillis(), builder.build());
         }
     }
 
@@ -989,6 +1036,10 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         if (notificationBadge != null) {
             notificationBadge.setVisibility(View.GONE);
         }
+    }
+
+    public List<com.example.gymcrush.data.remote.dto.NotificacionResponseDto> getNotificacionesSesion() {
+        return notificacionesSesion;
     }
 
     @Override

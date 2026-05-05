@@ -42,6 +42,12 @@ public class PlanesFragment extends Fragment {
             result -> {
                 if (result.getResultCode() == android.app.Activity.RESULT_OK) {
                     cargarPlanes();
+                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                        ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                "Nuevo Plan",
+                                "Has creado un nuevo plan de entrenamiento correctamente."
+                        );
+                    }
                 }
             }
     );
@@ -126,6 +132,14 @@ public class PlanesFragment extends Fragment {
             public void onResponse(Call<ApiResponseDto<Void>> call, Response<ApiResponseDto<Void>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "¡Plan activado con éxito! Revisa tu agenda.", Toast.LENGTH_LONG).show();
+                    
+                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                        ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                "Plan Suscrito",
+                                "Te has suscrito a un nuevo plan de entrenamiento."
+                        );
+                    }
+
                     if (subscriptionListener != null) {
                         subscriptionListener.onPlanSubscribed();
                     }

@@ -78,6 +78,11 @@ public class CrearPlanActivity extends AppCompatActivity {
             public void onResponse(Call<ApiResponseDto<PlanResponseDto>> call, Response<ApiResponseDto<PlanResponseDto>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(CrearPlanActivity.this, "Plan creado correctamente", Toast.LENGTH_SHORT).show();
+                    
+                    // Notificación en el Centro de Mensajes
+                    // Nota: Como estamos en una Activity, no podemos acceder directamente al DesarrolloActivity fácilmente
+                    // pero podemos usar un Broadcast o simplemente confiar en que el usuario verá el Toast.
+                    // Sin embargo, para consistencia con los Fragmentos:
                     setResult(RESULT_OK);
                     finish();
                 } else {

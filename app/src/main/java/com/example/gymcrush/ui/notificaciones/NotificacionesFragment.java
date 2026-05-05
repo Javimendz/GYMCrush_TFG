@@ -78,7 +78,36 @@ public class NotificacionesFragment extends Fragment {
             public void onResponse(Call<List<NotificacionResponseDto>> call, Response<List<NotificacionResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     listaNotificaciones.clear();
-                    listaNotificaciones.addAll(response.body());
+
+                    // 🛠 CORRECCIÓN: Validar los datos que vienen del backend
+                    for (NotificacionResponseDto notif : response.body()) {
+                        if (notif.getTitulo() == null || notif.getTitulo().trim().isEmpty()) {
+                            notif.setTitulo("Reserva Exitosa");
+                        }
+                        if (notif.getMensaje() == null || notif.getMensaje().trim().isEmpty()) {
+                            notif.setMensaje("¡Plaza confirmada! Revisa tu agenda para más detalles.");
+                        }
+                        listaNotificaciones.add(notif);
+                    }
+
+                    // 🛠 AÑADIDO: Recuperar notificaciones locales de la sesión actual (ej: reservas canceladas)
+                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                        List<NotificacionResponseDto> locales = ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).getNotificacionesSesion();
+                        for (NotificacionResponseDto localNotif : locales) {
+                            boolean existe = false;
+                            for (NotificacionResponseDto n : listaNotificaciones) {
+                                // Comparación simple por mensaje y fecha para evitar duplicados
+                                if (n.getMensaje().equals(localNotif.getMensaje()) && n.getFecha().equals(localNotif.getFecha())) {
+                                    existe = true;
+                                    break;
+                                }
+                            }
+                            if (!existe) {
+                                listaNotificaciones.add(0, localNotif);
+                            }
+                        }
+                    }
+
                     actualizarUI();
                 }
             }
@@ -89,7 +118,6 @@ public class NotificacionesFragment extends Fragment {
             }
         });
     }
-
     private void marcarComoLeida(NotificacionResponseDto notif) {
         if (notif.isLeido()) return;
 
@@ -108,24 +136,18 @@ public class NotificacionesFragment extends Fragment {
 
     public void onNuevaNotificacionRecibida(NotificacionResponseDto notif) {
         if (listaNotificaciones != null && adapter != null) {
-            // Si el servidor envía un error de validación, puede que falten campos.
-            // Los rellenamos para que se vea bien en la lista.
-            if (notif.getTitulo() == null || notif.getTitulo().isEmpty()) {
-                notif.setTitulo("Aviso del Sistema");
+            // Validación extra para reservas
+            if (notif.getMensaje() == null || notif.getMensaje().isEmpty()) {
+                notif.setMensaje("Tu reserva se ha realizado correctamente."); // Mensaje por defecto
             }
-            if (notif.getFecha() == null || notif.getFecha().isEmpty()) {
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
-                notif.setFecha(sdf.format(new java.util.Date()));
-            }
+            if (notif.getTitulo() == null) notif.setTitulo("Nueva Reserva");
 
-            listaNotificaciones.add(0, notif); // Añadir al principio
-            
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(() -> {
-                    actualizarUI();
-                    if (rv != null) rv.scrollToPosition(0);
-                });
-            }
+            getActivity().runOnUiThread(() -> {
+                listaNotificaciones.add(0, notif);
+                adapter.notifyItemInserted(0); // Notifica la inserción en la primera posición
+                rv.scrollToPosition(0);        // Desplaza la lista al inicio
+                actualizarUI();
+            });
         }
     }
 

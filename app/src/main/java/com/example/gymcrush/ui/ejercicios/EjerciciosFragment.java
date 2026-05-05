@@ -327,6 +327,14 @@ public class EjerciciosFragment extends Fragment {
             public void onResponse(Call<ApiResponseDto<TutorialResponseDto>> call, Response<ApiResponseDto<TutorialResponseDto>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Ejercicio creado", Toast.LENGTH_SHORT).show();
+                    
+                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                        ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                "Nuevo Ejercicio",
+                                "Se ha creado el ejercicio: " + nombre
+                        );
+                    }
+
                     dialog.dismiss();
                     cargarTutoriales();
                 } else {
@@ -603,6 +611,14 @@ public class EjerciciosFragment extends Fragment {
             public void onResponse(Call<ApiResponseDto<TutorialResponseDto>> call, Response<ApiResponseDto<TutorialResponseDto>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "¡Tutorial añadido!", Toast.LENGTH_SHORT).show();
+                    
+                    if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                        ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                "Ejercicio Añadido",
+                                "Has añadido '" + exercise.getName() + "' a tu biblioteca."
+                        );
+                    }
+
                     parentDialog.dismiss();
                     cargarTutoriales(); // Recargar lista principal
                 } else {
