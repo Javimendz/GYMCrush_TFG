@@ -79,7 +79,6 @@ public class NotificacionesFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     listaNotificaciones.clear();
 
-                    // 🛠 CORRECCIÓN: Validar los datos que vienen del backend
                     for (NotificacionResponseDto notif : response.body()) {
                         if (notif.getTitulo() == null || notif.getTitulo().trim().isEmpty()) {
                             notif.setTitulo("Reserva Exitosa");
@@ -90,7 +89,6 @@ public class NotificacionesFragment extends Fragment {
                         listaNotificaciones.add(notif);
                     }
 
-                    // 🛠 AÑADIDO: Recuperar notificaciones locales de la sesión actual (ej: reservas canceladas)
                     if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
                         List<NotificacionResponseDto> locales = ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).getNotificacionesSesion();
                         for (NotificacionResponseDto localNotif : locales) {
