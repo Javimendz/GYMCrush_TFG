@@ -147,6 +147,27 @@ public class AccesoController {
     }
 
     /**
+     * Procesa un token QR genérico. 
+     * Este es el endpoint que tu App de Android está buscando.
+     */
+    @PostMapping("/procesar-qr")
+    @PreAuthorize("hasRole('ADMIN')") // Solo el personal del gimnasio escanea el QR
+    @io.swagger.v3.oas.annotations.Operation(summary = "Procesar QR", description = "Punto de entrada genérico para registrar entrada o salida")
+    public ResponseEntity<ApiResponseDto<Void>> procesarQr(@org.springframework.web.bind.annotation.RequestParam("token") String token) {
+        
+        log.info("Procesando escaneo de QR genérico. Token recibido por QueryParam");
+        
+        // Aquí llamamos al servicio. 
+        // El servicio debe encargarse de validar el token y decidir si registra entrada o salida.
+        accesoService.registrarEntrada(token); 
+
+        return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                .mensaje("Acceso procesado correctamente")
+                .success(true)
+                .build());
+    }
+
+    /**
      * Obtiene el historial de accesos del usuario autenticado.
      */
     @GetMapping("/historial")
