@@ -45,8 +45,8 @@ import ua.naiksoftware.stomp.dto.StompHeader;
 public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessageOptionsListener {
 
     private static final String TAG = "TicketChatFragment";
-    // Cambiado a la IP de tu servidor según los logs
-    private static final String WS_URL = "ws://192.168.1.96:8080/ws";
+    // Sincronizado con RetrofitClient (10.0.2.2 para emulador) y suffix /websocket para SockJS
+    private static final String WS_URL = "ws://10.0.2.2:8080/ws/websocket";
 
     private RecyclerView rvChat;
     private ChatAdapter adapter;

@@ -50,7 +50,8 @@ import ua.naiksoftware.stomp.dto.StompMessage;
 public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOptionsListener {
 
     private static final String TAG = "SocialFragment";
-    private static final String WS_URL = "ws://192.168.1.96:8080/ws"; // Sincronizado con la IP del servidor real
+    // Sincronizado con RetrofitClient (10.0.2.2 para emulador) y suffix /websocket para SockJS
+    private static final String WS_URL = "ws://10.0.2.2:8080/ws/websocket";
 
     private RecyclerView rvChat;
     private ChatAdapter adapter;
