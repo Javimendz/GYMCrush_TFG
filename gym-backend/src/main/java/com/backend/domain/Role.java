@@ -54,4 +54,8 @@ public class Role {
     @JsonIgnore
     private Set<Usuario> usuarios;
 
+    public Set<Usuario> getUsuarios() {
+    return usuarios;
+}
+
 }
