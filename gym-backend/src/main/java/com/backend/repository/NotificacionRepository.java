@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
+import com.backend.domain.enums.TipoNotificacion;
 import com.backend.domain.Notificacion;
 
 @Repository
@@ -18,8 +18,7 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
      * Ordenadas por fecha de creación descendente (las más nuevas primero).
      */
     List<Notificacion> findByUsuarioIdOrderByFechaCreacionDesc(Long usuarioId);
-
-    /**
+boolean existsByTicket_IdAndTipo(Long ticketId, TipoNotificacion tipo);    /**
      * Obtiene SOLO las notificaciones que el usuario aún no ha leído.
      * Ideal para mostrar un filtro de "Nuevas".
      *

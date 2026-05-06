@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import com.backend.repository.NotificacionRepository; 
+import com.backend.service.NotificacionService;
+import com.backend.dto.NotificacionRequestDto;
 
 import com.backend.domain.enums.EnumEstadoTicket;
 import com.backend.dto.TicketRequestDto;
@@ -17,7 +20,7 @@ import com.backend.domain.Ticket;
 import com.backend.domain.Usuario;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-
+import com.backend.domain.enums.TipoNotificacion;
 /**
  * Implementación del servicio para la gestión de tickets de soporte técnico.
  * <p>
@@ -36,13 +39,11 @@ public class TicketServiceImp implements ITicketService {
 
     /** Repositorio para el acceso a datos de tickets */
     private final TicketRepository ticketRepository;
-
-    /** Repositorio para el acceso a datos de usuarios */
     private final UsuarioRepository usuarioRepository;
-
-    /** Mapper para convertir entre entidades y DTOs de tickets */
     private final TicketMapper ticketMapper;
 
+   private final NotificacionRepository notificacionRepository; 
+    private final NotificacionService notificacionService;
     /**
      * Crea un nuevo ticket de soporte para un usuario.
      * <p>
@@ -155,20 +156,30 @@ public class TicketServiceImp implements ITicketService {
     @Override
     public TicketResponseDto actualizarEstado(Long ticketId, EnumEstadoTicket nuevoEstado) {
 
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado con ID: " + ticketId));
+    Ticket ticket = ticketRepository.findById(ticketId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado"));
 
-        ticket.setEstado(nuevoEstado);
-
-        if (nuevoEstado == EnumEstadoTicket.CERRADO)
-            ticket.setFechaResolucion(LocalDateTime.now());
-        else
-            ticket.setFechaResolucion(null);
-
-        return mapToDto(ticketRepository.save(ticket));
-
+    //  Evitar procesar si el estado ya es el mismo
+    if (ticket.getEstado().equals(nuevoEstado)) {
+        return ticketMapper.toDto(ticket); 
     }
 
+    ticket.setEstado(nuevoEstado);
+   if (EnumEstadoTicket.RESUELTO.equals(nuevoEstado)) {
+        ticket.setFechaResolucion(LocalDateTime.now());
+        
+boolean existeNotif = notificacionRepository.existsByTicket_IdAndTipo(ticketId, TipoNotificacion.RESOLUCION);
+        if (!existeNotif) {
+            notificacionService.crear(NotificacionRequestDto.builder()
+                .usuarioId(ticket.getUsuario().getId())
+                .titulo("Ticket Resuelto")
+                .mensaje("Tu ticket #" + ticketId + " ha sido marcado como resuelto.")
+                .build());
+        }
+    }
+
+    return ticketMapper.toDto(ticketRepository.save(ticket));
+}
     /**
      * Elimina un ticket existente del sistema.
      * <p>

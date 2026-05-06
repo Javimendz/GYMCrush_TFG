@@ -41,7 +41,11 @@ public class Notificacion {
     private LocalDateTime fechaCreacion = LocalDateTime.now();
     @Builder.Default
     private boolean leido = false;
-
+    
+    @ManyToOne // Una notificación pertenece a un Ticket
+    @JoinColumn(name = "ticket_id") // Nombre en la tabla de la BD
+    private Ticket ticket;
+    
     @Enumerated(EnumType.STRING)
     private TipoNotificacion tipo; // Confirmacion, Recordatorio, Cancelacion
 }

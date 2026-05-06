@@ -138,7 +138,7 @@ public class TicketController {
      * @return ResponseEntity con el ticket actualizado
      */
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USUARIO', 'ADMIN')")
     @io.swagger.v3.oas.annotations.Operation(summary = "Resolver ticket", description = "Permite al administrador resolver un ticket de soporte")       
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ticket resuelto exitosamente")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Solicitud inválida")

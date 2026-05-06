@@ -6,4 +6,5 @@ public enum TipoNotificacion {
     CANCELACION,   // Ejemplo: "Clase de Yoga cancelada"
     SISTEMA,       // Ejemplo: "Actualización de la app disponible"
     ALERTA         // Ejemplo: "Tu suscripción caduca en 3 días"
+    ,RESOLUCION
 }
