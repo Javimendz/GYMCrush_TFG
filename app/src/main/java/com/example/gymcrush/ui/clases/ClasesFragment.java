@@ -108,13 +108,14 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
 
         // UI HORARIO
         rvClases = view.findViewById(R.id.rvClases);
-        rvClases.setLayoutManager(new LinearLayoutManager(getContext()));
+        int spanCount = getSpanCount();
+        rvClases.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(getContext(), spanCount));
         adapter = new ClasesAdapter(new ArrayList<>(), this);
         rvClases.setAdapter(adapter);
 
         // UI ACTIVIDADES
         rvActividades = view.findViewById(R.id.rvActividades);
-        rvActividades.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(getContext(), 2));
+        rvActividades.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(getContext(), spanCount));
         actividadesAdapter = new ActividadesAdapter(new ArrayList<>(), this);
         rvActividades.setAdapter(actividadesAdapter);
 
@@ -1115,6 +1116,14 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             }
             @Override public void onFailure(Call<ApiResponseDto<List<PerfilResponseDto>>> call, Throwable t) {}
         });
+    }
+
+    private int getSpanCount() {
+        android.util.DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        float widthDp = displayMetrics.widthPixels / displayMetrics.density;
+        if (widthDp >= 900) return 3; // Tablets grandes
+        if (widthDp >= 600) return 2; // Tablets pequeñas / Móviles en horizontal
+        return 1; // Móviles estándar
     }
 
     private void configurarAdapterEntrenador(android.widget.Spinner spinner, List<PerfilResponseDto> lista) {
