@@ -47,7 +47,7 @@ public class NutricionMapper {
                     .collect(Collectors.toList()));
         }
 
-        // Convertir el String JSON de la DB al Objeto DTO para Android
+        // Convertir String JSON de la DB al Objeto DTO para Android
         if (entity.getMacronutrientesJson() != null && !entity.getMacronutrientesJson().isBlank()) {
             try {
                 FatSecretResponseDto fsDto = objectMapper.readValue(
