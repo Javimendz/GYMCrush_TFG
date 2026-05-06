@@ -25,12 +25,9 @@ public class StompManager {
 
     public void connect(String url, Long usuarioId, String token, OnNotificationReceivedListener listener) {
         // La URL suele ser ws://10.0.2.2:8080/ws/websocket para el emulador
-        Map<String, String> handshakeHeaders = new HashMap<>();
-        if (token != null && !token.isEmpty()) {
-            handshakeHeaders.put("Authorization", "Bearer " + token);
-        }
-
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, url, handshakeHeaders);
+        // Se eliminan los handshakeHeaders para evitar el error HTTP 500 durante el handshake.
+        // La autenticación se maneja a nivel de protocolo STOMP en connectHeaders.
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, url);
 
         List<StompHeader> headers = new ArrayList<>();
         if (token != null && !token.isEmpty()) {

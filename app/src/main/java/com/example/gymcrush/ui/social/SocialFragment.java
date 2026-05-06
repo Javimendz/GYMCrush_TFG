@@ -145,10 +145,9 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
         Log.d(TAG, "Iniciando Stomp en URL: " + WS_URL);
         
-        Map<String, String> handshakeHeaders = new HashMap<>();
-        handshakeHeaders.put("Authorization", "Bearer " + token);
-
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, WS_URL, handshakeHeaders);
+        // Se eliminan los handshakeHeaders para evitar el error HTTP 500 durante el handshake.
+        // La autenticación se maneja a nivel de protocolo STOMP en connectHeaders.
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, WS_URL);
 
         List<StompHeader> connectHeaders = new ArrayList<>();
         connectHeaders.add(new StompHeader("Authorization", "Bearer " + token));
