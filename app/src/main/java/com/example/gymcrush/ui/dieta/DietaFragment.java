@@ -319,11 +319,12 @@ public class DietaFragment extends Fragment {
     }
 
     private void setupObservers() {
-        // Observar el plan actual de forma global para reaccionar a cambios (añadir/eliminar)
         viewModel.getPlanActual().observe(getViewLifecycleOwner(), plan -> {
             if (plan != null) {
                 cardEmptySuggestion.setVisibility(View.GONE);
                 cardSuggestion.setVisibility(View.VISIBLE);
+
+                // IMPORTANTE: Esta función es la que pinta la gráfica y los gramos
                 mostrarPlan(plan);
                 actualizarRecetas();
             } else {
@@ -415,6 +416,8 @@ public class DietaFragment extends Fragment {
     }
 
     private void mostrarPlan(NutricionResponseDto plan) {
+
+
         String titulo = plan.getNombreDieta() != null && !plan.getNombreDieta().isEmpty()
                 ? plan.getNombreDieta()
                 : (plan.getTipoDieta() != null ? plan.getTipoDieta() : "PLAN PERSONALIZADO");
@@ -466,6 +469,18 @@ public class DietaFragment extends Fragment {
         actualizarResumenMacros(getView());
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Cada vez que el usuario vuelve a esta pantalla (por ejemplo, después de guardar)
+        // cargamos el último plan oficial de la base de datos.
+        if (usuarioId != -1L) {
+            viewModel.cargarUltimoPlan(usuarioId);
+            // También refrescamos el historial por si el nombre cambió
+            viewModel.reiniciarPaginacionHistorial(usuarioId);
+        }
+    }
     private void actualizarResumenMacros(View view) {
         if (view == null || viewModel.getPlanActual().getValue() == null) return;
         NutricionResponseDto plan = viewModel.getPlanActual().getValue();

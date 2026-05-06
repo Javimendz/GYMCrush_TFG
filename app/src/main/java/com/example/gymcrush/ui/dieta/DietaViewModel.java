@@ -181,23 +181,20 @@ public class DietaViewModel extends ViewModel {
     }
 
     public void cargarUltimoPlan(Long usuarioId) {
+        // Opcional: planActual.setValue(null); // Esto pondría un skeleton o loading
         nutricionRepository.obtenerUltimoPlan(usuarioId, new Callback<ApiResponseDto<NutricionResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<NutricionResponseDto>> call, Response<ApiResponseDto<NutricionResponseDto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().isSuccess()) {
-                        planActual.setValue(response.body().getDatos());
-                    } else {
-                        // Si no hay plan previo, es normal que sea null
-                        planActual.setValue(null);
-                    }
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    // Seteamos el plan que viene de la DB (con sus comidas y macros)
+                    planActual.setValue(response.body().getDatos());
                 }
-                checkLoadingComplete();
+                loading.setValue(false);
             }
 
             @Override
             public void onFailure(Call<ApiResponseDto<NutricionResponseDto>> call, Throwable t) {
-                checkLoadingComplete();
+                loading.setValue(false);
             }
         });
     }
@@ -396,8 +393,14 @@ public class DietaViewModel extends ViewModel {
             public void onResponse(Call<ApiResponseDto<NutricionResponseDto>> call, Response<ApiResponseDto<NutricionResponseDto>> response) {
                 loading.setValue(false);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    // CLAVE: Seteamos el plan guardado (que ya tiene ID de la DB) como el plan actual
                     planActual.setValue(response.body().getDatos());
+
+                    // Refrescamos el historial para que el nuevo plan aparezca en la lista horizontal
                     reiniciarPaginacionHistorial(usuarioId);
+
+                    // Opcional: un mensaje de éxito
+                    error.setValue("Plan guardado correctamente");
                 } else {
                     error.setValue("No se pudo guardar el plan");
                 }
