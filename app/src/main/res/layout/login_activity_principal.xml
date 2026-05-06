@@ -33,11 +33,11 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_large"
-                android:layout_marginEnd="@dimen/spacing_large"
-                android:layout_marginBottom="@dimen/spacing_xlarge"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="32dp"
                 app:cardBackgroundColor="#F0FFFFFF"
-                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardCornerRadius="28dp"
                 app:cardElevation="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -49,7 +49,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="@dimen/spacing_large">
+                    android:padding="28dp">
 
                     <TextView
                         android:id="@+id/tvWelcome"
@@ -58,23 +58,23 @@
                         android:layout_gravity="center"
                         android:text="¡BIENVENIDO!"
                         android:textColor="@color/primary_dark"
-                        android:textSize="@dimen/text_size_header"
+                        android:textSize="22sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginBottom="@dimen/spacing_large"
+                        android:layout_marginBottom="24dp"
                         android:text="Ingresa tus credenciales"
                         android:textColor="#777777"
-                        android:textSize="@dimen/text_size_body" />
+                        android:textSize="14sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/spacing_medium"
+                        android:layout_marginBottom="16dp"
                         app:boxStrokeColor="@color/primary_dark"
                         app:boxStrokeWidth="2dp"
                         app:hintTextColor="@color/primary_dark">
@@ -85,15 +85,14 @@
                             android:layout_height="wrap_content"
                             android:hint="Usuario"
                             android:inputType="text"
-                            android:padding="@dimen/spacing_medium"
-                            android:textSize="@dimen/text_size_body" />
+                            android:padding="16dp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/spacing_large"
+                        android:layout_marginBottom="24dp"
                         app:boxStrokeColor="@color/primary_dark"
                         app:boxStrokeWidth="2dp"
                         app:hintTextColor="@color/primary_dark"
@@ -105,27 +104,26 @@
                             android:layout_height="wrap_content"
                             android:hint="Contraseña"
                             android:inputType="textPassword"
-                            android:padding="@dimen/spacing_medium"
-                            android:textSize="@dimen/text_size_body" />
+                            android:padding="16dp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnEntrar"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
+                        android:layout_height="56dp"
                         android:backgroundTint="@color/primary_dark"
                         android:text="Iniciar Sesión"
                         android:textAllCaps="false"
-                        android:textSize="@dimen/text_size_subheading"
+                        android:textSize="16sp"
                         android:textStyle="bold"
-                        app:cornerRadius="@dimen/spacing_medium"
+                        app:cornerRadius="16dp"
                         app:elevation="4dp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
-                        android:layout_marginBottom="@dimen/spacing_medium"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
                         android:gravity="center"
                         android:orientation="horizontal">
 
@@ -138,11 +136,11 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_small"
-                            android:layout_marginEnd="@dimen/spacing_small"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
                             android:text="o continúa con"
                             android:textColor="#999999"
-                            android:textSize="@dimen/text_size_caption" />
+                            android:textSize="12sp" />
 
                         <View
                             android:layout_width="0dp"
@@ -155,12 +153,11 @@
                         android:id="@+id/btnGoogleLogin"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
+                        android:layout_height="56dp"
                         android:text="Google"
                         android:textAllCaps="false"
                         android:textColor="@color/black"
-                        android:textSize="@dimen/text_size_body"
-                        app:cornerRadius="@dimen/spacing_medium"
+                        app:cornerRadius="16dp"
                         app:icon="@drawable/google_logo"
                         app:iconGravity="textStart"
                         app:iconTint="@null"
@@ -172,11 +169,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginTop="@dimen/spacing_large"
-                        android:padding="@dimen/spacing_small"
+                        android:layout_marginTop="24dp"
+                        android:padding="8dp"
                         android:text="¿No tienes cuenta? Regístrate"
                         android:textColor="@color/primary_dark"
-                        android:textSize="@dimen/text_size_body"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
                 </LinearLayout>

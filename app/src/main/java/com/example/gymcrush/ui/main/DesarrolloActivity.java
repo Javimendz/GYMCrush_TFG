@@ -1,6 +1,7 @@
 package com.example.gymcrush.ui.main;
 
 import android.app.Dialog;
+import com.example.gymcrush.Config;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -961,8 +962,8 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         String token = prefs.getString("auth_token", "");
 
         stompManager = new com.example.gymcrush.data.remote.StompManager();
-        // IP de tu servidor (10.0.2.2 para emulador, o tu IP local)
-        String url = "ws://10.0.2.2:8080/ws/websocket"; 
+        // Usamos la configuración centralizada para el WebSocket
+        String url = Config.WS_URL;
         
         stompManager.connect(url, usuarioId, token, notification -> {
             runOnUiThread(() -> {

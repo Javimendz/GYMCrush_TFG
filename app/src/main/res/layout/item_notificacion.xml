@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/spacing_medium"
-    android:layout_marginVertical="@dimen/spacing_small"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
     app:cardBackgroundColor="#1AFFFFFF"
-    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:strokeColor="#33FFFFFF"
     app:strokeWidth="1dp">
@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_medium">
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,8 +25,8 @@
 
             <ImageView
                 android:id="@+id/ivIconoNotificacion"
-                android:layout_width="@dimen/icon_size_medium"
-                android:layout_height="@dimen/icon_size_medium"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_notifications"
                 app:tint="@color/accent_color" />
 
@@ -34,11 +34,11 @@
                 android:id="@+id/tvTituloNotificacion"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_marginStart="12dp"
                 android:layout_weight="1"
                 android:text="¡Nueva oferta!"
                 android:textColor="@color/white"
-                android:textSize="@dimen/text_size_body"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -47,17 +47,17 @@
                 android:layout_height="wrap_content"
                 android:text="10:30 AM"
                 android:textColor="#80FFFFFF"
-                android:textSize="@dimen/text_size_micro" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvMensajeNotificacion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginTop="8dp"
             android:text="Aprovecha el 50% de descuento en suplementos esta semana."
             android:textColor="#CCFFFFFF"
-            android:textSize="@dimen/text_size_body" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

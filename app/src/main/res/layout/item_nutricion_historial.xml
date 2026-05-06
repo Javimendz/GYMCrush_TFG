@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="@dimen/history_card_width"
+    android:layout_width="280dp"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/spacing_medium"
-    android:layout_marginBottom="@dimen/spacing_medium"
-    app:cardBackgroundColor="@color/card_surface"
-    app:cardCornerRadius="@dimen/card_corner_radius"
-    app:strokeColor="#33FFFFFF"
-    app:strokeWidth="@dimen/stroke_width_thin">
+    android:layout_marginEnd="12dp"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="#1A2238"
+    app:cardCornerRadius="16dp"
+    app:strokeColor="#1AFFFFFF"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_medium">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/tvFechaHistorial"
@@ -22,16 +22,16 @@
             android:layout_height="wrap_content"
             android:text="15 de Mayo, 2024"
             android:textColor="#99FFFFFF"
-            android:textSize="@dimen/text_size_caption" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tvNombrePlanHistorial"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_tiny"
+            android:layout_marginTop="4dp"
             android:text="Plan Hipercalórico"
             android:textColor="@color/white"
-            android:textSize="@dimen/text_size_subheading"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
@@ -40,18 +40,18 @@
             android:layout_height="wrap_content"
             android:text="2800 kcal / día"
             android:textColor="@color/brand_pink"
-            android:textSize="@dimen/text_size_body"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:layout_marginTop="@dimen/stroke_width_medium" />
+            android:layout_marginTop="2dp" />
 
         <TextView
             android:id="@+id/tvResumenComidas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginTop="8dp"
             android:text="Pollo, Arroz, Ensalada..."
             android:textColor="#B3FFFFFF"
-            android:textSize="@dimen/text_size_caption"
+            android:textSize="12sp"
             android:maxLines="2"
             android:ellipsize="end"
             android:fontStyle="italic"/>

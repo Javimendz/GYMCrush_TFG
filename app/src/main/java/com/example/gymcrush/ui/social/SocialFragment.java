@@ -3,6 +3,7 @@ package com.example.gymcrush.ui.social;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import com.example.gymcrush.Config;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -26,8 +27,6 @@ import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.ApiService;
 import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
@@ -52,8 +51,8 @@ import ua.naiksoftware.stomp.dto.StompMessage;
 public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOptionsListener {
 
     private static final String TAG = "SocialFragment";
-    // Sincronizado con RetrofitClient (10.0.2.2 para emulador) y suffix /websocket para SockJS
-    private static final String WS_URL = "ws://10.0.2.2:8080/ws/websocket";
+    // Usamos la configuración centralizada para el WebSocket
+    private static final String WS_URL = Config.WS_URL;
 
     private RecyclerView rvChat;
     private ChatAdapter adapter;
@@ -105,12 +104,12 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                 if (response.isSuccessful() && response.body() != null) {
                     List<ChatMessageDto> historial = response.body();
                     Log.d(TAG, "Historial recibido: " + historial.size() + " mensajes");
-                    
+
                     listaMensajes.clear();
                     // Recorremos al revés para que el más nuevo quede abajo
                     for (int i = historial.size() - 1; i >= 0; i--) {
                         ChatMessageDto dto = historial.get(i);
-                        
+
                         // Determinar si es mío para el historial
                         boolean esMio = false;
                         if (dto.usuarioId != null && dto.usuarioId != 0) {
@@ -146,7 +145,7 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
         }
 
         Log.d(TAG, "Iniciando Stomp en URL: " + WS_URL);
-        
+
         // Se eliminan los handshakeHeaders para evitar el error HTTP 500 durante el handshake.
         // La autenticación se maneja a nivel de protocolo STOMP en connectHeaders.
         mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, WS_URL);
@@ -196,10 +195,14 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
                             MensajeChat mensaje = new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada());
                             mensaje.setEsMio(esMio);
-                            
-                            listaMensajes.add(mensaje);
-                            adapter.notifyItemInserted(listaMensajes.size() - 1);
-                            rvChat.scrollToPosition(listaMensajes.size() - 1);
+
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> {
+                                    listaMensajes.add(mensaje);
+                                    adapter.notifyItemInserted(listaMensajes.size() - 1);
+                                    rvChat.scrollToPosition(listaMensajes.size() - 1);
+                                });
+                            }
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error parseando mensaje social", e);
@@ -220,13 +223,15 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
     private void eliminarMensajeDeLista(String id) {
         if (id == null) return;
-        for (int i = 0; i < listaMensajes.size(); i++) {
-            if (id.equals(listaMensajes.get(i).getId())) {
-                listaMensajes.remove(i);
-                adapter.notifyItemRemoved(i);
-                break;
+        getActivity().runOnUiThread(() -> {
+            for (int i = 0; i < listaMensajes.size(); i++) {
+                if (id.equals(listaMensajes.get(i).getId())) {
+                    listaMensajes.remove(i);
+                    adapter.notifyItemRemoved(i);
+                    break;
+                }
             }
-        }
+        });
     }
 
     private void enviarMensaje() {
@@ -239,10 +244,9 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
             // Ajustado para usar el MessageMapping "/chat1" del nuevo backend
             compositeDisposable.add(mStompClient.send("/app/chat1", gson.toJson(payload))
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
                         Log.d(TAG, "Mensaje enviado a /chat1");
-                        etMensaje.setText("");
+                        getActivity().runOnUiThread(() -> etMensaje.setText(""));
                     }, throwable -> Log.e(TAG, "Error enviando mensaje", throwable)));
         }
     }
@@ -253,14 +257,8 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
         dialog.setContentView(R.layout.dialog_custom_exit);
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        TextView tvTitulo = dialog.findViewById(R.id.tv_titulo_exit);
-        TextView tvMensaje = dialog.findViewById(R.id.tv_mensaje_exit);
         View cancel = dialog.findViewById(R.id.btn_cancelar_exit);
-        MaterialButton confirm = dialog.findViewById(R.id.btn_confirmar_exit);
-
-        tvTitulo.setText("ELIMINAR MENSAJE");
-        tvMensaje.setText("¿Estás seguro de que deseas eliminar este mensaje? Esta acción no se puede deshacer.");
-        confirm.setText("ELIMINAR");
+        View confirm = dialog.findViewById(R.id.btn_confirmar_exit);
 
         cancel.setOnClickListener(v -> dialog.dismiss());
         confirm.setOnClickListener(v -> {

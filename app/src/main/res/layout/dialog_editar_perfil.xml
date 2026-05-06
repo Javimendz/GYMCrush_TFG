@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="@dimen/dialog_width"
+    android:layout_width="320dp"
     android:layout_height="wrap_content"
-    app:cardBackgroundColor="@color/primary_dark"
-    app:cardCornerRadius="@dimen/card_corner_radius"
-    app:cardElevation="8dp"
-    app:strokeColor="#33FFFFFF"
-    app:strokeWidth="@dimen/stroke_width_thin">
+    app:cardBackgroundColor="#0A1128"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="8dp">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -17,134 +15,128 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/spacing_large">
+            android:padding="24dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_medium"
+                android:layout_marginBottom="20dp"
                 android:text="Editar Perfil"
                 android:textColor="@color/white"
-                android:textSize="@dimen/text_size_title"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_small"
+                android:layout_marginBottom="12dp"
                 android:hint="Nombre"
                 android:textColorHint="@color/white"
-                app:hintTextColor="@color/brand_pink"
-                app:boxStrokeColor="@color/brand_pink">
+                app:hintTextColor="#CD0277"
+                app:boxStrokeColor="#CD0277">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_editar_nombre"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_body" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_small"
+                android:layout_marginBottom="12dp"
                 android:hint="Apellidos"
                 android:textColorHint="@color/white"
-                app:hintTextColor="@color/brand_pink"
-                app:boxStrokeColor="@color/brand_pink">
+                app:hintTextColor="#CD0277"
+                app:boxStrokeColor="#CD0277">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_editar_apellidos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_body" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_small"
+                android:layout_marginBottom="12dp"
                 android:hint="Peso (kg)"
                 android:textColorHint="@color/white"
-                app:hintTextColor="@color/brand_pink"
-                app:boxStrokeColor="@color/brand_pink">
+                app:hintTextColor="#CD0277"
+                app:boxStrokeColor="#CD0277">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_editar_peso"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_body" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_small"
+                android:layout_marginBottom="12dp"
                 android:hint="Altura (cm)"
                 android:textColorHint="@color/white"
-                app:hintTextColor="@color/brand_pink"
-                app:boxStrokeColor="@color/brand_pink">
+                app:hintTextColor="#CD0277"
+                app:boxStrokeColor="#CD0277">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_editar_altura"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_body" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_small"
+                android:layout_marginBottom="12dp"
                 android:hint="Teléfono"
                 android:textColorHint="@color/white"
-                app:hintTextColor="@color/brand_pink"
-                app:boxStrokeColor="@color/brand_pink">
+                app:hintTextColor="#CD0277"
+                app:boxStrokeColor="#CD0277">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_editar_telefono"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="phone"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_body" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_small"
+                android:layout_marginBottom="12dp"
                 android:hint="Dirección"
                 android:textColorHint="@color/white"
-                app:hintTextColor="@color/brand_pink"
-                app:boxStrokeColor="@color/brand_pink">
+                app:hintTextColor="#CD0277"
+                app:boxStrokeColor="#CD0277">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_editar_direccion"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_body" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_large"
+                android:layout_marginBottom="24dp"
                 android:hint="Biografía"
                 android:textColorHint="@color/white"
-                app:hintTextColor="@color/brand_pink"
-                app:boxStrokeColor="@color/brand_pink">
+                app:hintTextColor="#CD0277"
+                app:boxStrokeColor="#CD0277">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_editar_bio"
                     android:layout_width="match_parent"
@@ -152,8 +144,7 @@
                     android:inputType="textMultiLine"
                     android:lines="3"
                     android:gravity="top"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_body" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -166,12 +157,12 @@
                     android:id="@+id/btn_cancelar_edicion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/spacing_medium"
+                    android:layout_marginEnd="16dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="@dimen/spacing_small"
+                    android:padding="12dp"
                     android:text="CANCELAR"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_body"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -179,14 +170,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="@dimen/spacing_small"
+                    android:padding="12dp"
                     android:text="GUARDAR"
-                    android:textColor="@color/brand_pink"
-                    android:textSize="@dimen/text_size_body"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-</com.google.android.material.card.MaterialCardView>
-
+</androidx.cardview.widget.CardView>

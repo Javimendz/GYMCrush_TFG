@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/spacing_small"
-    app:cardBackgroundColor="@color/card_surface"
-    app:cardCornerRadius="@dimen/card_corner_radius_small"
-    app:cardElevation="@dimen/card_elevation"
-    app:strokeColor="#20FFFFFF"
-    app:strokeWidth="@dimen/stroke_width_thin">
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="#1A2238"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_medium">
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textColor="@color/white"
-                android:textSize="@dimen/text_size_title"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -36,38 +34,38 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_estado_badge"
-                android:paddingHorizontal="@dimen/spacing_small"
-                android:paddingVertical="@dimen/spacing_tiny"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
                 android:textColor="@color/white"
-                android:textSize="@dimen/text_size_caption" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvTicketMensaje"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginTop="8dp"
             android:textColor="#B0B0B0"
-            android:textSize="@dimen/text_size_body" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tvTicketId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginTop="12dp"
             android:text="#001"
             android:textColor="#60FFFFFF"
-            android:textSize="@dimen/text_size_caption" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tvTicketUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_tiny"
+            android:layout_marginTop="4dp"
             android:textColor="#80FFFFFF"
-            android:textSize="@dimen/text_size_caption"
+            android:textSize="12sp"
             android:visibility="gone" />
 
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>

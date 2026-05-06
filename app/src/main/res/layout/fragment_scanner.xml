@@ -14,8 +14,8 @@
 
     <View
         android:id="@+id/viewScannerOverlay"
-        android:layout_width="@dimen/scanner_overlay_size"
-        android:layout_height="@dimen/scanner_overlay_size"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         android:background="@drawable/scanner_overlay"
         app:layout_constraintBottom_toBottomOf="@+id/barcodeScanner"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:background="#1A1D29"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_large"
+        android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
@@ -36,22 +36,22 @@
             android:layout_height="wrap_content"
             android:text="Control de Acceso Staff"
             android:textColor="@color/white"
-            android:textSize="@dimen/text_size_header"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_tiny"
+            android:layout_marginTop="4dp"
             android:text="Selecciona el modo y escanea el QR del cliente."
             android:textColor="#B0B3B8"
-            android:textSize="@dimen/text_size_body" />
+            android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/toggleGroupAcceso"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_medium"
+            android:layout_marginTop="16dp"
             app:singleSelection="true"
             app:selectionRequired="true"
             app:checkedButton="@+id/btnModoEntrada">
@@ -60,7 +60,7 @@
                 android:id="@+id/btnModoEntrada"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/button_height"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="ENTRADA"
                 android:textColor="@color/white"
@@ -70,7 +70,7 @@
                 android:id="@+id/btnModoSalida"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/button_height"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="SALIDA"
                 android:textColor="@color/white"
@@ -82,7 +82,7 @@
             android:id="@+id/progressScanner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_medium"
+            android:layout_marginTop="16dp"
             android:visibility="gone"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:indeterminate="true" />
@@ -90,8 +90,8 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnToggleFlash"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height"
-            android:layout_marginTop="@dimen/spacing_medium"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             app:backgroundTint="#FF4081"
             android:text="Encender Linterna"
             android:textColor="@color/white" />

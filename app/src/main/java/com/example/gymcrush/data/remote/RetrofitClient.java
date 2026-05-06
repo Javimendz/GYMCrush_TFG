@@ -1,5 +1,6 @@
 package com.example.gymcrush.data.remote;
 
+import com.example.gymcrush.Config;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -11,7 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
 
-    private static final String BASE_URL = "http://192.168.11.194:8080/";
+    private static final String BASE_URL = Config.BASE_URL;
     private static Retrofit retrofit = null;
     private static Context context;
     private static boolean isSessionExpiredHandled = false;

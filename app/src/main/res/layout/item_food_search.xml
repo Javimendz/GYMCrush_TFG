@@ -3,18 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/spacing_small"
+    android:layout_marginBottom="8dp"
     app:cardBackgroundColor="#323C5F"
-    app:cardCornerRadius="@dimen/card_corner_radius_small"
+    app:cardCornerRadius="12dp"
     app:strokeColor="#3AFFFFFF"
-    app:strokeWidth="@dimen/stroke_width_thin">
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="@dimen/spacing_small">
+        android:padding="12dp">
 
         <CheckBox
             android:id="@+id/cbSelected"
@@ -24,9 +24,9 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivFoodImage"
-            android:layout_width="@dimen/viewpager_next_item_visible"
-            android:layout_height="@dimen/viewpager_next_item_visible"
-            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_compras"
             app:shapeAppearanceOverlay="@style/CircleImage" />
@@ -34,7 +34,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginStart="12dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:text="Nombre Alimento"
                 android:textColor="@color/white"
-                android:textSize="@dimen/text_size_body"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -53,8 +53,8 @@
                 android:layout_height="wrap_content"
                 android:text="100 kcal | P: 10g | C: 20g | G: 5g"
                 android:textColor="#BDBDBD"
-                android:textSize="@dimen/text_size_caption"
-                android:layout_marginTop="@dimen/spacing_tiny" />
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
         </LinearLayout>
 
     </LinearLayout>

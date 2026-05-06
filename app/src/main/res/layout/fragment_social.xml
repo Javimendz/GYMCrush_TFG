@@ -11,22 +11,22 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="@dimen/spacing_medium"
+        android:padding="8dp"
         android:clipToPadding="false"/>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/spacing_small"
+        android:layout_margin="8dp"
         app:cardBackgroundColor="#1A2238"
-        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardCornerRadius="24dp"
         app:cardElevation="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="@dimen/spacing_tiny"
+            android:padding="4dp"
             android:gravity="center_vertical">
 
             <EditText
@@ -38,15 +38,14 @@
                 android:hint="Escribe un mensaje..."
                 android:textColorHint="#99FFFFFF"
                 android:textColor="@color/white"
-                android:padding="@dimen/spacing_medium"
-                android:maxLines="4"
-                android:textSize="@dimen/text_size_body"/>
+                android:padding="12dp"
+                android:maxLines="4"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_enviar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/spacing_tiny"
+                android:layout_margin="4dp"
                 app:fabSize="mini"
                 app:srcCompat="@android:drawable/ic_menu_send"
                 app:backgroundTint="#CD0277"

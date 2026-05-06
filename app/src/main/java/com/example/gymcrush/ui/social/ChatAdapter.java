@@ -66,13 +66,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
         // Aplicamos la lógica visual según si es mío o no
         if (esMio) {
+            // Alineación a la derecha y colores neón (personaliza según tus recursos)
             holder.itemView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-            holder.layoutBubble.setBackgroundResource(R.drawable.bg_bubble_user);
-            holder.tvUsuario.setVisibility(View.GONE); // Ocultar nombre propio para limpiar interfaz
+            holder.tvTexto.setBackgroundResource(R.drawable.bg_bubble_user);
         } else {
+            // Alineación a la izquierda y colores sobrios
             holder.itemView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-            holder.layoutBubble.setBackgroundResource(R.drawable.bg_bubble_bot);
-            holder.tvUsuario.setVisibility(View.VISIBLE);
+            holder.tvTexto.setBackgroundResource(R.drawable.bg_bubble_bot);
         }
 
         // Log para depurar
@@ -136,14 +136,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     static class ChatViewHolder extends RecyclerView.ViewHolder {
         TextView tvUsuario, tvTexto, tvHora;
-        View layoutBubble;
 
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUsuario = itemView.findViewById(R.id.tv_usuario_chat);
             tvTexto = itemView.findViewById(R.id.tv_texto_mensaje);
             tvHora = itemView.findViewById(R.id.tv_hora_mensaje);
-            layoutBubble = itemView.findViewById(R.id.layout_bubble);
         }
     }
 }

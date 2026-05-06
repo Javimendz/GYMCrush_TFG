@@ -2,12 +2,11 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/viewpager_height"
-    android:layout_margin="@dimen/spacing_small"
-    app:cardCornerRadius="@dimen/card_corner_radius"
+    android:layout_height="220dp"
+    android:layout_margin="12dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="6dp"
-    app:strokeColor="#33FFFFFF"
-    app:strokeWidth="@dimen/stroke_width_thin">
+    app:strokeWidth="0dp">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -29,35 +28,35 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="@dimen/spacing_large"
+            android:padding="20dp"
             android:gravity="bottom">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="@dimen/spacing_small">
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:id="@+id/tvNivelPlan"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/brand_pink"
-                    android:paddingHorizontal="@dimen/spacing_small"
-                    android:paddingVertical="@dimen/spacing_tiny"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
                     android:text="INTERMEDIO"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_micro"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
                     android:id="@+id/layoutGlobalTagPlan"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_small"
+                    android:layout_marginStart="8dp"
                     android:background="@drawable/bg_chip_global"
-                    android:paddingHorizontal="@dimen/spacing_small"
-                    android:paddingVertical="@dimen/spacing_tiny">
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp">
 
                     <TextView
                         android:id="@+id/tvGlobalTagPlan"
@@ -65,7 +64,7 @@
                         android:layout_height="wrap_content"
                         android:text="OFICIAL"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/text_size_micro"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
@@ -76,22 +75,22 @@
                 android:layout_height="wrap_content"
                 android:text="Nombre del Plan"
                 android:textColor="@color/white"
-                android:textSize="@dimen/text_size_title"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvObjetivoPlan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_tiny"
+                android:layout_marginTop="4dp"
                 android:text="Objetivo: GANAR MÚSCULO"
                 android:textColor="#E0E0E0"
-                android:textSize="@dimen/text_size_body" />
+                android:textSize="14sp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_medium">
+                android:layout_marginTop="12dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -122,13 +121,12 @@
                     android:id="@+id/btnSuscribirPlan"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
-                    android:layout_height="@dimen/button_height_small"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:backgroundTint="@color/brand_pink"
-                    android:text="ACTIVAR"
+                    android:text="ACTIVAR PLAN"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/text_size_caption"
-                    app:cornerRadius="@dimen/card_corner_radius_small" />
+                    app:cornerRadius="20dp" />
             </RelativeLayout>
         </LinearLayout>
     </FrameLayout>
