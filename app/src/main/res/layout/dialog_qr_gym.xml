@@ -3,23 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#0A1128">
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardElevation="@dimen/card_elevation_large"
+    app:cardBackgroundColor="@color/primary_dark"
+    app:strokeColor="#33FFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <LinearLayout
-        android:layout_width="300dp"
+        android:layout_width="@dimen/dialog_width"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_large">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ACCESO AL GYM"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_size_header"
             android:textStyle="bold"
             android:letterSpacing="0.1"/>
 
@@ -28,24 +30,24 @@
             android:layout_height="wrap_content"
             android:text="Escanea este código en el torno"
             android:textColor="#99FFFFFF"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="24dp"/>
+            android:textSize="@dimen/text_size_body"
+            android:layout_marginTop="@dimen/spacing_tiny"
+            android:layout_marginBottom="@dimen/spacing_large"/>
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="220dp"
             android:layout_height="220dp"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="@dimen/card_corner_radius"
             app:cardElevation="0dp"
             app:cardBackgroundColor="#FFFFFF"
-            android:padding="10dp">
+            android:padding="@dimen/spacing_small">
 
             <ImageView
                 android:id="@+id/ivQrCode"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
-                android:layout_margin="10dp"/>
+                android:layout_margin="@dimen/spacing_small"/>
 
             <ProgressBar
                 android:id="@+id/progressQr"
@@ -58,12 +60,12 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCerrarQr"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_large"
             android:text="CERRAR"
             android:textColor="@color/white"
-            app:backgroundTint="#CD0277"
-            app:cornerRadius="12dp" />
+            app:backgroundTint="@color/brand_pink"
+            app:cornerRadius="@dimen/card_corner_radius_small" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

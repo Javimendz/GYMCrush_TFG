@@ -2,10 +2,10 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:layout_margin="12dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp"
+    android:layout_height="@dimen/diet_card_height"
+    android:layout_margin="@dimen/spacing_small"
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardElevation="@dimen/card_elevation"
     app:strokeWidth="0dp">
 
     <FrameLayout
@@ -28,25 +28,25 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="20dp"
+            android:padding="@dimen/spacing_large"
             android:gravity="bottom">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="@dimen/spacing_small">
 
                 <TextView
                     android:id="@+id/tvBadgeTipo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/brand_pink"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
+                    android:paddingHorizontal="@dimen/spacing_small"
+                    android:paddingVertical="@dimen/stroke_width_medium"
                     android:text="ALTA PROTEÍNA"
                     android:textColor="@color/white"
-                    android:textSize="10sp"
+                    android:textSize="@dimen/text_size_micro"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -56,24 +56,24 @@
                 android:layout_height="wrap_content"
                 android:text="Nombre de la Dieta"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="@dimen/text_size_header"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvDescripcionDieta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/spacing_tiny"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Descripción de la dieta..."
                 android:textColor="#E0E0E0"
-                android:textSize="13sp" />
+                android:textSize="@dimen/text_size_body" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
+                android:layout_marginTop="@dimen/spacing_small">
 
                 <TextView
                     android:id="@+id/tvCaloriasDieta"
@@ -82,20 +82,20 @@
                     android:layout_centerVertical="true"
                     android:text="2500 kcal"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/text_size_body"
                     android:textStyle="bold" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVerDetalles"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="@dimen/button_height_small"
                     android:layout_alignParentEnd="true"
-                    android:paddingHorizontal="16dp"
+                    android:paddingHorizontal="@dimen/spacing_medium"
                     android:text="VER MÁS"
                     android:textColor="@color/brand_pink"
-                    android:textSize="12sp"
-                    app:cornerRadius="18dp"
+                    android:textSize="@dimen/text_size_caption"
+                    app:cornerRadius="@dimen/spacing_large"
                     app:strokeColor="@color/brand_pink" />
             </RelativeLayout>
         </LinearLayout>

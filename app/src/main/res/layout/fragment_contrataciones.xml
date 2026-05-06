@@ -3,26 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A1128"
+    android:background="@color/primary_dark"
     android:orientation="vertical">
 
     <!-- Header con el color azul oscuro y flecha de volver -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:background="#0A1128">
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/primary_dark">
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:padding="12dp"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:padding="@dimen/spacing_medium"
             android:src="@drawable/ic_back_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#CD0277 "
+            app:tint="@color/brand_pink"
             android:contentDescription="Volver" />
 
         <TextView
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="Contrataciones actuales"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_title"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,25 +40,28 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Ficha de detalles -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="8dp">
+        android:layout_margin="@dimen/spacing_medium"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:cardBackgroundColor="@color/card_surface"
+        app:strokeColor="#1AFFFFFF"
+        app:strokeWidth="@dimen/stroke_width_thin">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp">
+            android:padding="@dimen/spacing_large">
 
             <TextView
                 android:id="@+id/tvCardTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ACCESO SALA MUSCULACIÓN"
-                android:textColor="#080E31"
-                android:textSize="17sp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_subheading"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -66,22 +69,23 @@
             <!-- Inicio -->
             <ImageView
                 android:id="@+id/ivIcon1"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="@dimen/icon_size_small"
+                android:layout_height="@dimen/icon_size_small"
+                android:layout_marginTop="@dimen/spacing_large"
                 android:contentDescription="Icono Inicio"
                 android:src="@drawable/ic_clases"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvCardTitle"
-                app:tint="#666666" />
+                app:tint="@color/brand_pink" />
 
             <TextView
                 android:id="@+id/tvLabel1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:text="Inicio última cuota:"
-                android:textColor="#666666"
+                android:textColor="#B0B0B0"
+                android:textSize="@dimen/text_size_body"
                 app:layout_constraintBottom_toBottomOf="@id/ivIcon1"
                 app:layout_constraintStart_toEndOf="@id/ivIcon1"
                 app:layout_constraintTop_toTopOf="@id/ivIcon1" />
@@ -90,7 +94,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="08/04/2025"
-                android:textColor="#333333"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/tvLabel1"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -98,22 +103,23 @@
             <!-- Fin -->
             <ImageView
                 android:id="@+id/ivIcon2"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginTop="12dp"
+                android:layout_width="@dimen/icon_size_small"
+                android:layout_height="@dimen/icon_size_small"
+                android:layout_marginTop="@dimen/spacing_medium"
                 android:contentDescription="Icono Fin"
                 android:src="@drawable/ic_clases"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ivIcon1"
-                app:tint="#666666" />
+                app:tint="@color/brand_pink" />
 
             <TextView
                 android:id="@+id/tvLabel2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:text="Fin última cuota:"
-                android:textColor="#666666"
+                android:textColor="#B0B0B0"
+                android:textSize="@dimen/text_size_body"
                 app:layout_constraintBottom_toBottomOf="@id/ivIcon2"
                 app:layout_constraintStart_toEndOf="@id/ivIcon2"
                 app:layout_constraintTop_toTopOf="@id/ivIcon2" />
@@ -122,7 +128,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="08/04/2026"
-                android:textColor="#333333"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/tvLabel2"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -130,22 +137,23 @@
             <!-- Clases -->
             <ImageView
                 android:id="@+id/ivIcon3"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginTop="12dp"
+                android:layout_width="@dimen/icon_size_small"
+                android:layout_height="@dimen/icon_size_small"
+                android:layout_marginTop="@dimen/spacing_medium"
                 android:contentDescription="Icono Clases"
                 android:src="@drawable/ic_reservaclases"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ivIcon2"
-                app:tint="#666666" />
+                app:tint="@color/brand_pink" />
 
             <TextView
                 android:id="@+id/tvLabel3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:text="Clases utilizadas:"
-                android:textColor="#666666"
+                android:textColor="#B0B0B0"
+                android:textSize="@dimen/text_size_body"
                 app:layout_constraintBottom_toBottomOf="@id/ivIcon3"
                 app:layout_constraintStart_toEndOf="@id/ivIcon3"
                 app:layout_constraintTop_toTopOf="@id/ivIcon3" />
@@ -154,7 +162,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0 / 996"
-                android:textColor="#333333"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/tvLabel3"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -162,22 +171,23 @@
             <!-- Importe -->
             <ImageView
                 android:id="@+id/ivIcon4"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginTop="12dp"
+                android:layout_width="@dimen/icon_size_small"
+                android:layout_height="@dimen/icon_size_small"
+                android:layout_marginTop="@dimen/spacing_medium"
                 android:contentDescription="Icono Importe"
                 android:src="@drawable/ic_compras"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ivIcon3"
-                app:tint="#666666" />
+                app:tint="@color/brand_pink" />
 
             <TextView
                 android:id="@+id/tvLabel4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:text="Importe:"
-                android:textColor="#666666"
+                android:textColor="#B0B0B0"
+                android:textSize="@dimen/text_size_body"
                 app:layout_constraintBottom_toBottomOf="@id/ivIcon4"
                 app:layout_constraintStart_toEndOf="@id/ivIcon4"
                 app:layout_constraintTop_toTopOf="@id/ivIcon4" />
@@ -186,7 +196,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="290,00 €"
-                android:textColor="#333333"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/tvLabel4"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -194,22 +205,23 @@
             <!-- Estado -->
             <ImageView
                 android:id="@+id/ivIcon5"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginTop="12dp"
+                android:layout_width="@dimen/icon_size_small"
+                android:layout_height="@dimen/icon_size_small"
+                android:layout_marginTop="@dimen/spacing_medium"
                 android:contentDescription="Icono Estado"
                 android:src="@drawable/ic_equipo"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ivIcon4"
-                app:tint="#666666" />
+                app:tint="@color/brand_pink" />
 
             <TextView
                 android:id="@+id/tvLabel5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="@dimen/spacing_small"
                 android:text="Estado:"
-                android:textColor="#666666"
+                android:textColor="#B0B0B0"
+                android:textSize="@dimen/text_size_body"
                 app:layout_constraintBottom_toBottomOf="@id/ivIcon5"
                 app:layout_constraintStart_toEndOf="@id/ivIcon5"
                 app:layout_constraintTop_toTopOf="@id/ivIcon5" />
@@ -219,11 +231,12 @@
                 android:layout_height="wrap_content"
                 android:text="Pagado"
                 android:textColor="#4CAF50"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/tvLabel5"
                 app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

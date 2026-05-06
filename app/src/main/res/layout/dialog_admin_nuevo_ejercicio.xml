@@ -3,59 +3,64 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#0A1128">
+    android:layout_margin="@dimen/spacing_medium"
+    app:cardBackgroundColor="@color/card_surface"
+    app:cardCornerRadius="@dimen/card_corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_large"
+    app:strokeColor="#4DFFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_large">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="NUEVO ENTRENAMIENTO"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_size_header"
             android:textStyle="bold"
             android:letterSpacing="0.1"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="@dimen/spacing_large"
             android:layout_gravity="center"/>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/spacing_medium"
             android:hint="Nombre"
-            android:textColorHint="#CBD5E1"
-            app:boxStrokeColor="#CD0277"
-            app:hintTextColor="@color/white">
+            android:textColorHint="#80FFFFFF"
+            app:boxStrokeColor="@color/brand_pink"
+            app:hintTextColor="@color/brand_pink">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNombreEjercicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/spacing_medium"
             android:hint="Descripción"
-            android:textColorHint="#CBD5E1"
-            app:boxStrokeColor="#CD0277"
-            app:hintTextColor="@color/white">
+            android:textColorHint="#80FFFFFF"
+            app:boxStrokeColor="@color/brand_pink"
+            app:hintTextColor="@color/brand_pink">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDescripcionEjercicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body"
                 android:gravity="top"
                 android:minLines="3" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -64,63 +69,66 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/spacing_medium"
             android:hint="Categoría (Ej: Pecho, Espalda, Cardio)"
-            android:textColorHint="#CBD5E1"
-            app:boxStrokeColor="#CD0277"
-            app:hintTextColor="@color/white">
+            android:textColorHint="#80FFFFFF"
+            app:boxStrokeColor="@color/brand_pink"
+            app:hintTextColor="@color/brand_pink">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etCategoriaEjercicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="@dimen/spacing_medium"
             android:hint="Duración (min)"
-            android:textColorHint="#CBD5E1"
-            app:boxStrokeColor="#CD0277"
-            app:hintTextColor="@color/white">
+            android:textColorHint="#80FFFFFF"
+            app:boxStrokeColor="@color/brand_pink"
+            app:hintTextColor="@color/brand_pink">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etDuracionEjercicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="@dimen/spacing_large"
             android:hint="Equipamiento (Ej: Mancuernas, Barra)"
-            android:textColorHint="#CBD5E1"
-            app:boxStrokeColor="#CD0277"
-            app:hintTextColor="@color/white">
+            android:textColorHint="#80FFFFFF"
+            app:boxStrokeColor="@color/brand_pink"
+            app:hintTextColor="@color/brand_pink">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etIntensidadEjercicio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGuardarEjercicio"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="@dimen/button_height"
             android:text="GUARDAR ENTRENAMIENTO"
             android:textColor="@color/white"
             android:textStyle="bold"
-            app:backgroundTint="#CD0277"
-            app:cornerRadius="16dp" />
+            app:backgroundTint="@color/brand_pink"
+            app:cornerRadius="@dimen/card_corner_radius_small" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

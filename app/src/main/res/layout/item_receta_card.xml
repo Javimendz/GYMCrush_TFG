@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="200dp"
+    android:layout_width="@dimen/recipe_card_width"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="12dp"
-    app:cardCornerRadius="16dp"
-    app:cardBackgroundColor="#1A2238"
-    app:cardElevation="2dp">
+    android:layout_marginEnd="@dimen/spacing_small"
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardBackgroundColor="@color/card_surface"
+    app:cardElevation="@dimen/card_elevation_small"
+    app:strokeColor="#33FFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +18,7 @@
         <ImageView
             android:id="@+id/ivReceta"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="@dimen/recipe_image_height"
             android:scaleType="centerCrop"
             android:src="@drawable/mujer_deporte" />
 
@@ -24,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="@dimen/spacing_small">
 
             <TextView
                 android:id="@+id/tvNombreReceta"
@@ -32,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:text="Pollo al Curry"
                 android:textColor="@color/white"
-                android:textSize="14sp"
+                android:textSize="@dimen/text_size_body"
                 android:textStyle="bold"
                 android:maxLines="1"
                 android:ellipsize="end" />
@@ -41,20 +43,20 @@
                 android:id="@+id/tvCaloriasReceta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/spacing_tiny"
                 android:text="350 kcal"
                 android:textColor="@color/brand_pink"
-                android:textSize="12sp" />
+                android:textSize="@dimen/text_size_caption" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnVerReceta"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:layout_marginTop="4dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="@dimen/spacing_tiny"
                 android:padding="0dp"
                 android:text="VER RECETA"
-                android:textSize="11sp"
+                android:textSize="@dimen/text_size_micro"
                 android:textColor="@color/brand_pink" />
         </LinearLayout>
     </LinearLayout>

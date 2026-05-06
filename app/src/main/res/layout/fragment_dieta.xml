@@ -4,21 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A1128"
+    android:background="@color/primary_dark"
     android:orientation="vertical">
 
     <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:background="#0A1128">
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/primary_dark">
 
         <ImageView
             android:id="@+id/btnBackDieta"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:padding="12dp"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:padding="@dimen/spacing_small"
             android:src="@drawable/ic_back_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="Nutrición Inteligente"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_title"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="@dimen/spacing_medium">
 
             <!-- BLOQUE A: MI ESTADO ACTUAL -->
             <TextView
@@ -56,23 +56,25 @@
                 android:layout_height="wrap_content"
                 android:text="Mi Estado Actual"
                 android:textColor="@color/white"
-                android:textSize="18sp"
+                android:textSize="@dimen/text_size_title"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="@dimen/spacing_small"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/card_surface"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="@dimen/card_corner_radius"
                 app:cardElevation="0dp"
-                android:layout_marginBottom="24dp">
+                app:strokeColor="#33FFFFFF"
+                app:strokeWidth="@dimen/stroke_width_thin"
+                android:layout_marginBottom="@dimen/spacing_large">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="@dimen/spacing_medium">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -85,7 +87,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="@dimen/spacing_small"
                             android:hint="Peso"
                             app:startIconDrawable="@android:drawable/ic_menu_sort_by_size"
                             app:startIconTint="@color/brand_pink"
@@ -98,7 +100,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="numberDecimal"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/text_size_body" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -106,7 +109,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="@dimen/spacing_small"
                             android:hint="Altura"
                             app:startIconDrawable="@android:drawable/ic_menu_compass"
                             app:startIconTint="@color/brand_pink"
@@ -119,14 +122,15 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="number"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/text_size_body" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="@dimen/spacing_small"
                         android:orientation="horizontal"
                         android:weightSum="2">
 
@@ -135,7 +139,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="@dimen/spacing_small"
                             android:hint="Edad"
                             app:startIconDrawable="@android:drawable/ic_menu_my_calendar"
                             app:startIconTint="@color/brand_pink"
@@ -146,7 +150,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="number"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/text_size_body" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -154,7 +159,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="@dimen/spacing_small"
                             android:hint="Actividad"
                             app:boxBackgroundColor="@android:color/transparent"
                             app:hintTextColor="@color/white">
@@ -163,7 +168,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="none"
-                                android:textColor="@color/black" />
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/text_size_body" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
@@ -171,7 +177,7 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="@dimen/spacing_small"
                         android:hint="Objetivo"
                         app:boxBackgroundColor="@android:color/transparent"
                         app:hintTextColor="@color/white">
@@ -180,19 +186,20 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
-                            android:textColor="@color/black" />
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/text_size_body" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnActualizarDatos"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/spacing_medium"
                         android:text="Generar Mi Plan Personalizado"
                         android:backgroundTint="@color/brand_pink"
                         android:textColor="@color/white"
                         android:textStyle="bold"
-                        app:cornerRadius="12dp" />
+                        app:cornerRadius="@dimen/spacing_small" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -202,27 +209,29 @@
                 android:layout_height="wrap_content"
                 android:text="Sugerencia del Coach AI"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_subheading"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="@dimen/spacing_small"/>
 
             <!-- Empty State for Suggestion -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardEmptySuggestion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#1A2238"
-                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="@color/card_surface"
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:strokeColor="#33FFFFFF"
+                app:strokeWidth="@dimen/stroke_width_thin"
                 android:visibility="gone"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="@dimen/spacing_large">
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="32dp"
+                    android:padding="@dimen/spacing_xlarge"
                     android:text="Completa tu perfil de salud para que podamos recomendarte una dieta."
                     android:textColor="#BDBDBD"
                     android:gravity="center"
-                    android:textSize="14sp"/>
+                    android:textSize="@dimen/text_size_body"/>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Active Suggestion Card -->
@@ -231,22 +240,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/card_surface_light"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
-                android:layout_marginBottom="24dp">
+                app:cardCornerRadius="@dimen/card_corner_radius"
+                app:cardElevation="@dimen/card_elevation"
+                app:strokeColor="#33FFFFFF"
+                app:strokeWidth="@dimen/stroke_width_thin"
+                android:layout_marginBottom="@dimen/spacing_large">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="@dimen/spacing_large">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="TU PLAN IDEAL"
                         android:textColor="@color/brand_pink"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/text_size_micro"
                         android:textStyle="bold"
                         android:letterSpacing="0.1" />
 
@@ -254,30 +265,30 @@
                         android:id="@+id/tvNombreDietaSugerida"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="@dimen/spacing_tiny"
                         android:text="Dieta Hipercalórica"
                         android:textColor="@color/white"
-                        android:textSize="22sp"
+                        android:textSize="@dimen/text_size_header"
                         android:textStyle="bold" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="@dimen/spacing_large"
                         android:gravity="center_vertical">
 
                         <!-- Donut Chart -->
                         <com.example.gymcrush.ui.custom.CustomDonutChart
                             android:id="@+id/donutChartMacros"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp" />
+                            android:layout_width="@dimen/icon_size_medium"
+                            android:layout_height="@dimen/icon_size_medium" />
 
                         <!-- Macros Data -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="24dp"
+                            android:layout_marginStart="@dimen/spacing_large"
                             android:orientation="vertical">
 
                             <LinearLayout
@@ -285,49 +296,49 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical">
-                                <View android:layout_width="12dp" android:layout_height="12dp" android:background="@color/macro_protein" />
+                                <View android:layout_width="@dimen/spacing_small" android:layout_height="@dimen/spacing_small" android:background="@color/macro_protein" />
                                 <TextView
                                     android:id="@+id/tvProt"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
+                                    android:layout_marginStart="@dimen/spacing_small"
                                     android:text="180g Proteína"
                                     android:textColor="@color/white"
-                                    android:textSize="14sp" />
+                                    android:textSize="@dimen/text_size_body" />
                             </LinearLayout>
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="@dimen/spacing_small"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical">
-                                <View android:layout_width="12dp" android:layout_height="12dp" android:background="@color/macro_carbs" />
+                                <View android:layout_width="@dimen/spacing_small" android:layout_height="@dimen/spacing_small" android:background="@color/macro_carbs" />
                                 <TextView
                                     android:id="@+id/tvCarbs"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
+                                    android:layout_marginStart="@dimen/spacing_small"
                                     android:text="350g Carbos"
                                     android:textColor="@color/white"
-                                    android:textSize="14sp" />
+                                    android:textSize="@dimen/text_size_body" />
                             </LinearLayout>
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="@dimen/spacing_small"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical">
-                                <View android:layout_width="12dp" android:layout_height="12dp" android:background="@color/macro_fats" />
+                                <View android:layout_width="@dimen/spacing_small" android:layout_height="@dimen/spacing_small" android:background="@color/macro_fats" />
                                 <TextView
                                     android:id="@+id/tvGrasas"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
+                                    android:layout_marginStart="@dimen/spacing_small"
                                     android:text="80g Grasas"
                                     android:textColor="@color/white"
-                                    android:textSize="14sp" />
+                                    android:textSize="@dimen/text_size_body" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -336,7 +347,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginTop="20dp">
+                        android:layout_marginTop="@dimen/spacing_large">
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -347,7 +358,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0 kcal consumidas"
                                 android:textColor="@color/white"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/text_size_body"
                                 android:textStyle="bold" />
 
                             <LinearLayout
@@ -363,16 +374,16 @@
                                     android:layout_height="wrap_content"
                                     android:text="2000"
                                     android:textColor="@color/brand_pink"
-                                    android:textSize="18sp"
+                                    android:textSize="@dimen/text_size_title"
                                     android:textStyle="bold" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="4dp"
+                                    android:layout_marginStart="@dimen/spacing_tiny"
                                     android:text="restantes"
                                     android:textColor="#BDBDBD"
-                                    android:textSize="12sp" />
+                                    android:textSize="@dimen/text_size_caption" />
                             </LinearLayout>
                         </RelativeLayout>
 
@@ -380,28 +391,28 @@
                             android:id="@+id/progressCalorias"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="@dimen/spacing_small"
                             app:indicatorColor="@color/brand_pink"
                             app:trackColor="#33FFFFFF"
-                            app:trackThickness="8dp"
-                            app:trackCornerRadius="4dp"
+                            app:trackThickness="@dimen/spacing_small"
+                            app:trackCornerRadius="@dimen/spacing_tiny"
                             android:progress="0" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
+                        android:layout_height="@dimen/stroke_width_thin"
                         android:background="#1AFFFFFF"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginTop="@dimen/spacing_large"
+                        android:layout_marginBottom="@dimen/spacing_small" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginBottom="12dp">
+                        android:layout_marginTop="@dimen/spacing_large"
+                        android:layout_marginBottom="@dimen/spacing_small">
 
                         <TextView
                             android:id="@+id/tvTituloComidas"
@@ -410,7 +421,7 @@
                             android:layout_weight="1"
                             android:text="TU MENÚ DIARIO"
                             android:textColor="#BDBDBD"
-                            android:textSize="12sp"
+                            android:textSize="@dimen/text_size_caption"
                             android:textStyle="bold"
                             android:singleLine="true" />
 
@@ -426,13 +437,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="0dp"
-                                android:paddingHorizontal="4dp"
+                                android:paddingHorizontal="@dimen/spacing_tiny"
                                 android:text="Buscar"
                                 android:textColor="@color/brand_pink"
-                                android:textSize="10sp"
+                                android:textSize="@dimen/text_size_micro"
                                 app:icon="@android:drawable/ic_menu_search"
-                                app:iconPadding="2dp"
-                                app:iconSize="14dp"
+                                app:iconPadding="@dimen/spacing_tiny"
+                                app:iconSize="@dimen/spacing_medium"
                                 app:iconTint="@color/brand_pink" />
 
                             <com.google.android.material.button.MaterialButton
@@ -441,13 +452,13 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="0dp"
-                                android:paddingHorizontal="4dp"
+                                android:paddingHorizontal="@dimen/spacing_tiny"
                                 android:text="Añadir"
                                 android:textColor="@color/brand_pink"
-                                android:textSize="10sp"
+                                android:textSize="@dimen/text_size_micro"
                                 app:icon="@android:drawable/ic_input_add"
-                                app:iconPadding="2dp"
-                                app:iconSize="14dp"
+                                app:iconPadding="@dimen/spacing_tiny"
+                                app:iconSize="@dimen/spacing_medium"
                                 app:iconTint="@color/brand_pink" />
                         </LinearLayout>
                     </LinearLayout>
@@ -468,16 +479,16 @@
                 android:layout_height="wrap_content"
                 android:text="Mis Planes Anteriores"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_subheading"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="@dimen/spacing_small"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvHistorialNutricion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="@dimen/spacing_large"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_nutricion_historial" />
 
@@ -488,9 +499,9 @@
                 android:layout_height="wrap_content"
                 android:text="Catálogo de Dietas"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_subheading"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="@dimen/spacing_small"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCatalogoDietas"
@@ -498,7 +509,7 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/item_dieta_catalogo"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginBottom="@dimen/spacing_large"/>
 
             <!-- BLOQUE E: RECETAS SALUDABLES -->
             <TextView
@@ -507,9 +518,9 @@
                 android:layout_height="wrap_content"
                 android:text="Recetas de la Comunidad"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="@dimen/text_size_subheading"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="@dimen/spacing_small"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvRecetasSugeridas"
@@ -518,7 +529,7 @@
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_receta_card"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginBottom="@dimen/spacing_large"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

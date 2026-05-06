@@ -3,20 +3,20 @@
     <!-- El "glow" o borde neón rosa completo -->
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="14dp" />
-            <solid android:color="#CD0277" />
+            <corners android:radius="@dimen/card_corner_radius" />
+            <solid android:color="@color/brand_pink" />
         </shape>
     </item>
 
     <!-- El fondo oscuro interior (reducido para que se vea el borde) -->
     <item
-        android:bottom="2dp"
-        android:left="2dp"
-        android:right="2dp"
-        android:top="2dp">
+        android:bottom="@dimen/stroke_width_medium"
+        android:left="@dimen/stroke_width_medium"
+        android:right="@dimen/stroke_width_medium"
+        android:top="@dimen/stroke_width_medium">
         <shape android:shape="rectangle">
-            <corners android:radius="12dp" />
-            <solid android:color="#1A2238" />
+            <corners android:radius="@dimen/card_corner_radius_small" />
+            <solid android:color="@color/card_surface" />
         </shape>
     </item>
 </layer-list>

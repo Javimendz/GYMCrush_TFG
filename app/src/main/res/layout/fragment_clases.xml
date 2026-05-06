@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0A1128"
-    android:padding="16dp">
+    android:padding="@dimen/spacing_medium">
 
     <TextView
         android:id="@+id/tvTituloClases"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="HORARIO Y ACTIVIDADES"
         android:textColor="@color/white"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_size_header"
         android:textStyle="bold"
         android:letterSpacing="0.1"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,12 +23,12 @@
         android:id="@+id/tabLayoutClases"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/spacing_small"
         android:background="@android:color/transparent"
         app:tabTextColor="#80FFFFFF"
         app:tabSelectedTextColor="@color/white"
         app:tabIndicatorColor="#CD0277"
-        app:tabIndicatorHeight="3dp"
+        app:tabIndicatorHeight="@dimen/stroke_width_medium"
         app:tabRippleColor="@color/accent_color"
         app:layout_constraintTop_toBottomOf="@id/tvTituloClases">
 
@@ -57,7 +57,7 @@
             android:id="@+id/scrollCategorias"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_small"
             android:scrollbars="none"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -76,7 +76,7 @@
             android:id="@+id/scrollDias"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_small"
             android:scrollbars="none"
             app:layout_constraintTop_toBottomOf="@id/scrollCategorias">
 
@@ -85,18 +85,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="8dp">
+                android:paddingBottom="@dimen/spacing_small">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLunes"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
                     android:text="LUNES"
                     android:textColor="@color/white"
                     android:textStyle="bold"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="@dimen/card_corner_radius_small"
                     app:strokeColor="#CD0277" />
 
                 <com.google.android.material.button.MaterialButton
@@ -104,12 +104,12 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
                     android:text="MARTES"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:alpha="0.6"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="@dimen/card_corner_radius_small"
                     app:strokeColor="#33FFFFFF" />
 
                 <com.google.android.material.button.MaterialButton
@@ -117,12 +117,12 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
                     android:text="MIERCOLES"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:alpha="0.6"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="@dimen/card_corner_radius_small"
                     app:strokeColor="#33FFFFFF" />
 
                 <com.google.android.material.button.MaterialButton
@@ -130,12 +130,12 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
                     android:text="JUEVES"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:alpha="0.6"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="@dimen/card_corner_radius_small"
                     app:strokeColor="#33FFFFFF" />
 
                 <com.google.android.material.button.MaterialButton
@@ -143,12 +143,12 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
                     android:text="VIERNES"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:alpha="0.6"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="@dimen/card_corner_radius_small"
                     app:strokeColor="#33FFFFFF" />
 
                 <com.google.android.material.button.MaterialButton
@@ -156,12 +156,12 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
                     android:text="SABADO"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:alpha="0.6"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="@dimen/card_corner_radius_small"
                     app:strokeColor="#33FFFFFF" />
 
                 <com.google.android.material.button.MaterialButton
@@ -169,12 +169,12 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/spacing_small"
                     android:text="DOMINGO"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:alpha="0.6"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="@dimen/card_corner_radius_small"
                     app:strokeColor="#33FFFFFF" />
 
             </LinearLayout>
@@ -184,7 +184,7 @@
             android:id="@+id/rvClases"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/scrollDias"
             tools:listitem="@layout/item_clase" />
@@ -204,7 +204,7 @@
             android:id="@+id/searchViewActividades"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_small"
             android:background="@drawable/bg_search_view"
             app:iconifiedByDefault="false"
             app:queryHint="Buscar actividad..."
@@ -214,7 +214,7 @@
             android:id="@+id/rvActividades"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/spacing_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/searchViewActividades" />
 
@@ -225,7 +225,7 @@
         android:id="@+id/fabAddClase"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="24dp"
+        android:layout_margin="@dimen/spacing_large"
         android:src="@android:drawable/ic_input_add"
         android:visibility="gone"
         app:backgroundTint="#CD0277"

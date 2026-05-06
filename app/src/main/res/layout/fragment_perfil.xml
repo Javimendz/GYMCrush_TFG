@@ -4,30 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A1128"
+    android:background="@color/primary_dark"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp">
+        android:padding="@dimen/spacing_large">
 
         <!-- Header de Perfil Mejorado -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardPerfil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="#1A2238"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="8dp"
+            app:cardBackgroundColor="@color/card_surface"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="@dimen/card_elevation_large"
             app:strokeColor="#2AFFFFFF"
-            app:strokeWidth="1dp"
+            app:strokeWidth="@dimen/stroke_width_thin"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="24dp">
+                android:padding="@dimen/spacing_large">
 
                 <FrameLayout
                     android:id="@+id/containerFoto"
@@ -39,37 +39,37 @@
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivFotoPerfil"
-                        android:layout_width="110dp"
-                        android:layout_height="110dp"
+                        android:layout_width="@dimen/profile_image_size"
+                        android:layout_height="@dimen/profile_image_size"
                         android:scaleType="centerCrop"
                         android:src="@drawable/logo"
                         app:shapeAppearanceOverlay="@style/CircleImage"
-                        app:strokeColor="#CD0277"
-                        app:strokeWidth="3dp" />
+                        app:strokeColor="@color/brand_pink"
+                        app:strokeWidth="@dimen/stroke_width_medium" />
 
                     <com.google.android.material.floatingactionbutton.FloatingActionButton
                         android:id="@+id/fabEditarFoto"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="@dimen/spacing_xlarge"
+                        android:layout_height="@dimen/spacing_xlarge"
                         android:layout_gravity="bottom|end"
-                        android:layout_margin="2dp"
-                        app:fabCustomSize="32dp"
-                        app:maxImageSize="18dp"
+                        android:layout_margin="@dimen/spacing_tiny"
+                        app:fabCustomSize="@dimen/spacing_xlarge"
+                        app:maxImageSize="@dimen/icon_size_small"
                         app:srcCompat="@android:drawable/ic_menu_camera"
                         app:tint="@color/white"
-                        android:backgroundTint="#CD0277"
-                        app:elevation="2dp"
-                        app:pressedTranslationZ="4dp"/>
+                        android:backgroundTint="@color/brand_pink"
+                        app:elevation="@dimen/card_elevation_small"
+                        app:pressedTranslationZ="@dimen/spacing_tiny"/>
                 </FrameLayout>
 
                 <TextView
                     android:id="@+id/tvNombrePerfil"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     android:text="Usuario GYMCrush"
                     android:textColor="@color/white"
-                    android:textSize="24sp"
+                    android:textSize="@dimen/text_size_header"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -81,7 +81,7 @@
                     android:layout_height="wrap_content"
                     android:text="usuario@gymcrush.com"
                     android:textColor="#99FFFFFF"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/text_size_caption"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tvNombrePerfil" />
@@ -90,7 +90,7 @@
                     android:id="@+id/statsLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="@dimen/spacing_large"
                     android:orientation="horizontal"
                     android:weightSum="3"
                     app:layout_constraintTop_toBottomOf="@id/tvEmailPerfil">
@@ -105,8 +105,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="PESO"
-                            android:textColor="#CD0277"
-                            android:textSize="12sp"
+                            android:textColor="@color/brand_pink"
+                            android:textSize="@dimen/text_size_micro"
                             android:textStyle="bold" />
                         <TextView
                             android:id="@+id/tvPeso"
@@ -114,7 +114,7 @@
                             android:layout_height="wrap_content"
                             android:text="75 kg"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
+                            android:textSize="@dimen/text_size_subheading"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -128,8 +128,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="ALTURA"
-                            android:textColor="#CD0277"
-                            android:textSize="12sp"
+                            android:textColor="@color/brand_pink"
+                            android:textSize="@dimen/text_size_micro"
                             android:textStyle="bold" />
                         <TextView
                             android:id="@+id/tvAltura"
@@ -137,7 +137,7 @@
                             android:layout_height="wrap_content"
                             android:text="180 cm"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
+                            android:textSize="@dimen/text_size_subheading"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -151,8 +151,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="EDAD"
-                            android:textColor="#CD0277"
-                            android:textSize="12sp"
+                            android:textColor="@color/brand_pink"
+                            android:textSize="@dimen/text_size_micro"
                             android:textStyle="bold" />
                         <TextView
                             android:id="@+id/tvEdad"
@@ -160,7 +160,7 @@
                             android:layout_height="wrap_content"
                             android:text="25 años"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
+                            android:textSize="@dimen/text_size_subheading"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
@@ -173,10 +173,10 @@
             android:id="@+id/labelDetalles"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="@dimen/spacing_xlarge"
             android:text="DATOS PERSONALES"
             android:textColor="@color/white"
-            android:textSize="16sp"
+            android:textSize="@dimen/text_size_body"
             android:textStyle="bold"
             android:letterSpacing="0.1"
             app:layout_constraintStart_toStartOf="parent"
@@ -186,39 +186,39 @@
             android:id="@+id/cardDatos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="#1A2238"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
+            android:layout_marginTop="@dimen/spacing_medium"
+            app:cardBackgroundColor="@color/card_surface"
+            app:cardCornerRadius="@dimen/card_corner_radius"
+            app:cardElevation="@dimen/card_elevation"
             app:strokeColor="#1AFFFFFF"
-            app:strokeWidth="1dp"
+            app:strokeWidth="@dimen/stroke_width_thin"
             app:layout_constraintTop_toBottomOf="@id/labelDetalles">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="@dimen/spacing_large">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="@dimen/spacing_medium">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="@dimen/icon_size_medium"
+                        android:layout_height="@dimen/icon_size_medium"
                         android:src="@drawable/ic_phone_neon"
-                        app:tint="#CD0277"/>
+                        app:tint="@color/brand_pink"/>
                     <TextView
                         android:id="@+id/tvTelefono"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="@dimen/spacing_medium"
                         android:text="+34 600 000 000"
                         android:textColor="@color/white"
-                        android:textSize="15sp" />
+                        android:textSize="@dimen/text_size_body" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -226,20 +226,20 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="@dimen/spacing_medium">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="@dimen/icon_size_medium"
+                        android:layout_height="@dimen/icon_size_medium"
                         android:src="@drawable/ic_homee"
-                        app:tint="#CD0277"/>
+                        app:tint="@color/brand_pink"/>
                     <TextView
                         android:id="@+id/tvDireccion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="@dimen/spacing_medium"
                         android:text="Calle Falsa 123, Murcia"
                         android:textColor="@color/white"
-                        android:textSize="15sp" />
+                        android:textSize="@dimen/text_size_body" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -248,18 +248,18 @@
                     android:orientation="horizontal"
                     android:gravity="top">
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="@dimen/icon_size_medium"
+                        android:layout_height="@dimen/icon_size_medium"
                         android:src="@drawable/ic_perfil"
-                        app:tint="#CD0277"/>
+                        app:tint="@color/brand_pink"/>
                     <TextView
                         android:id="@+id/tvBio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="@dimen/spacing_medium"
                         android:text="Pasión por el fitness y la vida saludable. Entrenando duro cada día en GYMCrush para alcanzar mis objetivos."
                         android:textColor="@color/white"
-                        android:textSize="15sp" />
+                        android:textSize="@dimen/text_size_body" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -269,16 +269,16 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEditarPerfil"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="24dp"
-            android:backgroundTint="#CD0277"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_xlarge"
+            android:layout_marginBottom="@dimen/spacing_large"
+            android:backgroundTint="@color/brand_pink"
             android:text="EDITAR PERFIL"
             android:textColor="@color/white"
-            android:textSize="16sp"
+            android:textSize="@dimen/text_size_body"
             android:textStyle="bold"
             android:letterSpacing="0.1"
-            app:cornerRadius="16dp"
+            app:cornerRadius="@dimen/spacing_medium"
             app:layout_constraintTop_toBottomOf="@id/cardDatos"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

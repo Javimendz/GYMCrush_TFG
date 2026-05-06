@@ -26,6 +26,8 @@ import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.ApiService;
 import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
@@ -195,13 +197,9 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                             MensajeChat mensaje = new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada());
                             mensaje.setEsMio(esMio);
                             
-                            if (getActivity() != null) {
-                                getActivity().runOnUiThread(() -> {
-                                    listaMensajes.add(mensaje);
-                                    adapter.notifyItemInserted(listaMensajes.size() - 1);
-                                    rvChat.scrollToPosition(listaMensajes.size() - 1);
-                                });
-                            }
+                            listaMensajes.add(mensaje);
+                            adapter.notifyItemInserted(listaMensajes.size() - 1);
+                            rvChat.scrollToPosition(listaMensajes.size() - 1);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error parseando mensaje social", e);
@@ -222,15 +220,13 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
     private void eliminarMensajeDeLista(String id) {
         if (id == null) return;
-        getActivity().runOnUiThread(() -> {
-            for (int i = 0; i < listaMensajes.size(); i++) {
-                if (id.equals(listaMensajes.get(i).getId())) {
-                    listaMensajes.remove(i);
-                    adapter.notifyItemRemoved(i);
-                    break;
-                }
+        for (int i = 0; i < listaMensajes.size(); i++) {
+            if (id.equals(listaMensajes.get(i).getId())) {
+                listaMensajes.remove(i);
+                adapter.notifyItemRemoved(i);
+                break;
             }
-        });
+        }
     }
 
     private void enviarMensaje() {
@@ -243,9 +239,10 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
             // Ajustado para usar el MessageMapping "/chat1" del nuevo backend
             compositeDisposable.add(mStompClient.send("/app/chat1", gson.toJson(payload))
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
                         Log.d(TAG, "Mensaje enviado a /chat1");
-                        getActivity().runOnUiThread(() -> etMensaje.setText(""));
+                        etMensaje.setText("");
                     }, throwable -> Log.e(TAG, "Error enviando mensaje", throwable)));
         }
     }
@@ -256,8 +253,14 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
         dialog.setContentView(R.layout.dialog_custom_exit);
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        TextView tvTitulo = dialog.findViewById(R.id.tv_titulo_exit);
+        TextView tvMensaje = dialog.findViewById(R.id.tv_mensaje_exit);
         View cancel = dialog.findViewById(R.id.btn_cancelar_exit);
-        View confirm = dialog.findViewById(R.id.btn_confirmar_exit);
+        MaterialButton confirm = dialog.findViewById(R.id.btn_confirmar_exit);
+
+        tvTitulo.setText("ELIMINAR MENSAJE");
+        tvMensaje.setText("¿Estás seguro de que deseas eliminar este mensaje? Esta acción no se puede deshacer.");
+        confirm.setText("ELIMINAR");
 
         cancel.setOnClickListener(v -> dialog.dismiss());
         confirm.setOnClickListener(v -> {

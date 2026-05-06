@@ -1,5 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Márgenes y Paddings Estándar -->
+    <dimen name="spacing_tiny">4dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_medium">16dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="spacing_xlarge">32dp</dimen>
+
+    <!-- Tamaños de Texto -->
+    <dimen name="text_size_micro">10sp</dimen>
+    <dimen name="text_size_caption">12sp</dimen>
+    <dimen name="text_size_body">14sp</dimen>
+    <dimen name="text_size_subheading">16sp</dimen>
+    <dimen name="text_size_title">18sp</dimen>
+    <dimen name="text_size_subtitle">17sp</dimen>
+    <dimen name="text_size_header">22sp</dimen>
+    <dimen name="text_size_display">26sp</dimen>
+    <dimen name="text_size_headline">28sp</dimen>
+
+    <!-- Componentes Específicos -->
+    <dimen name="toolbar_height">70dp</dimen>
+    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="card_corner_radius_small">12dp</dimen>
+    <dimen name="card_corner_radius_large">28dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+    <dimen name="card_elevation_small">2dp</dimen>
+    <dimen name="card_elevation_large">8dp</dimen>
+    <dimen name="stroke_width_thin">1dp</dimen>
+    <dimen name="stroke_width_medium">2dp</dimen>
+    <dimen name="button_height">48dp</dimen>
+
+    <!-- Iconos y Avatares -->
+    <dimen name="icon_size_small">18dp</dimen>
+    <dimen name="icon_size_medium">24dp</dimen>
+    <dimen name="icon_size_large">40dp</dimen>
+    <dimen name="profile_image_size">65dp</dimen>
+
+    <!-- Alturas fijas (usar con precaución) -->
+    <dimen name="workout_image_height">200dp</dimen>
+    <dimen name="viewpager_height">220dp</dimen>
+    <dimen name="stat_card_height">160dp</dimen>
+
+    <!-- ViewPager / Carrusel -->
     <dimen name="viewpager_next_item_visible">40dp</dimen>
     <dimen name="viewpager_current_item_horizontal_margin">50dp</dimen>
+
+    <!-- Badges -->
+    <dimen name="badge_size">16dp</dimen>
+    <dimen name="badge_text_size">9sp</dimen>
+
+    <!-- Dialogs -->
+    <dimen name="dialog_width">320dp</dimen>
+
+    <!-- Chat Dimensions -->
+    <dimen name="chat_bubble_max_width">300dp</dimen>
+
+    <!-- Scanner -->
+    <dimen name="scanner_overlay_size">250dp</dimen>
+
+    <!-- Cards and Items specific -->
+    <dimen name="recipe_card_width">200dp</dimen>
+    <dimen name="recipe_image_height">120dp</dimen>
+    <dimen name="trainer_image_height">160dp</dimen>
+    <dimen name="food_detail_image_height">250dp</dimen>
+    <dimen name="food_item_icon_size">60dp</dimen>
+    <dimen name="history_card_width">280dp</dimen>
+    <dimen name="diet_card_height">200dp</dimen>
+    <dimen name="button_height_small">36dp</dimen>
 </resources>

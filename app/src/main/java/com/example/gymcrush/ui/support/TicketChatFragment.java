@@ -13,6 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +31,7 @@ import com.example.gymcrush.data.remote.dto.TicketResponseDto;
 import com.example.gymcrush.ui.social.ChatAdapter;
 import com.example.gymcrush.ui.social.MensajeChat;
 import com.example.gymcrush.ui.social.SocialFragment.ChatMessageDto;
+import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -205,18 +209,18 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
             public void onResponse(retrofit2.Call<ApiResponseDto<TicketResponseDto>> call, retrofit2.Response<ApiResponseDto<TicketResponseDto>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(getContext(), "Estado actualizado a " + nuevoEstado, Toast.LENGTH_SHORT).show();
-                    tvSubtitle.setText("Estado: " + nuevoEstado + " - " + ticketAsunto);
+                    tvSubtitle.setText("Estado: " + nuevoEstado + " • " + (ticketAsunto != null ? ticketAsunto : ""));
                 } else {
                     Log.e(TAG, "Error 400/500 al actualizar estado: " + response.code());
                     Toast.makeText(getContext(), "Error al actualizar (Enum mismatch?)", Toast.LENGTH_SHORT).show();
-                    tvSubtitle.setText("Error - " + ticketAsunto);
+                    tvSubtitle.setText("Error • " + (ticketAsunto != null ? ticketAsunto : ""));
                 }
             }
 
             @Override
             public void onFailure(retrofit2.Call<ApiResponseDto<TicketResponseDto>> call, Throwable t) {
                 Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
-                tvSubtitle.setText("Error de red");
+                tvSubtitle.setText("Error de red • " + (ticketAsunto != null ? ticketAsunto : ""));
             }
         });
     }
@@ -239,14 +243,14 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
                     switch (lifecycleEvent.getType()) {
                         case OPENED:
                             Log.i(TAG, "Conexión chat ticket abierta");
-                            tvSubtitle.setText("En línea - " + ticketAsunto);
+                            tvSubtitle.setText("En línea • " + (ticketAsunto != null ? ticketAsunto : "Soporte"));
                             break;
                         case ERROR:
                             Log.e(TAG, "Error Stomp", lifecycleEvent.getException());
-                            tvSubtitle.setText("Error de conexión");
+                            tvSubtitle.setText("Error de conexión • " + (ticketAsunto != null ? ticketAsunto : ""));
                             break;
                         case CLOSED:
-                            tvSubtitle.setText("Desconectado");
+                            tvSubtitle.setText("Desconectado • " + (ticketAsunto != null ? ticketAsunto : ""));
                             break;
                     }
                 }));
@@ -279,11 +283,9 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
                             );
                             mensaje.setEsMio(esMio);
                             
-                            getActivity().runOnUiThread(() -> {
-                                listaMensajes.add(mensaje);
-                                adapter.notifyItemInserted(listaMensajes.size() - 1);
-                                rvChat.scrollToPosition(listaMensajes.size() - 1);
-                            });
+                            listaMensajes.add(mensaje);
+                            adapter.notifyItemInserted(listaMensajes.size() - 1);
+                            rvChat.scrollToPosition(listaMensajes.size() - 1);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error parseando mensaje: " + topicMessage.getPayload(), e);
@@ -307,22 +309,68 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
 
             // Ajustado para usar el MessageMapping "/chat.ticket.{ticketId}"
             compositeDisposable.add(mStompClient.send("/app/chat.ticket." + ticketId, gson.toJson(payload))
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
-                        if (getActivity() != null) {
-                            getActivity().runOnUiThread(() -> etMensaje.setText(""));
-                        }
+                        etMensaje.setText("");
                     }, throwable -> Log.e(TAG, "Error al enviar mensaje a ticket", throwable)));
         }
     }
 
     @Override
-    public void onEliminar(int position) { }
+    public void onEliminar(int position) {
+        if (position < 0 || position >= listaMensajes.size()) return;
+
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.dialog_custom_exit);
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        TextView tvTitulo = dialog.findViewById(R.id.tv_titulo_exit);
+        TextView tvMensaje = dialog.findViewById(R.id.tv_mensaje_exit);
+        View cancel = dialog.findViewById(R.id.btn_cancelar_exit);
+        MaterialButton confirm = dialog.findViewById(R.id.btn_confirmar_exit);
+
+        tvTitulo.setText("ELIMINAR MENSAJE");
+        tvMensaje.setText("¿Estás seguro de que deseas eliminar este mensaje? Esta acción no se puede deshacer.");
+        confirm.setText("ELIMINAR");
+
+        cancel.setOnClickListener(v -> dialog.dismiss());
+        confirm.setOnClickListener(v -> {
+            MensajeChat mensaje = listaMensajes.get(position);
+            if (mensaje.getId() != null) {
+                PeticionBorrado peticion = new PeticionBorrado();
+                peticion.id = mensaje.getId();
+                peticion.usuarioId = usuarioId;
+                mStompClient.send("/app/chat.borrar", gson.toJson(peticion)).subscribe(() -> {
+                    Log.d(TAG, "Borrado enviado para mensaje: " + mensaje.getId());
+                }, throwable -> Log.e(TAG, "Error enviando borrado", throwable));
+            }
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
 
     @Override
-    public void onEditar(int position) { }
+    public void onEditar(int position) {
+        Toast.makeText(getContext(), "Edición no soportada en el servidor todavía", Toast.LENGTH_SHORT).show();
+    }
+
+    private static class PeticionBorrado {
+        String id;
+        Long usuarioId;
+    }
 
     @Override
-    public void onCopiar(int position) { }
+    public void onCopiar(int position) {
+        if (position >= 0 && position < listaMensajes.size()) {
+            String texto = listaMensajes.get(position).getTexto();
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText("Mensaje", texto);
+            if (clipboard != null) {
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getContext(), "Mensaje copiado", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     public void onDestroyView() {

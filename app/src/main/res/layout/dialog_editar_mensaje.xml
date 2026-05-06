@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="320dp"
+    android:layout_width="@dimen/dialog_width"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#0A1128">
+    app:cardCornerRadius="@dimen/card_corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_large"
+    app:cardBackgroundColor="@color/card_surface"
+    app:strokeColor="#4DFFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_large">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="EDITAR MENSAJE"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_header"
             android:textStyle="bold"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="@dimen/spacing_large"
             android:letterSpacing="0.1"/>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -29,14 +31,15 @@
             android:layout_height="wrap_content"
             android:hint="Mensaje"
             android:textColorHint="#99FFFFFF"
-            app:hintTextColor="#CD0277"
-            app:boxStrokeColor="#CD0277">
+            app:hintTextColor="@color/brand_pink"
+            app:boxStrokeColor="@color/brand_pink">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_editar_mensaje_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body"
                 android:inputType="textMultiLine"
                 android:maxLines="4"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -46,30 +49,27 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="24dp">
+            android:layout_marginTop="@dimen/spacing_large">
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_cancelar_edicion_mensaje"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/button_height"
                 android:text="CANCELAR"
-                android:textColor="#64B5F6"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:padding="12dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginEnd="16dp"/>
+                android:textColor="#B3FFFFFF"
+                android:textSize="@dimen/text_size_body"
+                android:layout_marginEnd="@dimen/spacing_small"/>
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_guardar_edicion_mensaje"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/button_height"
                 android:text="GUARDAR"
-                android:textColor="#64B5F6"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:padding="12dp"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
+                android:textColor="@color/white"
+                app:backgroundTint="@color/brand_pink"
+                app:cornerRadius="@dimen/card_corner_radius_small"
+                android:textSize="@dimen/text_size_body"/>
 
         </LinearLayout>
     </LinearLayout>

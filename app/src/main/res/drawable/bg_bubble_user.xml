@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#CD0277" />
+    <solid android:color="@color/brand_pink" />
     <corners
-        android:topLeftRadius="16dp"
-        android:topRightRadius="16dp"
-        android:bottomLeftRadius="16dp"
+        android:topLeftRadius="@dimen/card_corner_radius"
+        android:topRightRadius="@dimen/card_corner_radius"
+        android:bottomLeftRadius="@dimen/card_corner_radius"
         android:bottomRightRadius="2dp" />
+    <stroke android:width="@dimen/stroke_width_thin" android:color="#4DFFFFFF" />
 </shape>

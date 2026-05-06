@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+    android:layout_width="@dimen/dialog_width"
     android:layout_height="wrap_content"
-    android:layout_margin="20dp"
-    app:cardBackgroundColor="#1A2238"
-    app:cardCornerRadius="24dp"
-    app:cardElevation="8dp">
+    android:layout_margin="@dimen/spacing_medium"
+    app:cardBackgroundColor="@color/card_surface"
+    app:cardCornerRadius="@dimen/card_corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_large"
+    app:strokeColor="#4DFFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_large">
 
         <ImageView
             android:id="@+id/img_detalle_producto"
@@ -25,48 +27,50 @@
             android:id="@+id/tv_detalle_nombre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/spacing_medium"
             android:textColor="@color/white"
-            android:textSize="22sp"
+            android:textSize="@dimen/text_size_header"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_detalle_precio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#CD0277"
-            android:textSize="20sp"
+            android:layout_marginTop="@dimen/spacing_tiny"
+            android:textColor="@color/brand_pink"
+            android:textSize="@dimen/text_size_subheading"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_detalle_descripcion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textColor="#B0B0B0"
-            android:textSize="14sp" />
+            android:layout_marginTop="@dimen/spacing_small"
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/text_size_body" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_comprar_ahora"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="24dp"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_large"
             android:text="Añadir al Carrito"
             android:textAllCaps="false"
-            android:textSize="16sp"
-            app:cornerRadius="12dp"
-            app:backgroundTint="#CD0277" />
+            android:textSize="@dimen/text_size_body"
+            app:cornerRadius="@dimen/card_corner_radius_small"
+            app:backgroundTint="@color/brand_pink" />
 
         <TextView
             android:id="@+id/btn_cerrar_detalle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/spacing_medium"
             android:text="Cerrar"
-            android:textColor="#B0B0B0"
-            android:textSize="14sp" />
+            android:textColor="#80FFFFFF"
+            android:textSize="@dimen/text_size_caption"
+            android:padding="@dimen/spacing_small"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

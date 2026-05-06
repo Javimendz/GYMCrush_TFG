@@ -3,35 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A1128"
+    android:background="@color/primary_dark"
     android:fillViewport="true">
 
     <LinearLayout
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_large">
 
         <!-- Header -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/img_logo_header_modern"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginTop="32dp"
+            android:layout_width="@dimen/profile_image_size"
+            android:layout_height="@dimen/profile_image_size"
+            android:layout_marginTop="@dimen/spacing_xlarge"
             android:scaleType="centerCrop"
             android:src="@drawable/logo"
             app:shapeAppearanceOverlay="@style/CircleImage"
-            app:strokeColor="#CD0277"
-            app:strokeWidth="2dp" />
+            app:strokeColor="@color/brand_pink"
+            app:strokeWidth="@dimen/stroke_width_medium" />
 
         <TextView
             android:id="@+id/tv_nombre_header_modern"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/spacing_medium"
             android:text="Usuario GymCrush"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_size_header"
             android:textStyle="bold" />
 
         <TextView
@@ -40,12 +40,12 @@
             android:layout_height="wrap_content"
             android:text="Socio Premium"
             android:textColor="#B3FFFFFF"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_size_caption" />
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="24dp"
+            android:layout_height="@dimen/stroke_width_thin"
+            android:layout_marginVertical="@dimen/spacing_large"
             android:background="#1AFFFFFF" />
 
         <!-- Menu Items -->
@@ -60,10 +60,10 @@
                 android:id="@+id/menu_qr"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_qr_code"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Mi QR" />
@@ -74,10 +74,10 @@
                 android:id="@+id/menu_rutinas"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_workout"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Mis Rutinas" />
@@ -88,10 +88,10 @@
                 android:id="@+id/menu_dieta"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_contrataciones"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Mi Dieta" />
@@ -102,10 +102,10 @@
                 android:id="@+id/menu_reservas"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_reservaclases"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Mis Reservas" />
@@ -116,10 +116,10 @@
                 android:id="@+id/menu_salud"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_salud"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Mi Salud" />
@@ -130,10 +130,10 @@
                 android:id="@+id/menu_suplementacion"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_compras"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Suplementación" />
@@ -144,10 +144,10 @@
                 android:id="@+id/menu_equipo"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_equipo"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Nuestro Equipo" />
@@ -158,10 +158,10 @@
                 android:id="@+id/menu_contacto"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_contacto"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Contacto" />
@@ -172,10 +172,10 @@
                 android:id="@+id/menu_espacio"
                 style="@style/ModernMenuItem">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_homee"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Nuestro Espacio" />
@@ -187,10 +187,10 @@
                 style="@style/ModernMenuItem"
                 android:visibility="gone">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_equipo"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Gestionar Staff" />
@@ -202,10 +202,10 @@
                 style="@style/ModernMenuItem"
                 android:visibility="gone">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_qr_code"
-                    app:tint="#CD0277" />
+                    app:tint="@color/brand_pink" />
                 <TextView
                     style="@style/ModernMenuText"
                     android:text="Escanear QR" />
@@ -215,10 +215,10 @@
             <LinearLayout
                 android:id="@+id/menu_salir"
                 style="@style/ModernMenuItem"
-                android:layout_marginTop="32dp">
+                android:layout_marginTop="@dimen/spacing_xlarge">
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="@dimen/icon_size_medium"
+                    android:layout_height="@dimen/icon_size_medium"
                     android:src="@drawable/ic_salir"
                     app:tint="#FF5252" />
                 <TextView

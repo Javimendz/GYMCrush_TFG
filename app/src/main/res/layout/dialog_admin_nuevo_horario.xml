@@ -1,88 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Día de la semana"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp"/>
-
-    <Spinner
-        android:id="@+id/spinnerDiaSemana"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sala"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp"/>
-
-    <Spinner
-        android:id="@+id/spinnerSala"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
+    android:layout_margin="@dimen/spacing_medium"
+    app:cardBackgroundColor="@color/card_surface"
+    app:cardCornerRadius="@dimen/card_corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_large"
+    app:strokeColor="#4DFFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_large">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHoraInicio"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="Hora Inicio"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHoraFin"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Hora Fin"/>
-    </LinearLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Aforo Máximo"
-        android:layout_marginBottom="16dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etAforoMax"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:text="Configurar Horario"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_header"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/spacing_large"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Entrenador"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Día de la semana"
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/text_size_caption"
+            android:layout_marginBottom="@dimen/spacing_tiny"/>
 
-    <Spinner
-        android:id="@+id/spinnerEntrenador"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"/>
+        <Spinner
+            android:id="@+id/spinnerDiaSemana"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            android:backgroundTint="@color/white"/>
 
-</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sala"
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/text_size_caption"
+            android:layout_marginBottom="@dimen/spacing_tiny"/>
+
+        <Spinner
+            android:id="@+id/spinnerSala"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            android:backgroundTint="@color/white"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="@dimen/spacing_medium">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHoraInicio"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/spacing_small"
+                android:text="Hora Inicio"
+                android:textColor="@color/white"
+                app:strokeColor="@color/brand_pink"
+                app:cornerRadius="@dimen/card_corner_radius_small"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHoraFin"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Hora Fin"
+                android:textColor="@color/white"
+                app:strokeColor="@color/brand_pink"
+                app:cornerRadius="@dimen/card_corner_radius_small"/>
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Aforo Máximo"
+            android:textColorHint="#80FFFFFF"
+            app:hintTextColor="@color/brand_pink"
+            app:boxStrokeColor="@color/brand_pink"
+            android:layout_marginBottom="@dimen/spacing_medium"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAforoMax"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_body"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Entrenador"
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/text_size_caption"
+            android:layout_marginBottom="@dimen/spacing_tiny"/>
+
+        <Spinner
+            android:id="@+id/spinnerEntrenador"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_large"
+            android:backgroundTint="@color/white"/>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

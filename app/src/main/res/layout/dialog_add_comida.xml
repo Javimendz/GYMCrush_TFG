@@ -1,129 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/spacing_medium"
+    app:cardBackgroundColor="@color/card_surface"
+    app:cardCornerRadius="@dimen/card_corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_large"
+    app:strokeColor="#4DFFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:background="#1A2238">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Añadir plato manualmente"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Momento del día"
-            app:boxStrokeColor="@color/brand_pink"
-            app:hintTextColor="@color/white">
-            <AutoCompleteTextView
-                android:id="@+id/dialog_spinner_momento"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:textColor="@color/white" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Nombre del alimento"
-            app:boxStrokeColor="@color/brand_pink"
-            app:hintTextColor="@color/white">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/dialog_et_nombre"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/white" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Calorías"
-            app:boxStrokeColor="@color/brand_pink"
-            app:hintTextColor="@color/white">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/dialog_et_calorias"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:textColor="@color/white" />
-        </com.google.android.material.textfield.TextInputLayout>
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            android:weightSum="3">
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_large">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Añadir plato manualmente"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_header"
+                android:textStyle="bold"
+                android:layout_marginBottom="@dimen/spacing_large"/>
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:hint="Prot (g)"
+                android:hint="Momento del día"
+                android:textColorHint="#80FFFFFF"
                 app:boxStrokeColor="@color/brand_pink"
-                app:hintTextColor="@color/white">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/dialog_et_prot"
+                app:hintTextColor="@color/brand_pink">
+                <AutoCompleteTextView
+                    android:id="@+id/dialog_spinner_momento"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:textColor="@color/white" />
+                    android:inputType="none"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_body" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="4dp"
-                android:hint="Carb (g)"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:hint="Nombre del alimento"
+                android:textColorHint="#80FFFFFF"
                 app:boxStrokeColor="@color/brand_pink"
-                app:hintTextColor="@color/white">
+                app:hintTextColor="@color/brand_pink">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/dialog_et_carbs"
+                    android:id="@+id/dialog_et_nombre"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_body" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:hint="Grasa (g)"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:hint="Calorías"
+                android:textColorHint="#80FFFFFF"
                 app:boxStrokeColor="@color/brand_pink"
-                app:hintTextColor="@color/white">
+                app:hintTextColor="@color/brand_pink">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/dialog_et_grasas"
+                    android:id="@+id/dialog_et_calorias"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_body" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/spacing_tiny"
+                    android:hint="Prot (g)"
+                    android:textColorHint="#80FFFFFF"
+                    app:boxStrokeColor="@color/brand_pink"
+                    app:hintTextColor="@color/brand_pink">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/dialog_et_prot"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_size_body" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="@dimen/spacing_tiny"
+                    android:hint="Carb (g)"
+                    android:textColorHint="#80FFFFFF"
+                    app:boxStrokeColor="@color/brand_pink"
+                    app:hintTextColor="@color/brand_pink">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/dialog_et_carbs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_size_body" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/spacing_tiny"
+                    android:hint="Grasa (g)"
+                    android:textColorHint="#80FFFFFF"
+                    app:boxStrokeColor="@color/brand_pink"
+                    app:hintTextColor="@color/brand_pink">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/dialog_et_grasas"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_size_body" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
         </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</com.google.android.material.card.MaterialCardView>

@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="300dp"
+    android:layout_width="@dimen/dialog_width"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#0A1128">
+    app:cardCornerRadius="@dimen/card_corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_large"
+    app:cardBackgroundColor="@color/card_surface"
+    app:strokeColor="#4DFFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_large">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="OPCIONES"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_header"
             android:textStyle="bold"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="@dimen/spacing_large"
             android:letterSpacing="0.1"/>
 
         <TextView
@@ -28,9 +30,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="COPIAR MENSAJE"
-            android:textColor="#CCCCCC"
-            android:textSize="16sp"
-            android:paddingVertical="12dp"
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/text_size_body"
+            android:paddingVertical="@dimen/spacing_medium"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"/>
@@ -40,9 +42,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="EDITAR MENSAJE"
-            android:textColor="#CCCCCC"
-            android:textSize="16sp"
-            android:paddingVertical="12dp"
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/text_size_body"
+            android:paddingVertical="@dimen/spacing_medium"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"/>
@@ -52,10 +54,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="ELIMINAR MENSAJE"
-            android:textColor="#CD0277"
-            android:textSize="16sp"
+            android:textColor="@color/brand_pink"
+            android:textSize="@dimen/text_size_body"
             android:textStyle="bold"
-            android:paddingVertical="12dp"
+            android:paddingVertical="@dimen/spacing_medium"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"/>
@@ -64,19 +66,17 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#33FFFFFF"
-            android:layout_marginVertical="12dp"/>
+            android:layout_marginVertical="@dimen/spacing_medium"/>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_opcion_cancelar"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/button_height"
             android:text="CANCELAR"
-            android:textColor="#64B5F6"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_gravity="end"
-            android:padding="12dp"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/text_size_body"
+            android:layout_gravity="end"/>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

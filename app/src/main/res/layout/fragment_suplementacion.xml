@@ -3,33 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A1128"
+    android:background="@color/primary_dark"
     android:orientation="vertical">
 
     <!-- Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:background="#0A1128">
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/primary_dark">
 
         <ImageView
             android:id="@+id/btnBackSuple"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:padding="12dp"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:padding="@dimen/spacing_medium"
             android:src="@drawable/ic_back_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#CD0277" />
+            app:tint="@color/brand_pink" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tienda GYMCrush"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_title"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -38,9 +38,9 @@
 
         <FrameLayout
             android:id="@+id/btn_ver_carrito"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:clickable="true"
             android:focusable="true"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -48,25 +48,25 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="@dimen/icon_size_medium"
+                android:layout_height="@dimen/icon_size_medium"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_compras"
                 app:tint="@color/white" />
 
             <TextView
                 android:id="@+id/tv_cart_count"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="@dimen/badge_size"
+                android:layout_height="@dimen/badge_size"
                 android:layout_gravity="top|end"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/spacing_small"
                 android:background="@drawable/bg_circle_glass"
-                android:backgroundTint="#CD0277"
+                android:backgroundTint="@color/brand_pink"
                 android:gravity="center"
                 android:text="0"
                 android:textColor="@color/white"
-                android:textSize="10sp"
+                android:textSize="@dimen/badge_text_size"
                 android:visibility="gone" />
         </FrameLayout>
 
@@ -77,7 +77,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
+        android:padding="@dimen/spacing_small"
         android:clipToPadding="false" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -85,10 +85,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/spacing_medium"
         android:src="@android:drawable/ic_input_add"
         android:visibility="gone"
-        app:backgroundTint="#CD0277"
+        app:backgroundTint="@color/brand_pink"
         app:tint="@color/white" />
 
 </LinearLayout>

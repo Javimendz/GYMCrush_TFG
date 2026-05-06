@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="320dp"
+    android:layout_width="@dimen/dialog_width"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#0A1128">
+    app:cardCornerRadius="@dimen/card_corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_large"
+    app:cardBackgroundColor="@color/card_surface"
+    app:strokeColor="#4DFFFFFF"
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="@dimen/spacing_large">
 
         <TextView
             android:id="@+id/tv_titulo_exit"
@@ -19,18 +21,18 @@
             android:layout_height="wrap_content"
             android:text="Cerrar Sesión"
             android:textColor="@color/white"
-            android:textSize="20sp"
+            android:textSize="@dimen/text_size_header"
             android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="@dimen/spacing_small"/>
 
         <TextView
             android:id="@+id/tv_mensaje_exit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="¿Estás seguro de que deseas cerrar la sesión?"
-            android:textColor="#CCCCCC"
-            android:textSize="16sp"
-            android:layout_marginBottom="24dp"/>
+            android:textColor="#B3FFFFFF"
+            android:textSize="@dimen/text_size_body"
+            android:layout_marginBottom="@dimen/spacing_large"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,29 +40,26 @@
             android:orientation="horizontal"
             android:gravity="end">
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_cancelar_exit"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/button_height"
                 android:text="CANCELAR"
-                android:textColor="#64B5F6"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:padding="12dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginEnd="16dp"/>
+                android:textColor="#B3FFFFFF"
+                android:textSize="@dimen/text_size_body"
+                android:layout_marginEnd="@dimen/spacing_small"/>
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_confirmar_exit"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/button_height"
                 android:text="SÍ, SALIR"
-                android:textColor="#64B5F6"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:padding="12dp"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
+                android:textColor="@color/white"
+                app:backgroundTint="@color/brand_pink"
+                app:cornerRadius="@dimen/card_corner_radius_small"
+                android:textSize="@dimen/text_size_body"/>
 
         </LinearLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -3,23 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="4dp"
-    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="@dimen/spacing_tiny"
+    android:layout_marginVertical="@dimen/spacing_small"
     app:cardBackgroundColor="#1A1F36"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="6dp"
+    app:cardCornerRadius="@dimen/card_corner_radius"
+    app:cardElevation="@dimen/card_elevation"
     app:strokeColor="#33FFFFFF"
-    app:strokeWidth="1dp">
+    app:strokeWidth="@dimen/stroke_width_thin">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="@dimen/spacing_medium">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivStaffAvatar"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="@dimen/profile_image_size"
+            android:layout_height="@dimen/profile_image_size"
             android:scaleType="centerCrop"
             android:src="@drawable/logo"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,14 +27,14 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:shapeAppearanceOverlay="@style/CircleImage"
             app:strokeColor="@color/accent_color"
-            app:strokeWidth="2dp" />
+            app:strokeWidth="@dimen/stroke_width_medium" />
 
         <LinearLayout
             android:id="@+id/llStaffInfo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="@dimen/spacing_medium"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tvStaffRol"
@@ -48,7 +48,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:text="Nombre Apellidos"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="@dimen/text_size_title" />
 
             <TextView
                 android:id="@+id/tvStaffUsername"
@@ -57,7 +57,7 @@
                 android:alpha="0.7"
                 android:text="@@username"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="@dimen/text_size_body" />
         </LinearLayout>
 
         <TextView
@@ -65,11 +65,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_chip_accent"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
+            android:paddingHorizontal="@dimen/spacing_small"
+            android:paddingVertical="@dimen/spacing_tiny"
             android:text="COACH"
             android:textColor="@color/white"
-            android:textSize="11sp"
+            android:textSize="@dimen/text_size_micro"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -77,8 +77,8 @@
 
         <ImageView
             android:id="@+id/btnDeleteStaff"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/icon_size_small"
+            android:layout_height="@dimen/icon_size_small"
             android:src="@android:drawable/ic_menu_delete"
             android:visibility="gone"
             app:layout_constraintTop_toTopOf="parent"

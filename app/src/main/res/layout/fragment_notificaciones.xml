@@ -11,16 +11,16 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerNotificaciones"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="@dimen/toolbar_height"
         android:background="#0A1128"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="@dimen/spacing_medium"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/btnVolverNotificaciones"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:padding="8dp"
+            android:layout_width="@dimen/icon_size_large"
+            android:layout_height="@dimen/icon_size_large"
+            android:padding="@dimen/spacing_small"
             android:src="@drawable/ic_menu"
             android:rotation="180"
             app:tint="@color/accent_color"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:text="CENTRO DE MENSAJES"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_title"
             android:textStyle="bold"
             android:letterSpacing="0.1"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -49,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingBottom="20dp"
+        android:paddingBottom="@dimen/spacing_large"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerNotificaciones" />
 
@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:text="No hay avisos del gimnasio por ahora"
             android:textColor="#80FFFFFF"
-            android:textSize="14sp" />
+            android:textSize="@dimen/text_size_body" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,26 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A1128"
+    android:background="@color/primary_dark"
     android:orientation="vertical">
 
     <!-- Header similar al de contrataciones -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:background="#0A1128">
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/primary_dark">
 
         <ImageView
             android:id="@+id/btnBackEquipo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:padding="12dp"
+            android:layout_width="@dimen/button_height"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:padding="@dimen/spacing_medium"
             android:src="@drawable/ic_back_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#CD0277"
+            app:tint="@color/brand_pink"
             android:contentDescription="Volver" />
 
         <TextView
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="Nuestro Equipo"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="@dimen/text_size_title"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="@dimen/spacing_medium">
 
             <GridLayout
                 android:layout_width="match_parent"
@@ -58,18 +58,19 @@
                 android:columnOrderPreserved="false">
 
                 <!-- José García -->
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_entrenador1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="#1A2238"
+                    android:layout_margin="@dimen/spacing_small"
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:cardElevation="@dimen/card_elevation"
+                    app:cardBackgroundColor="@color/card_surface"
+                    app:strokeColor="#1AFFFFFF"
+                    app:strokeWidth="@dimen/stroke_width_thin"
                     android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
+                    android:focusable="true">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -77,59 +78,60 @@
                         <ImageView
                             android:id="@+id/img_entrenador1"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp"
+                            android:layout_height="@dimen/trainer_image_height"
                             android:scaleType="centerCrop"
                             android:src="@drawable/joseee" />
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="@dimen/spacing_medium">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="José García"
                                 android:textColor="@color/white"
-                                android:textSize="16sp"
+                                android:textSize="@dimen/text_size_body"
                                 android:textStyle="bold"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="FrontEnd"
                                 android:textColor="#B0B0B0"
-                                android:textSize="12sp"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="@dimen/text_size_micro"
+                                android:layout_marginTop="@dimen/spacing_tiny"/>
                         </LinearLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- María Brotons (Placeholder con Iniciales) -->
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_entrenadora1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="#1A2238"
+                    android:layout_margin="@dimen/spacing_small"
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:cardElevation="@dimen/card_elevation"
+                    app:cardBackgroundColor="@color/card_surface"
+                    app:strokeColor="#1AFFFFFF"
+                    app:strokeWidth="@dimen/stroke_width_thin"
                     android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
+                    android:focusable="true">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="160dp"
+                            android:layout_height="@dimen/trainer_image_height"
                             android:background="@drawable/bg_initials_gradient">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="MB"
                                 android:textColor="@color/white"
-                                android:textSize="40sp"
+                                android:textSize="@dimen/text_size_display"
                                 android:textStyle="bold"
                                 android:layout_gravity="center"/>
                         </FrameLayout>
@@ -137,52 +139,53 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="@dimen/spacing_medium">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="María Brotons"
                                 android:textColor="@color/white"
-                                android:textSize="16sp"
+                                android:textSize="@dimen/text_size_body"
                                 android:textStyle="bold"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="FrontEnd"
                                 android:textColor="#B0B0B0"
-                                android:textSize="12sp"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="@dimen/text_size_micro"
+                                android:layout_marginTop="@dimen/spacing_tiny"/>
                         </LinearLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Javier Méndez (Placeholder con Iniciales) -->
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_entrenador2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="#1A2238"
+                    android:layout_margin="@dimen/spacing_small"
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:cardElevation="@dimen/card_elevation"
+                    app:cardBackgroundColor="@color/card_surface"
+                    app:strokeColor="#1AFFFFFF"
+                    app:strokeWidth="@dimen/stroke_width_thin"
                     android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
+                    android:focusable="true">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="160dp"
+                            android:layout_height="@dimen/trainer_image_height"
                             android:background="@drawable/bg_initials_gradient">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="JM"
                                 android:textColor="@color/white"
-                                android:textSize="40sp"
+                                android:textSize="@dimen/text_size_display"
                                 android:textStyle="bold"
                                 android:layout_gravity="center"/>
                         </FrameLayout>
@@ -190,38 +193,39 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="@dimen/spacing_medium">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Javier Méndez"
                                 android:textColor="@color/white"
-                                android:textSize="16sp"
+                                android:textSize="@dimen/text_size_body"
                                 android:textStyle="bold"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="BackEnd"
                                 android:textColor="#B0B0B0"
-                                android:textSize="12sp"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="@dimen/text_size_micro"
+                                android:layout_marginTop="@dimen/spacing_tiny"/>
                         </LinearLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
                 <!-- Andrea -->
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_entrenadora2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="#1A2238"
+                    android:layout_margin="@dimen/spacing_small"
+                    app:cardCornerRadius="@dimen/card_corner_radius"
+                    app:cardElevation="@dimen/card_elevation"
+                    app:cardBackgroundColor="@color/card_surface"
+                    app:strokeColor="#1AFFFFFF"
+                    app:strokeWidth="@dimen/stroke_width_thin"
                     android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
+                    android:focusable="true">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -229,34 +233,35 @@
                         <ImageView
                             android:id="@+id/img_entrenadora2"
                             android:layout_width="match_parent"
-                            android:layout_height="160dp"
+                            android:layout_height="@dimen/trainer_image_height"
                             android:scaleType="centerCrop"
                             android:src="@drawable/maria" />
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="@dimen/spacing_medium">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Andrea"
                                 android:textColor="@color/white"
-                                android:textSize="16sp"
+                                android:textSize="@dimen/text_size_body"
                                 android:textStyle="bold"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="BackEnd"
                                 android:textColor="#B0B0B0"
-                                android:textSize="12sp"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="@dimen/text_size_micro"
+                                android:layout_marginTop="@dimen/spacing_tiny"/>
                         </LinearLayout>
                     </LinearLayout>
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
             </GridLayout>
 
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
+

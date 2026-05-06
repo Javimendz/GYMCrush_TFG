@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0F111A"
-    android:padding="24dp">
+    android:padding="@dimen/spacing_large">
 
     <!-- Header -->
     <TextView
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="PASE AL TEMPLO"
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_size_header"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,30 +25,30 @@
         android:layout_height="wrap_content"
         android:text="Escanea este QR en la entrada"
         android:textColor="#8A8A8E"
-        android:textSize="14sp"
+        android:textSize="@dimen/text_size_body"
         app:layout_constraintTop_toBottomOf="@id/tvTitleAcceso"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="@dimen/spacing_small"/>
 
     <!-- QR Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardQr"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="8dp"
+        android:layout_width="@dimen/dialog_width"
+        android:layout_height="@dimen/dialog_width"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation_large"
         app:cardBackgroundColor="#FFFFFF"
         app:layout_constraintTop_toBottomOf="@id/tvSubtitleAcceso"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp">
+        android:layout_marginTop="@dimen/spacing_xlarge">
 
         <ImageView
             android:id="@+id/ivQrAcceso"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="20dp"
+            android:padding="@dimen/spacing_medium"
             android:scaleType="fitCenter" />
     </androidx.cardview.widget.CardView>
 
@@ -59,24 +59,24 @@
         android:layout_height="wrap_content"
         android:text="Expira en: 30s"
         android:textColor="#FF4081"
-        android:textSize="18sp"
+        android:textSize="@dimen/text_size_title"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/cardQr"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="@dimen/spacing_medium" />
 
     <Button
         android:id="@+id/btnRefrescarQr"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/button_height"
         android:text="REFRESCAR PASE"
         android:backgroundTint="#FF4081"
         android:textColor="#FFFFFF"
         app:layout_constraintTop_toBottomOf="@id/tvTimerQr"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp"/>
+        android:layout_marginTop="@dimen/spacing_small"/>
 
     <TextView
         android:id="@+id/tvTestManual"
