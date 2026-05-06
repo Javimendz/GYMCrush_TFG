@@ -40,7 +40,7 @@ public class NutricionServiceImpl implements INutricionService {
     private final NutricionMapper nutricionMapper;
     private final FatSecretService fatSecretService;
 
-    @Override
+   @Override
     @Transactional
     public NutricionResponseDto generarPlanAutomatico(NutricionRequestDto request) {
         validarDatosFisicos(request);
@@ -98,7 +98,9 @@ public class NutricionServiceImpl implements INutricionService {
                 crearComida("Cena", getNombre(r3, "Ensalada Ligera"), getImagen(r3, dImg), kcalObjetivo, proteinas,
                         carbs, grasas, 0.3, plan)));
 
-        return nutricionMapper.toResponseDto(plan);
+        // --- AQUÍ ESTABA EL FALLO ---
+        // Ahora guardamos la entidad generada (Nutricion y sus Comidas vinculadas) en la Base de Datos antes de mapearla
+        return nutricionMapper.toResponseDto(nutricionRepository.save(plan));
     }
 
     @Override
