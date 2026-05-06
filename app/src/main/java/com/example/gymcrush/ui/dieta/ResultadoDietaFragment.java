@@ -177,9 +177,9 @@ public class ResultadoDietaFragment extends Fragment {
     }
 
     private void mostrarConfirmacionGuardar() {
-        String mensaje = planNutricional.getId() == null 
-            ? "¿Deseas guardar este plan en tu historial?" 
-            : "¿Deseas guardar todas las recetas sugeridas en tu diario de hoy?";
+        String mensaje = planNutricional.getId() == null
+                ? "¿Deseas guardar este plan en tu historial?"
+                : "¿Deseas guardar todas las recetas sugeridas en tu diario de hoy?";
 
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
                 .setTitle("Confirmar Guardado")
@@ -197,9 +197,9 @@ public class ResultadoDietaFragment extends Fragment {
                                 boolean yaGuardada = false;
                                 if (adapter != null && adapter.getComidas() != null) {
                                     for (ComidaDiariaResponseDto item : adapter.getComidas()) {
-                                        if (item.isSelected() && 
-                                            item.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
-                                            item.getMomento().equalsIgnoreCase(sugerencia.getMomento())) {
+                                        if (item.isSelected() &&
+                                                item.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                                                item.getMomento().equalsIgnoreCase(sugerencia.getMomento())) {
                                             yaGuardada = true;
                                             break;
                                         }
@@ -245,7 +245,7 @@ public class ResultadoDietaFragment extends Fragment {
 
         // El botón de guardar estará siempre visible ahora
         btnGuardar.setVisibility(View.VISIBLE);
-        
+
         // Siempre permitimos renombrar, incluso si el plan es transitorio (ID null)
         btnRenombrar.setVisibility(View.VISIBLE);
 

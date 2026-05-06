@@ -342,20 +342,6 @@ public class DietaFragment extends Fragment {
             }
         });
 
-        viewModel.getPerfilActual().observe(getViewLifecycleOwner(), perfil -> {
-            if (perfil != null && perfil.getFechaNacimiento() != null) {
-                try {
-                    // Calcular edad básica a partir de fechaNacimiento (YYYY-MM-DD)
-                    String fecha = perfil.getFechaNacimiento();
-                    int year = Integer.parseInt(fecha.split("-")[0]);
-                    int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
-                    etEdad.setText(String.valueOf(currentYear - year));
-                } catch (Exception e) {
-                    android.util.Log.e("DietaFragment", "Error calculando edad", e);
-                }
-            }
-        });
-
         viewModel.getDietasCatalogo().observe(getViewLifecycleOwner(), dietas -> {
             if (dietas != null) {
                 adapter.setDietas(dietas);
@@ -733,7 +719,7 @@ public class DietaFragment extends Fragment {
             }
             return false;
         });
-        
+
         spinnerObjetivo.setOnTouchListener((v, event) -> {
             if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
                 spinnerObjetivo.showDropDown();

@@ -9,6 +9,7 @@ import com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto;
 import com.example.gymcrush.data.remote.dto.LoginRequest;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.NotificacionResponseDto;
+import com.example.gymcrush.data.remote.dto.NutricionHistorialResponse;
 import com.example.gymcrush.data.remote.dto.PerfilRequestDto;
 import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
 import com.example.gymcrush.data.remote.dto.RegisterRequest;
@@ -58,6 +59,12 @@ public interface ApiService {
     @GET("api/v1/planes/{planId}/ejercicios")
     Call<ApiResponseDto<List<DetallePlanResponseDto>>> obtenerEjerciciosDelPlan(@Path("planId") Long planId);
 
+    @GET("api/v1/nutricion/historial/{usuarioId}")
+    Call<ApiResponseDto<NutricionHistorialResponse>> getHistorial(
+            @Path("usuarioId") Long usuarioId,
+            @Query("page") int page,
+            @Query("size") int size
+    );
     @GET("api/v1/entrenamientos")
     Call<ApiResponseDto<List<EntrenamientoResponseDto>>> listarEntrenamientosCatalogo();
     @DELETE("api/v1/planes/ejercicios-detalle/{id}")
