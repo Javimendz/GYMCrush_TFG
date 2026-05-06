@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -112,5 +114,20 @@ public class NutricionMapper {
      */
     public ComidaDiaria toEntity(ComidaDiariaRequestDto request, Nutricion plan) {
         return comidaMapper.toEntity(request, plan);
+    }
+
+   public ComidaDiaria toComidaEntity(ComidaDiariaResponseDto dto) {
+        if (dto == null) return null;
+
+        ComidaDiaria entity = new ComidaDiaria();
+        entity.setNombreAlimento(dto.getNombreAlimento());
+        entity.setMomento(dto.getMomento());
+        entity.setCalorias(dto.getCalorias());
+        entity.setProteina(dto.getProteina());
+        entity.setCarbohidratos(dto.getCarbohidratos());
+        entity.setGrasas(dto.getGrasas());
+        entity.setImagenUrl(dto.getImagenUrl());
+        entity.setFecha(LocalDate.now()); 
+        return entity;
     }
 }

@@ -39,6 +39,7 @@ public class NutricionServiceImpl implements INutricionService {
     private final ObjectMapper objectMapper;
     private final NutricionMapper nutricionMapper;
     private final FatSecretService fatSecretService;
+    private final ComidaDiariaRepository comidaDiariaRepository;
 
    @Override
     @Transactional
@@ -84,10 +85,15 @@ public class NutricionServiceImpl implements INutricionService {
                         resolverCategoria(EnumObjetivo.valueOf(request.getObjetivo().toUpperCase())))
                 .stream().findFirst().orElseThrow(() -> new ResourceNotFoundException("No hay dietas"));
 
-        Nutricion plan = Nutricion.builder().usuario(usuario).nombreDieta("Plan personalizado")
-                .tipoDieta(dietaBase.getNombre()).caloriasObjetivo(kcalObjetivo).dieta(dietaBase)
-                .macronutrientesJson(jsonFatSecret)
-                .fechaGeneracion(LocalDateTime.now()).build();
+       Nutricion plan = Nutricion.builder()
+            .usuario(usuario)
+            .nombreDieta("Plan personalizado")
+            .tipoDieta(dietaBase.getNombre())
+            .caloriasObjetivo(kcalObjetivo)
+            .dieta(dietaBase)
+            .macronutrientesJson(jsonFatSecret)
+            .fechaGeneracion(LocalDateTime.now())
+            .build();
 
         String dImg = "https://images.unsplash.com/photo-1490645935967-10de6ba17061";
         plan.setComidas(List.of(
@@ -98,9 +104,18 @@ public class NutricionServiceImpl implements INutricionService {
                 crearComida("Cena", getNombre(r3, "Ensalada Ligera"), getImagen(r3, dImg), kcalObjetivo, proteinas,
                         carbs, grasas, 0.3, plan)));
 
-        // --- AQUÍ ESTABA EL FALLO ---
-        // Ahora guardamos la entidad generada (Nutricion y sus Comidas vinculadas) en la Base de Datos antes de mapearla
-        return nutricionMapper.toResponseDto(nutricionRepository.save(plan));
+
+    // Seteamos las comidas pero NO llamamos al repository.save()
+    plan.setComidas(List.of(
+            crearComida("Desayuno", getNombre(r1, "Desayuno Avena"), getImagen(r1, dImg), kcalObjetivo, proteinas, carbs, grasas, 0.3, plan),
+            crearComida("Almuerzo", getNombre(r2, "Pollo Saludable"), getImagen(r2, dImg), kcalObjetivo, proteinas, carbs, grasas, 0.4, plan),
+            crearComida("Cena", getNombre(r3, "Ensalada Ligera"), getImagen(r3, dImg), kcalObjetivo, proteinas, carbs, grasas, 0.3, plan)
+    ));
+
+    // IMPORTANTE: Quitamos el nutricionRepository.save(plan)
+    // El ID del plan llegará nulo a Android, lo cual es correcto para un plan "borrador"
+    return nutricionMapper.toResponseDto(plan);
+
     }
 
     @Override
@@ -258,23 +273,34 @@ public class NutricionServiceImpl implements INutricionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Plan nutricional no encontrado"));
     }
 
-    @Override
-    @Transactional
-    public NutricionResponseDto guardarPlan(Long usuarioId, NutricionResponseDto planDto) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+   @Override
+@Transactional
+public NutricionResponseDto guardarPlan(Long usuarioId, NutricionResponseDto planDto) {
+    Usuario usuario = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        // 1. Convertimos el DTO a Entidad usando el método correcto del mapper
-        Nutricion plan = nutricionMapper.toEntity(planDto);
+    // Convertimos el DTO a Entidad
+    Nutricion plan = nutricionMapper.toEntity(planDto);
+    plan.setUsuario(usuario);
+    plan.setFechaGeneracion(LocalDateTime.now());
+
+    // 2. IMPORTANTE: Guardamos primero el plan para obtener su ID real
+    Nutricion planGuardado = nutricionRepository.save(plan);
+
+    // 3. Vínculo y Guardado manual de las comidas (Hijos)
+    if (planDto.getComidas() != null && !planDto.getComidas().isEmpty()) {
+        List<ComidaDiaria> comidasEntities = planDto.getComidas().stream().map(cDto -> {
+            ComidaDiaria c = nutricionMapper.toComidaEntity(cDto); // Asegúrate de tener este mapper
+            c.setPlan(planGuardado); // Vinculamos al ID real recién creado
+            c.setFecha(LocalDate.now());
+            return c;
+        }).toList();
         
-        plan.setUsuario(usuario);
-        plan.setFechaGeneracion(LocalDateTime.now());
-
-        // 2. Corregimos el nombre del setter: es setPlan(), no setPlanNutricional()
-        if (plan.getComidas() != null) {
-            plan.getComidas().forEach(c -> c.setPlan(plan));
-        }
-
-        return nutricionMapper.toResponseDto(nutricionRepository.save(plan));
+        // Guardamos las comidas explícitamente en la DB
+        comidaDiariaRepository.saveAll(comidasEntities);
+        planGuardado.setComidas(comidasEntities);
     }
+
+    return nutricionMapper.toResponseDto(planGuardado);
+}
 }

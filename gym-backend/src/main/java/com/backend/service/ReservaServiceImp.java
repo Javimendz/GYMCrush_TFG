@@ -93,7 +93,8 @@ public class ReservaServiceImp implements IReservaService {
         return horarios.stream()
                 .map(h -> {
                     // 1. Contamos reservas para este horario y fecha específica
-                    Long ocupadas = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(h.getId(), fecha, ESTADOS_OCUPADOS);
+                    Long ocupadas = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(h.getId(), fecha,
+                            ESTADOS_OCUPADOS);
 
                     // 2. Calculamos plazas libres usando .intValue()
                     int libres = h.getAforoMax() - ocupadas.intValue();
@@ -108,7 +109,8 @@ public class ReservaServiceImp implements IReservaService {
                             .plazasLibres(libres)
                             .nombreActividad(h.getActividad() != null ? h.getActividad().getNombre() : "Sin actividad")
                             .nombreSala(h.getSala() != null ? h.getSala().getNombre() : "Sin sala")
-                            .nombreEntrenador(h.getEntrenador() != null ? h.getEntrenador().getUsername() : "Sin monitor")
+                            .nombreEntrenador(
+                                    h.getEntrenador() != null ? h.getEntrenador().getUsername() : "Sin monitor")
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -162,7 +164,8 @@ public class ReservaServiceImp implements IReservaService {
         Horario horario = horarioRepository.findById(horarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado"));
 
-        Long inscritos = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(), ESTADOS_OCUPADOS);
+        Long inscritos = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(),
+                ESTADOS_OCUPADOS);
 
         return inscritos.intValue() < horario.getAforoMax();
     }
@@ -173,19 +176,39 @@ public class ReservaServiceImp implements IReservaService {
         Reserva reserva = reservaRepository.findById(reservaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
 
-        if (!reserva.getFecha().equals(LocalDate.now())) {
-            throw new BusinessException("Solo puedes hacer check-in el día de la clase.");
+        //  Forzamos la zona horaria de la aplicación (Madrid)
+        java.time.ZoneId zonaMadrid = java.time.ZoneId.of("Europe/Madrid");
+        java.time.ZonedDateTime ahoraZoned = java.time.ZonedDateTime.now(zonaMadrid);
+
+        LocalDate hoyLocal = ahoraZoned.toLocalDate();
+        // Truncamos segundos y nanos para evitar errores de precisión
+        LocalTime ahoraLocal = ahoraZoned.toLocalTime().withSecond(0).withNano(0);
+
+        log.info("Intento Check-in: {} {} | Clase programada: {} {}",
+                hoyLocal, ahoraLocal, reserva.getFecha(), reserva.getHorario().getHoraInicio());
+
+        //  Validar fecha
+        if (!reserva.getFecha().equals(hoyLocal)) {
+            throw new BusinessException("Solo puedes hacer check-in el día de la clase. Hoy es: " + hoyLocal);
         }
 
-        LocalTime ahora = LocalTime.now();
+        //  Validar ventana de tiempo (15 min antes, 10 min después)
         LocalTime inicio = reserva.getHorario().getHoraInicio();
+        LocalTime apertura = inicio.minusMinutes(15);
+        LocalTime cierre = inicio.plusMinutes(10);
 
-        if (ahora.isBefore(inicio.minusMinutes(15)) || ahora.isAfter(inicio.plusMinutes(10))) {
-            throw new BusinessException("Check-in fuera de horario (15m antes a 10m después).");
+        // Comprobación de rango
+        if (ahoraLocal.isBefore(apertura) || ahoraLocal.isAfter(cierre)) {
+            throw new BusinessException(
+                    String.format("Check-in fuera de rango. Tu hora: %s. Ventana permitida: %s a %s",
+                            ahoraLocal, apertura, cierre));
         }
 
+        //  Actualizar estado
         reserva.setEstado(EnumEstado.ASISTIDA);
         reservaRepository.save(reserva);
+
+        log.info("Check-in exitoso para reserva ID: {}", reservaId);
     }
 
     @Override
@@ -203,7 +226,8 @@ public class ReservaServiceImp implements IReservaService {
         Horario horario = horarioRepository.findById(horarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Horario no encontrado"));
 
-        Long inscritos = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(), ESTADOS_OCUPADOS);
+        Long inscritos = reservaRepository.countByHorarioIdAndFechaAndEstadoIn(horarioId, LocalDate.now(),
+                ESTADOS_OCUPADOS);
 
         return inscritos.intValue() + " / " + horario.getAforoMax();
     }
@@ -227,15 +251,17 @@ public class ReservaServiceImp implements IReservaService {
     }
 
     private void publicarEventoReserva(Reserva reserva, int plazasRestantes) {
-        String mensaje = String.format("Plaza confirmada para %s. ¡Quedan %d plazas!", 
+        String mensaje = String.format("Plaza confirmada para %s. ¡Quedan %d plazas!",
                 reserva.getHorario().getActividad().getNombre(), plazasRestantes);
-        
-        eventPublisher.publishEvent(new ReservaEvent(reserva.getId(), "Reserva Exitosa", mensaje, TipoNotificacion.RECORDATORIO));
+
+        eventPublisher.publishEvent(
+                new ReservaEvent(reserva.getId(), "Reserva Exitosa", mensaje, TipoNotificacion.RECORDATORIO));
     }
 
     private void publicarEventoCancelacion(Reserva reserva) {
-        eventPublisher.publishEvent(new ReservaEvent(reserva.getId(), "Reserva Cancelada", 
-                "Has cancelado tu clase de " + reserva.getHorario().getActividad().getNombre(), TipoNotificacion.CANCELACION));
+        eventPublisher.publishEvent(new ReservaEvent(reserva.getId(), "Reserva Cancelada",
+                "Has cancelado tu clase de " + reserva.getHorario().getActividad().getNombre(),
+                TipoNotificacion.CANCELACION));
     }
 
     private LocalDate calcularProximaFecha(String diaSemana, LocalTime horaInicio) {
@@ -267,12 +293,15 @@ public class ReservaServiceImp implements IReservaService {
                 .diaSemana(reserva.getHorario() != null ? reserva.getHorario().getDiaSemana() : null)
                 .horaInicio(reserva.getHorario() != null ? reserva.getHorario().getHoraInicio() : null)
                 .usuarioId(reserva.getUsuario() != null ? reserva.getUsuario().getId() : null)
-                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null 
-                    ? reserva.getHorario().getActividad().getNombre() : "Sin Actividad")
-                .nombreSala(reserva.getHorario() != null && reserva.getHorario().getSala() != null 
-                    ? reserva.getHorario().getSala().getNombre() : "Sin sala")
-                .nombreEntrenador(reserva.getHorario() != null && reserva.getHorario().getEntrenador() != null 
-                    ? reserva.getHorario().getEntrenador().getUsername() : "Monitor pendiente")
+                .nombreActividad(reserva.getHorario() != null && reserva.getHorario().getActividad() != null
+                        ? reserva.getHorario().getActividad().getNombre()
+                        : "Sin Actividad")
+                .nombreSala(reserva.getHorario() != null && reserva.getHorario().getSala() != null
+                        ? reserva.getHorario().getSala().getNombre()
+                        : "Sin sala")
+                .nombreEntrenador(reserva.getHorario() != null && reserva.getHorario().getEntrenador() != null
+                        ? reserva.getHorario().getEntrenador().getUsername()
+                        : "Monitor pendiente")
                 .build();
     }
 }
