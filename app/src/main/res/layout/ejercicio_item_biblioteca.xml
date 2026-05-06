@@ -57,11 +57,13 @@
                 android:layout_marginTop="4dp" />
 
             <!-- Etiquetas de Duración y Músculo -->
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupEjercicioTags"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                app:chipSpacingHorizontal="8dp"
+                app:chipSpacingVertical="8dp">
 
                 <!-- Tag Duración -->
                 <LinearLayout
@@ -72,8 +74,7 @@
                     android:background="@drawable/bg_chip_yellow"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="4dp"
-                    android:gravity="center_vertical"
-                    android:layout_marginEnd="8dp">
+                    android:gravity="center_vertical">
 
                     <ImageView
                         android:layout_width="12dp"
@@ -89,7 +90,8 @@
                         android:text="10 min"
                         android:textColor="#FFFFFF"
                         android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:maxLines="1" />
                 </LinearLayout>
 
                 <!-- Tag Músculo/Intensidad -->
@@ -101,8 +103,7 @@
                     android:background="@drawable/bg_neon_card"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="4dp"
-                    android:gravity="center_vertical"
-                    android:layout_marginEnd="8dp">
+                    android:gravity="center_vertical">
 
                     <TextView
                         android:id="@+id/tvMusculoTagItem"
@@ -111,7 +112,8 @@
                         android:text="PECHO"
                         android:textColor="#FFFFFF"
                         android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:maxLines="1" />
                 </LinearLayout>
 
                 <!-- Tag Global/Personal -->
@@ -132,9 +134,10 @@
                         android:text="OFICIAL"
                         android:textColor="#FFFFFF"
                         android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:maxLines="1" />
                 </LinearLayout>
-            </LinearLayout>
+            </com.google.android.material.chip.ChipGroup>
 
             <!-- Texto para series y reps en modo detalle -->
             <TextView

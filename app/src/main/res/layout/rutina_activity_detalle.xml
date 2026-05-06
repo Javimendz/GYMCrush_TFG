@@ -33,11 +33,13 @@
                 android:textSize="28sp"
                 android:textStyle="bold"/>
 
-            <LinearLayout
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupHeaderTags"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                app:chipSpacingHorizontal="12dp"
+                app:chipSpacingVertical="8dp">
 
                 <TextView
                     android:id="@+id/tvDuracionDetalle"
@@ -49,8 +51,7 @@
                     android:textStyle="bold"
                     android:background="#33FFC107"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="4dp"
-                    android:layout_marginEnd="12dp"/>
+                    android:paddingVertical="4dp"/>
 
                 <TextView
                     android:id="@+id/tvIntensidadDetalle"
@@ -63,7 +64,7 @@
                     android:background="#3303A9F4"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp"/>
-            </LinearLayout>
+            </com.google.android.material.chip.ChipGroup>
         </LinearLayout>
 
         <androidx.core.widget.NestedScrollView

@@ -62,19 +62,19 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         }
 
         if (item.getIntensidad() != null && !item.getIntensidad().isEmpty()) {
-            holder.layoutIntensidadTag.setVisibility(View.VISIBLE);
+            holder.tvIntensidadTag.setVisibility(View.VISIBLE);
             holder.tvIntensidadTag.setText(item.getIntensidad().toUpperCase());
         } else {
-            holder.layoutIntensidadTag.setVisibility(View.GONE);
+            holder.tvIntensidadTag.setVisibility(View.GONE);
         }
 
         // Tag Global/Personal
         if (item.isEsGlobal()) {
             holder.tvGlobalTag.setText("OFICIAL");
-            holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
+            holder.tvGlobalTag.setBackgroundResource(R.drawable.bg_chip_global);
         } else {
             holder.tvGlobalTag.setText("PERSONAL");
-            holder.layoutGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
+            holder.tvGlobalTag.setBackgroundResource(R.drawable.bg_chip_personal);
         }
 
         // Cargar Imagen con Glide (Prioridad a urlImagen, luego urlVideo como fallback para GIFs)
@@ -130,7 +130,7 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
         TextView tvNombre, tvDetalles, tvEstado, tvGlobalTag;
         TextView tvDuracionTag, tvIntensidadTag;
         ImageView btnMasOpciones, imgRutina;
-        LinearLayout layoutDuracionTag, layoutIntensidadTag, layoutGlobalTag;
+        LinearLayout layoutDuracionTag;
 
         public ViewHolder(@NonNull View v) {
             super(v);
@@ -143,8 +143,6 @@ public class EntrenamientoAdapter extends RecyclerView.Adapter<EntrenamientoAdap
             btnMasOpciones = v.findViewById(R.id.btnMasOpciones);
             imgRutina = v.findViewById(R.id.imgRutina);
             layoutDuracionTag = v.findViewById(R.id.layoutDuracionTag);
-            layoutIntensidadTag = v.findViewById(R.id.layoutIntensidadTag);
-            layoutGlobalTag = v.findViewById(R.id.layoutGlobalTagEntrenamiento);
         }
     }
 }

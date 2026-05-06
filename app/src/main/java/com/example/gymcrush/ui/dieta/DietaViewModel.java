@@ -13,6 +13,7 @@ import com.example.gymcrush.data.remote.dto.FatSecretResponseDto;
 import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
 import com.example.gymcrush.data.remote.dto.PageResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilFisicoRequest;
+import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
 import com.example.gymcrush.data.remote.dto.SaludResponseDto;
 import com.example.gymcrush.data.repository.DietaRepository;
 import com.example.gymcrush.data.repository.NutricionRepository;
@@ -38,6 +39,7 @@ public class DietaViewModel extends ViewModel {
     private final MutableLiveData<NutricionResponseDto> planActual = new MutableLiveData<>();
     private final MutableLiveData<List<NutricionResponseDto>> historial = new MutableLiveData<>();
     private final MutableLiveData<SaludResponseDto> saludActual = new MutableLiveData<>();
+    private final MutableLiveData<PerfilResponseDto> perfilActual = new MutableLiveData<>();
     private final MutableLiveData<List<ComidaDiariaRequestDto>> resultadosBusqueda = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
@@ -75,6 +77,7 @@ public class DietaViewModel extends ViewModel {
     public LiveData<NutricionResponseDto> getPlanActual() { return planActual; }
     public LiveData<List<NutricionResponseDto>> getHistorial() { return historial; }
     public LiveData<SaludResponseDto> getSaludActual() { return saludActual; }
+    public LiveData<PerfilResponseDto> getPerfilActual() { return perfilActual; }
     public LiveData<List<ComidaDiariaRequestDto>> getResultadosBusqueda() { return resultadosBusqueda; }
     public LiveData<String> getError() { return error; }
     public LiveData<Boolean> getLoading() { return loading; }
@@ -92,8 +95,24 @@ public class DietaViewModel extends ViewModel {
     public void cargarDatosIniciales(Long usuarioId) {
         loading.setValue(true);
         cargarSalud(usuarioId);
+        cargarPerfil(usuarioId);
         cargarUltimoPlan(usuarioId);
         reiniciarPaginacionHistorial(usuarioId);
+    }
+
+    private void cargarPerfil(Long usuarioId) {
+        perfilRepository.getPerfil(usuarioId, new PerfilRepository.PerfilCallback<PerfilResponseDto>() {
+            @Override
+            public void onSuccess(PerfilResponseDto result) {
+                perfilActual.setValue(result);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                // No bloqueamos por el perfil, pero informamos si es crítico
+                android.util.Log.e("DietaViewModel", "Error cargando perfil: " + errorMessage);
+            }
+        });
     }
 
     private void cargarSalud(Long usuarioId) {
