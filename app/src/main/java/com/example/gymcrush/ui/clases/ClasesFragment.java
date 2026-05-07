@@ -379,7 +379,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         tilNombre.setHint("Nombre de la actividad");
         tilCapacidad.setHint("Precio");
 
-        android.widget.LinearLayout layout = (android.widget.LinearLayout) dialogView;
+        android.widget.LinearLayout layout = dialogView.findViewById(R.id.layoutContainer);
         layout.addView(crearLabel("Seleccionar Categoría:"));
         layout.addView(spinnerCategoria);
         layout.addView(crearLabel("Seleccionar Sala:"));
@@ -397,6 +397,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 ArrayAdapter<Object> adapterSala = new ArrayAdapter<Object>(getContext(), android.R.layout.simple_spinner_item, items) {
                     @Override public View getView(int p, View c, ViewGroup parent) {
                         TextView v = (TextView) super.getView(p, c, parent);
+                        v.setTextColor(Color.WHITE);
                         Object item = getItem(p);
                         if (item instanceof SalaResponseDto) v.setText(((SalaResponseDto)item).getNombre());
                         else if (item != null) v.setText(item.toString());
@@ -404,6 +405,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                     }
                     @Override public View getDropDownView(int p, View c, ViewGroup parent) {
                         TextView v = (TextView) super.getDropDownView(p, c, parent);
+                        v.setTextColor(Color.BLACK);
                         Object item = getItem(p);
                         if (item instanceof SalaResponseDto) v.setText(((SalaResponseDto)item).getNombre());
                         else if (item != null) v.setText(item.toString());
@@ -428,18 +430,20 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 ArrayAdapter<Object> adapterCat = new ArrayAdapter<Object>(getContext(), android.R.layout.simple_spinner_item, items) {
                     @Override
                     public View getView(int pos, View convert, ViewGroup parent) {
-                        View v = super.getView(pos, convert, parent);
+                        TextView v = (TextView) super.getView(pos, convert, parent);
+                        v.setTextColor(Color.WHITE);
                         Object item = getItem(pos);
-                        if (item instanceof CategoriaResponseDto) ((TextView)v).setText(((CategoriaResponseDto)item).getNombre());
-                        else if (item != null) ((TextView)v).setText(item.toString());
+                        if (item instanceof CategoriaResponseDto) v.setText(((CategoriaResponseDto)item).getNombre());
+                        else if (item != null) v.setText(item.toString());
                         return v;
                     }
                     @Override
                     public View getDropDownView(int pos, View convert, ViewGroup parent) {
-                        View v = super.getDropDownView(pos, convert, parent);
+                        TextView v = (TextView) super.getDropDownView(pos, convert, parent);
+                        v.setTextColor(Color.BLACK);
                         Object item = getItem(pos);
-                        if (item instanceof CategoriaResponseDto) ((TextView)v).setText(((CategoriaResponseDto)item).getNombre());
-                        else if (item != null) ((TextView)v).setText(item.toString());
+                        if (item instanceof CategoriaResponseDto) v.setText(((CategoriaResponseDto)item).getNombre());
+                        else if (item != null) v.setText(item.toString());
                         return v;
                     }
                 };
@@ -451,7 +455,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Nueva Actividad")
-                .setView(layout)
+                .setView(dialogView)
                 .setPositiveButton("Crear", (dialog, which) -> {
                     String nombre = etNombre.getText().toString();
                     String precioStr = etPrecio.getText().toString();
@@ -622,7 +626,13 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
 
         // Configurar Spinner Días
         String[] dias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
-        ArrayAdapter<String> adapterDias = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, dias);
+        ArrayAdapter<String> adapterDias = new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, dias) {
+            @Override public View getView(int p, View c, ViewGroup parent) {
+                TextView v = (TextView) super.getView(p, c, parent);
+                v.setTextColor(Color.WHITE);
+                return v;
+            }
+        };
         adapterDias.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerDia.setAdapter(adapterDias);
 
@@ -636,6 +646,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                         @Override public View getView(int p, View c, ViewGroup parent) {
                             TextView v = (TextView) super.getView(p, c, parent);
                             v.setText(getItem(p).getNombre());
+                            v.setTextColor(Color.WHITE);
                             return v;
                         }
                         @Override public View getDropDownView(int p, View c, ViewGroup parent) {
@@ -660,6 +671,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                         @Override public View getView(int p, View c, ViewGroup parent) {
                             TextView v = (TextView) super.getView(p, c, parent);
                             v.setText(getItem(p).getNombre());
+                            v.setTextColor(Color.WHITE);
                             return v;
                         }
                         @Override public View getDropDownView(int p, View c, ViewGroup parent) {
@@ -773,7 +785,9 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         TextView tv = new TextView(getContext());
         tv.setText(texto);
         tv.setPadding(0, 20, 0, 5);
-        tv.setTextColor(Color.GRAY);
+        tv.setTextColor(Color.WHITE);
+        tv.setTextSize(14);
+        tv.setTypeface(null, android.graphics.Typeface.BOLD);
         return tv;
     }
 
@@ -998,7 +1012,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         tilNombre.setHint("Nombre de la actividad");
         tilCapacidad.setHint("Precio");
 
-        android.widget.LinearLayout layout = (android.widget.LinearLayout) dialogView;
+        android.widget.LinearLayout layout = dialogView.findViewById(R.id.layoutContainer);
         layout.addView(crearLabel("Seleccionar Categoría:"));
         layout.addView(spinnerCategoria);
         layout.addView(crearLabel("Seleccionar Sala:"));
@@ -1152,13 +1166,12 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             @Override public View getView(int p, View c, ViewGroup parent) {
                 TextView v = (TextView) super.getView(p, c, parent);
                 v.setText(getItem(p).getNombreCompleto());
-                v.setTextColor(Color.BLACK); // Asegurar visibilidad
+                v.setTextColor(Color.WHITE);
                 return v;
             }
             @Override public View getDropDownView(int p, View c, ViewGroup parent) {
                 TextView v = (TextView) super.getDropDownView(p, c, parent);
                 v.setText(getItem(p).getNombreCompleto());
-                v.setTextColor(Color.BLACK); // Asegurar visibilidad
                 return v;
             }
         };
