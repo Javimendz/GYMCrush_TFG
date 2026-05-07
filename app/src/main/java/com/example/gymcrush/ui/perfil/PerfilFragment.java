@@ -48,7 +48,8 @@ public class PerfilFragment extends Fragment {
     private SharedPreferences prefs;
     private Long userId;
     private PerfilResponseDto currentPerfil;
-    
+    private Long perfilId;
+
     private ActivityResultLauncher<String> imagePickerLauncher;
 
     @Override
@@ -118,27 +119,9 @@ public class PerfilFragment extends Fragment {
     private void setupObservers() {
         viewModel.getPerfil().observe(getViewLifecycleOwner(), perfil -> {
             if (perfil != null) {
-                android.util.Log.d("PerfilFragment", "Perfil recibido: " + perfil.getNombre() + " " + perfil.getApellidos());
-                if (currentPerfil != null) {
-                    if (perfil.getPeso() == null) perfil.setPeso(currentPerfil.getPeso());
-                    if (perfil.getEstatura() == null) perfil.setEstatura(currentPerfil.getEstatura());
-                    if (perfil.getImc() == null) perfil.setImc(currentPerfil.getImc());
-                }
+                this.perfilId = perfil.getId(); // <--- GUARDAMOS EL ID REAL DEL PERFIL
                 currentPerfil = perfil;
                 actualizarUI(perfil);
-            }
-        });
-
-        viewModel.getSalud().observe(getViewLifecycleOwner(), salud -> {
-            if (salud != null) {
-                android.util.Log.d("PerfilFragment", "Datos de salud recibidos: Peso=" + salud.getPeso());
-                actualizarSaludUI(salud);
-            }
-        });
-
-        viewModel.getError().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
-                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -233,16 +216,16 @@ public class PerfilFragment extends Fragment {
     private void actualizarFotoPerfil(Bitmap bitmap) {
         // Redimensionar para no exceder límites del backend
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, true);
-        
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
         byte[] byteArray = outputStream.toByteArray();
         // Usar NO_WRAP para evitar saltos de línea en el JSON
         String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
 
-        if (currentPerfil != null) {
+        if (currentPerfil != null && perfilId != null) {
             PerfilRequestDto request = new PerfilRequestDto();
             request.setNombre(currentPerfil.getNombre());
+
             request.setApellidos(currentPerfil.getApellidos());
             request.setTelefono(currentPerfil.getTelefono());
             request.setDni(currentPerfil.getDni());
@@ -253,9 +236,10 @@ public class PerfilFragment extends Fragment {
             request.setCodigoPostal(currentPerfil.getCodigoPostal());
             request.setGenero(currentPerfil.getGenero());
             request.setBio(currentPerfil.getBio());
+
             request.setFoto(encodedImage); // Enviamos la imagen en Base64
 
-            viewModel.actualizarPerfil(userId, request);
+            viewModel.actualizarPerfil(perfilId, request);
             Toast.makeText(getContext(), "Actualizando foto de perfil...", Toast.LENGTH_SHORT).show();
         }
     }
