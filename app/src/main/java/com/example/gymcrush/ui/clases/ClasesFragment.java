@@ -598,7 +598,15 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
     }
 
     private void abrirDialogoNuevaClase() {
+        Dialog dialog = new Dialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_horario, null);
+        dialog.setContentView(dialogView);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
         Spinner spinnerDia = dialogView.findViewById(R.id.spinnerDiaSemana);
         Spinner spinnerSala = dialogView.findViewById(R.id.spinnerSala);
         Spinner spinnerEntrenador = dialogView.findViewById(R.id.spinnerEntrenador);
@@ -606,11 +614,11 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         Button btnHoraFin = dialogView.findViewById(R.id.btnHoraFin);
         EditText etAforo = dialogView.findViewById(R.id.etAforoMax);
 
-        // El layout dialog_admin_nuevo_horario no tiene spinner de Actividad, lo añadimos arriba
-        LinearLayout layout = (LinearLayout) dialogView;
+        // Añadir spinner de Actividad dinámicamente o buscar si existe
+        LinearLayout layoutPrincipal = (LinearLayout) ((ViewGroup) dialogView).getChildAt(0); // El LinearLayout dentro del Card
         Spinner spinnerActividad = new Spinner(getContext());
-        layout.addView(crearLabel("Seleccionar Actividad:"), 0);
-        layout.addView(spinnerActividad, 1);
+        layoutPrincipal.addView(crearLabel("Seleccionar Actividad:"), 1);
+        layoutPrincipal.addView(spinnerActividad, 2);
 
         // Configurar Spinner Días
         String[] dias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
@@ -709,57 +717,56 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             }, 11, 0, true).show();
         });
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Nuevo Horario")
-                .setView(dialogView)
-                .setPositiveButton("Crear", (dialog, which) -> {
-                    String dia = (String) spinnerDia.getSelectedItem();
-                    ActividadResponseDto act = (ActividadResponseDto) spinnerActividad.getSelectedItem();
-                    SalaResponseDto sala = (SalaResponseDto) spinnerSala.getSelectedItem();
-                    PerfilResponseDto entrenador = (PerfilResponseDto) spinnerEntrenador.getSelectedItem();
-                    String aforoStr = etAforo.getText().toString();
+        dialogView.findViewById(R.id.btnCancelarHorario).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnCrearHorario).setOnClickListener(v -> {
+            String dia = (String) spinnerDia.getSelectedItem();
+            ActividadResponseDto act = (ActividadResponseDto) spinnerActividad.getSelectedItem();
+            SalaResponseDto sala = (SalaResponseDto) spinnerSala.getSelectedItem();
+            PerfilResponseDto entrenador = (PerfilResponseDto) spinnerEntrenador.getSelectedItem();
+            String aforoStr = etAforo.getText().toString();
 
-                    if (act == null || sala == null || entrenador == null || aforoStr.isEmpty()) {
-                        Toast.makeText(getContext(), "Rellena todos los campos", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+            if (act == null || sala == null || entrenador == null || aforoStr.isEmpty()) {
+                Toast.makeText(getContext(), "Rellena todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                    HorarioRequestDto request = new HorarioRequestDto(
-                            dia, horaInicio[0], horaFin[0], Integer.parseInt(aforoStr), act.getId(), sala.getId(), entrenador.getUsuarioId()
-                    );
+            HorarioRequestDto request = new HorarioRequestDto(
+                    dia, horaInicio[0], horaFin[0], Integer.parseInt(aforoStr), act.getId(), sala.getId(), entrenador.getUsuarioId()
+            );
 
-                    RetrofitClient.getApiService().crearHorario(request).enqueue(new Callback<ApiResponseDto<HorarioResponseDto>>() {
-                        @Override
-                        public void onResponse(Call<ApiResponseDto<HorarioResponseDto>> call, Response<ApiResponseDto<HorarioResponseDto>> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), "Horario creado con éxito", Toast.LENGTH_SHORT).show();
-                                
-                                if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
-                                    ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
-                                            "Nueva Clase Programada",
-                                            "Se ha añadido " + act.getNombre() + " al horario del " + dia
-                                    );
-                                }
+            RetrofitClient.getApiService().crearHorario(request).enqueue(new Callback<ApiResponseDto<HorarioResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<HorarioResponseDto>> call, Response<ApiResponseDto<HorarioResponseDto>> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Horario creado con éxito", Toast.LENGTH_SHORT).show();
+                        
+                        if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                            ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                    "Nueva Clase Programada",
+                                    "Se ha añadido " + act.getNombre() + " al horario del " + dia
+                            );
+                        }
 
-                                diaActual = dia;
-                                for (MaterialButton btn : botonesDias) {
-                                    if (btn.getText().toString().equalsIgnoreCase(diaActual)) {
-                                        actualizarEstiloBotones(btn);
-                                        break;
-                                    }
-                                }
-                                viewModel.cargarHorariosPorDia(diaActual);
-                            } else {
-                                Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                        diaActual = dia;
+                        for (MaterialButton btn : botonesDias) {
+                            if (btn.getText().toString().equalsIgnoreCase(diaActual)) {
+                                actualizarEstiloBotones(btn);
+                                break;
                             }
                         }
-                        @Override public void onFailure(Call<ApiResponseDto<HorarioResponseDto>> call, Throwable t) {
-                            Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+                        viewModel.cargarHorariosPorDia(diaActual);
+                        dialog.dismiss();
+                    } else {
+                        Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                @Override public void onFailure(Call<ApiResponseDto<HorarioResponseDto>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        dialog.show();
     }
 
     private TextView crearLabel(String texto) {
@@ -805,34 +812,46 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
     }
 
     private void abrirDialogoCrearSala() {
+        Dialog dialog = new Dialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nueva_sala, null);
+        dialog.setContentView(dialogView);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
         android.widget.EditText etNombre = dialogView.findViewById(R.id.etNombreSala);
         android.widget.EditText etCapacidad = dialogView.findViewById(R.id.etCapacidadSala);
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Nueva Sala")
-                .setView(dialogView)
-                .setPositiveButton("Crear", (dialog, which) -> {
-                    String nombre = etNombre.getText().toString();
-                    String capStr = etCapacidad.getText().toString();
-                    if (nombre.isEmpty() || capStr.isEmpty()) return;
-                    
-                    int cap = Integer.parseInt(capStr);
-                    SalaRequestDto request = new SalaRequestDto(nombre, cap, "Sala de entrenamiento", "Planta 1", "Equipamiento estándar", true);
-                    
-                    RetrofitClient.getApiService().crearSala(request).enqueue(new Callback<ApiResponseDto<SalaResponseDto>>() {
-                        @Override
-                        public void onResponse(Call<ApiResponseDto<SalaResponseDto>> call, Response<ApiResponseDto<SalaResponseDto>> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), "Sala creada", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        @Override
-                        public void onFailure(Call<ApiResponseDto<SalaResponseDto>> call, Throwable t) {}
-                    });
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+        dialogView.findViewById(R.id.btnCancelarSala).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnGuardarSala).setOnClickListener(v -> {
+            String nombre = etNombre.getText().toString();
+            String capStr = etCapacidad.getText().toString();
+            if (nombre.isEmpty() || capStr.isEmpty()) {
+                Toast.makeText(getContext(), "Completa los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int cap = Integer.parseInt(capStr);
+            SalaRequestDto request = new SalaRequestDto(nombre, cap, "Sala de entrenamiento", "Planta 1", "Equipamiento estándar", true);
+
+            RetrofitClient.getApiService().crearSala(request).enqueue(new Callback<ApiResponseDto<SalaResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<SalaResponseDto>> call, Response<ApiResponseDto<SalaResponseDto>> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Sala creada", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                }
+                @Override
+                public void onFailure(Call<ApiResponseDto<SalaResponseDto>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        dialog.show();
     }
 
     private void confirmarEliminarSala(SalaResponseDto sala) {
@@ -877,6 +896,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         dialog.setContentView(R.layout.dialog_confirmar_reserva);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
         TextView tvMensaje = dialog.findViewById(R.id.tv_mensaje_reserva);

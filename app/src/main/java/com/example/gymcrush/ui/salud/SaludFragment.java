@@ -1,8 +1,10 @@
 package com.example.gymcrush.ui.salud;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -177,11 +179,16 @@ public class SaludFragment extends Fragment {
             etComentario.setText(actual.getComentario());
         }
 
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setView(dialogView)
-                .create();
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(dialogView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         btnCancelar.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
 
         btnGuardar.setOnClickListener(v -> {
             String sPeso = etPeso.getText().toString();

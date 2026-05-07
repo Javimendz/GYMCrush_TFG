@@ -1,5 +1,8 @@
 package com.example.gymcrush.ui.staff;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -260,51 +263,58 @@ public class StaffFragment extends Fragment {
     }
 
     private void mostrarDialogoNuevoEntrenador() {
+        Dialog dialog = new Dialog(requireContext());
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_staff, null);
+        dialog.setContentView(view);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
         EditText etUsername = view.findViewById(R.id.etStaffUsername);
         EditText etNombre = view.findViewById(R.id.etStaffNombre);
         EditText etCorreo = view.findViewById(R.id.etStaffCorreo);
         EditText etPass = view.findViewById(R.id.etStaffPass);
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Nuevo Entrenador")
-                .setView(view)
-                .setPositiveButton("Crear", (dialog, which) -> {
-                    String user = etUsername.getText().toString();
-                    String nom = etNombre.getText().toString();
-                    String mail = etCorreo.getText().toString();
-                    String pass = etPass.getText().toString();
+        view.findViewById(R.id.btnCancelarStaff).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btnCrearStaff).setOnClickListener(v -> {
+            String user = etUsername.getText().toString();
+            String nom = etNombre.getText().toString();
+            String mail = etCorreo.getText().toString();
+            String pass = etPass.getText().toString();
 
-                    if (user.isEmpty() || nom.isEmpty() || mail.isEmpty() || pass.isEmpty()) {
-                        Toast.makeText(getContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
-                        return;
+            if (user.isEmpty() || nom.isEmpty() || mail.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(getContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            RegisterRequest request = new RegisterRequest();
+            request.setUsername(user);
+            request.setNombre(nom);
+            request.setEmail(mail);
+            request.setPassword(pass);
+            request.setRoles(new HashSet<>(Collections.singletonList("entrenador")));
+
+            RetrofitClient.getApiService().register(request).enqueue(new Callback<ApiResponseDto<UsuarioResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<UsuarioResponseDto>> call, Response<ApiResponseDto<UsuarioResponseDto>> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Entrenador creado", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        cargarStaff();
+                    } else {
+                        Toast.makeText(getContext(), "Error: " + response.message(), Toast.LENGTH_SHORT).show();
                     }
+                }
 
-                    RegisterRequest request = new RegisterRequest();
-                    request.setUsername(user);
-                    request.setNombre(nom);
-                    request.setEmail(mail);
-                    request.setPassword(pass);
-                    request.setRoles(new HashSet<>(Collections.singletonList("entrenador")));
+                @Override
+                public void onFailure(Call<ApiResponseDto<UsuarioResponseDto>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Fallo de conexión", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
 
-                    RetrofitClient.getApiService().register(request).enqueue(new Callback<ApiResponseDto<UsuarioResponseDto>>() {
-                        @Override
-                        public void onResponse(Call<ApiResponseDto<UsuarioResponseDto>> call, Response<ApiResponseDto<UsuarioResponseDto>> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), "Entrenador creado", Toast.LENGTH_SHORT).show();
-                                cargarStaff();
-                            } else {
-                                Toast.makeText(getContext(), "Error: " + response.message(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<ApiResponseDto<UsuarioResponseDto>> call, Throwable t) {
-                            Toast.makeText(getContext(), "Fallo de conexión", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+        dialog.show();
     }
 }

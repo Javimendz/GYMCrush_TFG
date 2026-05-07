@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -926,7 +927,10 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private void mostrarDialogoQR() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_qr_gym);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         ImageView ivQR = dialog.findViewById(R.id.ivQrCode);
         ProgressBar progress = dialog.findViewById(R.id.progressQr);
@@ -967,7 +971,10 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private void mostrarDialogoCerrarSesion() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_custom_exit);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         dialog.findViewById(R.id.btn_confirmar_exit).setOnClickListener(v -> {
             SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);

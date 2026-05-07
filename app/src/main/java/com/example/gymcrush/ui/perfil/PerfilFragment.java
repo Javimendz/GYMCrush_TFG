@@ -261,6 +261,7 @@ public class PerfilFragment extends Fragment {
         dialog.setContentView(R.layout.dialog_editar_perfil);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
         TextInputEditText etNombre = dialog.findViewById(R.id.et_editar_nombre);

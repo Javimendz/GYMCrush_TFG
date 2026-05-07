@@ -147,12 +147,14 @@ public class SuplementacionFragment extends Fragment {
         MaterialButton btnGuardar = dialog.findViewById(R.id.btn_guardar_producto);
 
         if (suplementoExistente != null) {
-            tvTitulo.setText("Editar Producto");
+            tvTitulo.setText("EDITAR PRODUCTO");
             etNombre.setText(suplementoExistente.getNombre());
             etPrecio.setText(String.valueOf(suplementoExistente.getPrecio()));
             etDesc.setText(suplementoExistente.getDescripcion());
             etUrl.setText(suplementoExistente.getImageUrl());
         }
+
+        dialog.findViewById(R.id.btn_cancelar_producto).setOnClickListener(v -> dialog.dismiss());
 
         btnGuardar.setOnClickListener(v -> {
             String nombre = etNombre.getText().toString();
@@ -165,21 +167,25 @@ public class SuplementacionFragment extends Fragment {
                 return;
             }
 
-            double precio = Double.parseDouble(precioStr);
+            try {
+                double precio = Double.parseDouble(precioStr);
 
-            if (suplementoExistente == null) {
-                Suplemento nuevo = new Suplemento(String.valueOf(System.currentTimeMillis()), nombre, desc, precio, url, "General");
-                listaSuplementos.add(nuevo);
-            } else {
-                suplementoExistente.setNombre(nombre);
-                suplementoExistente.setPrecio(precio);
-                suplementoExistente.setDescripcion(desc);
-                suplementoExistente.setImageUrl(url);
+                if (suplementoExistente == null) {
+                    Suplemento nuevo = new Suplemento(String.valueOf(System.currentTimeMillis()), nombre, desc, precio, url, "General");
+                    listaSuplementos.add(nuevo);
+                } else {
+                    suplementoExistente.setNombre(nombre);
+                    suplementoExistente.setPrecio(precio);
+                    suplementoExistente.setDescripcion(desc);
+                    suplementoExistente.setImageUrl(url);
+                }
+
+                adapter.notifyDataSetChanged();
+                dialog.dismiss();
+                Toast.makeText(getContext(), "Producto guardado", Toast.LENGTH_SHORT).show();
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Precio no válido", Toast.LENGTH_SHORT).show();
             }
-
-            adapter.notifyDataSetChanged();
-            dialog.dismiss();
-            Toast.makeText(getContext(), "Producto guardado", Toast.LENGTH_SHORT).show();
         });
 
         dialog.show();
