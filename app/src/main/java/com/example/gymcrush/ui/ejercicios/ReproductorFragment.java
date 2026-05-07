@@ -114,20 +114,25 @@ public class ReproductorFragment extends Fragment {
             public void onResponse(Call<ApiResponseDto<VisualizacionResponseDto>> call, Response<ApiResponseDto<VisualizacionResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
                     VisualizacionResponseDto datos = response.body().getDatos();
-                    Integer segundos = datos.getProgresoSegundos();
+                    Integer segundosApi = (datos.getProgresoSegundos() != null) ? datos.getProgresoSegundos() : 0;
                     Boolean completado = datos.getCompletado();
 
-                    // Si el video ya se completó, lo reiniciamos desde el principio en la UI
+                    // 1. LEER LA CACHÉ LOCAL
+                    SharedPreferences prefs = requireContext().getSharedPreferences("VideoProgress", Context.MODE_PRIVATE);
+                    int segundosLocales = prefs.getInt("progreso_" + tutorialId, 0);
+
+                    // 2. USAR EL MAYOR VALOR (Nos protege del lag del servidor)
+                    int segundosFinales = Math.max(segundosApi, segundosLocales);
+
                     if (completado != null && completado) {
                         progresoInicialMs = 0;
                         ultimoProgresoGuardado = 0;
-                        Log.d("VideoProgreso", "Video completado previamente. Iniciando desde 0.");
-                    } else if (segundos != null && segundos > 0) {
-                        progresoInicialMs = segundos * 1000L;
-                        ultimoProgresoGuardado = segundos; // Sincronizamos con el servidor para el filtro anti-spam
-                        Log.d("VideoProgreso", "Servidor confirma reanudación en segundo: " + segundos);
+                        prefs.edit().putInt("progreso_" + tutorialId, 0).apply(); // Limpiar caché si completó
+                    } else if (segundosFinales > 0) {
+                        progresoInicialMs = segundosFinales * 1000L;
+                        ultimoProgresoGuardado = segundosFinales;
+                        Log.d("ProgresoDetalle", "API: " + segundosApi + "s | Local: " + segundosLocales + "s | Usando: " + segundosFinales + "s");
                     }
-                    actualizarContadorUI(datos);
                 }
 
                 puedeGuardarProgreso = true;
@@ -170,19 +175,10 @@ public class ReproductorFragment extends Fragment {
 
         if (videoUrl != null && !videoUrl.isEmpty() && !videoUrl.equals("null")) {
             player.setMediaItem(MediaItem.fromUri(videoUrl));
-
-            // 1. SOLUCIÓN A LOS KEYFRAMES: Forzamos que el salto sea al milisegundo exacto
             player.setSeekParameters(androidx.media3.exoplayer.SeekParameters.EXACT);
-
-            // 2. ELIMINAMOS REPEAT_MODE_ONE: El loop causaba que se guardara progreso cercano a 0 al reiniciar
             player.setRepeatMode(Player.REPEAT_MODE_OFF);
 
-            // 3. Hacemos el seekTo ANTES del prepare para que empiece a cargar desde ahí
-            if (progresoInicialMs > 0) {
-                player.seekTo(progresoInicialMs);
-                Log.d("VideoProgreso", "ExoPlayer configurado para saltar a: " + progresoInicialMs + " ms");
-            }
-
+            // 1. PREPARAMOS EL REPRODUCTOR
             player.prepare();
             player.setPlayWhenReady(true);
         }
@@ -190,7 +186,15 @@ public class ReproductorFragment extends Fragment {
         player.addListener(new Player.Listener() {
             @Override
             public void onPlaybackStateChanged(int playbackState) {
-                if (playbackState == Player.STATE_ENDED) {
+                // 2. EL SECRETO: Ejecutamos el salto SOLO cuando está STATE_READY
+                if (playbackState == Player.STATE_READY && progresoInicialMs > 0) {
+                    Log.d("VideoProgreso", "ExoPlayer listo. Saltando a: " + progresoInicialMs + " ms");
+                    player.seekTo(progresoInicialMs);
+
+                    // Reseteamos a 0 para evitar bucles de saltos
+                    progresoInicialMs = 0;
+                }
+                else if (playbackState == Player.STATE_ENDED) {
                     guardarProgreso(true);
                 }
             }
@@ -201,7 +205,8 @@ public class ReproductorFragment extends Fragment {
         });
 
         startTrackingProgress();
-    }
+
+        }
 
     private void startTrackingProgress() {
         progressRunnable = new Runnable() {
@@ -235,6 +240,8 @@ public class ReproductorFragment extends Fragment {
         ultimoProgresoGuardado = seconds;
         currentPosition = pos;
 
+        SharedPreferences prefs = requireContext().getSharedPreferences("VideoProgress", Context.MODE_PRIVATE);
+        prefs.edit().putInt("progreso_" + tutorialId, seconds).apply();
         Log.d("ProgresoDetalle", "Enviando POST: " + seconds + " segundos");
         VisualizacionRequestDto dto = new VisualizacionRequestDto(userId, tutorialId, seconds, completado);
 

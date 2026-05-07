@@ -186,6 +186,7 @@ public class RutinasFragment extends Fragment {
                 // --- ABRIMOS LA ACTIVIDAD DE DETALLE EN LUGAR DEL REPRODUCTOR ---
                 android.content.Intent intent = new android.content.Intent(getContext(), DetalleRutinaActivity.class);
                 intent.putExtra("RUTINA_ID", rutina.getId());
+                intent.putExtra("TUTORIAL_ID", rutina.getEntrenamientoId());
                 intent.putExtra("NOMBRE_RUTINA", titulo);
                 intent.putExtra("URL_VIDEO", urlVideo);
                 intent.putExtra("DESCRIPCION", descripcion);
@@ -210,6 +211,7 @@ public class RutinasFragment extends Fragment {
                 // AQUÍ TAMBIÉN SE PUEDE ABRIR EL REPRODUCTOR SI QUIERES, PERO DE MOMENTO LO DEJAMOS
                 Intent intent = new Intent(getActivity(), DetalleRutinaActivity.class);
                 intent.putExtra("RUTINA_ID", entrenamiento.getId());
+                intent.putExtra("TUTORIAL_ID", entrenamiento.getId());
                 intent.putExtra("NOMBRE_RUTINA", entrenamiento.getNombre());
                 intent.putExtra("URL_VIDEO", entrenamiento.getUrlVideo());
                 intent.putExtra("DESCRIPCION", entrenamiento.getDescripcion());
