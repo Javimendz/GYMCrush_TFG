@@ -152,24 +152,26 @@ public class ReproductorFragment extends Fragment {
         if (videoUrl != null && !videoUrl.isEmpty() && !videoUrl.equals("null")) {
             player.setMediaItem(MediaItem.fromUri(videoUrl));
 
-            if (progresoInicialMs > 0) {
-                player.seekTo(progresoInicialMs);
-            }
+            // 1. SOLUCIÓN A LOS KEYFRAMES: Forzamos que el salto sea al milisegundo exacto
+            player.setSeekParameters(androidx.media3.common.SeekParameters.EXACT);
 
-            // AÑADIDO: Si quieres que el video se repita en bucle automáticamente al terminar
             player.setRepeatMode(Player.REPEAT_MODE_ONE);
 
+            // 2. SOLUCIÓN DE ORDEN: Primero preparamos el reproductor
             player.prepare();
+
+            // 3. Hacemos el seekTo DESPUÉS del prepare
+            if (progresoInicialMs > 0) {
+                player.seekTo(progresoInicialMs);
+                Log.d("VideoProgreso", "ExoPlayer forzado a saltar a: " + progresoInicialMs + " ms");
+            }
+
             player.setPlayWhenReady(true);
         }
 
         player.addListener(new Player.Listener() {
             @Override
             public void onPlaybackStateChanged(int playbackState) {
-                // NOTA: Si repeatMode está activado, STATE_ENDED nunca se llamará.
-                // El video simplemente volverá a empezar.
-                // Si necesitas marcar el video como "completado" en tu BD al terminar,
-                // quizás debas quitar el RepeatMode o manejarlo de otra forma.
                 if (playbackState == Player.STATE_ENDED) {
                     guardarProgreso(true);
                 }
