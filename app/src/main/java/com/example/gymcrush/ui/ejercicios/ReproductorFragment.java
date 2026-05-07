@@ -113,12 +113,21 @@ public class ReproductorFragment extends Fragment {
             @Override
             public void onResponse(Call<ApiResponseDto<VisualizacionResponseDto>> call, Response<ApiResponseDto<VisualizacionResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
-                    Integer segundos = response.body().getDatos().getProgresoSegundos();
-                    if (segundos != null && segundos > 0) {
+                    VisualizacionResponseDto datos = response.body().getDatos();
+                    Integer segundos = datos.getProgresoSegundos();
+                    Boolean completado = datos.getCompletado();
+
+                    // Si el video ya se completó, lo reiniciamos desde el principio en la UI
+                    if (completado != null && completado) {
+                        progresoInicialMs = 0;
+                        ultimoProgresoGuardado = 0;
+                        Log.d("VideoProgreso", "Video completado previamente. Iniciando desde 0.");
+                    } else if (segundos != null && segundos > 0) {
                         progresoInicialMs = segundos * 1000L;
+                        ultimoProgresoGuardado = segundos; // Sincronizamos con el servidor para el filtro anti-spam
                         Log.d("VideoProgreso", "Servidor confirma reanudación en segundo: " + segundos);
                     }
-                    actualizarContadorUI(response.body().getDatos());
+                    actualizarContadorUI(datos);
                 }
 
                 puedeGuardarProgreso = true;
@@ -165,17 +174,16 @@ public class ReproductorFragment extends Fragment {
             // 1. SOLUCIÓN A LOS KEYFRAMES: Forzamos que el salto sea al milisegundo exacto
             player.setSeekParameters(androidx.media3.exoplayer.SeekParameters.EXACT);
 
-            player.setRepeatMode(Player.REPEAT_MODE_ONE);
+            // 2. ELIMINAMOS REPEAT_MODE_ONE: El loop causaba que se guardara progreso cercano a 0 al reiniciar
+            player.setRepeatMode(Player.REPEAT_MODE_OFF);
 
-            // 2. SOLUCIÓN DE ORDEN: Primero preparamos el reproductor
-            player.prepare();
-
-            // 3. Hacemos el seekTo DESPUÉS del prepare
+            // 3. Hacemos el seekTo ANTES del prepare para que empiece a cargar desde ahí
             if (progresoInicialMs > 0) {
                 player.seekTo(progresoInicialMs);
-                Log.d("VideoProgreso", "ExoPlayer forzado a saltar a: " + progresoInicialMs + " ms");
+                Log.d("VideoProgreso", "ExoPlayer configurado para saltar a: " + progresoInicialMs + " ms");
             }
 
+            player.prepare();
             player.setPlayWhenReady(true);
         }
 
@@ -219,7 +227,10 @@ public class ReproductorFragment extends Fragment {
             return;
         }
 
-        if (seconds == ultimoProgresoGuardado && !completado) return;
+        // Filtro Anti-Spam y Anti-Retroceso:
+        // No guardamos si el progreso es igual o menor al ya guardado (evita que loops o seeks accidentales sobrescriban)
+        // a menos que sea una marca de "completado" enviada desde STATE_ENDED.
+        if (seconds <= ultimoProgresoGuardado && !completado) return;
 
         ultimoProgresoGuardado = seconds;
         currentPosition = pos;
