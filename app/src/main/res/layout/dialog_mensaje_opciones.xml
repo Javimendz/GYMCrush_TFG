@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="300dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="8dp"
+    app:cardCornerRadius="28dp"
+    app:cardElevation="0dp"
     app:cardBackgroundColor="#0A1128">
 
     <LinearLayout
@@ -14,69 +14,68 @@
         android:padding="24dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="OPCIONES"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginBottom="20dp"
-            android:letterSpacing="0.1"/>
+            android:letterSpacing="0.1"
+            android:layout_gravity="center"/>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_opcion_copiar"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="COPIAR MENSAJE"
-            android:textColor="#CCCCCC"
-            android:textSize="16sp"
-            android:paddingVertical="12dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"/>
+            android:textColor="#94A3B8"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="16dp"
+            app:icon="@drawable/ic_send_neon"
+            app:iconTint="#94A3B8"
+            android:textAllCaps="true"/>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_opcion_editar"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="EDITAR MENSAJE"
-            android:textColor="#CCCCCC"
-            android:textSize="16sp"
-            android:paddingVertical="12dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"/>
+            android:textColor="#94A3B8"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="16dp"
+            app:icon="@drawable/ic_perfil"
+            app:iconTint="#94A3B8"
+            android:textAllCaps="true"/>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_opcion_eliminar"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="ELIMINAR MENSAJE"
             android:textColor="#CD0277"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingVertical="12dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"/>
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="16dp"
+            app:icon="@drawable/ic_salir"
+            app:iconTint="#CD0277"
+            android:textAllCaps="true"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#33FFFFFF"
-            android:layout_marginVertical="12dp"/>
+            android:background="#1E293B"
+            android:layout_marginVertical="16dp"/>
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_opcion_cancelar"
-            android:layout_width="wrap_content"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="CANCELAR"
-            android:textColor="#64B5F6"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_gravity="end"
-            android:padding="12dp"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            android:textColor="#94A3B8" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

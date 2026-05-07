@@ -379,7 +379,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         tilNombre.setHint("Nombre de la actividad");
         tilCapacidad.setHint("Precio");
 
-        android.widget.LinearLayout layout = (android.widget.LinearLayout) dialogView;
+        android.widget.LinearLayout layout = dialogView.findViewById(R.id.layoutContainer);
         layout.addView(crearLabel("Seleccionar Categoría:"));
         layout.addView(spinnerCategoria);
         layout.addView(crearLabel("Seleccionar Sala:"));
@@ -397,6 +397,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 ArrayAdapter<Object> adapterSala = new ArrayAdapter<Object>(getContext(), android.R.layout.simple_spinner_item, items) {
                     @Override public View getView(int p, View c, ViewGroup parent) {
                         TextView v = (TextView) super.getView(p, c, parent);
+                        v.setTextColor(Color.WHITE);
                         Object item = getItem(p);
                         if (item instanceof SalaResponseDto) v.setText(((SalaResponseDto)item).getNombre());
                         else if (item != null) v.setText(item.toString());
@@ -404,6 +405,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                     }
                     @Override public View getDropDownView(int p, View c, ViewGroup parent) {
                         TextView v = (TextView) super.getDropDownView(p, c, parent);
+                        v.setTextColor(Color.BLACK);
                         Object item = getItem(p);
                         if (item instanceof SalaResponseDto) v.setText(((SalaResponseDto)item).getNombre());
                         else if (item != null) v.setText(item.toString());
@@ -428,18 +430,20 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                 ArrayAdapter<Object> adapterCat = new ArrayAdapter<Object>(getContext(), android.R.layout.simple_spinner_item, items) {
                     @Override
                     public View getView(int pos, View convert, ViewGroup parent) {
-                        View v = super.getView(pos, convert, parent);
+                        TextView v = (TextView) super.getView(pos, convert, parent);
+                        v.setTextColor(Color.WHITE);
                         Object item = getItem(pos);
-                        if (item instanceof CategoriaResponseDto) ((TextView)v).setText(((CategoriaResponseDto)item).getNombre());
-                        else if (item != null) ((TextView)v).setText(item.toString());
+                        if (item instanceof CategoriaResponseDto) v.setText(((CategoriaResponseDto)item).getNombre());
+                        else if (item != null) v.setText(item.toString());
                         return v;
                     }
                     @Override
                     public View getDropDownView(int pos, View convert, ViewGroup parent) {
-                        View v = super.getDropDownView(pos, convert, parent);
+                        TextView v = (TextView) super.getDropDownView(pos, convert, parent);
+                        v.setTextColor(Color.BLACK);
                         Object item = getItem(pos);
-                        if (item instanceof CategoriaResponseDto) ((TextView)v).setText(((CategoriaResponseDto)item).getNombre());
-                        else if (item != null) ((TextView)v).setText(item.toString());
+                        if (item instanceof CategoriaResponseDto) v.setText(((CategoriaResponseDto)item).getNombre());
+                        else if (item != null) v.setText(item.toString());
                         return v;
                     }
                 };
@@ -451,7 +455,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Nueva Actividad")
-                .setView(layout)
+                .setView(dialogView)
                 .setPositiveButton("Crear", (dialog, which) -> {
                     String nombre = etNombre.getText().toString();
                     String precioStr = etPrecio.getText().toString();
@@ -598,7 +602,15 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
     }
 
     private void abrirDialogoNuevaClase() {
+        Dialog dialog = new Dialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_horario, null);
+        dialog.setContentView(dialogView);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
         Spinner spinnerDia = dialogView.findViewById(R.id.spinnerDiaSemana);
         Spinner spinnerSala = dialogView.findViewById(R.id.spinnerSala);
         Spinner spinnerEntrenador = dialogView.findViewById(R.id.spinnerEntrenador);
@@ -606,15 +618,21 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         Button btnHoraFin = dialogView.findViewById(R.id.btnHoraFin);
         EditText etAforo = dialogView.findViewById(R.id.etAforoMax);
 
-        // El layout dialog_admin_nuevo_horario no tiene spinner de Actividad, lo añadimos arriba
-        LinearLayout layout = (LinearLayout) dialogView;
+        // Añadir spinner de Actividad dinámicamente o buscar si existe
+        LinearLayout layoutPrincipal = (LinearLayout) ((ViewGroup) dialogView).getChildAt(0); // El LinearLayout dentro del Card
         Spinner spinnerActividad = new Spinner(getContext());
-        layout.addView(crearLabel("Seleccionar Actividad:"), 0);
-        layout.addView(spinnerActividad, 1);
+        layoutPrincipal.addView(crearLabel("Seleccionar Actividad:"), 1);
+        layoutPrincipal.addView(spinnerActividad, 2);
 
         // Configurar Spinner Días
         String[] dias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
-        ArrayAdapter<String> adapterDias = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, dias);
+        ArrayAdapter<String> adapterDias = new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, dias) {
+            @Override public View getView(int p, View c, ViewGroup parent) {
+                TextView v = (TextView) super.getView(p, c, parent);
+                v.setTextColor(Color.WHITE);
+                return v;
+            }
+        };
         adapterDias.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerDia.setAdapter(adapterDias);
 
@@ -628,6 +646,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                         @Override public View getView(int p, View c, ViewGroup parent) {
                             TextView v = (TextView) super.getView(p, c, parent);
                             v.setText(getItem(p).getNombre());
+                            v.setTextColor(Color.WHITE);
                             return v;
                         }
                         @Override public View getDropDownView(int p, View c, ViewGroup parent) {
@@ -652,6 +671,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
                         @Override public View getView(int p, View c, ViewGroup parent) {
                             TextView v = (TextView) super.getView(p, c, parent);
                             v.setText(getItem(p).getNombre());
+                            v.setTextColor(Color.WHITE);
                             return v;
                         }
                         @Override public View getDropDownView(int p, View c, ViewGroup parent) {
@@ -709,64 +729,65 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             }, 11, 0, true).show();
         });
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Nuevo Horario")
-                .setView(dialogView)
-                .setPositiveButton("Crear", (dialog, which) -> {
-                    String dia = (String) spinnerDia.getSelectedItem();
-                    ActividadResponseDto act = (ActividadResponseDto) spinnerActividad.getSelectedItem();
-                    SalaResponseDto sala = (SalaResponseDto) spinnerSala.getSelectedItem();
-                    PerfilResponseDto entrenador = (PerfilResponseDto) spinnerEntrenador.getSelectedItem();
-                    String aforoStr = etAforo.getText().toString();
+        dialogView.findViewById(R.id.btnCancelarHorario).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnCrearHorario).setOnClickListener(v -> {
+            String dia = (String) spinnerDia.getSelectedItem();
+            ActividadResponseDto act = (ActividadResponseDto) spinnerActividad.getSelectedItem();
+            SalaResponseDto sala = (SalaResponseDto) spinnerSala.getSelectedItem();
+            PerfilResponseDto entrenador = (PerfilResponseDto) spinnerEntrenador.getSelectedItem();
+            String aforoStr = etAforo.getText().toString();
 
-                    if (act == null || sala == null || entrenador == null || aforoStr.isEmpty()) {
-                        Toast.makeText(getContext(), "Rellena todos los campos", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+            if (act == null || sala == null || entrenador == null || aforoStr.isEmpty()) {
+                Toast.makeText(getContext(), "Rellena todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                    HorarioRequestDto request = new HorarioRequestDto(
-                            dia, horaInicio[0], horaFin[0], Integer.parseInt(aforoStr), act.getId(), sala.getId(), entrenador.getUsuarioId()
-                    );
+            HorarioRequestDto request = new HorarioRequestDto(
+                    dia, horaInicio[0], horaFin[0], Integer.parseInt(aforoStr), act.getId(), sala.getId(), entrenador.getUsuarioId()
+            );
 
-                    RetrofitClient.getApiService().crearHorario(request).enqueue(new Callback<ApiResponseDto<HorarioResponseDto>>() {
-                        @Override
-                        public void onResponse(Call<ApiResponseDto<HorarioResponseDto>> call, Response<ApiResponseDto<HorarioResponseDto>> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), "Horario creado con éxito", Toast.LENGTH_SHORT).show();
-                                
-                                if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
-                                    ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
-                                            "Nueva Clase Programada",
-                                            "Se ha añadido " + act.getNombre() + " al horario del " + dia
-                                    );
-                                }
+            RetrofitClient.getApiService().crearHorario(request).enqueue(new Callback<ApiResponseDto<HorarioResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<HorarioResponseDto>> call, Response<ApiResponseDto<HorarioResponseDto>> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Horario creado con éxito", Toast.LENGTH_SHORT).show();
+                        
+                        if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                            ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).crearNotificacionManual(
+                                    "Nueva Clase Programada",
+                                    "Se ha añadido " + act.getNombre() + " al horario del " + dia
+                            );
+                        }
 
-                                diaActual = dia;
-                                for (MaterialButton btn : botonesDias) {
-                                    if (btn.getText().toString().equalsIgnoreCase(diaActual)) {
-                                        actualizarEstiloBotones(btn);
-                                        break;
-                                    }
-                                }
-                                viewModel.cargarHorariosPorDia(diaActual);
-                            } else {
-                                Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                        diaActual = dia;
+                        for (MaterialButton btn : botonesDias) {
+                            if (btn.getText().toString().equalsIgnoreCase(diaActual)) {
+                                actualizarEstiloBotones(btn);
+                                break;
                             }
                         }
-                        @Override public void onFailure(Call<ApiResponseDto<HorarioResponseDto>> call, Throwable t) {
-                            Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+                        viewModel.cargarHorariosPorDia(diaActual);
+                        dialog.dismiss();
+                    } else {
+                        Toast.makeText(getContext(), "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                @Override public void onFailure(Call<ApiResponseDto<HorarioResponseDto>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        dialog.show();
     }
 
     private TextView crearLabel(String texto) {
         TextView tv = new TextView(getContext());
         tv.setText(texto);
         tv.setPadding(0, 20, 0, 5);
-        tv.setTextColor(Color.GRAY);
+        tv.setTextColor(Color.WHITE);
+        tv.setTextSize(14);
+        tv.setTypeface(null, android.graphics.Typeface.BOLD);
         return tv;
     }
 
@@ -805,34 +826,46 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
     }
 
     private void abrirDialogoCrearSala() {
+        Dialog dialog = new Dialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nueva_sala, null);
+        dialog.setContentView(dialogView);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
         android.widget.EditText etNombre = dialogView.findViewById(R.id.etNombreSala);
         android.widget.EditText etCapacidad = dialogView.findViewById(R.id.etCapacidadSala);
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Nueva Sala")
-                .setView(dialogView)
-                .setPositiveButton("Crear", (dialog, which) -> {
-                    String nombre = etNombre.getText().toString();
-                    String capStr = etCapacidad.getText().toString();
-                    if (nombre.isEmpty() || capStr.isEmpty()) return;
-                    
-                    int cap = Integer.parseInt(capStr);
-                    SalaRequestDto request = new SalaRequestDto(nombre, cap, "Sala de entrenamiento", "Planta 1", "Equipamiento estándar", true);
-                    
-                    RetrofitClient.getApiService().crearSala(request).enqueue(new Callback<ApiResponseDto<SalaResponseDto>>() {
-                        @Override
-                        public void onResponse(Call<ApiResponseDto<SalaResponseDto>> call, Response<ApiResponseDto<SalaResponseDto>> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), "Sala creada", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        @Override
-                        public void onFailure(Call<ApiResponseDto<SalaResponseDto>> call, Throwable t) {}
-                    });
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+        dialogView.findViewById(R.id.btnCancelarSala).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnGuardarSala).setOnClickListener(v -> {
+            String nombre = etNombre.getText().toString();
+            String capStr = etCapacidad.getText().toString();
+            if (nombre.isEmpty() || capStr.isEmpty()) {
+                Toast.makeText(getContext(), "Completa los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int cap = Integer.parseInt(capStr);
+            SalaRequestDto request = new SalaRequestDto(nombre, cap, "Sala de entrenamiento", "Planta 1", "Equipamiento estándar", true);
+
+            RetrofitClient.getApiService().crearSala(request).enqueue(new Callback<ApiResponseDto<SalaResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<SalaResponseDto>> call, Response<ApiResponseDto<SalaResponseDto>> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Sala creada", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                }
+                @Override
+                public void onFailure(Call<ApiResponseDto<SalaResponseDto>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Error de red", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        dialog.show();
     }
 
     private void confirmarEliminarSala(SalaResponseDto sala) {
@@ -877,6 +910,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         dialog.setContentView(R.layout.dialog_confirmar_reserva);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
         TextView tvMensaje = dialog.findViewById(R.id.tv_mensaje_reserva);
@@ -978,7 +1012,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         tilNombre.setHint("Nombre de la actividad");
         tilCapacidad.setHint("Precio");
 
-        android.widget.LinearLayout layout = (android.widget.LinearLayout) dialogView;
+        android.widget.LinearLayout layout = dialogView.findViewById(R.id.layoutContainer);
         layout.addView(crearLabel("Seleccionar Categoría:"));
         layout.addView(spinnerCategoria);
         layout.addView(crearLabel("Seleccionar Sala:"));
@@ -1132,13 +1166,12 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             @Override public View getView(int p, View c, ViewGroup parent) {
                 TextView v = (TextView) super.getView(p, c, parent);
                 v.setText(getItem(p).getNombreCompleto());
-                v.setTextColor(Color.BLACK); // Asegurar visibilidad
+                v.setTextColor(Color.WHITE);
                 return v;
             }
             @Override public View getDropDownView(int p, View c, ViewGroup parent) {
                 TextView v = (TextView) super.getDropDownView(p, c, parent);
                 v.setText(getItem(p).getNombreCompleto());
-                v.setTextColor(Color.BLACK); // Asegurar visibilidad
                 return v;
             }
         };

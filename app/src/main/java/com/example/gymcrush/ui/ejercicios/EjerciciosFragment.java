@@ -2,6 +2,9 @@ package com.example.gymcrush.ui.ejercicios;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -123,8 +126,14 @@ public class EjerciciosFragment extends Fragment {
     }
 
     private void mostrarDialogoNuevoEjercicioManual() {
+        Dialog dialog = new Dialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_ejercicio, null);
-        AlertDialog dialog = new AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme).setView(dialogView).create();
+        dialog.setContentView(dialogView);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         TextInputEditText etNombre = dialogView.findViewById(R.id.etNombreEjercicio);
         TextInputEditText etDesc = dialogView.findViewById(R.id.etDescripcionEjercicio);
@@ -132,6 +141,9 @@ public class EjerciciosFragment extends Fragment {
         TextInputEditText etDur = dialogView.findViewById(R.id.etDuracionEjercicio);
         TextInputEditText etEquipamiento = dialogView.findViewById(R.id.etIntensidadEjercicio); // Usamos el campo de intensidad para equipamiento
         View btnGuardar = dialogView.findViewById(R.id.btnGuardarEjercicio);
+        View btnCancelar = dialogView.findViewById(R.id.btnCancelarEjercicio);
+
+        btnCancelar.setOnClickListener(v -> dialog.dismiss());
 
         btnGuardar.setOnClickListener(v -> {
             String nombre = etNombre.getText().toString().trim();
@@ -168,8 +180,14 @@ public class EjerciciosFragment extends Fragment {
     }
 
     private void mostrarDialogoEditarEjercicio(TutorialResponseDto t) {
+        Dialog dialog = new Dialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_ejercicio, null);
-        AlertDialog dialog = new AlertDialog.Builder(requireContext(), R.style.CustomDialogTheme).setView(dialogView).create();
+        dialog.setContentView(dialogView);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         TextInputEditText etNombre = dialogView.findViewById(R.id.etNombreEjercicio);
         TextInputEditText etDesc = dialogView.findViewById(R.id.etDescripcionEjercicio);
@@ -271,7 +289,7 @@ public class EjerciciosFragment extends Fragment {
                 .show();
     }
 
-    private void crearCategoriaYGuardarTutorial(String nombre, String desc, int duracion, String equipamiento, String catNombre, AlertDialog dialog) {
+    private void crearCategoriaYGuardarTutorial(String nombre, String desc, int duracion, String equipamiento, String catNombre, Dialog dialog) {
         CategoriaTutorialRequestDto catReq = new CategoriaTutorialRequestDto(catNombre, "Ejercicios de " + catNombre);
         
         SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
@@ -308,7 +326,7 @@ public class EjerciciosFragment extends Fragment {
         });
     }
 
-    private void enviarTutorialBackend(String nombre, String desc, int duracion, String equipamiento, Long catId, AlertDialog dialog) {
+    private void enviarTutorialBackend(String nombre, String desc, int duracion, String equipamiento, Long catId, Dialog dialog) {
         TutorialRequestDto request = new TutorialRequestDto();
         request.setTitulo(nombre);
         request.setDescripcion(desc);

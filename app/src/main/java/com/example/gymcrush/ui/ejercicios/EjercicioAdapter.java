@@ -274,6 +274,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
                 intent.putExtra("DESCRIPCION", finalDesc);
                 intent.putExtra("DURACION", finalDuracionMin);
                 intent.putExtra("INTENSIDAD", finalEtiquetaAzul);
+                intent.putExtra("TUTORIAL_ID", finalId);
                 intent.putExtra("ES_EJERCICIO_BIBLIOTECA", true); // Bandera para diferenciar
                 v.getContext().startActivity(intent);
             }

@@ -1,7 +1,10 @@
 package com.example.gymcrush.ui.dieta;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -590,26 +593,32 @@ public class DietaFragment extends Fragment {
         String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
         spinnerMomento.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, momentos));
 
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                .setView(dialogView)
-                .setPositiveButton("Guardar", (dialog, which) -> {
-                    try {
-                        com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto request = new com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto();
-                        request.setMomento(spinnerMomento.getText().toString());
-                        request.setNombreAlimento(etNombre.getText().toString());
-                        request.setCalorias(Double.parseDouble(etCalorias.getText().toString()));
-                        request.setProteina(Double.parseDouble(etProt.getText().toString()));
-                        request.setCarbohidratos(Double.parseDouble(etCarbs.getText().toString()));
-                        request.setGrasas(Double.parseDouble(etGrasas.getText().toString()));
-                        request.setPlanNutricionalId(plan.getId());
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(dialogView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
-                        viewModel.añadirComida(request, usuarioId);
-                    } catch (Exception e) {
-                        Toast.makeText(getContext(), "Error en los datos introducidos", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+        dialogView.findViewById(R.id.btn_cancelar_comida).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btn_guardar_comida).setOnClickListener(v -> {
+            try {
+                com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto request = new com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto();
+                request.setMomento(spinnerMomento.getText().toString());
+                request.setNombreAlimento(etNombre.getText().toString());
+                request.setCalorias(Double.parseDouble(etCalorias.getText().toString()));
+                request.setProteina(Double.parseDouble(etProt.getText().toString()));
+                request.setCarbohidratos(Double.parseDouble(etCarbs.getText().toString()));
+                request.setGrasas(Double.parseDouble(etGrasas.getText().toString()));
+                request.setPlanNutricionalId(plan.getId());
+
+                viewModel.añadirComida(request, usuarioId);
+                dialog.dismiss();
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Error en los datos introducidos", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialog.show();
     }
 
     private void mostrarDialogoBusqueda() {
@@ -637,59 +646,15 @@ public class DietaFragment extends Fragment {
         spinnerMomento.setText(momentos[0], false);
         spinnerMomento.setOnClickListener(v -> spinnerMomento.showDropDown());
 
+        MaterialButton btnCerrar = dialogView.findViewById(R.id.btnCerrarBusqueda);
+
         FoodSearchAdapter searchAdapter = new FoodSearchAdapter();
         rvResults.setAdapter(searchAdapter);
         rvResults.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Observar resultados específicos para este diálogo
-        viewModel.getResultadosBusqueda().observe(getViewLifecycleOwner(), items -> {
-            if (items != null) {
-                searchAdapter.setItems(items);
-                // Mostrar "No hay resultados" solo si la búsqueda terminó y está vacía
-                boolean showNoResults = items.isEmpty() && !searchView.getQuery().toString().isEmpty();
-                tvNoResults.setVisibility(showNoResults ? View.VISIBLE : View.GONE);
-                if (showNoResults) {
-                    tvNoResults.setText(R.string.no_results_found);
-                }
-            }
-        });
-
-        viewModel.getLoading().observe(getViewLifecycleOwner(), loading -> {
-            progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
-            if (loading) tvNoResults.setVisibility(View.GONE);
-        });
-
-        // Observar errores para mostrarlos en el diálogo
-        viewModel.getError().observe(getViewLifecycleOwner(), errorMsg -> {
-            if (errorMsg != null && !errorMsg.isEmpty() && searchView.hasFocus()) {
-                tvNoResults.setText(errorMsg);
-                tvNoResults.setVisibility(View.VISIBLE);
-            }
-        });
-
-        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (!query.isEmpty()) {
-                    viewModel.buscarAlimentos(query);
-                    searchView.clearFocus();
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                viewModel.onSearchQueryChanged(newText);
-                if (newText.isEmpty()) {
-                    tvNoResults.setVisibility(View.GONE);
-                }
-                return false;
-            }
-        });
-
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+        
+        androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
                 .setView(dialogView)
-                .setPositiveButton("Añadir", (dialog, which) -> {
+                .setPositiveButton("Añadir", (d, which) -> {
                     java.util.List<com.example.gymcrush.data.remote.dto.ComidaDiariaRequestDto> seleccionados = searchAdapter.getSelectedItems();
                     if (!seleccionados.isEmpty()) {
                         String momento = spinnerMomento.getText().toString();
@@ -703,12 +668,15 @@ public class DietaFragment extends Fragment {
                     }
                 })
                 .setNegativeButton("Cerrar", null)
-                .setOnDismissListener(dialog -> {
+                .setOnDismissListener(d -> {
                     viewModel.getResultadosBusqueda().removeObservers(getViewLifecycleOwner());
                     viewModel.getLoading().removeObservers(getViewLifecycleOwner());
                     // No removemos el de error global para no romper otros flujos, pero podríamos
                 })
-                .show();
+                .create();
+
+        btnCerrar.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
     private void configurarDropdowns() {

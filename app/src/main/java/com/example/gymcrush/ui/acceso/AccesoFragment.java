@@ -95,7 +95,10 @@ public class AccesoFragment extends Fragment {
     private void mostrarQrAmpliado(String token) {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_qr_gym);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         ImageView ivAmpliado = dialog.findViewById(R.id.ivQrCode);
         MultiFormatWriter writer = new MultiFormatWriter();

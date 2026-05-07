@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -56,6 +57,9 @@ import com.example.gymcrush.ui.social.SocialFragment;
 import com.example.gymcrush.ui.notificaciones.NotificacionesFragment;
 import com.example.gymcrush.ui.salud.SaludFragment;
 import com.example.gymcrush.ui.staff.StaffFragment;
+import com.example.gymcrush.data.remote.dto.VisualizacionResponseDto;
+import com.example.gymcrush.ui.ejercicios.TutorialViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import java.util.Collections;
 import com.example.gymcrush.ui.view.EspacioFragment;
 
@@ -120,10 +124,14 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private TextView notificationBadge;
     private List<com.example.gymcrush.data.remote.dto.NotificacionResponseDto> notificacionesSesion = new ArrayList<>();
 
+    private TutorialViewModel tutorialViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_desarrollo_prueba);
+
+        tutorialViewModel = new ViewModelProvider(this).get(TutorialViewModel.class);
 
         notificationBadge = findViewById(R.id.notificationBadge);
 
@@ -363,9 +371,9 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         viewPagerExerciseCarousel = findViewById(R.id.viewPagerExerciseCarousel);
         
         exerciseCarouselItemsList.add(new CarouselAdapter.CarouselItem(
-                "ENTRENAMIENTO", 
-                "Cargando ejercicios...", 
-                "Buscando las mejores rutinas para ti", 
+                "CONTINUAR VIENDO", 
+                "Tus pendientes...", 
+                "Cargando tus progresos...", 
                 R.drawable.ic_workout,
                 R.drawable.bg_login_modern, 
                 -1
@@ -373,16 +381,11 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         
         exerciseCarouselAdapter = new CarouselAdapter(exerciseCarouselItemsList);
         exerciseCarouselAdapter.setOnItemClickListener(item -> {
-
-            String subtitulo = ""; // Ej: Si tienes item.getMusculo() ponlo aquí
-            Integer duracion = null; // Ej: Si tienes item.getDuracionMin() ponlo aquí
-            String etiquetaAzul = ""; // Ej: "Categoría: " + item.getCategoria()
-
-            //  Llamamos al fragmento con los 7 parámetros
-            initReproductor(item, subtitulo, duracion, etiquetaAzul);
+            initReproductor(item, "", null, "");
         });
         viewPagerExerciseCarousel.setAdapter(exerciseCarouselAdapter);
 
+        // ... resto de la configuración del ViewPager ...
         viewPagerExerciseCarousel.setOffscreenPageLimit(3);
         viewPagerExerciseCarousel.setClipToPadding(false);
         viewPagerExerciseCarousel.setClipChildren(false);
@@ -395,7 +398,38 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         });
         viewPagerExerciseCarousel.setPageTransformer(compositePageTransformer);
 
-        cargarEjerciciosRecomendados();
+        observarPendientes();
+        
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
+        long usuarioId = prefs.getLong("user_id", -1);
+        if (usuarioId != -1) {
+            tutorialViewModel.cargarPendientes(usuarioId);
+        }
+    }
+
+    private void observarPendientes() {
+        tutorialViewModel.getPendientes().observe(this, visualizaciones -> {
+            if (visualizaciones != null && !visualizaciones.isEmpty()) {
+                exerciseCarouselItemsList.clear();
+                for (VisualizacionResponseDto v : visualizaciones) {
+                    exerciseCarouselItemsList.add(new CarouselAdapter.CarouselItem(
+                            "CONTINUAR VIENDO",
+                            v.getTituloTutorial() != null ? v.getTituloTutorial() : "Tutorial",
+                            "Progreso: " + (v.getProgresoSegundos() / 60) + " min",
+                            v.getUrlVideo(),
+                            null,
+                            R.drawable.ic_workout,
+                            R.drawable.bg_login_modern,
+                            v.getProgresoSegundos(),
+                            v.getTutorialId(),
+                            v.getDescripcionTutorial()
+                    ));
+                }
+                exerciseCarouselAdapter.updateItems(new ArrayList<>(exerciseCarouselItemsList));
+            } else {
+                cargarEjerciciosRecomendados();
+            }
+        });
     }
 
     private void cargarEjerciciosRecomendados() {
@@ -893,7 +927,10 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private void mostrarDialogoQR() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_qr_gym);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         ImageView ivQR = dialog.findViewById(R.id.ivQrCode);
         ProgressBar progress = dialog.findViewById(R.id.progressQr);
@@ -934,7 +971,10 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     private void mostrarDialogoCerrarSesion() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_custom_exit);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         dialog.findViewById(R.id.btn_confirmar_exit).setOnClickListener(v -> {
             SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);

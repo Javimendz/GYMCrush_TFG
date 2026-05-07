@@ -1,7 +1,11 @@
 package com.example.gymcrush.ui.staff;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -204,12 +208,16 @@ public class StaffFragment extends Fragment {
                         public View getView(int pos, View v, ViewGroup p) {
                             TextView tv = (TextView) super.getView(pos, v, p);
                             tv.setText(getItem(pos).getNombreCompleto() + " (" + getItem(pos).getDni() + ")");
+                            tv.setTextColor(Color.WHITE);
+                            tv.setTypeface(null, android.graphics.Typeface.BOLD);
                             return tv;
                         }
                         @Override
                         public View getDropDownView(int pos, View v, ViewGroup p) {
                             TextView tv = (TextView) super.getDropDownView(pos, v, p);
                             tv.setText(getItem(pos).getNombreCompleto() + " (" + getItem(pos).getDni() + ")");
+                            tv.setTextColor(Color.WHITE);
+                            tv.setBackgroundColor(Color.parseColor("#0A1128"));
                             return tv;
                         }
                     };
@@ -260,51 +268,96 @@ public class StaffFragment extends Fragment {
     }
 
     private void mostrarDialogoNuevoEntrenador() {
+        Dialog dialog = new Dialog(requireContext());
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nuevo_staff, null);
+        dialog.setContentView(view);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
         EditText etUsername = view.findViewById(R.id.etStaffUsername);
         EditText etNombre = view.findViewById(R.id.etStaffNombre);
+        EditText etApellidos = view.findViewById(R.id.etStaffApellidos);
+        EditText etDni = view.findViewById(R.id.etStaffDni);
         EditText etCorreo = view.findViewById(R.id.etStaffCorreo);
         EditText etPass = view.findViewById(R.id.etStaffPass);
 
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Nuevo Entrenador")
-                .setView(view)
-                .setPositiveButton("Crear", (dialog, which) -> {
-                    String user = etUsername.getText().toString();
-                    String nom = etNombre.getText().toString();
-                    String mail = etCorreo.getText().toString();
-                    String pass = etPass.getText().toString();
+        view.findViewById(R.id.btnCancelarStaff).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btnCrearStaff).setOnClickListener(v -> {
+            String user = etUsername.getText().toString().trim();
+            String nom = etNombre.getText().toString().trim();
+            String ape = etApellidos.getText().toString().trim();
+            String dni = etDni.getText().toString().trim().toUpperCase();
+            String mail = etCorreo.getText().toString().trim();
+            String pass = etPass.getText().toString().trim();
 
-                    if (user.isEmpty() || nom.isEmpty() || mail.isEmpty() || pass.isEmpty()) {
-                        Toast.makeText(getContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
-                        return;
+            if (user.isEmpty() || nom.isEmpty() || ape.isEmpty() || mail.isEmpty() || pass.isEmpty() || dni.isEmpty()) {
+                Toast.makeText(getContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Validaciones básicas similares a RegisterActivity
+            if (user.length() < 3) {
+                etUsername.setError("Mínimo 3 caracteres");
+                return;
+            }
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()) {
+                etCorreo.setError("Email inválido");
+                return;
+            }
+            if (pass.length() < 8) {
+                etPass.setError("Mínimo 8 caracteres");
+                return;
+            }
+            if (!dni.matches("^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
+                etDni.setError("DNI inválido");
+                return;
+            }
+
+            RegisterRequest request = new RegisterRequest();
+            request.setUsername(user);
+            request.setNombre(nom);
+            request.setApellidos(ape);
+            request.setDni(dni);
+            request.setEmail(mail);
+            request.setPassword(pass);
+            // Usamos ROLE_ENTRENADOR que es el esperado por el backend
+            request.setRoles(new HashSet<>(Collections.singletonList("ROLE_ENTRENADOR")));
+            
+            // Valores por defecto para evitar nulos si el backend los requiere
+            request.setCiudad("Sevilla"); // O un valor genérico
+            request.setPais("España");
+            request.setTelefono("600000000");
+            request.setGenero("Hombre");
+            request.setFechaNacimiento("1990-01-01");
+            request.setCodigoPostal("41001");
+            request.setDireccion("Direccion Gimnasio");
+
+            RetrofitClient.getApiService().register(request).enqueue(new Callback<ApiResponseDto<UsuarioResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<UsuarioResponseDto>> call, Response<ApiResponseDto<UsuarioResponseDto>> response) {
+                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                        Toast.makeText(getContext(), "Entrenador creado con éxito", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        cargarStaff();
+                    } else {
+                        String msg = "Error al crear";
+                        if (response.body() != null && response.body().getMensaje() != null) {
+                            msg = response.body().getMensaje();
+                        }
+                        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
                     }
+                }
 
-                    RegisterRequest request = new RegisterRequest();
-                    request.setUsername(user);
-                    request.setNombre(nom);
-                    request.setEmail(mail);
-                    request.setPassword(pass);
-                    request.setRoles(new HashSet<>(Collections.singletonList("entrenador")));
+                @Override
+                public void onFailure(Call<ApiResponseDto<UsuarioResponseDto>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Fallo de conexión: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
 
-                    RetrofitClient.getApiService().register(request).enqueue(new Callback<ApiResponseDto<UsuarioResponseDto>>() {
-                        @Override
-                        public void onResponse(Call<ApiResponseDto<UsuarioResponseDto>> call, Response<ApiResponseDto<UsuarioResponseDto>> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(getContext(), "Entrenador creado", Toast.LENGTH_SHORT).show();
-                                cargarStaff();
-                            } else {
-                                Toast.makeText(getContext(), "Error: " + response.message(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<ApiResponseDto<UsuarioResponseDto>> call, Throwable t) {
-                            Toast.makeText(getContext(), "Fallo de conexión", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+        dialog.show();
     }
 }

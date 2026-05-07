@@ -20,8 +20,8 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
@@ -40,35 +40,29 @@ public class ReproductorFragment extends Fragment {
 
     private PlayerView playerView;
     private ExoPlayer player;
-    private String videoUrl;
-    private String titulo;
-    private String descripcion;
-    private Long tutorialId;
-    private Long userId;
-    private String subtitulo;
+    private String videoUrl, titulo, descripcion, subtitulo, etiquetaExtra;
+    private Long tutorialId, userId;
     private Integer duracionMin;
-    private String etiquetaExtra;
+
     private final Handler progressHandler = new Handler(Looper.getMainLooper());
     private Runnable progressRunnable;
     private long currentPosition = 0;
 
+    // VARIABLES DE CONTROL
+    private boolean puedeGuardarProgreso = false;
+    private long progresoInicialMs = 0;
+    private int ultimoProgresoGuardado = -1; // Filtro Anti-Spam para la BD
 
     @UnstableApi
     public static ReproductorFragment newInstance(Long tutorialId, String url, String titulo, String descripcion, String subtitulo, Integer duracionMin, String etiquetaExtra) {
         ReproductorFragment fragment = new ReproductorFragment();
         Bundle args = new Bundle();
-        if (tutorialId != null) {
-            args.putLong("tutorialId", tutorialId);
-        } else {
-            args.putLong("tutorialId", -1L);
-        }
+        args.putLong("tutorialId", tutorialId != null ? tutorialId : -1L);
         args.putString("url", url);
         args.putString("titulo", titulo);
         args.putString("descripcion", descripcion);
         args.putString("subtitulo", subtitulo);
-        if (duracionMin != null) {
-            args.putInt("duracionMin", duracionMin);
-        }
+        if (duracionMin != null) args.putInt("duracionMin", duracionMin);
         args.putString("etiquetaExtra", etiquetaExtra);
         fragment.setArguments(args);
         return fragment;
@@ -94,49 +88,13 @@ public class ReproductorFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reproductor, container, false);
-
-        // 2. ENLAZAMOS TODAS LAS VISTAS
         playerView = view.findViewById(R.id.player_view);
+
         TextView tvTitulo = view.findViewById(R.id.tvTituloVideo);
-        TextView tvDesc = view.findViewById(R.id.tvDescripcionVideo);
-        TextView tvSubtitulo = view.findViewById(R.id.tvSubtituloVideo);
-        TextView tvDuracionTag = view.findViewById(R.id.tvDuracionTag);
-        TextView tvIntensidadTag = view.findViewById(R.id.tvIntensidadTag);
-
-        // 3. INYECTAMOS LOS DATOS Y MANEJAMOS VISIBILIDAD (Ocultar si están vacíos)
         tvTitulo.setText(titulo != null ? titulo.toUpperCase() : "TUTORIAL");
-        tvDesc.setText(descripcion != null ? descripcion : "Sin descripción disponible.");
 
-        // Subtítulo
-        if (subtitulo != null && !subtitulo.isEmpty()) {
-            tvSubtitulo.setText(subtitulo);
-            tvSubtitulo.setVisibility(View.VISIBLE);
-        } else {
-            tvSubtitulo.setVisibility(View.GONE);
-        }
-
-        // Etiqueta Amarilla (Duración)
-        if (duracionMin != null && duracionMin > 0) {
-            tvDuracionTag.setText(duracionMin + " min");
-            tvDuracionTag.setVisibility(View.VISIBLE);
-        } else {
-            tvDuracionTag.setVisibility(View.GONE);
-        }
-
-        // Etiqueta Azul (Extra / Intensidad / Categoría)
-        if (etiquetaExtra != null && !etiquetaExtra.isEmpty()) {
-            String tagFinal = etiquetaExtra.toUpperCase();
-            if (!tagFinal.contains("INTENSIDAD:") && !tagFinal.contains("CATEGORÍA:")) {
-                tagFinal = "INTENSIDAD: " + tagFinal;
-            }
-            tvIntensidadTag.setText(tagFinal);
-            tvIntensidadTag.setVisibility(View.VISIBLE);
-        } else {
-            tvIntensidadTag.setVisibility(View.GONE);
-        }
-
-        // 4. INICIALIZAMOS REPRODUCTOR Y BOTÓN
-        initializePlayer();
+        // PASO 1: Pedimos los datos al servidor.
+        recuperarProgresoDeServidor();
 
         view.findViewById(R.id.btnCerrarReproductor).setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().popBackStack();
@@ -145,98 +103,180 @@ public class ReproductorFragment extends Fragment {
         return view;
     }
 
-    @OptIn(markerClass = UnstableApi.class)
-    private void initializePlayer() {
-        // 1. CONFIGURACIÓN DE CABECERAS (Vital para Pexels)
-        // Usamos un User-Agent de navegador moderno para que el servidor no nos rechace
-        String userAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36";
-
-        DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
-                .setUserAgent(userAgent)
-                .setAllowCrossProtocolRedirects(true)
-                .setConnectTimeoutMs(15000)
-                .setReadTimeoutMs(15000);
-
-        // 2. CREACIÓN DEL MEDIA SOURCE
-        // Esto le dice a ExoPlayer cómo debe "stremear" los datos
-        DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(requireContext())
-                .setDataSourceFactory(httpDataSourceFactory);
-
-        player = new ExoPlayer.Builder(requireContext())
-                .setMediaSourceFactory(mediaSourceFactory)
-                .build();
-
-        playerView.setPlayer(player);
-
-        // 3. CARGA DE LA URL
-        if (videoUrl != null && !videoUrl.isEmpty() && !videoUrl.equals("null")) {
-            MediaItem mediaItem = MediaItem.fromUri(videoUrl);
-            player.setMediaItem(mediaItem);
-            player.prepare();
-            player.setPlayWhenReady(true);
-        } else {
-            // Si no carga, es porque videoUrl llega como null desde la BD
-            Toast.makeText(requireContext(), "Error: Este ejercicio no tiene un video asignado en la base de datos", Toast.LENGTH_LONG).show();
+    private void recuperarProgresoDeServidor() {
+        if (userId == -1L || tutorialId == null || tutorialId == -1L) {
+            iniciarReproductorSeguro();
+            return;
         }
 
-        // 4. LISTENERS DE ESTADO Y ERROR
-        player.addListener(new Player.Listener() {
+        RetrofitClient.getApiService().obtenerProgreso(userId, tutorialId).enqueue(new Callback<ApiResponseDto<VisualizacionResponseDto>>() {
             @Override
-            public void onPlaybackStateChanged(int playbackState) {
-                if (playbackState == Player.STATE_ENDED) {
-                    guardarProgreso(true);
+            public void onResponse(Call<ApiResponseDto<VisualizacionResponseDto>> call, Response<ApiResponseDto<VisualizacionResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                    VisualizacionResponseDto datos = response.body().getDatos();
+                    Integer segundosApi = (datos.getProgresoSegundos() != null) ? datos.getProgresoSegundos() : 0;
+                    Boolean completado = datos.getCompletado();
+
+                    // 1. LEER LA CACHÉ LOCAL
+                    SharedPreferences prefs = requireContext().getSharedPreferences("VideoProgress", Context.MODE_PRIVATE);
+                    int segundosLocales = prefs.getInt("progreso_" + tutorialId, 0);
+
+                    // 2. USAR EL MAYOR VALOR (Nos protege del lag del servidor)
+                    int segundosFinales = Math.max(segundosApi, segundosLocales);
+
+                    if (completado != null && completado) {
+                        progresoInicialMs = 0;
+                        ultimoProgresoGuardado = 0;
+                        prefs.edit().putInt("progreso_" + tutorialId, 0).apply(); // Limpiar caché si completó
+                    } else if (segundosFinales > 0) {
+                        progresoInicialMs = segundosFinales * 1000L;
+                        ultimoProgresoGuardado = segundosFinales;
+                        Log.d("ProgresoDetalle", "API: " + segundosApi + "s | Local: " + segundosLocales + "s | Usando: " + segundosFinales + "s");
+                    }
                 }
+
+                puedeGuardarProgreso = true;
+
+                // PASO 2: Ahora que tenemos la respuesta, CREAMOS el reproductor.
+                if (player == null) iniciarReproductorSeguro();
             }
 
             @Override
-            public void onPlayerError(@NonNull PlaybackException error) {
-                // Si ves "UnknownHostException" aquí, es por el DNS del emulador
-                String errorMsg = "Error: " + error.getErrorCodeName();
-                if (error.getCause() != null) {
-                    Log.e("ExoPlayer", "Causa raíz: " + error.getCause().getMessage());
+            public void onFailure(Call<ApiResponseDto<VisualizacionResponseDto>> call, Throwable t) {
+                Log.e("VideoProgreso", "Error API: " + t.getMessage());
+                puedeGuardarProgreso = true;
+                if (player == null) iniciarReproductorSeguro();
+            }
+        });
+    }
+
+    @OptIn(markerClass = UnstableApi.class)
+    private void iniciarReproductorSeguro() {
+        if (!isAdded() || getContext() == null) return;
+
+        String userAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36";
+        DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
+                .setUserAgent(userAgent)
+                .setAllowCrossProtocolRedirects(true);
+        DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(requireContext())
+                .setDataSourceFactory(httpDataSourceFactory);
+
+        // CONFIGURACIÓN PARA EVITAR ERRORES DE CODEC EN EMULADORES Y DISPOSITIVOS ESPECÍFICOS
+        // 1. Habilitamos el fallback de decodificadores (si falla el de hardware, intenta el de software)
+        // 2. Desactivamos el procesamiento asíncrono del MediaCodec que a veces falla con "start failed"
+        DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(requireContext())
+                .setEnableDecoderFallback(true)
+                .forceDisableMediaCodecAsynchronousQueueing();
+
+        player = new ExoPlayer.Builder(requireContext(), renderersFactory)
+                .setMediaSourceFactory(mediaSourceFactory)
+                .build();
+        playerView.setPlayer(player);
+
+        if (videoUrl != null && !videoUrl.isEmpty() && !videoUrl.equals("null")) {
+            player.setMediaItem(MediaItem.fromUri(videoUrl));
+            player.setSeekParameters(androidx.media3.exoplayer.SeekParameters.EXACT);
+            player.setRepeatMode(Player.REPEAT_MODE_OFF);
+
+            // 1. PREPARAMOS EL REPRODUCTOR
+            player.prepare();
+            player.setPlayWhenReady(true);
+        }
+
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                // 2. EL SECRETO: Ejecutamos el salto SOLO cuando está STATE_READY
+                if (playbackState == Player.STATE_READY && progresoInicialMs > 0) {
+                    Log.d("VideoProgreso", "ExoPlayer listo. Saltando a: " + progresoInicialMs + " ms");
+                    player.seekTo(progresoInicialMs);
+
+                    // Reseteamos a 0 para evitar bucles de saltos
+                    progresoInicialMs = 0;
                 }
-                Toast.makeText(requireContext(), "Fallo de red: Comprueba el internet del emulador", Toast.LENGTH_LONG).show();
+                else if (playbackState == Player.STATE_ENDED) {
+                    guardarProgreso(true);
+                }
+            }
+            @Override
+            public void onPlayerError(@NonNull PlaybackException error) {
+                Log.e("VideoProgreso", "Error reproductor: " + error.getMessage());
             }
         });
 
         startTrackingProgress();
-    }
+
+        }
 
     private void startTrackingProgress() {
         progressRunnable = new Runnable() {
             @Override
             public void run() {
                 if (player != null && player.isPlaying()) {
-                    currentPosition = player.getCurrentPosition();
                     guardarProgreso(false);
                 }
-                progressHandler.postDelayed(this, 10000); // Subimos a 10s para no saturar el servidor
+                progressHandler.postDelayed(this, 10000);
             }
         };
-        progressHandler.post(progressRunnable);
+        progressHandler.postDelayed(progressRunnable, 5000);
     }
 
     private void guardarProgreso(boolean completado) {
-        if (userId == -1L || tutorialId == null || tutorialId == -1L) return;
-        int seconds = (int) (currentPosition / 1000);
+        if (!puedeGuardarProgreso || userId == -1L || tutorialId == null || tutorialId == -1L) return;
+
+        long pos = (player != null) ? player.getCurrentPosition() : currentPosition;
+        int seconds = (int) (pos / 1000);
+
+        if (seconds <= 0) {
+            Log.w("ProgresoDetalle", "Intento de guardar 0 segundos bloqueado.");
+            return;
+        }
+
+        // Filtro Anti-Spam y Anti-Retroceso:
+        // No guardamos si el progreso es igual o menor al ya guardado (evita que loops o seeks accidentales sobrescriban)
+        // a menos que sea una marca de "completado" enviada desde STATE_ENDED.
+        if (seconds <= ultimoProgresoGuardado && !completado) return;
+
+        ultimoProgresoGuardado = seconds;
+        currentPosition = pos;
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("VideoProgress", Context.MODE_PRIVATE);
+        prefs.edit().putInt("progreso_" + tutorialId, seconds).apply();
+        Log.d("ProgresoDetalle", "Enviando POST: " + seconds + " segundos");
         VisualizacionRequestDto dto = new VisualizacionRequestDto(userId, tutorialId, seconds, completado);
 
         RetrofitClient.getApiService().guardarProgreso(dto).enqueue(new Callback<ApiResponseDto<VisualizacionResponseDto>>() {
-            @Override public void onResponse(Call<ApiResponseDto<VisualizacionResponseDto>> call, Response<ApiResponseDto<VisualizacionResponseDto>> response) {
-                if (response.isSuccessful()) Log.d("Progreso", "Guardado ok");
+            @Override
+            public void onResponse(Call<ApiResponseDto<VisualizacionResponseDto>> call, Response<ApiResponseDto<VisualizacionResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("ProgresoDetalle", "Progreso guardado correctamente en BD");
+                    actualizarContadorUI(response.body().getDatos());
+                }
             }
-            @Override public void onFailure(Call<ApiResponseDto<VisualizacionResponseDto>> call, Throwable t) {
-                Log.e("Progreso", "Error al guardar: " + t.getMessage());
+            @Override
+            public void onFailure(Call<ApiResponseDto<VisualizacionResponseDto>> call, Throwable t) {
+                Log.e("ProgresoDetalle", "Fallo al guardar: " + t.getMessage());
             }
         });
+    }
+
+    private void actualizarContadorUI(VisualizacionResponseDto datos) {
+        if (getView() != null && datos != null && datos.getContadorReproducciones() != null) {
+            TextView tvReproducciones = getView().findViewById(R.id.tvReproducciones);
+            if (tvReproducciones != null) {
+                tvReproducciones.setText(datos.getContadorReproducciones() + " reproducciones");
+                tvReproducciones.setTextColor(android.graphics.Color.parseColor("#00E676"));
+                tvReproducciones.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         if (player != null) {
+            guardarProgreso(false);
             player.setPlayWhenReady(false);
-            guardarProgreso(false); // Guardamos al pausar
         }
     }
 

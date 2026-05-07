@@ -11,6 +11,14 @@ public class VisualizacionResponseDto {
     private Integer progresoSegundos;
     @SerializedName("completado")
     private Boolean completado;
+    @SerializedName("contadorReproducciones")
+    private Integer contadorReproducciones;
+    @SerializedName("tituloTutorial")
+    private String tituloTutorial;
+    @SerializedName("descripcionTutorial")
+    private String descripcionTutorial;
+    @SerializedName("urlVideo")
+    private String urlVideo;
 
     public VisualizacionResponseDto() {}
 
@@ -18,4 +26,8 @@ public class VisualizacionResponseDto {
     public Long getTutorialId() { return tutorialId; }
     public Integer getProgresoSegundos() { return progresoSegundos; }
     public Boolean getCompletado() { return completado; }
+    public Integer getContadorReproducciones() { return contadorReproducciones; }
+    public String getTituloTutorial() { return tituloTutorial; }
+    public String getDescripcionTutorial() { return descripcionTutorial; }
+    public String getUrlVideo() { return urlVideo; }
 }

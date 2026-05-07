@@ -82,7 +82,19 @@
             android:textStyle="bold"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
-            android:text="Intensidad: MEDIA" />
+            android:text="Intensidad: MEDIA"
+            android:layout_marginEnd="12dp" />
+
+        <TextView
+            android:id="@+id/tvReproducciones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chip_personal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:textColor="#00E676"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
     </LinearLayout>
 

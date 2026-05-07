@@ -1,6 +1,11 @@
 package com.example.gymcrush.ui.rutinas;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -9,16 +14,28 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.OptIn;
+import androidx.media3.common.util.UnstableApi;
 import com.bumptech.glide.Glide;
+import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import com.example.gymcrush.R;
+import com.example.gymcrush.data.remote.dto.ApiResponseDto;
+import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
+import com.example.gymcrush.data.remote.dto.VisualizacionRequestDto;
+import com.example.gymcrush.data.remote.dto.VisualizacionResponseDto;
+import com.example.gymcrush.data.remote.ApiService;
+import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.ui.ejercicios.Ejercicio;
 import com.example.gymcrush.ui.ejercicios.EjercicioAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DetalleRutinaActivity extends AppCompatActivity {
 
@@ -29,10 +46,21 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     private String intensidad;
     private String duracion;
     private Long rutinaId;
+    private Long tutorialId;
+    private Long userId;
     private ExoPlayer player;
     private PlayerView playerView;
     private ImageView imgDetalle;
     private TextView tvDuracionTagVideo;
+    private TextView tvVistas;
+    private final Handler progressHandler = new Handler(Looper.getMainLooper());
+    private Runnable progressRunnable;
+    private long lastSavedPosition = 0;
+
+    // VARIABLES DE CONTROL
+    private boolean puedeGuardarProgreso = false;
+    private long progresoInicialMs = 0;
+    private int ultimoProgresoGuardado = -1; // Filtro Anti-Spam para la BD
 
 
     @Override
@@ -50,14 +78,33 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         RecyclerView rvEjercicios = findViewById(R.id.rvEjerciciosDetalle);
         TextView tvLabelEjercicios = findViewById(R.id.tvLabelEjercicios);
         tvDuracionTagVideo = findViewById(R.id.tvDuracionTagVideo);
+        tvVistas = findViewById(R.id.tvVistasDetalle);
         Button btnVolver = findViewById(R.id.btnVolver);
         Button btnCompletar = findViewById(R.id.btnCompletarRutina);
+
+        // Obtener ID de usuario
+        SharedPreferences prefs = getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        userId = prefs.getLong("user_id", -1L);
 
         // Obtener datos
         nombreRutina = getIntent().getStringExtra("NOMBRE_RUTINA");
         urlVideo = getIntent().getStringExtra("URL_VIDEO");
         descripcion = getIntent().getStringExtra("DESCRIPCION");
         intensidad = getIntent().getStringExtra("INTENSIDAD");
+        tutorialId = getIntent().getLongExtra("TUTORIAL_ID", -1L);
+        if (tutorialId == -1L) {
+            // Reintentar con RUTINA_ID si no viene TUTORIAL_ID
+            tutorialId = getIntent().getLongExtra("RUTINA_ID", -1L);
+        }
+        if (tutorialId == -1L) tutorialId = null;
+
+        // Si no viene tutorialId por intent, intentar recuperarlo si es un ejercicio de biblioteca
+        if (tutorialId == null) {
+             tutorialId = (Long) getIntent().getSerializableExtra("EJERCICIO_ID");
+        }
+
+        // --- PASO 1: RECUPERAR PROGRESO PRIMERO ---
+        recuperarProgresoDeServidor();
 
         // Manejar duración (String o Int)
         Object durObj = getIntent().getExtras() != null ? getIntent().getExtras().get("DURACION") : null;
@@ -87,14 +134,18 @@ public class DetalleRutinaActivity extends AppCompatActivity {
 
             // Si es un ejercicio, habilitamos el video directamente si existe
             if (urlVideo != null && !urlVideo.isEmpty()) {
-                setupVideoPlayer(urlVideo);
+                // Ya no llamamos a setupVideoPlayer aquí, lo hará recuperarProgresoDeServidor
+                cargarImagen(urlVideo); // Mostramos imagen mientras carga el progreso
             }
         }
 
         // Cargar imagen o video inicial (solo si no se ha configurado el reproductor arriba)
         if (!esEjercicio) {
             if (urlVideo != null && !urlVideo.isEmpty()) {
-                cargarImagen(urlVideo); 
+                cargarImagen(urlVideo);
+                if (imgDetalle != null) {
+                    imgDetalle.setOnClickListener(v -> setupVideoPlayer(urlVideo));
+                }
             } else {
                 imgDetalle.setImageResource(R.drawable.ic_launcher_background);
                 imgDetalle.setVisibility(View.VISIBLE);
@@ -128,18 +179,152 @@ public class DetalleRutinaActivity extends AppCompatActivity {
             });
         }
     }
+
+    private void recuperarProgresoDeServidor() {
+        if (userId == -1L || tutorialId == null) {
+            puedeGuardarProgreso = true;
+            return;
+        }
+
+        RetrofitClient.getApiService().obtenerProgreso(userId, tutorialId).enqueue(new Callback<ApiResponseDto<VisualizacionResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<VisualizacionResponseDto>> call, Response<ApiResponseDto<VisualizacionResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
+                    VisualizacionResponseDto datos = response.body().getDatos();
+                    Integer segundos = datos.getProgresoSegundos();
+                    Boolean completado = datos.getCompletado();
+
+                    if (completado != null && completado) {
+                        progresoInicialMs = 0;
+                        ultimoProgresoGuardado = 0;
+                    } else if (segundos != null && segundos > 0) {
+                        progresoInicialMs = segundos * 1000L;
+                        ultimoProgresoGuardado = segundos;
+                        Log.d("ProgresoDetalle", "Progreso recuperado: " + segundos + "s");
+                    }
+
+                    if (datos.getContadorReproducciones() != null) {
+                        runOnUiThread(() -> {
+                            if (tvVistas != null) {
+                                tvVistas.setText(datos.getContadorReproducciones() + " vistas");
+                                tvVistas.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+                }
+                puedeGuardarProgreso = true;
+                
+                // --- PASO 2: INICIAR VIDEO DESPUÉS DE RECUPERAR PROGRESO ---
+                runOnUiThread(() -> {
+                    boolean esEjercicio = getIntent().getBooleanExtra("ES_EJERCICIO_BIBLIOTECA", false);
+                    if (esEjercicio && urlVideo != null && !urlVideo.isEmpty()) {
+                        setupVideoPlayer(urlVideo);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<VisualizacionResponseDto>> call, Throwable t) {
+                Log.e("ProgresoDetalle", "Error al recuperar progreso: " + t.getMessage());
+                puedeGuardarProgreso = true;
+            }
+        });
+    }
+
+    @OptIn(markerClass = UnstableApi.class)
     private void setupVideoPlayer(String url) {
         if (player != null) player.release();
-        player = new ExoPlayer.Builder(this).build();
+
+        DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(this)
+                .setEnableDecoderFallback(true)
+                .forceDisableMediaCodecAsynchronousQueueing();
+
+        player = new ExoPlayer.Builder(this, renderersFactory).build();
         playerView.setPlayer(player);
         playerView.setVisibility(View.VISIBLE);
         if (imgDetalle != null) imgDetalle.setVisibility(View.GONE);
 
         MediaItem mediaItem = MediaItem.fromUri(url);
         player.setMediaItem(mediaItem);
-        player.setRepeatMode(Player.REPEAT_MODE_ALL);
+        player.setRepeatMode(Player.REPEAT_MODE_OFF);
+        player.setSeekParameters(androidx.media3.exoplayer.SeekParameters.EXACT);
+
+        // LA FORMA OFICIAL: El seekTo va ANTES del prepare
+        if (progresoInicialMs > 0) {
+            player.seekTo(progresoInicialMs);
+        }
+
         player.prepare();
         player.play();
+
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == Player.STATE_ENDED) {
+                    guardarProgreso(true);
+                }
+            }
+        });
+
+        startTrackingProgress();
+    }
+    private void startTrackingProgress() {
+        if (tutorialId == null) return;
+        progressRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (player != null && player.isPlaying()) {
+                    lastSavedPosition = player.getCurrentPosition();
+                    guardarProgreso(false);
+                }
+                progressHandler.postDelayed(this, 10000);
+            }
+        };
+        progressHandler.postDelayed(progressRunnable, 5000);
+    }
+
+    private void guardarProgreso(boolean completado) {
+        if (!puedeGuardarProgreso || userId == -1L || tutorialId == null) return;
+        
+        long pos = (player != null) ? player.getCurrentPosition() : lastSavedPosition;
+        int seconds = (int) (pos / 1000);
+
+        if (seconds <= 0 && !completado) {
+            Log.w("ProgresoDetalle", "Intento de guardar 0 segundos bloqueado.");
+            return;
+        }
+
+        // Filtro Anti-Spam y Anti-Retroceso
+        if (seconds <= ultimoProgresoGuardado && !completado) return;
+
+        ultimoProgresoGuardado = seconds;
+        lastSavedPosition = pos;
+
+        VisualizacionRequestDto dto = new VisualizacionRequestDto(userId, tutorialId, seconds, completado);
+
+        RetrofitClient.getApiService().guardarProgreso(dto)
+                .enqueue(new Callback<ApiResponseDto<VisualizacionResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<VisualizacionResponseDto>> call, Response<ApiResponseDto<VisualizacionResponseDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    VisualizacionResponseDto data = response.body().getDatos();
+                    if (data != null && data.getContadorReproducciones() != null) {
+                        runOnUiThread(() -> {
+                            if (tvVistas != null) {
+                                tvVistas.setText(data.getContadorReproducciones() + " vistas");
+                                tvVistas.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+                    Log.d("ProgresoDetalle", "Progreso guardado: " + seconds + "s");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<VisualizacionResponseDto>> call, Throwable t) {
+                Log.e("ProgresoDetalle", "Error al guardar progreso: " + t.getMessage());
+            }
+        });
     }
 
     private void cargarImagen(String url) {
@@ -174,6 +359,7 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         super.onPause();
         if (player != null) {
             player.pause();
+            guardarProgreso(false);
         }
     }
 
@@ -188,6 +374,7 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (progressRunnable != null) progressHandler.removeCallbacks(progressRunnable);
         if (player != null) {
             player.release();
             player = null;
@@ -195,10 +382,10 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     }
 
     private void completarRutinaEnServidor(long id) {
-        com.example.gymcrush.data.remote.ApiService apiService = com.example.gymcrush.data.remote.RetrofitClient.getApiService();
-        apiService.completarRutina(id).enqueue(new retrofit2.Callback<com.example.gymcrush.data.remote.dto.ApiResponseDto<com.example.gymcrush.data.remote.dto.RutinaResponseDto>>() {
+        ApiService apiService = RetrofitClient.getApiService();
+        apiService.completarRutina(id).enqueue(new Callback<ApiResponseDto<RutinaResponseDto>>() {
             @Override
-            public void onResponse(retrofit2.Call<com.example.gymcrush.data.remote.dto.ApiResponseDto<com.example.gymcrush.data.remote.dto.RutinaResponseDto>> call, retrofit2.Response<com.example.gymcrush.data.remote.dto.ApiResponseDto<com.example.gymcrush.data.remote.dto.RutinaResponseDto>> response) {
+            public void onResponse(Call<ApiResponseDto<RutinaResponseDto>> call, Response<ApiResponseDto<RutinaResponseDto>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(DetalleRutinaActivity.this, "¡Buen trabajo! Ejercicio guardado", Toast.LENGTH_LONG).show();
                     finish();
@@ -208,7 +395,7 @@ public class DetalleRutinaActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(retrofit2.Call<com.example.gymcrush.data.remote.dto.ApiResponseDto<com.example.gymcrush.data.remote.dto.RutinaResponseDto>> call, Throwable t) {
+            public void onFailure(Call<ApiResponseDto<RutinaResponseDto>> call, Throwable t) {
                 Toast.makeText(DetalleRutinaActivity.this, "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

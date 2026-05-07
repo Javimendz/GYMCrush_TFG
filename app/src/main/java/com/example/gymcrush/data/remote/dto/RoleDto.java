@@ -34,6 +34,6 @@ public class RoleDto {
     }
 
     public boolean isTrainer() {
-        return "ROLE_TRAINER".equals(name);
+        return "ROLE_TRAINER".equals(name) || "ROLE_ENTRENADOR".equals(name);
     }
 }

@@ -255,7 +255,16 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
     public void onEliminar(int position) {
         Dialog dialog = new Dialog(getContext());
         dialog.setContentView(R.layout.dialog_custom_exit);
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView titulo = dialog.findViewById(R.id.tv_titulo_exit);
+        TextView mensajeText = dialog.findViewById(R.id.tv_mensaje_exit);
+        
+        titulo.setText("ELIMINAR MENSAJE");
+        mensajeText.setText("¿Estás seguro de que deseas eliminar este mensaje?");
 
         View cancel = dialog.findViewById(R.id.btn_cancelar_exit);
         View confirm = dialog.findViewById(R.id.btn_confirmar_exit);

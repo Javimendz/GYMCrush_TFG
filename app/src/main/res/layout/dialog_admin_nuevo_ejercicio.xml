@@ -122,5 +122,14 @@
             app:backgroundTint="#CD0277"
             app:cornerRadius="16dp" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelarEjercicio"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="CANCELAR"
+            android:textColor="#94A3B8" />
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

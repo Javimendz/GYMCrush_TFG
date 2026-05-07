@@ -186,6 +186,7 @@ public class RutinasFragment extends Fragment {
                 // --- ABRIMOS LA ACTIVIDAD DE DETALLE EN LUGAR DEL REPRODUCTOR ---
                 android.content.Intent intent = new android.content.Intent(getContext(), DetalleRutinaActivity.class);
                 intent.putExtra("RUTINA_ID", rutina.getId());
+                intent.putExtra("TUTORIAL_ID", rutina.getEntrenamientoId());
                 intent.putExtra("NOMBRE_RUTINA", titulo);
                 intent.putExtra("URL_VIDEO", urlVideo);
                 intent.putExtra("DESCRIPCION", descripcion);
@@ -210,6 +211,7 @@ public class RutinasFragment extends Fragment {
                 // AQUÍ TAMBIÉN SE PUEDE ABRIR EL REPRODUCTOR SI QUIERES, PERO DE MOMENTO LO DEJAMOS
                 Intent intent = new Intent(getActivity(), DetalleRutinaActivity.class);
                 intent.putExtra("RUTINA_ID", entrenamiento.getId());
+                intent.putExtra("TUTORIAL_ID", entrenamiento.getId());
                 intent.putExtra("NOMBRE_RUTINA", entrenamiento.getNombre());
                 intent.putExtra("URL_VIDEO", entrenamiento.getUrlVideo());
                 intent.putExtra("DESCRIPCION", entrenamiento.getDescripcion());
@@ -962,6 +964,7 @@ public class RutinasFragment extends Fragment {
 
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
         TextInputEditText etNombre = dialog.findViewById(R.id.etNombreEjercicio);
@@ -970,6 +973,9 @@ public class RutinasFragment extends Fragment {
         TextInputEditText etDur = dialog.findViewById(R.id.etDuracionEjercicio);
         TextInputEditText etInt = dialog.findViewById(R.id.etIntensidadEjercicio);
         MaterialButton btnGuardar = dialog.findViewById(R.id.btnGuardarEjercicio);
+        View btnCancelar = dialog.findViewById(R.id.btnCancelarEjercicio);
+
+        btnCancelar.setOnClickListener(v -> dialog.dismiss());
 
         btnGuardar.setOnClickListener(v -> {
             String nombre = etNombre.getText().toString().trim();
@@ -1018,9 +1024,14 @@ public class RutinasFragment extends Fragment {
     }
     private void mostrarDialogoBusquedaExterna() {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_buscar_ejercicios, null);
-        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setView(dialogView)
-                .create();
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(dialogView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        dialogView.findViewById(R.id.btnCerrarBuscador).setOnClickListener(v -> dialog.dismiss());
 
         TextInputEditText etSearch = dialogView.findViewById(R.id.etSearchExternal);
         View btnSearch = dialogView.findViewById(R.id.btnSearchExternal);
@@ -1061,7 +1072,7 @@ public class RutinasFragment extends Fragment {
         dialog.show();
     }
 
-    private void guardarEntrenamientoDesdeExterno(com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto exercise, androidx.appcompat.app.AlertDialog parentDialog) {
+    private void guardarEntrenamientoDesdeExterno(com.example.gymcrush.data.remote.dto.ExerciseApiRequestDto exercise, Dialog parentDialog) {
 
         // 1. Limpiamos y preparamos la descripción (para que no sea NULL)
         String desc = exercise.getDescription() != null ? exercise.getDescription() : "Ejercicio de " + exercise.getTarget();

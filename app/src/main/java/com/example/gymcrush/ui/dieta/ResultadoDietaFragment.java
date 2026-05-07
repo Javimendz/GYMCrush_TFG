@@ -1,7 +1,10 @@
 package com.example.gymcrush.ui.dieta;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -374,26 +377,32 @@ public class ResultadoDietaFragment extends Fragment {
         String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
         spinnerMomento.setAdapter(new android.widget.ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, momentos));
 
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                .setView(dialogView)
-                .setPositiveButton("Guardar", (dialog, which) -> {
-                    try {
-                        ComidaDiariaRequestDto request = new ComidaDiariaRequestDto();
-                        request.setMomento(spinnerMomento.getText().toString());
-                        request.setNombreAlimento(etNombre.getText().toString());
-                        request.setCalorias(Double.parseDouble(etCalorias.getText().toString()));
-                        request.setProteina(Double.parseDouble(etProt.getText().toString()));
-                        request.setCarbohidratos(Double.parseDouble(etCarbs.getText().toString()));
-                        request.setGrasas(Double.parseDouble(etGrasas.getText().toString()));
-                        request.setPlanNutricionalId(planNutricional.getId());
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(dialogView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
-                        viewModel.añadirComida(request, usuarioId);
-                    } catch (Exception e) {
-                        Toast.makeText(getContext(), "Error en los datos introducidos", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Cancelar", null)
-                .show();
+        dialogView.findViewById(R.id.btn_cancelar_comida).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btn_guardar_comida).setOnClickListener(v -> {
+            try {
+                ComidaDiariaRequestDto request = new ComidaDiariaRequestDto();
+                request.setMomento(spinnerMomento.getText().toString());
+                request.setNombreAlimento(etNombre.getText().toString());
+                request.setCalorias(Double.parseDouble(etCalorias.getText().toString()));
+                request.setProteina(Double.parseDouble(etProt.getText().toString()));
+                request.setCarbohidratos(Double.parseDouble(etCarbs.getText().toString()));
+                request.setGrasas(Double.parseDouble(etGrasas.getText().toString()));
+                request.setPlanNutricionalId(planNutricional.getId());
+
+                viewModel.añadirComida(request, usuarioId);
+                dialog.dismiss();
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Error en los datos introducidos", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialog.show();
     }
 
     private void mostrarDialogoRenombrar() {
@@ -467,9 +476,20 @@ public class ResultadoDietaFragment extends Fragment {
         spinnerMomento.setText(momentos[0], false);
         spinnerMomento.setOnClickListener(v -> spinnerMomento.showDropDown());
 
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(dialogView);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        dialogView.findViewById(R.id.btnCerrarBusqueda).setOnClickListener(v -> dialog.dismiss());
+
         FoodSearchAdapter searchAdapter = new FoodSearchAdapter();
         rvResults.setAdapter(searchAdapter);
         rvResults.setLayoutManager(new LinearLayoutManager(getContext()));
+        
+        dialog.show();
 
         viewModel.getResultadosBusqueda().observe(getViewLifecycleOwner(), items -> {
             if (items != null) {
@@ -506,7 +526,7 @@ public class ResultadoDietaFragment extends Fragment {
 
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
                 .setView(dialogView)
-                .setPositiveButton("Añadir", (dialog, which) -> {
+                .setPositiveButton("Añadir", (dialogInterface, which) -> {
                     List<ComidaDiariaRequestDto> seleccionados = searchAdapter.getSelectedItems();
                     if (!seleccionados.isEmpty()) {
                         String momento = spinnerMomento.getText().toString();

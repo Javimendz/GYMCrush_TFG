@@ -65,6 +65,13 @@ public interface ApiService {
             @Query("page") int page,
             @Query("size") int size
     );
+
+    @GET("api/v1/visualizaciones/usuario/{usuarioId}/tutorial/{tutorialId}")
+    Call<ApiResponseDto<VisualizacionResponseDto>> obtenerProgreso(
+            @Path("usuarioId") Long usuarioId,
+            @Path("tutorialId") Long tutorialId
+    );
+
     @GET("api/v1/entrenamientos")
     Call<ApiResponseDto<List<EntrenamientoResponseDto>>> listarEntrenamientosCatalogo();
     @DELETE("api/v1/planes/ejercicios-detalle/{id}")
@@ -148,8 +155,17 @@ public interface ApiService {
     @POST("api/v1/visualizaciones/progreso")
     Call<ApiResponseDto<VisualizacionResponseDto>> guardarProgreso(@Body VisualizacionRequestDto visualizacionRequestDto);
 
+    @GET("api/v1/visualizaciones/usuario/{usuarioId}/historial")
+    Call<ApiResponseDto<List<VisualizacionResponseDto>>> getHistorialVisualizaciones(@Path("usuarioId") Long usuarioId);
+
     @GET("api/v1/visualizaciones/usuario/{usuarioId}/pendientes")
     Call<ApiResponseDto<List<VisualizacionResponseDto>>> getVideosPendientes(@Path("usuarioId") Long usuarioId);
+
+    @GET("api/v1/visualizaciones/populares")
+    Call<ApiResponseDto<List<TutorialResponseDto>>> getTutorialesPopulares();
+
+    @DELETE("api/v1/visualizaciones/{id}")
+    Call<ApiResponseDto<Void>> eliminarVisualizacion(@Path("id") Long id);
 
     // --- NUEVOS ENDPOINTS PARA HORARIOS ---
     @GET("api/v1/horarios")

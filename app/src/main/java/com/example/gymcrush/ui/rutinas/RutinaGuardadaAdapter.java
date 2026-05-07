@@ -136,6 +136,7 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
             intent.putExtra("DESCRIPCION", rutina.descripcion);
             intent.putExtra("URL_VIDEO", rutina.urlVideo);
             intent.putExtra("RUTINA_ID", rutina.id);
+            intent.putExtra("TUTORIAL_ID", rutina.id);
             intent.putExtra("DURACION", rutina.duracion);
             intent.putExtra("INTENSIDAD", rutina.dificultad);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
