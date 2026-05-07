@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:hint="Nombre Completo"
+            android:hint="Nombre"
             android:textColorHint="#94A3B8"
             app:boxStrokeColor="#CD0277"
             app:hintTextColor="@color/white"
@@ -62,6 +62,46 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Apellidos"
+            android:textColorHint="#94A3B8"
+            app:boxStrokeColor="#CD0277"
+            app:hintTextColor="@color/white"
+            app:startIconDrawable="@drawable/ic_perfil"
+            app:startIconTint="#CD0277">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStaffApellidos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="DNI"
+            android:textColorHint="#94A3B8"
+            app:boxStrokeColor="#CD0277"
+            app:hintTextColor="@color/white"
+            app:startIconDrawable="@drawable/ic_perfil"
+            app:startIconTint="#CD0277">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStaffDni"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="textCapCharacters" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

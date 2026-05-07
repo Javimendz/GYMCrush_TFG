@@ -49,20 +49,27 @@ public class PerfilFragment extends Fragment {
     private Long userId;
     private PerfilResponseDto currentPerfil;
     
-    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ActivityResultLauncher<String> imagePickerLauncher;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Inicializar el selector de imágenes
+        // Inicializar el selector de imágenes moderno
         imagePickerLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        Uri imageUri = result.getData().getData();
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
                         try {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+                            Bitmap bitmap;
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                                bitmap = android.graphics.ImageDecoder.decodeBitmap(
+                                        android.graphics.ImageDecoder.createSource(requireActivity().getContentResolver(), uri),
+                                        (decoder, info, source) -> decoder.setMutableRequired(true)
+                                );
+                            } else {
+                                bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
+                            }
                             actualizarFotoPerfil(bitmap);
                         } catch (IOException e) {
                             Toast.makeText(getContext(), "Error al cargar la imagen", Toast.LENGTH_SHORT).show();
@@ -220,8 +227,7 @@ public class PerfilFragment extends Fragment {
     }
 
     private void abrirGaleria() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        imagePickerLauncher.launch(intent);
+        imagePickerLauncher.launch("image/*");
     }
 
     private void actualizarFotoPerfil(Bitmap bitmap) {
