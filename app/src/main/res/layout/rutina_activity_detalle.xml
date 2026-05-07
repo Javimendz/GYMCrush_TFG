@@ -64,6 +64,19 @@
                     android:background="#3303A9F4"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp"/>
+
+                <TextView
+                    android:id="@+id/tvVistasDetalle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 vistas"
+                    android:textColor="#8BC34A"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:background="#338BC34A"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:visibility="gone"/>
             </com.google.android.material.chip.ChipGroup>
         </LinearLayout>
 
