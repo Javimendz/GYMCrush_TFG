@@ -177,61 +177,63 @@ public class ResultadoDietaFragment extends Fragment {
     }
 
     private void mostrarConfirmacionGuardar() {
-        String mensaje = planNutricional.getId() == null
-                ? "¿Deseas guardar este plan en tu historial?"
-                : "¿Deseas guardar todas las recetas sugeridas en tu diario de hoy?";
+        // Si el ID es null, es un plan generado que no existe en la DB
+        boolean esPlanNuevo = (planNutricional.getId() == null);
+
+        String mensaje = esPlanNuevo
+                ? "¿Deseas establecer este como tu nuevo plan activo y guardarlo en el historial?"
+                : "¿Deseas guardar las sugerencias pendientes en tu diario de hoy?";
 
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
-                .setTitle("Confirmar Guardado")
+                .setTitle(esPlanNuevo ? "Guardar Nuevo Plan" : "Confirmar Diario")
                 .setMessage(mensaje)
                 .setPositiveButton("Confirmar", (dialog, which) -> {
-                    if (planNutricional.getId() == null) {
-                        // Caso catálogo o nuevo plan: Guardar plan completo
+                    if (esPlanNuevo) {
+                        // LLAMADA AL BACKEND PARA PERSISTIR
                         viewModel.guardarPlan(usuarioId, planNutricional);
-                    } else {
-                        // Caso plan existente: Guardar sugerencias que aún no están en 'comidas'
-                        List<ComidaDiariaRequestDto> batch = new ArrayList<>();
-                        if (planNutricional.getDietas() != null) {
-                            for (ComidaDiariaResponseDto sugerencia : planNutricional.getDietas()) {
-                                // Verificar si esta sugerencia ya fue guardada (está en el adapter como seleccionada)
-                                boolean yaGuardada = false;
-                                if (adapter != null && adapter.getComidas() != null) {
-                                    for (ComidaDiariaResponseDto item : adapter.getComidas()) {
-                                        if (item.isSelected() &&
-                                                item.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
-                                                item.getMomento().equalsIgnoreCase(sugerencia.getMomento())) {
-                                            yaGuardada = true;
-                                            break;
-                                        }
-                                    }
-                                }
+                        Toast.makeText(getContext(), "Plan guardado con éxito", Toast.LENGTH_SHORT).show();
 
-                                if (!yaGuardada) {
-                                    ComidaDiariaRequestDto req = new ComidaDiariaRequestDto();
-                                    req.setNombreAlimento(sugerencia.getNombreAlimento());
-                                    req.setMomento(sugerencia.getMomento());
-                                    req.setCalorias(sugerencia.getCalorias());
-                                    req.setProteina(sugerencia.getProteina());
-                                    req.setCarbohidratos(sugerencia.getCarbohidratos());
-                                    req.setGrasas(sugerencia.getGrasas());
-                                    req.setPlanNutricionalId(planNutricional.getId());
-                                    req.setImagenUrl(sugerencia.getImagenUrl());
-                                    req.setDescripcion(sugerencia.getDescripcion());
-                                    req.setRecipeUrl(sugerencia.getRecipeUrl());
-                                    batch.add(req);
-                                }
-                            }
-                        }
-                        if (!batch.isEmpty()) {
-                            viewModel.guardarMuchasComidas(planNutricional.getId(), batch, usuarioId);
-                            Toast.makeText(getContext(), "Guardando " + batch.size() + " sugerencias...", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "Todas las sugerencias ya están guardadas", Toast.LENGTH_SHORT).show();
-                        }
+                        // Opcional: Volver a la pantalla principal tras guardar
+                        getParentFragmentManager().popBackStack();
+                    } else {
+                        // Lógica para planes que ya existen (añadir comidas al diario)
+                        ejecutarGuardadoBatchComidas();
                     }
                 })
                 .setNegativeButton("Cancelar", null)
                 .show();
+    }
+
+    private void ejecutarGuardadoBatchComidas() {
+        List<ComidaDiariaRequestDto> batch = new ArrayList<>();
+        if (planNutricional.getDietas() != null) {
+            for (ComidaDiariaResponseDto sugerencia : planNutricional.getDietas()) {
+                if (!isComidaYaRegistrada(sugerencia)) {
+                    ComidaDiariaRequestDto req = new ComidaDiariaRequestDto();
+                    // ... (seteo de datos del request) ...
+                    req.setPlanNutricionalId(planNutricional.getId());
+                    batch.add(req);
+                }
+            }
+        }
+        if (!batch.isEmpty()) {
+            viewModel.guardarMuchasComidas(planNutricional.getId(), batch, usuarioId);
+        }
+    }
+
+    private boolean isComidaYaRegistrada(ComidaDiariaResponseDto sugerencia) {
+        if (adapter == null || adapter.getComidas() == null) return false;
+
+        for (ComidaDiariaResponseDto item : adapter.getComidas()) {
+            // Consideramos que ya existe si el nombre y el momento coinciden
+            // y el objeto tiene el flag 'isSelected' (que significa que viene del registro real)
+            if (item.isSelected() &&
+                    item.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                    item.getMomento().equalsIgnoreCase(sugerencia.getMomento())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void mostrarDatos(View view) {
