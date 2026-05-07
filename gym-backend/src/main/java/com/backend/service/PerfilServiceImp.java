@@ -160,22 +160,25 @@ public class PerfilServiceImp implements IPerfilService {
      * @param dto Los datos actualizados del perfil
      * @return El perfil actualizado
      */
-    @Override
-    @Transactional
-    public PerfilResponseDto update(Long id, PerfilRequestDto dto) {
-        // busco el perfil por id
-        Perfil perfil = perfilRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
+@Override
+@Transactional
+public PerfilResponseDto update(Long id, PerfilRequestDto dto) {
+    //  Buscamos el perfil real en la base de datos
+    Perfil perfil = perfilRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
 
-        // uso el maper para actualizar
-        perfilMapper.updatePerfilFromDto(dto, perfil);
-
-        // guardo entidad actualizada
-        Perfil actualizado = perfilRepository.save(perfil);
-
-        // devuelvo el dto actualizado
-        return perfilMapper.toDto(actualizado);
+    // para que el Mapper no intente sobreescribirlo/validarlo como nuevo
+    if (dto.getDni() != null && dto.getDni().equals(perfil.getDni())) {
+        dto.setDni(null); 
     }
+
+    //  El mapper ahora solo actualizará los campos que han cambiado (como la urlFoto)
+    perfilMapper.updatePerfilFromDto(dto, perfil);
+
+    //  Guardamos y volvemos a tener paz
+    Perfil actualizado = perfilRepository.save(perfil);
+    return perfilMapper.toDto(actualizado);
+}
 
     @Override
     @Transactional
