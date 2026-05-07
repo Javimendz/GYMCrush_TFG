@@ -48,18 +48,14 @@ public class PerfilFragment extends Fragment {
     private SharedPreferences prefs;
     private Long userId;
     private PerfilResponseDto currentPerfil;
-<<<<<<< HEAD
-    
-=======
     private Long perfilId;
 
->>>>>>> 87e7f6f30b6c19cf712d51c49f8ec6babb670061
     private ActivityResultLauncher<String> imagePickerLauncher;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // Inicializar el selector de imágenes moderno
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
@@ -123,36 +119,11 @@ public class PerfilFragment extends Fragment {
     private void setupObservers() {
         viewModel.getPerfil().observe(getViewLifecycleOwner(), perfil -> {
             if (perfil != null) {
-<<<<<<< HEAD
-                android.util.Log.d("PerfilFragment", "Perfil recibido: " + perfil.getNombre() + " " + perfil.getApellidos());
-                if (currentPerfil != null) {
-                    if (perfil.getPeso() == null) perfil.setPeso(currentPerfil.getPeso());
-                    if (perfil.getEstatura() == null) perfil.setEstatura(currentPerfil.getEstatura());
-                    if (perfil.getImc() == null) perfil.setImc(currentPerfil.getImc());
-                }
-=======
                 this.perfilId = perfil.getId(); // <--- GUARDAMOS EL ID REAL DEL PERFIL
->>>>>>> 87e7f6f30b6c19cf712d51c49f8ec6babb670061
                 currentPerfil = perfil;
                 actualizarUI(perfil);
             }
         });
-<<<<<<< HEAD
-
-        viewModel.getSalud().observe(getViewLifecycleOwner(), salud -> {
-            if (salud != null) {
-                android.util.Log.d("PerfilFragment", "Datos de salud recibidos: Peso=" + salud.getPeso());
-                actualizarSaludUI(salud);
-            }
-        });
-
-        viewModel.getError().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
-                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
-            }
-        });
-=======
->>>>>>> 87e7f6f30b6c19cf712d51c49f8ec6babb670061
     }
 
     private void actualizarUI(PerfilResponseDto perfil) {
@@ -180,7 +151,7 @@ public class PerfilFragment extends Fragment {
         editor.apply();
 
         tvTelefono.setText(perfil.getTelefono() != null ? perfil.getTelefono() : "--");
-        
+
         String direccion = (perfil.getDireccion() != null ? perfil.getDireccion() : "").trim();
         String ciudad = (perfil.getCiudad() != null ? perfil.getCiudad() : "").trim();
         if (direccion.isEmpty() && ciudad.isEmpty()) {
@@ -245,26 +216,16 @@ public class PerfilFragment extends Fragment {
     private void actualizarFotoPerfil(Bitmap bitmap) {
         // Redimensionar para no exceder límites del backend
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, true);
-<<<<<<< HEAD
-        
-=======
->>>>>>> 87e7f6f30b6c19cf712d51c49f8ec6babb670061
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
         byte[] byteArray = outputStream.toByteArray();
         // Usar NO_WRAP para evitar saltos de línea en el JSON
         String encodedImage = Base64.encodeToString(byteArray, Base64.NO_WRAP);
 
-<<<<<<< HEAD
-        if (currentPerfil != null) {
-            PerfilRequestDto request = new PerfilRequestDto();
-            request.setNombre(currentPerfil.getNombre());
-=======
         if (currentPerfil != null && perfilId != null) {
             PerfilRequestDto request = new PerfilRequestDto();
             request.setNombre(currentPerfil.getNombre());
 
->>>>>>> 87e7f6f30b6c19cf712d51c49f8ec6babb670061
             request.setApellidos(currentPerfil.getApellidos());
             request.setTelefono(currentPerfil.getTelefono());
             request.setDni(currentPerfil.getDni());
@@ -275,16 +236,10 @@ public class PerfilFragment extends Fragment {
             request.setCodigoPostal(currentPerfil.getCodigoPostal());
             request.setGenero(currentPerfil.getGenero());
             request.setBio(currentPerfil.getBio());
-<<<<<<< HEAD
-            request.setFoto(encodedImage); // Enviamos la imagen en Base64
-
-            viewModel.actualizarPerfil(userId, request);
-=======
 
             request.setFoto(encodedImage); // Enviamos la imagen en Base64
 
             viewModel.actualizarPerfil(perfilId, request);
->>>>>>> 87e7f6f30b6c19cf712d51c49f8ec6babb670061
             Toast.makeText(getContext(), "Actualizando foto de perfil...", Toast.LENGTH_SHORT).show();
         }
     }
@@ -324,7 +279,7 @@ public class PerfilFragment extends Fragment {
             perfilRequest.setTelefono(etTelefono.getText().toString().trim().isEmpty() ? currentPerfil.getTelefono() : etTelefono.getText().toString().trim());
             perfilRequest.setDireccion(etDireccion.getText().toString().trim().isEmpty() ? currentPerfil.getDireccion() : etDireccion.getText().toString().trim());
             perfilRequest.setBio(etBio.getText().toString().trim().isEmpty() ? currentPerfil.getBio() : etBio.getText().toString().trim());
-            
+
             perfilRequest.setDni(currentPerfil.getDni());
             perfilRequest.setFechaNacimiento(currentPerfil.getFechaNacimiento());
             perfilRequest.setCiudad(currentPerfil.getCiudad());
@@ -350,7 +305,7 @@ public class PerfilFragment extends Fragment {
                                 haCambiado = false;
                             }
                         }
-                        
+
                         if (haCambiado) {
                             SaludRequestDto saludRequest = new SaludRequestDto();
                             saludRequest.setPeso(nPeso);
