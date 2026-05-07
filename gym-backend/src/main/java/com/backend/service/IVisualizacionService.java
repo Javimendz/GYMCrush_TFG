@@ -13,6 +13,6 @@ public interface IVisualizacionService {
     List<VisualizacionResponseDto> obtenerContinuarViendo(Long usuarioId);
 
     void borrarDeHistorial(Long id);
-
+    VisualizacionResponseDto obtenerProgreso(Long usuarioId, Long tutorialId);
     List<TutorialResponseDto> obtenerPopulares();
 }

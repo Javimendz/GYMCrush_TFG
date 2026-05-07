@@ -9,7 +9,7 @@ import com.backend.mapper.VisualizacionMapper;
 import com.backend.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,30 +27,90 @@ public class VisualizacionServiceImp implements IVisualizacionService {
     private final TutorialRepository tutorialRepository;
     private final VisualizacionMapper visualizacionMapper;
 
-    @Override
+   @Override
     @Transactional
     public VisualizacionResponseDto guardarProgreso(VisualizacionRequestDto dto) {
-        // Buscar si ya existe el registro
+        //  Buscar si ya existe la visualización o crear una nueva
         Visualizacion visualizacion = visualizacionRepository
                 .findByUsuarioIdAndTutorialId(dto.getUsuarioId(), dto.getTutorialId())
-                .orElseGet(() -> crearNuevaVisualizacion(dto));
+                .orElseGet(() -> {
+                    Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                    Tutorial tutorial = tutorialRepository.findById(dto.getTutorialId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Tutorial no encontrado"));
+                    
+                   return Visualizacion.builder()
+                    .usuario(usuario)
+                    .tutorial(tutorial)
+                    .contadorReproducciones(1) 
+                    .progresoSegundos(0)
+                    .completado(false)
+                    .build();
+                            });
 
-        // Actualizar datos de progreso
+        //  Actualizar datos de progreso
         visualizacion.setProgresoSegundos(dto.getProgresoSegundos());
-        visualizacion.setFechaVisualizacion(LocalDateTime.now());
-
-        // Si el DTO dice que está completado o si los segundos superan el 95% del video
-
-        if (dto.getCompletado() != null) {
-            visualizacion.setCompletado(dto.getCompletado());
+        
+        if (Boolean.FALSE.equals(visualizacion.getCompletado())) {
+            Integer duracionMin = visualizacion.getTutorial().getDuracionMin();
+            
+            // Verificamos que el tutorial realmente tenga una duración asignada en la BD
+            if (duracionMin != null && duracionMin > 0) {
+                double duracionTotalSegundos = duracionMin * 60.0;
+                if (dto.getProgresoSegundos() >= (duracionTotalSegundos * 0.9)) {
+                    visualizacion.setCompletado(true);
+                    log.info("Tutorial ID {} marcado como COMPLETADO para usuario {}", dto.getTutorialId(), dto.getUsuarioId());
+                }
+            }
         }
 
-        log.info("Progreso guardado: Usuario {} en Video {}. Segundos: {}",
-                dto.getUsuarioId(), dto.getTutorialId(), dto.getProgresoSegundos());
+        //  GUARDAR y MAPEAR
+        Visualizacion guardada = visualizacionRepository.save(visualizacion);
+        VisualizacionResponseDto response = visualizacionMapper.toResponseDto(guardada);
 
-        return visualizacionMapper.toResponseDto(visualizacionRepository.save(visualizacion));
+        // Contar vistas totales
+        long totalVistas = visualizacionRepository.countByTutorialId(dto.getTutorialId());
+        response.setContadorReproducciones((int) totalVistas);
+
+        return response;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<VisualizacionResponseDto> obtenerContinuarViendo(Long usuarioId) {
+        return visualizacionRepository.findByUsuarioIdAndCompletadoFalseOrderByUltimaActualizacionDesc(usuarioId)
+                .stream()
+                .map(visualizacionMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+@Override
+@Transactional 
+public VisualizacionResponseDto obtenerProgreso(Long usuarioId, Long tutorialId) {
+    Visualizacion v = visualizacionRepository.findByUsuarioIdAndTutorialId(usuarioId, tutorialId)
+            .orElse(null);
+
+    if (v == null) {
+        return VisualizacionResponseDto.builder()
+                .progresoSegundos(0)
+                .contadorReproducciones(0)
+                .build();
+    }
+
+    // Lógica de incremento
+    int actual = (v.getContadorReproducciones() == null) ? 0 : v.getContadorReproducciones();
+    v.setContadorReproducciones(actual + 1);
+    
+    // Forzamos el guardado
+    v = visualizacionRepository.saveAndFlush(v); 
+
+    VisualizacionResponseDto responseDto = visualizacionMapper.toResponseDto(v);
+    
+    long totalVistasGlobales = visualizacionRepository.countByTutorialId(tutorialId);
+    responseDto.setContadorReproducciones((int) totalVistasGlobales); 
+    
+    return responseDto;
+}
     @Override
     @Transactional(readOnly = true)
     public List<TutorialResponseDto> obtenerPopulares() {
@@ -90,13 +150,7 @@ public class VisualizacionServiceImp implements IVisualizacionService {
                 .stream().map(visualizacionMapper::toResponseDto).toList();
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<VisualizacionResponseDto> obtenerContinuarViendo(Long usuarioId) {
-        // Obtenemos los videos no terminados, ordenados por fecha más reciente
-        return visualizacionRepository.findByUsuarioIdAndCompletadoFalseOrderByFechaVisualizacionDesc(usuarioId)
-                .stream().map(visualizacionMapper::toResponseDto).toList();
-    }
+  
 
     @Override
     @Transactional

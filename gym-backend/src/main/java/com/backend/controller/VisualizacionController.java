@@ -102,4 +102,13 @@ public class VisualizacionController {
                 .success(true)
                 .build());
     }
+
+    @GetMapping("/usuario/{usuarioId}/tutorial/{tutorialId}")
+     public ResponseEntity<ApiResponseDto<VisualizacionResponseDto>> obtenerProgreso(
+                @PathVariable Long usuarioId, 
+                @PathVariable Long tutorialId) {
+        
+        VisualizacionResponseDto datos = visualizacionService.obtenerProgreso(usuarioId, tutorialId);
+        return ResponseEntity.ok(new ApiResponseDto<>("Progreso recuperado", datos, true));
+     }
 }

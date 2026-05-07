@@ -20,6 +20,9 @@ public class VisualizacionResponseDto {
     @Schema(description = "Segundos de progreso guardados")
     private Integer progresoSegundos;
 
+    @Schema(description = "Número total de veces que se ha reproducido este tutorial")
+    private Integer contadorReproducciones;
+
     @Schema(description = "Estado de finalización")
     private Boolean completado;
 
