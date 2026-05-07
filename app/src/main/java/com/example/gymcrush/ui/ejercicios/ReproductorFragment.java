@@ -21,6 +21,7 @@ import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.ui.PlayerView;
@@ -146,14 +147,23 @@ public class ReproductorFragment extends Fragment {
         DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(requireContext())
                 .setDataSourceFactory(httpDataSourceFactory);
 
-        player = new ExoPlayer.Builder(requireContext()).setMediaSourceFactory(mediaSourceFactory).build();
+        // CONFIGURACIÓN PARA EVITAR ERRORES DE CODEC EN EMULADORES Y DISPOSITIVOS ESPECÍFICOS
+        // 1. Habilitamos el fallback de decodificadores (si falla el de hardware, intenta el de software)
+        // 2. Desactivamos el procesamiento asíncrono del MediaCodec que a veces falla con "start failed"
+        DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(requireContext())
+                .setEnableDecoderFallback(true)
+                .forceDisableMediaCodecAsynchronousQueueing();
+
+        player = new ExoPlayer.Builder(requireContext(), renderersFactory)
+                .setMediaSourceFactory(mediaSourceFactory)
+                .build();
         playerView.setPlayer(player);
 
         if (videoUrl != null && !videoUrl.isEmpty() && !videoUrl.equals("null")) {
             player.setMediaItem(MediaItem.fromUri(videoUrl));
 
             // 1. SOLUCIÓN A LOS KEYFRAMES: Forzamos que el salto sea al milisegundo exacto
-            player.setSeekParameters(androidx.media3.common.SeekParameters.EXACT);
+            player.setSeekParameters(androidx.media3.exoplayer.SeekParameters.EXACT);
 
             player.setRepeatMode(Player.REPEAT_MODE_ONE);
 
