@@ -163,29 +163,33 @@ public class PerfilServiceImp implements IPerfilService {
 @Override
 @Transactional
 public PerfilResponseDto update(Long id, PerfilRequestDto dto) {
-    //  Buscamos el perfil actual
+    // Buscamos el perfil actual
     Perfil perfil = perfilRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
 
-    // GUARDAMOS el DNI que ya sabemos que es bueno
     String dniOriginal = perfil.getDni();
-    log.info("Iniciando actualización. DNI original a preservar: {}", dniOriginal);
+    log.info("Actualizando Perfil {}. DNI original: {}, DNI recibido: {}", id, dniOriginal, dto.getDni());
 
-    //  Dejamos que el Mapper haga su trabajo con el resto de campos (foto, bio, etc.)
-    perfilMapper.updatePerfilFromDto(dto, perfil);
-
-    // Si el DTO traía un DNI diferente, validamos que no exista.
-    // Si traía el mismo o venía null/vacío, restauramos el original para evitar el error de "null value".
-    if (dto.getDni() == null || dto.getDni().trim().isEmpty() || dto.getDni().equalsIgnoreCase(dniOriginal)) {
-        perfil.setDni(dniOriginal); // Restauramos el valor de la DB
-    } else {
-        // Si realmente quiere cambiar el DNI a uno nuevo, verificamos que no lo tenga otro
+    if (dto.getDni() != null && !dto.getDni().trim().isEmpty() && !dto.getDni().equalsIgnoreCase(dniOriginal)) {
+        // Quiere cambiar el DNI a uno nuevo. Comprobamos si existe ANTES de mapear.
         if (perfilRepository.existsByDni(dto.getDni())) {
             throw new RuntimeException("El DNI " + dto.getDni() + " ya pertenece a otro usuario.");
         }
+    } else {
+        // Si el DNI viene null, vacío, o es el mismo que ya tenía, 
+        // forzamos el original en el DTO para que el Mapper no lo borre.
+        dto.setDni(dniOriginal);
     }
 
-    //  Guardamos con seguridad
+    //  AHORA SÍ, dejamos que el Mapper haga su trabajo con la seguridad de que el DNI es válido
+    perfilMapper.updatePerfilFromDto(dto, perfil);
+
+    //  Doble protección: Por si el mapper hace alguna locura con los nulos
+    if (perfil.getDni() == null) {
+        perfil.setDni(dniOriginal);
+    }
+
+    // Guardamos con seguridad
     try {
         Perfil actualizado = perfilRepository.saveAndFlush(perfil);
         return perfilMapper.toDto(actualizado);
