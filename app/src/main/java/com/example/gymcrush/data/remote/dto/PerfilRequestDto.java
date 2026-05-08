@@ -37,6 +37,9 @@ public class PerfilRequestDto {
     @SerializedName("genero")
     private String genero;
 
+    @SerializedName("correo")
+    private String correo;
+
     @SerializedName("bio")
     private String bio;
 
@@ -57,6 +60,7 @@ public class PerfilRequestDto {
     public String getPais() { return pais; }
     public String getCodigoPostal() { return codigoPostal; }
     public String getGenero() { return genero; }
+    public String getCorreo() { return correo; }
     public String getBio() { return bio; }
     public String getFoto() { return foto; }
 
@@ -71,6 +75,7 @@ public class PerfilRequestDto {
     public void setPais(String pais) { this.pais = pais; }
     public void setCodigoPostal(String codigoPostal) { this.codigoPostal = codigoPostal; }
     public void setGenero(String genero) { this.genero = genero; }
+    public void setCorreo(String correo) { this.correo = correo; }
     public void setBio(String bio) { this.bio = bio; }
     public void setFoto(String foto) { this.foto = foto; }
 }

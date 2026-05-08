@@ -124,6 +124,18 @@ public class PerfilFragment extends Fragment {
                 actualizarUI(perfil);
             }
         });
+
+        viewModel.getSalud().observe(getViewLifecycleOwner(), salud -> {
+            if (salud != null) {
+                actualizarSaludUI(salud);
+            }
+        });
+
+        viewModel.getError().observe(getViewLifecycleOwner(), errorMsg -> {
+            if (errorMsg != null && !errorMsg.isEmpty()) {
+                Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void actualizarUI(PerfilResponseDto perfil) {
@@ -234,6 +246,7 @@ public class PerfilFragment extends Fragment {
             request.setDireccion(currentPerfil.getDireccion());
             request.setCiudad(currentPerfil.getCiudad());
             request.setGenero(currentPerfil.getGenero());
+            request.setCorreo(currentPerfil.getCorreo());
 
             request.setFoto(encodedImage); // Enviamos la imagen en Base64
 
@@ -267,14 +280,29 @@ public class PerfilFragment extends Fragment {
 
         TextInputEditText etNombre = dialog.findViewById(R.id.et_editar_nombre);
         TextInputEditText etApellidos = dialog.findViewById(R.id.et_editar_apellidos);
+        TextInputEditText etEmail = dialog.findViewById(R.id.et_editar_email);
+        TextInputEditText etDni = dialog.findViewById(R.id.et_editar_dni);
+        TextInputEditText etFechaNac = dialog.findViewById(R.id.et_editar_fecha_nac);
+        TextInputEditText etCiudad = dialog.findViewById(R.id.et_editar_ciudad);
+        TextInputEditText etCp = dialog.findViewById(R.id.et_editar_cp);
+        TextInputEditText etPais = dialog.findViewById(R.id.et_editar_pais);
+        TextInputEditText etGenero = dialog.findViewById(R.id.et_editar_genero);
         TextInputEditText etPeso = dialog.findViewById(R.id.et_editar_peso);
         TextInputEditText etAltura = dialog.findViewById(R.id.et_editar_altura);
         TextInputEditText etTelefono = dialog.findViewById(R.id.et_editar_telefono);
         TextInputEditText etDireccion = dialog.findViewById(R.id.et_editar_direccion);
         TextInputEditText etBio = dialog.findViewById(R.id.et_editar_bio);
 
+        // Rellenar datos actuales
         etNombre.setText(currentPerfil.getNombre());
         etApellidos.setText(currentPerfil.getApellidos());
+        etEmail.setText(currentPerfil.getCorreo());
+        etDni.setText(currentPerfil.getDni());
+        etFechaNac.setText(currentPerfil.getFechaNacimiento());
+        etCiudad.setText(currentPerfil.getCiudad());
+        etCp.setText(currentPerfil.getCodigoPostal());
+        etPais.setText(currentPerfil.getPais());
+        etGenero.setText(currentPerfil.getGenero());
         etPeso.setText(currentPerfil.getPeso() != null ? String.valueOf(currentPerfil.getPeso()) : "");
         etAltura.setText(currentPerfil.getEstatura() != null ? String.valueOf(currentPerfil.getEstatura()) : "");
         etTelefono.setText(currentPerfil.getTelefono());
@@ -285,48 +313,48 @@ public class PerfilFragment extends Fragment {
 
         dialog.findViewById(R.id.btn_guardar_edicion).setOnClickListener(v -> {
             PerfilRequestDto perfilRequest = new PerfilRequestDto();
-            perfilRequest.setNombre(etNombre.getText().toString().trim().isEmpty() ? currentPerfil.getNombre() : etNombre.getText().toString().trim());
-            perfilRequest.setApellidos(etApellidos.getText().toString().trim().isEmpty() ? currentPerfil.getApellidos() : etApellidos.getText().toString().trim());
-            perfilRequest.setTelefono(etTelefono.getText().toString().trim().isEmpty() ? currentPerfil.getTelefono() : etTelefono.getText().toString().trim());
-            perfilRequest.setDireccion(etDireccion.getText().toString().trim().isEmpty() ? currentPerfil.getDireccion() : etDireccion.getText().toString().trim());
-            perfilRequest.setBio(etBio.getText().toString().trim().isEmpty() ? currentPerfil.getBio() : etBio.getText().toString().trim());
-
-            perfilRequest.setDni(currentPerfil.getDni());
-            perfilRequest.setFechaNacimiento(currentPerfil.getFechaNacimiento());
-            perfilRequest.setCiudad(currentPerfil.getCiudad());
-            perfilRequest.setPais(currentPerfil.getPais());
-            perfilRequest.setCodigoPostal(currentPerfil.getCodigoPostal());
-            perfilRequest.setGenero(currentPerfil.getGenero());
+            
+            // Datos básicos - Se toma lo del EditText, si está vacío se podría manejar pero aquí guardamos lo que haya
+            perfilRequest.setNombre(etNombre.getText().toString().trim());
+            perfilRequest.setApellidos(etApellidos.getText().toString().trim());
+            perfilRequest.setCorreo(etEmail.getText().toString().trim());
+            perfilRequest.setTelefono(etTelefono.getText().toString().trim());
+            perfilRequest.setDireccion(etDireccion.getText().toString().trim());
+            perfilRequest.setBio(etBio.getText().toString().trim());
+            perfilRequest.setDni(etDni.getText().toString().trim());
+            perfilRequest.setFechaNacimiento(etFechaNac.getText().toString().trim());
+            perfilRequest.setCiudad(etCiudad.getText().toString().trim());
+            perfilRequest.setCodigoPostal(etCp.getText().toString().trim());
+            perfilRequest.setPais(etPais.getText().toString().trim());
+            perfilRequest.setGenero(etGenero.getText().toString().trim());
+            
+            // Mantener datos que no están en este diálogo
             perfilRequest.setFoto(currentPerfil.getFoto());
 
-            viewModel.actualizarPerfil(userId, perfilRequest);
+            // 1. Actualizar perfil
+            viewModel.actualizarPerfil(perfilId, perfilRequest);
 
+            // 2. Procesar salud (peso/altura) independientemente
             String pesoStr = etPeso.getText().toString().trim();
             String alturaStr = etAltura.getText().toString().trim();
 
-            if (!pesoStr.isEmpty() || !alturaStr.isEmpty()) {
+            if (!pesoStr.isEmpty() && !alturaStr.isEmpty()) {
                 try {
-                    double nPeso = pesoStr.isEmpty() ? (currentPerfil.getPeso() != null ? currentPerfil.getPeso() : 0) : Double.parseDouble(pesoStr);
-                    double nAltura = alturaStr.isEmpty() ? (currentPerfil.getEstatura() != null ? currentPerfil.getEstatura() : 0) : Double.parseDouble(alturaStr);
+                    double nPeso = Double.parseDouble(pesoStr);
+                    double nAltura = Double.parseDouble(alturaStr);
 
                     if (nPeso > 0 && nAltura > 0) {
-                        boolean haCambiado = true;
-                        if (currentPerfil.getPeso() != null && currentPerfil.getEstatura() != null) {
-                            if (Math.abs(currentPerfil.getPeso() - nPeso) < 0.1 && Math.abs(currentPerfil.getEstatura() - nAltura) < 0.1) {
-                                haCambiado = false;
-                            }
-                        }
-
-                        if (haCambiado) {
-                            SaludRequestDto saludRequest = new SaludRequestDto();
-                            saludRequest.setPeso(nPeso);
-                            saludRequest.setEstatura(nAltura);
-                            saludRequest.setNivelActividad(currentPerfil.getNivelActividad());
-                            saludRequest.setComentario("Actualización desde perfil");
-                            viewModel.registrarSalud(userId, saludRequest);
-                        }
+                        SaludRequestDto saludRequest = new SaludRequestDto();
+                        saludRequest.setPeso(nPeso);
+                        saludRequest.setEstatura(nAltura);
+                        saludRequest.setNivelActividad(currentPerfil.getNivelActividad() != null ? currentPerfil.getNivelActividad() : "MODERADO");
+                        saludRequest.setComentario("Actualización desde perfil");
+                        
+                        viewModel.registrarSalud(userId, saludRequest);
                     }
-                } catch (Exception e) { /* Ignorar */ }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Formato de peso o altura inválido", Toast.LENGTH_SHORT).show();
+                }
             }
 
             dialog.dismiss();
