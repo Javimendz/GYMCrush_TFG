@@ -91,13 +91,49 @@ public class ReproductorFragment extends Fragment {
         playerView = view.findViewById(R.id.player_view);
 
         TextView tvTitulo = view.findViewById(R.id.tvTituloVideo);
+        TextView tvSubtitulo = view.findViewById(R.id.tvSubtituloVideo);
+        TextView tvDuracion = view.findViewById(R.id.tvDuracionTag);
+        TextView tvIntensidad = view.findViewById(R.id.tvIntensidadTag);
+        TextView tvDescripcion = view.findViewById(R.id.tvDescripcionVideo);
+
         tvTitulo.setText(titulo != null ? titulo.toUpperCase() : "TUTORIAL");
+
+        if (subtitulo != null && !subtitulo.isEmpty()) {
+            tvSubtitulo.setText(subtitulo);
+            tvSubtitulo.setVisibility(View.VISIBLE);
+        } else {
+            tvSubtitulo.setVisibility(View.GONE);
+        }
+
+        if (duracionMin != null && duracionMin > 0) {
+            tvDuracion.setText(duracionMin + " min");
+            tvDuracion.setVisibility(View.VISIBLE);
+        } else {
+            tvDuracion.setVisibility(View.GONE);
+        }
+
+        if (etiquetaExtra != null && !etiquetaExtra.isEmpty()) {
+            tvIntensidad.setText(etiquetaExtra);
+            tvIntensidad.setVisibility(View.VISIBLE);
+        } else {
+            tvIntensidad.setVisibility(View.GONE);
+        }
+
+        if (descripcion != null && !descripcion.isEmpty()) {
+            tvDescripcion.setText(descripcion);
+        } else {
+            tvDescripcion.setText("Sin descripción disponible.");
+        }
 
         // PASO 1: Pedimos los datos al servidor.
         recuperarProgresoDeServidor();
 
         view.findViewById(R.id.btnCerrarReproductor).setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().popBackStack();
+            if (getActivity() instanceof com.example.gymcrush.ui.rutinas.DetalleRutinaActivity) {
+                getActivity().finish();
+            } else {
+                requireActivity().getSupportFragmentManager().popBackStack();
+            }
         });
 
         return view;
