@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gymcrush.R;
 import java.util.List;
@@ -46,46 +47,52 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         holder.tvTexto.setText(mensaje.getTexto());
         holder.tvHora.setText(mensaje.getHora());
 
-        // Mejora de la comprobación de autoría
-        boolean esMio = mensaje.isEsMio();
+        // Lógica de autoría robusta (ID o Nombre)
+        boolean esMio = false;
+        if (usuarioIdActual != null && usuarioIdActual != -1L && mensaje.getUsuarioId() != null) {
+            esMio = usuarioIdActual.equals(mensaje.getUsuarioId());
+        }
         
-        // Si el flag no está configurado (null o false por defecto), intentamos calcularlo de nuevo como respaldo
-        if (!esMio) {
-            // 1. Comparación por ID (más fiable)
-            if (usuarioIdActual != null && usuarioIdActual != -1L && mensaje.getUsuarioId() != null) {
-                esMio = usuarioIdActual.longValue() == mensaje.getUsuarioId().longValue();
-            }
-            
-            // 2. Fallback por nombre de usuario
-            if (!esMio && mensaje.getUsuario() != null && usuarioActual != null) {
-                String nombreMsg = mensaje.getUsuario().trim().toLowerCase();
-                String nombreYo = usuarioActual.trim().toLowerCase();
-                esMio = nombreMsg.equals(nombreYo);
-            }
+        if (!esMio && mensaje.getUsuario() != null && usuarioActual != null) {
+            String msgUser = mensaje.getUsuario().trim().toLowerCase();
+            String currentUser = usuarioActual.trim().toLowerCase();
+            // Comparación flexible: coincidencia exacta o uno contiene al otro (ej. javi vs javier)
+            esMio = msgUser.equals(currentUser) || msgUser.contains(currentUser) || currentUser.contains(msgUser);
         }
 
-        // Aplicamos la lógica visual según si es mío o no
+        // --- APLICACIÓN DE ESTILOS Y ALINEACIÓN ---
+        android.widget.LinearLayout.LayoutParams params = (android.widget.LinearLayout.LayoutParams) holder.cvMensaje.getLayoutParams();
+        // Convertimos 80dp a píxeles para el margen del lado opuesto
+        int marginPx = (int) (80 * holder.itemView.getContext().getResources().getDisplayMetrics().density);
+        
         if (esMio) {
-            // Alineación a la derecha y colores neón (personaliza según tus recursos)
-            holder.itemView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-            holder.tvTexto.setBackgroundResource(R.drawable.bg_bubble_user);
+            // MIS MENSAJES: Derecha + Rosa
+            params.gravity = android.view.Gravity.END;
+            params.setMargins(marginPx, 8, 0, 8); 
+            holder.cvMensaje.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.brand_pink));
+            
+            holder.tvUsuario.setVisibility(View.GONE); // Ocultamos el nombre en tus propios mensajes
+            holder.tvTexto.setTextColor(Color.WHITE);
+            holder.tvHora.setTextColor(Color.parseColor("#E0E0E0"));
         } else {
-            // Alineación a la izquierda y colores sobrios
-            holder.itemView.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-            holder.tvTexto.setBackgroundResource(R.drawable.bg_bubble_bot);
+            // OTROS: Izquierda + Azul
+            params.gravity = android.view.Gravity.START;
+            params.setMargins(0, 8, marginPx, 8);
+            holder.cvMensaje.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.card_surface));
+            
+            holder.tvUsuario.setVisibility(View.VISIBLE);
+            holder.tvUsuario.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.brand_pink));
+            holder.tvTexto.setTextColor(Color.WHITE);
+            holder.tvHora.setTextColor(Color.parseColor("#99FFFFFF"));
         }
-
-        // Log para depurar
-        android.util.Log.d("ChatAdapter", "Msg de: " + mensaje.getUsuario() + " | esMio: " + esMio);
+        
+        holder.cvMensaje.setLayoutParams(params);
 
         final boolean finalEsMio = esMio;
-        
-        // Aplicamos el click largo tanto al texto como al contenedor para asegurar que se detecte
         View.OnLongClickListener longClickListener = v -> {
             showCustomOptionsDialog(v, position, finalEsMio);
             return true;
         };
-        
         holder.itemView.setOnLongClickListener(longClickListener);
         holder.tvTexto.setOnLongClickListener(longClickListener);
     }
@@ -137,12 +144,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     static class ChatViewHolder extends RecyclerView.ViewHolder {
         TextView tvUsuario, tvTexto, tvHora;
+        androidx.cardview.widget.CardView cvMensaje;
 
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUsuario = itemView.findViewById(R.id.tv_usuario_chat);
             tvTexto = itemView.findViewById(R.id.tv_texto_mensaje);
             tvHora = itemView.findViewById(R.id.tv_hora_mensaje);
+            cvMensaje = itemView.findViewById(R.id.cv_mensaje);
         }
     }
 }

@@ -110,12 +110,16 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                     for (int i = historial.size() - 1; i >= 0; i--) {
                         ChatMessageDto dto = historial.get(i);
 
-                        // Determinar si es mío para el historial
+                        // Lógica robusta para determinar si el mensaje es mío
                         boolean esMio = false;
-                        if (dto.usuarioId != null && dto.usuarioId != 0) {
+                        if (dto.usuarioId != null && dto.usuarioId != 0 && dto.usuarioId != -1L) {
                             esMio = dto.usuarioId.equals(usuarioId);
-                        } else if (dto.remitente != null) {
-                            esMio = dto.remitente.equalsIgnoreCase(nombreUsuario);
+                        }
+                        
+                        if (!esMio && dto.remitente != null && nombreUsuario != null) {
+                            String msgUser = dto.remitente.trim().toLowerCase();
+                            String currentUser = nombreUsuario.trim().toLowerCase();
+                            esMio = msgUser.equals(currentUser) || msgUser.contains(currentUser) || currentUser.contains(msgUser);
                         }
 
                         MensajeChat mensaje = new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada());
@@ -124,7 +128,7 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                     }
                     adapter.notifyDataSetChanged();
                     if (!listaMensajes.isEmpty()) {
-                        rvChat.scrollToPosition(listaMensajes.size() - 1);
+                        rvChat.post(() -> rvChat.smoothScrollToPosition(listaMensajes.size() - 1));
                     }
                 } else {
                     Log.e(TAG, "Error en la respuesta del historial: " + response.code());
@@ -181,17 +185,23 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
-                    Log.d(TAG, "Mensaje recibido: " + topicMessage.getPayload());
+                    Log.d(TAG, "Mensaje recibido RAW: " + topicMessage.getPayload());
                     try {
                         ChatMessageDto dto = gson.fromJson(topicMessage.getPayload(), ChatMessageDto.class);
                         if (dto != null) {
                             // Lógica robusta para determinar si el mensaje es mío
                             boolean esMio = false;
-                            if (dto.usuarioId != null && dto.usuarioId != 0) {
+                            if (dto.usuarioId != null && dto.usuarioId != 0 && dto.usuarioId != -1L) {
                                 esMio = dto.usuarioId.equals(usuarioId);
-                            } else if (dto.remitente != null) {
-                                esMio = dto.remitente.equalsIgnoreCase(nombreUsuario);
+                            } 
+                            
+                            if (!esMio && dto.remitente != null && nombreUsuario != null) {
+                                String msgUser = dto.remitente.trim().toLowerCase();
+                                String currentUser = nombreUsuario.trim().toLowerCase();
+                                esMio = msgUser.equals(currentUser) || msgUser.contains(currentUser) || currentUser.contains(msgUser);
                             }
+                            
+                            Log.d(TAG, "Determinado esMio: " + esMio + " para usuarioId: " + dto.usuarioId + " (Yo: " + usuarioId + ")");
 
                             MensajeChat mensaje = new MensajeChat(dto.id, dto.getRemitenteNombre(), dto.usuarioId, dto.contenido, dto.getHoraFormateada());
                             mensaje.setEsMio(esMio);

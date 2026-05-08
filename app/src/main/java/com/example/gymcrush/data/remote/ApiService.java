@@ -351,7 +351,7 @@ public interface ApiService {
     Call<ApiResponseDto<Void>> quitarRolEntrenador(@Path("id") Long id);
 
     // --- NUEVO ENDPOINT PARA HISTORIAL DE CHAT ---
-    @GET("api/v1/chat/historial-publico")
+    @GET("api/v1/chat/historial")
     Call<List<com.example.gymcrush.ui.social.SocialFragment.ChatMessageDto>> getHistorialChat();
 
     @GET("api/v1/chat/historial/{ticketId}")
