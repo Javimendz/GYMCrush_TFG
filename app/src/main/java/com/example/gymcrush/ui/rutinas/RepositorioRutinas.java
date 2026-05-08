@@ -2,6 +2,7 @@ package com.example.gymcrush.ui.rutinas;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.EntrenamientoResponseDto;
 import com.example.gymcrush.ui.ejercicios.Ejercicio;
@@ -213,23 +214,72 @@ public class RepositorioRutinas {
     }
 
     public static void setEjercicioCompletado(Context context, String routineName, String exerciseName, boolean completado) {
+        if (routineName == null || exerciseName == null) {
+            Log.e("RepositorioRutinas", "setEjercicioCompletado: routineName o exerciseName es null");
+            return;
+        }
+        
+        String rSearch = routineName.trim().toLowerCase();
+        String exSearch = exerciseName.trim().toLowerCase();
+        
+        Log.d("RepositorioRutinas", "Intentando marcar ejercicio: [" + exSearch + "] en rutina: [" + rSearch + "]");
+        
         List<Ejercicio> ejs = getEjerciciosDeRutina(routineName);
-        if (ejs != null) {
-            boolean allDone = true;
-            for (Ejercicio e : ejs) {
-                if (e.getNombre().equalsIgnoreCase(exerciseName)) {
-                    e.setSeleccionado(completado);
-                }
-                if (!e.isSeleccionado()) allDone = false;
-            }
-            // Actualizar estado de la rutina si todos los ejercicios están hechos
-            for (RutinaModel r : listaRutinas) {
-                if (r.nombre.equalsIgnoreCase(routineName)) {
-                    r.completada = allDone;
+        
+        if (ejs == null || ejs.isEmpty()) {
+            // Intento desesperado: buscar en todas las rutinas si la principal falló
+            Log.w("RepositorioRutinas", "Rutina no encontrada por nombre exacto. Buscando en todas...");
+            for (String key : datosRutinas.keySet()) {
+                if (key.trim().toLowerCase().contains(rSearch) || rSearch.contains(key.trim().toLowerCase())) {
+                    ejs = datosRutinas.get(key);
+                    Log.d("RepositorioRutinas", "Encontrada posible coincidencia: " + key);
                     break;
                 }
             }
         }
-        guardarDatosEnLocal(context);
+
+        if (ejs != null && !ejs.isEmpty()) {
+            boolean exerciseFound = false;
+            for (Ejercicio e : ejs) {
+                if (e.getNombre() != null) {
+                    String currentExName = e.getNombre().trim().toLowerCase();
+                    if (currentExName.equals(exSearch) || currentExName.contains(exSearch) || exSearch.contains(currentExName)) {
+                        e.setSeleccionado(completado);
+                        exerciseFound = true;
+                        Log.d("RepositorioRutinas", "¡Ejercicio marcado!: " + e.getNombre());
+                    }
+                }
+            }
+
+            if (exerciseFound) {
+                // Recalcular si toda la rutina está completada
+                boolean allDone = true;
+                for (Ejercicio e : ejs) {
+                    if (!e.isSeleccionado()) {
+                        allDone = false;
+                        break;
+                    }
+                }
+
+                // Actualizar estado de la rutina en la lista global
+                for (RutinaModel r : listaRutinas) {
+                    if (r.nombre != null && (r.nombre.trim().equalsIgnoreCase(routineName.trim()) || r.nombre.trim().toLowerCase().contains(rSearch))) {
+                        r.completada = allDone;
+                        break;
+                    }
+                }
+                
+                guardarDatosEnLocal(context);
+                
+                // Notificar a la UI
+                android.content.Intent intent = new android.content.Intent("com.example.gymcrush.ACTUALIZAR_LISTA_EJERCICIOS");
+                intent.setPackage(context.getPackageName());
+                context.sendBroadcast(intent);
+            } else {
+                Log.e("RepositorioRutinas", "No se encontró el ejercicio '" + exerciseName + "' dentro de la rutina.");
+            }
+        } else {
+            Log.e("RepositorioRutinas", "No se pudo encontrar la rutina: " + routineName);
+        }
     }
 }

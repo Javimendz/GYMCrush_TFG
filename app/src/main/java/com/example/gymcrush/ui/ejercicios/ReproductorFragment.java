@@ -233,6 +233,7 @@ public class ReproductorFragment extends Fragment {
                     progresoInicialMs = 0;
                 }
                 else if (playbackState == Player.STATE_ENDED) {
+                    Log.d("ProgresoDetalle", "Video Finalizado (STATE_ENDED). Marcando ejercicio.");
                     guardarProgreso(true);
                 }
             }
@@ -260,6 +261,23 @@ public class ReproductorFragment extends Fragment {
     }
 
     private void guardarProgreso(boolean completado) {
+        // Marcado LOCAL - Debe funcionar SIEMPRE que tengamos los nombres
+        if (completado && parentRoutineName != null && titulo != null) {
+            Log.d("ProgresoDetalle", "Solicitando marcado local: Routine=" + parentRoutineName + ", Exercise=" + titulo);
+            Context ctx = getContext();
+            if (ctx != null) {
+                com.example.gymcrush.ui.rutinas.RepositorioRutinas.setEjercicioCompletado(ctx, parentRoutineName, titulo, true);
+                
+                // Mostrar confirmación y cerrar reproductor para volver a la lista
+                Toast.makeText(ctx, "¡Ejercicio completado!", Toast.LENGTH_SHORT).show();
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (isAdded() && getActivity() != null) {
+                        getActivity().finish();
+                    }
+                }, 1200);
+            }
+        }
+
         if (!puedeGuardarProgreso || userId == -1L || tutorialId == null || tutorialId == -1L) return;
 
         long pos = (player != null) ? player.getCurrentPosition() : currentPosition;

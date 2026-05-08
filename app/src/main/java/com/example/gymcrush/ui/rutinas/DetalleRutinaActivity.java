@@ -37,6 +37,7 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     private Long userId;
 
     private EjercicioAdapter adapter;
+    private android.content.BroadcastReceiver actualizadorReceiver;
 
     @OptIn(markerClass = UnstableApi.class)
     @Override
@@ -119,6 +120,25 @@ public class DetalleRutinaActivity extends AppCompatActivity {
 
         actualizarEstadoCompletado();
 
+        actualizadorReceiver = new android.content.BroadcastReceiver() {
+            @Override
+            public void onReceive(android.content.Context context, android.content.Intent intent) {
+                if (nombreRutina != null) {
+                    listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
+                    if (adapter != null) {
+                        adapter.setListaEjercicios(listaEjercicios);
+                        adapter.notifyDataSetChanged();
+                        actualizarEstadoCompletado();
+                    }
+                }
+            }
+        };
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(actualizadorReceiver, new android.content.IntentFilter("com.example.gymcrush.ACTUALIZAR_LISTA_EJERCICIOS"), android.content.Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(actualizadorReceiver, new android.content.IntentFilter("com.example.gymcrush.ACTUALIZAR_LISTA_EJERCICIOS"));
+        }
+
         if (btnVolver != null) btnVolver.setOnClickListener(v -> finish());
         if (btnCompletar != null) {
             btnCompletar.setOnClickListener(v -> {
@@ -143,6 +163,14 @@ public class DetalleRutinaActivity extends AppCompatActivity {
                     finish();
                 }
             });
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (actualizadorReceiver != null) {
+            unregisterReceiver(actualizadorReceiver);
         }
     }
 
@@ -178,6 +206,7 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         // Recargar datos por si se completó algún ejercicio en el reproductor
         if (nombreRutina != null && adapter != null) {
             listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
+            adapter.setListaEjercicios(listaEjercicios);
             adapter.notifyDataSetChanged();
             actualizarEstadoCompletado();
         }

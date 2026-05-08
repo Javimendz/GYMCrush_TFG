@@ -50,6 +50,10 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         this.routineName = routineName;
     }
 
+    public void setListaEjercicios(List<Ejercicio> nuevaLista) {
+        this.listaEjercicios = nuevaLista;
+    }
+
     public EjercicioAdapter(List<Ejercicio> listaEjercicios, boolean mostrarReps) {
         this.listaEjercicios = listaEjercicios;
         this.mostrarReps = mostrarReps;
