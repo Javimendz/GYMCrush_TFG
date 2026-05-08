@@ -163,21 +163,36 @@ public class PerfilServiceImp implements IPerfilService {
 @Override
 @Transactional
 public PerfilResponseDto update(Long id, PerfilRequestDto dto) {
-    //  Buscamos el perfil real en la base de datos
+    //  Buscamos el perfil actual
     Perfil perfil = perfilRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
 
-    // para que el Mapper no intente sobreescribirlo/validarlo como nuevo
-    if (dto.getDni() != null && dto.getDni().equals(perfil.getDni())) {
-        dto.setDni(null); 
-    }
+    // GUARDAMOS el DNI que ya sabemos que es bueno
+    String dniOriginal = perfil.getDni();
+    log.info("Iniciando actualización. DNI original a preservar: {}", dniOriginal);
 
-    //  El mapper ahora solo actualizará los campos que han cambiado (como la urlFoto)
+    //  Dejamos que el Mapper haga su trabajo con el resto de campos (foto, bio, etc.)
     perfilMapper.updatePerfilFromDto(dto, perfil);
 
-    //  Guardamos y volvemos a tener paz
-    Perfil actualizado = perfilRepository.save(perfil);
-    return perfilMapper.toDto(actualizado);
+    // Si el DTO traía un DNI diferente, validamos que no exista.
+    // Si traía el mismo o venía null/vacío, restauramos el original para evitar el error de "null value".
+    if (dto.getDni() == null || dto.getDni().trim().isEmpty() || dto.getDni().equalsIgnoreCase(dniOriginal)) {
+        perfil.setDni(dniOriginal); // Restauramos el valor de la DB
+    } else {
+        // Si realmente quiere cambiar el DNI a uno nuevo, verificamos que no lo tenga otro
+        if (perfilRepository.existsByDni(dto.getDni())) {
+            throw new RuntimeException("El DNI " + dto.getDni() + " ya pertenece a otro usuario.");
+        }
+    }
+
+    //  Guardamos con seguridad
+    try {
+        Perfil actualizado = perfilRepository.saveAndFlush(perfil);
+        return perfilMapper.toDto(actualizado);
+    } catch (Exception e) {
+        log.error("Error de persistencia: {}", e.getMessage());
+        throw new RuntimeException("Error al guardar los cambios: " + e.getMessage());
+    }
 }
 
     @Override
