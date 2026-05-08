@@ -14,6 +14,7 @@ import androidx.annotation.OptIn;
 import androidx.media3.common.util.UnstableApi;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.TutorialResponseDto;
+import com.example.gymcrush.ui.rutinas.RepositorioRutinas;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
 
     private List<TutorialResponseDto> listaTutoriales;
     private List<Ejercicio> listaEjercicios;
+    private String routineName;
     private boolean mostrarReps = false;
     private boolean isAdmin = false;
     private long currentUserId = -1;
@@ -40,6 +42,12 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
         this.isAdmin = isAdmin;
         this.currentUserId = currentUserId;
         this.adminListener = listener;
+    }
+
+    public EjercicioAdapter(List<Ejercicio> listaEjercicios, boolean mostrarReps, String routineName) {
+        this.listaEjercicios = listaEjercicios;
+        this.mostrarReps = mostrarReps;
+        this.routineName = routineName;
     }
 
     public EjercicioAdapter(List<Ejercicio> listaEjercicios, boolean mostrarReps) {
@@ -147,6 +155,8 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
                 holder.cbCompletado.setChecked(e.isSeleccionado());
                 holder.cbCompletado.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     e.setSeleccionado(isChecked);
+                    // Guardar progreso en el repositorio para que persista
+                    RepositorioRutinas.guardarDatosEnLocal(buttonView.getContext());
                 });
             } else {
                 holder.txtRepsSeries.setVisibility(View.GONE);
@@ -276,6 +286,7 @@ public class EjercicioAdapter extends RecyclerView.Adapter<EjercicioAdapter.View
                 intent.putExtra("INTENSIDAD", finalEtiquetaAzul);
                 intent.putExtra("TUTORIAL_ID", finalId);
                 intent.putExtra("SUBTITULO", finalSubtitulo);
+                intent.putExtra("PARENT_ROUTINE_NAME", routineName); // Pasar el nombre de la rutina padre
                 intent.putExtra("ES_EJERCICIO_BIBLIOTECA", true); // Bandera para diferenciar
                 v.getContext().startActivity(intent);
             }

@@ -14,6 +14,7 @@ import androidx.annotation.OptIn;
 import androidx.media3.common.util.UnstableApi;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
+import com.example.gymcrush.data.remote.dto.RutinaRequestDto;
 import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
 import com.example.gymcrush.data.remote.ApiService;
 import com.example.gymcrush.data.remote.RetrofitClient;
@@ -34,6 +35,8 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     private String intensidad;
     private Long tutorialId;
     private Long userId;
+
+    private EjercicioAdapter adapter;
 
     @OptIn(markerClass = UnstableApi.class)
     @Override
@@ -92,8 +95,9 @@ public class DetalleRutinaActivity extends AppCompatActivity {
                     duracionInt = Integer.parseInt(cleanDur);
                 } catch (Exception ignored) {}
 
+                String parentName = getIntent().getStringExtra("PARENT_ROUTINE_NAME");
                 ReproductorFragment fragment = ReproductorFragment.newInstance(
-                        tutorialId, urlVideo, nombreRutina, descripcion, subtitulo, duracionInt, intensidad
+                        tutorialId, urlVideo, nombreRutina, descripcion, subtitulo, duracionInt, intensidad, parentName
                 );
 
                 getSupportFragmentManager().beginTransaction()
@@ -108,26 +112,74 @@ public class DetalleRutinaActivity extends AppCompatActivity {
 
         // Configurar Lista de Ejercicios (si es una rutina)
         if (!esEjercicio) {
-            listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
-            if (listaEjercicios != null && !listaEjercicios.isEmpty()) {
-                if (rvEjercicios != null) {
-                    rvEjercicios.setLayoutManager(new LinearLayoutManager(this));
-                    EjercicioAdapter adapter = new EjercicioAdapter(listaEjercicios, true);
-                    rvEjercicios.setAdapter(adapter);
-                }
-                if (tvLabelEjercicios != null) tvLabelEjercicios.setVisibility(View.VISIBLE);
-            }
+            setupRecyclerView(rvEjercicios, tvLabelEjercicios);
         } else {
             if (rvEjercicios != null) rvEjercicios.setVisibility(View.GONE);
         }
 
+        actualizarEstadoCompletado();
+
         if (btnVolver != null) btnVolver.setOnClickListener(v -> finish());
         if (btnCompletar != null) {
             btnCompletar.setOnClickListener(v -> {
-                long id = getIntent().getLongExtra("RUTINA_ID", -1L);
-                if (id != -1) completarRutinaEnServidor(id);
-                else finish();
+                if (nombreRutina != null) {
+                    RepositorioRutinas.marcarComoCompletada(this, nombreRutina);
+                    long id = getIntent().getLongExtra("RUTINA_ID", -1L);
+                    boolean isFromAgenda = getIntent().getBooleanExtra("IS_FROM_AGENDA", false);
+
+                    if (id != -1) {
+                        if (isFromAgenda) {
+                            completarRutinaEnServidor(id);
+                        } else {
+                            // Si no viene de la agenda, es un entrenamiento maestro. 
+                            // Debemos asignarlo a hoy y marcarlo como completado.
+                            asignarYCompletarRutina(id);
+                        }
+                    } else {
+                        Toast.makeText(this, "¡Rutina completada localmente!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                } else {
+                    finish();
+                }
             });
+        }
+    }
+
+    private void setupRecyclerView(RecyclerView rv, TextView label) {
+        listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
+        if (listaEjercicios != null && !listaEjercicios.isEmpty()) {
+            if (rv != null) {
+                rv.setLayoutManager(new LinearLayoutManager(this));
+                adapter = new EjercicioAdapter(listaEjercicios, true, nombreRutina);
+                rv.setAdapter(adapter);
+            }
+            if (label != null) label.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void actualizarEstadoCompletado() {
+        RepositorioRutinas.RutinaModel rutina = RepositorioRutinas.getRutinaPorNombre(nombreRutina);
+        View tvCompletada = findViewById(R.id.tvEstadoCompletadoDetalle);
+        View btnCompletar = findViewById(R.id.btnCompletarRutina);
+
+        if (rutina != null && rutina.completada) {
+            if (tvCompletada != null) tvCompletada.setVisibility(View.VISIBLE);
+            if (btnCompletar != null) btnCompletar.setVisibility(View.GONE);
+        } else {
+            if (tvCompletada != null) tvCompletada.setVisibility(View.GONE);
+            if (btnCompletar != null) btnCompletar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Recargar datos por si se completó algún ejercicio en el reproductor
+        if (nombreRutina != null && adapter != null) {
+            listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
+            adapter.notifyDataSetChanged();
+            actualizarEstadoCompletado();
         }
     }
 
@@ -141,6 +193,34 @@ public class DetalleRutinaActivity extends AppCompatActivity {
                     finish();
                 } else {
                     Toast.makeText(DetalleRutinaActivity.this, "Error al completar: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<RutinaResponseDto>> call, Throwable t) {
+                Toast.makeText(DetalleRutinaActivity.this, "Error de red: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void asignarYCompletarRutina(long entrenamientoId) {
+        if (userId == -1L) {
+            Toast.makeText(this, "Sesión no válida", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String hoy = java.time.LocalDate.now().toString();
+        RutinaRequestDto request = new RutinaRequestDto(userId, entrenamientoId, hoy, 1);
+        request.setCompletado(true);
+
+        RetrofitClient.getApiService().asignarEntrenamiento(request).enqueue(new Callback<ApiResponseDto<RutinaResponseDto>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<RutinaResponseDto>> call, Response<ApiResponseDto<RutinaResponseDto>> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(DetalleRutinaActivity.this, "¡Entrenamiento asignado y completado!", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    Toast.makeText(DetalleRutinaActivity.this, "Error al registrar: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 

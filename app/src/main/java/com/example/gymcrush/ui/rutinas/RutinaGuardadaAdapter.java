@@ -103,14 +103,16 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
         }
 
         // Lógica de progreso y estado
-        holder.tvEstado.setTextColor(Color.WHITE);
         if (rutina.completada) {
-            holder.tvEstado.setText("Rutina Completada ✓");
-            holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+            holder.tvEstado.setText("Completada ✓");
+            holder.tvEstado.setTextColor(Color.parseColor("#4CAF50"));
+            holder.tvEstado.setBackgroundResource(0); // Quitar fondo si tenía uno específico
+            holder.imgStatusCheck.setVisibility(View.VISIBLE);
         } else {
+            holder.imgStatusCheck.setVisibility(View.GONE);
             // Calcular progreso parcial
             List<Ejercicio> ejercicios = RepositorioRutinas.getEjerciciosDeRutina(rutina.nombre);
-            if (ejercicios != null) {
+            if (ejercicios != null && !ejercicios.isEmpty()) {
                 int total = ejercicios.size();
                 int hechos = 0;
                 for (Ejercicio e : ejercicios) {
@@ -118,15 +120,15 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
                 }
                 
                 if (hechos > 0) {
-                    holder.tvEstado.setText("Progreso: " + hechos + "/" + total);
-                    holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800")));
+                    holder.tvEstado.setText("PROGRESO: " + hechos + "/" + total);
+                    holder.tvEstado.setTextColor(Color.parseColor("#FF9800"));
                 } else {
-                    holder.tvEstado.setText("Empezar Entreno");
-                    holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#CD0277")));
+                    holder.tvEstado.setText("EMPEZAR");
+                    holder.tvEstado.setTextColor(Color.parseColor("#CD0277"));
                 }
             } else {
-                holder.tvEstado.setText("Empezar Entreno");
-                holder.tvEstado.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#CD0277")));
+                holder.tvEstado.setText("EMPEZAR");
+                holder.tvEstado.setTextColor(Color.parseColor("#CD0277"));
             }
         }
 
@@ -169,7 +171,7 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvDetalles, tvEstado;
         TextView tvDuracionTag, tvIntensidadTag;
-        ImageView imgRutina, btnMasOpciones;
+        ImageView imgRutina, btnMasOpciones, imgStatusCheck;
         LinearLayout layoutDuracionTag, layoutIntensidadTag;
 
         public ViewHolder(@NonNull View itemView) {
@@ -181,6 +183,7 @@ public class RutinaGuardadaAdapter extends RecyclerView.Adapter<RutinaGuardadaAd
             tvIntensidadTag = itemView.findViewById(R.id.tvIntensidadTagItem);
             imgRutina = itemView.findViewById(R.id.imgRutina);
             btnMasOpciones = itemView.findViewById(R.id.btnMasOpciones);
+            imgStatusCheck = itemView.findViewById(R.id.imgStatusCheck);
             layoutDuracionTag = itemView.findViewById(R.id.layoutDuracionTag);
             layoutIntensidadTag = itemView.findViewById(R.id.layoutIntensidadTag);
         }

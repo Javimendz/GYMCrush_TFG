@@ -903,7 +903,8 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                 item.getFullDescription() != null ? item.getFullDescription() : item.getDescription(),
                 subtitulo,
                 duracion,
-                etiquetaAzul
+                etiquetaAzul,
+                null
         ));
     }
 

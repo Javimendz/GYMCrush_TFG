@@ -163,12 +163,15 @@
 
                 <TextView
                     android:id="@+id/tvDetallesRutina"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="4 sets x 12 reps"
                     android:textColor="#FFFFFF"
                     android:alpha="0.8"
-                    android:textSize="14sp"/>
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
 
                 <View
                     android:layout_width="4dp"

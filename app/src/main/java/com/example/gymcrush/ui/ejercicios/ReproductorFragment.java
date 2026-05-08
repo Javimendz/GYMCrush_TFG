@@ -40,7 +40,7 @@ public class ReproductorFragment extends Fragment {
 
     private PlayerView playerView;
     private ExoPlayer player;
-    private String videoUrl, titulo, descripcion, subtitulo, etiquetaExtra;
+    private String videoUrl, titulo, descripcion, subtitulo, etiquetaExtra, parentRoutineName;
     private Long tutorialId, userId;
     private Integer duracionMin;
 
@@ -54,7 +54,7 @@ public class ReproductorFragment extends Fragment {
     private int ultimoProgresoGuardado = -1; // Filtro Anti-Spam para la BD
 
     @UnstableApi
-    public static ReproductorFragment newInstance(Long tutorialId, String url, String titulo, String descripcion, String subtitulo, Integer duracionMin, String etiquetaExtra) {
+    public static ReproductorFragment newInstance(Long tutorialId, String url, String titulo, String descripcion, String subtitulo, Integer duracionMin, String etiquetaExtra, String parentRoutineName) {
         ReproductorFragment fragment = new ReproductorFragment();
         Bundle args = new Bundle();
         args.putLong("tutorialId", tutorialId != null ? tutorialId : -1L);
@@ -64,6 +64,7 @@ public class ReproductorFragment extends Fragment {
         args.putString("subtitulo", subtitulo);
         if (duracionMin != null) args.putInt("duracionMin", duracionMin);
         args.putString("etiquetaExtra", etiquetaExtra);
+        args.putString("parentRoutineName", parentRoutineName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,6 +80,7 @@ public class ReproductorFragment extends Fragment {
             subtitulo = getArguments().getString("subtitulo");
             duracionMin = getArguments().containsKey("duracionMin") ? getArguments().getInt("duracionMin") : null;
             etiquetaExtra = getArguments().getString("etiquetaExtra");
+            parentRoutineName = getArguments().getString("parentRoutineName");
         }
         SharedPreferences prefs = requireActivity().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
         userId = prefs.getLong("user_id", -1L);
@@ -272,6 +274,10 @@ public class ReproductorFragment extends Fragment {
         // No guardamos si el progreso es igual o menor al ya guardado (evita que loops o seeks accidentales sobrescriban)
         // a menos que sea una marca de "completado" enviada desde STATE_ENDED.
         if (seconds <= ultimoProgresoGuardado && !completado) return;
+
+        if (completado && parentRoutineName != null) {
+            com.example.gymcrush.ui.rutinas.RepositorioRutinas.setEjercicioCompletado(requireContext(), parentRoutineName, titulo, true);
+        }
 
         ultimoProgresoGuardado = seconds;
         currentPosition = pos;

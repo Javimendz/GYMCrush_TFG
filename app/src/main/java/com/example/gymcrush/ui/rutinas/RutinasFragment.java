@@ -187,6 +187,7 @@ public class RutinasFragment extends Fragment {
                 android.content.Intent intent = new android.content.Intent(getContext(), DetalleRutinaActivity.class);
                 intent.putExtra("RUTINA_ID", rutina.getId());
                 intent.putExtra("TUTORIAL_ID", rutina.getEntrenamientoId());
+                intent.putExtra("IS_FROM_AGENDA", true);
                 intent.putExtra("NOMBRE_RUTINA", titulo);
                 intent.putExtra("URL_VIDEO", urlVideo);
                 intent.putExtra("DESCRIPCION", descripcion);
@@ -443,7 +444,30 @@ public class RutinasFragment extends Fragment {
             tvProgresoTexto.setText("Tómate un respiro hoy");
             progressRutinaDetalle.setProgress(0);
             if (imgFondoCardResumen != null) imgFondoCardResumen.setImageResource(R.drawable.cardio);
+
+            // Resetear marcas de completado para el día sin actividad
+            for (RepositorioRutinas.RutinaModel m : RepositorioRutinas.getRutinas()) {
+                m.completada = false;
+            }
+            if (rutinasGuardadasAdapter != null) rutinasGuardadasAdapter.notifyDataSetChanged();
+            if (vpRutinasFavoritas != null && vpRutinasFavoritas.getAdapter() != null) {
+                vpRutinasFavoritas.getAdapter().notifyDataSetChanged();
+            }
             return;
+        }
+
+        // Sincronizar estado de completado en "MIS RUTINAS" según la agenda del día seleccionado
+        for (RepositorioRutinas.RutinaModel m : RepositorioRutinas.getRutinas()) {
+            m.completada = false; // Reset inicial
+        }
+        for (RutinaResponseDto rDto : lista) {
+            if (Boolean.TRUE.equals(rDto.getCompletado())) {
+                RepositorioRutinas.marcarComoCompletada(getContext(), rDto.getNombreEntrenamiento());
+            }
+        }
+        if (rutinasGuardadasAdapter != null) rutinasGuardadasAdapter.notifyDataSetChanged();
+        if (vpRutinasFavoritas != null && vpRutinasFavoritas.getAdapter() != null) {
+            vpRutinasFavoritas.getAdapter().notifyDataSetChanged();
         }
 
         long completadas = lista.stream().filter(r -> Boolean.TRUE.equals(r.getCompletado())).count();

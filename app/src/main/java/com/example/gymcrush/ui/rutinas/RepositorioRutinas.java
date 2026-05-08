@@ -22,23 +22,41 @@ public class RepositorioRutinas {
 
     public static void cargarDatosDesdeLocal(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_DATOS_RUTINAS, null);
-        if (json != null) {
-            Gson gson = new Gson();
+        Gson gson = new Gson();
+        
+        String jsonEjercicios = prefs.getString(KEY_DATOS_RUTINAS, null);
+        if (jsonEjercicios != null) {
             java.lang.reflect.Type type = new TypeToken<Map<String, List<Ejercicio>>>(){}.getType();
-            Map<String, List<Ejercicio>> cargados = gson.fromJson(json, type);
+            Map<String, List<Ejercicio>> cargados = gson.fromJson(jsonEjercicios, type);
             if (cargados != null) {
+                datosRutinas.clear();
                 datosRutinas.putAll(cargados);
+            }
+        }
+
+        String jsonLista = prefs.getString("lista_rutinas_model_json", null);
+        if (jsonLista != null) {
+            java.lang.reflect.Type type = new TypeToken<List<RutinaModel>>(){}.getType();
+            List<RutinaModel> cargada = gson.fromJson(jsonLista, type);
+            if (cargada != null) {
+                listaRutinas.clear();
+                listaRutinas.addAll(cargada);
             }
         }
     }
 
-    private static void guardarDatosEnLocal(Context context) {
+    public static void guardarDatosEnLocal(Context context) {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         Gson gson = new Gson();
-        String json = gson.toJson(datosRutinas);
-        prefs.edit().putString(KEY_DATOS_RUTINAS, json).apply();
+        
+        String jsonEjercicios = gson.toJson(datosRutinas);
+        String jsonLista = gson.toJson(listaRutinas);
+        
+        prefs.edit()
+                .putString(KEY_DATOS_RUTINAS, jsonEjercicios)
+                .putString("lista_rutinas_model_json", jsonLista)
+                .apply();
     }
 
     public static class RutinaModel {
@@ -74,6 +92,14 @@ public class RepositorioRutinas {
 
     public static List<RutinaModel> getRutinas() {
         return listaRutinas;
+    }
+
+    public static RutinaModel getRutinaPorNombre(String nombre) {
+        if (nombre == null) return null;
+        for (RutinaModel r : listaRutinas) {
+            if (r.nombre.equalsIgnoreCase(nombre)) return r;
+        }
+        return null;
     }
 
     private static void agregarRutinaInicial(String nombre, String duracion, String dificultad, int img, List<Ejercicio> ejs) {
@@ -139,6 +165,16 @@ public class RepositorioRutinas {
                     (e.getUrlVideo() == null || e.getUrlVideo().isEmpty()) ? R.drawable.ic_launcher_background : 0,
                     ejs
             );
+
+            // Preservar el estado completado local si ya existía
+            for (RutinaModel anterior : listaRutinas) {
+                if ((anterior.id != null && anterior.id.equals(e.getId())) || 
+                    (anterior.nombre != null && anterior.nombre.equalsIgnoreCase(e.getNombre()))) {
+                    model.completada = anterior.completada;
+                    break;
+                }
+            }
+
             nuevasRutinas.add(model);
             
             // Asegurar que el mapa conserve la asociación
@@ -161,12 +197,39 @@ public class RepositorioRutinas {
         if (huboCambios) guardarDatosEnLocal(context);
     }
 
-    public static void marcarComoCompletada(String nombre) {
+    public static void marcarComoCompletada(Context context, String nombre) {
         for (RutinaModel r : listaRutinas) {
-            if (r.nombre.equals(nombre)) {
+            if (r.nombre.equalsIgnoreCase(nombre)) {
                 r.completada = true;
+                // Marcar todos sus ejercicios como completados también
+                List<Ejercicio> ejs = getEjerciciosDeRutina(nombre);
+                if (ejs != null) {
+                    for (Ejercicio e : ejs) e.setSeleccionado(true);
+                }
                 break;
             }
         }
+        guardarDatosEnLocal(context);
+    }
+
+    public static void setEjercicioCompletado(Context context, String routineName, String exerciseName, boolean completado) {
+        List<Ejercicio> ejs = getEjerciciosDeRutina(routineName);
+        if (ejs != null) {
+            boolean allDone = true;
+            for (Ejercicio e : ejs) {
+                if (e.getNombre().equalsIgnoreCase(exerciseName)) {
+                    e.setSeleccionado(completado);
+                }
+                if (!e.isSeleccionado()) allDone = false;
+            }
+            // Actualizar estado de la rutina si todos los ejercicios están hechos
+            for (RutinaModel r : listaRutinas) {
+                if (r.nombre.equalsIgnoreCase(routineName)) {
+                    r.completada = allDone;
+                    break;
+                }
+            }
+        }
+        guardarDatosEnLocal(context);
     }
 }
