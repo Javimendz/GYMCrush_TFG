@@ -163,21 +163,32 @@ public class PerfilServiceImp implements IPerfilService {
 @Override
 @Transactional
 public PerfilResponseDto update(Long id, PerfilRequestDto dto) {
-    //  Buscamos el perfil real en la base de datos
     Perfil perfil = perfilRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Perfil no encontrado"));
 
-    // para que el Mapper no intente sobreescribirlo/validarlo como nuevo
-    if (dto.getDni() != null && dto.getDni().equals(perfil.getDni())) {
+    log.info("DNI en DB: {} | DNI en DTO: {}", perfil.getDni(), dto.getDni());
+
+    // Si el DNI es el mismo, lo "limpiamos" del DTO para que el Mapper ni lo toque
+    if (dto.getDni() != null && dto.getDni().equalsIgnoreCase(perfil.getDni())) {
         dto.setDni(null); 
     }
 
-    //  El mapper ahora solo actualizará los campos que han cambiado (como la urlFoto)
+    // Si el teléfono también es único y no ha cambiado, límpialo también
+    if (dto.getTelefono() != null && dto.getTelefono().equals(perfil.getTelefono())) {
+        dto.setTelefono(null);
+    }
+
+    // Ahora el Mapper solo actualizará los campos que NO sean null en el DTO
+    // (Asegúrate de que tu PerfilMapper ignore los nulos)
     perfilMapper.updatePerfilFromDto(dto, perfil);
 
-    //  Guardamos y volvemos a tener paz
-    Perfil actualizado = perfilRepository.save(perfil);
-    return perfilMapper.toDto(actualizado);
+    try {
+        Perfil actualizado = perfilRepository.saveAndFlush(perfil);
+        return perfilMapper.toDto(actualizado);
+    } catch (Exception e) {
+        log.error("Error al persistir: {}", e.getMessage());
+        throw e; // Aquí verás si el problema es otro campo único
+    }
 }
 
     @Override
