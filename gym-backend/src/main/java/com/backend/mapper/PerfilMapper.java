@@ -9,6 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.backend.domain.Perfil;
 import com.backend.domain.Role;
@@ -27,7 +28,9 @@ import com.backend.dto.PerfilResponseDto;
  * @version 1.0
  * @since 2026
  */
-@Mapper(componentModel = "spring")
+
+@Mapper(componentModel = "spring", 
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface PerfilMapper {
 
   /**

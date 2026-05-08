@@ -79,6 +79,7 @@ El sistema utiliza **Spring Security con JWT (JSON Web Tokens)**.
 ### **Roles Disponibles**
 - **ADMIN**: Acceso total a gestión, horarios, actividades y perfiles de salud ajenos.
 - **USER**: Acceso a sus propias reservas, su historial de salud y catálogo de actividades. Acceso individual al gimnasio.
+- **ENTRENADOR**: Para staff
 
 ---
 
@@ -117,6 +118,14 @@ docker compose up --build
 
 ### **3. Variables de Entorno**
 Configura `application.properties` con las siguientes claves:
+
+### USUARIO ADMIN:
+
+```
+  usuario: admin
+  password: admin1234
+
+```
 
 ```properties
 # CORS
