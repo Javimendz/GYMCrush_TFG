@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.media3.common.util.UnstableApi;
 import com.bumptech.glide.Glide;
@@ -68,6 +69,10 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rutina_activity_detalle);
 
+        // --- PASO 0: CARGAR DATOS LOCALES ---
+        // Vital por si el proceso fue recreado y el repositorio estático está vacío
+        RepositorioRutinas.cargarDatosDesdeLocal(this);
+
         // Vincular con los IDs exactos de tu XML
         playerView = findViewById(R.id.playerView);
         imgDetalle = findViewById(R.id.imgDetalle);
@@ -91,16 +96,30 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         urlVideo = getIntent().getStringExtra("URL_VIDEO");
         descripcion = getIntent().getStringExtra("DESCRIPCION");
         intensidad = getIntent().getStringExtra("INTENSIDAD");
-        tutorialId = getIntent().getLongExtra("TUTORIAL_ID", -1L);
-        if (tutorialId == -1L) {
-            // Reintentar con RUTINA_ID si no viene TUTORIAL_ID
-            tutorialId = getIntent().getLongExtra("RUTINA_ID", -1L);
-        }
-        if (tutorialId == -1L) tutorialId = null;
 
-        // Si no viene tutorialId por intent, intentar recuperarlo si es un ejercicio de biblioteca
-        if (tutorialId == null) {
-             tutorialId = (Long) getIntent().getSerializableExtra("EJERCICIO_ID");
+        // Recuperar ID de tutorial con fallback seguro
+        long tId = getIntent().getLongExtra("TUTORIAL_ID", -1L);
+        if (tId == -1L) tId = getIntent().getLongExtra("RUTINA_ID", -1L);
+
+        if (tId != -1L) {
+            tutorialId = tId;
+        } else {
+            // Intentar como Serializable por si acaso
+            Object serialId = getIntent().getSerializableExtra("TUTORIAL_ID");
+            if (serialId == null) serialId = getIntent().getSerializableExtra("RUTINA_ID");
+            if (serialId == null) serialId = getIntent().getSerializableExtra("EJERCICIO_ID");
+
+            if (serialId instanceof Long) tutorialId = (Long) serialId;
+            else if (serialId instanceof Integer) tutorialId = ((Integer) serialId).longValue();
+            else tutorialId = null;
+        }
+
+        // Recuperar estado si hay recreación de actividad
+        if (savedInstanceState != null) {
+            progresoInicialMs = savedInstanceState.getLong("PROGRESO_INICIAL", 0);
+            ultimoProgresoGuardado = savedInstanceState.getInt("ULTIMO_PROGRESO", -1);
+            lastSavedPosition = savedInstanceState.getLong("LAST_POSITION", 0);
+            if (lastSavedPosition > 0) progresoInicialMs = lastSavedPosition;
         }
 
         // --- PASO 1: RECUPERAR PROGRESO PRIMERO ---
@@ -183,7 +202,13 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     private void recuperarProgresoDeServidor() {
         if (userId == -1L || tutorialId == null) {
             puedeGuardarProgreso = true;
+            inicializarVideoSiCorresponde();
             return;
+        }
+
+        // Si ya tenemos progreso (por restauración de estado), permitimos que el video empiece con el que tenemos
+        if (progresoInicialMs > 0) {
+            inicializarVideoSiCorresponde();
         }
 
         RetrofitClient.getApiService().obtenerProgreso(userId, tutorialId).enqueue(new Callback<ApiResponseDto<VisualizacionResponseDto>>() {
@@ -194,13 +219,16 @@ public class DetalleRutinaActivity extends AppCompatActivity {
                     Integer segundos = datos.getProgresoSegundos();
                     Boolean completado = datos.getCompletado();
 
-                    if (completado != null && completado) {
-                        progresoInicialMs = 0;
-                        ultimoProgresoGuardado = 0;
-                    } else if (segundos != null && segundos > 0) {
-                        progresoInicialMs = segundos * 1000L;
-                        ultimoProgresoGuardado = segundos;
-                        Log.d("ProgresoDetalle", "Progreso recuperado: " + segundos + "s");
+                    // Solo actualizamos progreso inicial si no lo hemos recuperado ya de savedInstanceState
+                    if (ultimoProgresoGuardado == -1) {
+                        if (completado != null && completado) {
+                            progresoInicialMs = 0;
+                            ultimoProgresoGuardado = 0;
+                        } else if (segundos != null && segundos > 0) {
+                            progresoInicialMs = segundos * 1000L;
+                            ultimoProgresoGuardado = segundos;
+                            Log.d("ProgresoDetalle", "Progreso recuperado de servidor: " + segundos + "s");
+                        }
                     }
 
                     if (datos.getContadorReproducciones() != null) {
@@ -213,20 +241,27 @@ public class DetalleRutinaActivity extends AppCompatActivity {
                     }
                 }
                 puedeGuardarProgreso = true;
-                
-                // --- PASO 2: INICIAR VIDEO DESPUÉS DE RECUPERAR PROGRESO ---
-                runOnUiThread(() -> {
-                    boolean esEjercicio = getIntent().getBooleanExtra("ES_EJERCICIO_BIBLIOTECA", false);
-                    if (esEjercicio && urlVideo != null && !urlVideo.isEmpty()) {
-                        setupVideoPlayer(urlVideo);
-                    }
-                });
+                inicializarVideoSiCorresponde();
             }
 
             @Override
             public void onFailure(Call<ApiResponseDto<VisualizacionResponseDto>> call, Throwable t) {
                 Log.e("ProgresoDetalle", "Error al recuperar progreso: " + t.getMessage());
                 puedeGuardarProgreso = true;
+                inicializarVideoSiCorresponde();
+            }
+        });
+    }
+
+    private void inicializarVideoSiCorresponde() {
+        runOnUiThread(() -> {
+            if (isFinishing() || isDestroyed()) return;
+            boolean esEjercicio = getIntent().getBooleanExtra("ES_EJERCICIO_BIBLIOTECA", false);
+            // Auto-play si es ejercicio O si es una restauración con progreso avanzado
+            if ((esEjercicio || (lastSavedPosition > 0)) && urlVideo != null && !urlVideo.isEmpty()) {
+                if (player == null) {
+                    setupVideoPlayer(urlVideo);
+                }
             }
         });
     }
@@ -368,6 +403,18 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         super.onStop();
         if (player != null) {
             player.stop();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("PROGRESO_INICIAL", progresoInicialMs);
+        outState.putInt("ULTIMO_PROGRESO", ultimoProgresoGuardado);
+        if (player != null) {
+            outState.putLong("LAST_POSITION", player.getCurrentPosition());
+        } else {
+            outState.putLong("LAST_POSITION", lastSavedPosition);
         }
     }
 
