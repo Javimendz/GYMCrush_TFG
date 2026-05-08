@@ -21,6 +21,10 @@ import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
 import android.widget.Toast;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.AutoCompleteTextView;
+import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import java.util.Locale;
 
 public class DetalleComidaFragment extends DialogFragment {
@@ -63,6 +67,34 @@ public class DetalleComidaFragment extends DialogFragment {
         TextView tvProt = view.findViewById(R.id.tvProtDetail);
         TextView tvCarb = view.findViewById(R.id.tvCarbDetail);
         TextView tvGras = view.findViewById(R.id.tvGrasDetail);
+        AutoCompleteTextView spinnerMomento = view.findViewById(R.id.spinnerMomentoDetalle);
+
+        String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
+        NoFilterAdapter adapter = new NoFilterAdapter(requireContext(), momentos);
+        spinnerMomento.setAdapter(adapter);
+
+        // Preseleccionar momento si existe
+        if (comida != null && comida.getMomento() != null) {
+            String m = comida.getMomento().toUpperCase();
+            boolean encontrado = false;
+            for (String s : momentos) {
+                if (s.equals(m)) {
+                    spinnerMomento.setText(s, false);
+                    encontrado = true;
+                    break;
+                }
+            }
+            if (!encontrado) spinnerMomento.setText(momentos[0], false);
+        } else {
+            spinnerMomento.setText(momentos[0], false);
+        }
+
+        spinnerMomento.setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                spinnerMomento.showDropDown();
+            }
+            return false;
+        });
 
         view.findViewById(R.id.btnBackDetalleComida).setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
@@ -161,7 +193,7 @@ public class DetalleComidaFragment extends DialogFragment {
                 if (planActual != null && planActual.getId() != null) {
                     ComidaDiariaRequestDto request = new ComidaDiariaRequestDto();
                     request.setPlanNutricionalId(planActual.getId());
-                    request.setMomento(comida.getMomento());
+                    request.setMomento(spinnerMomento.getText().toString());
                     request.setNombreAlimento(comida.getNombreAlimento());
                     request.setCalorias(comida.getCalorias());
                     request.setProteina(comida.getProteina());
@@ -171,8 +203,12 @@ public class DetalleComidaFragment extends DialogFragment {
                     request.setDescripcion(comida.getDescripcion());
                     request.setRecipeUrl(comida.getRecipeUrl());
 
-                    SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
-                    long usuarioId = prefs.getLong("user_id", -1);
+                    SharedPreferences prefs = requireContext().getSharedPreferences("GymCrushPrefs", Context.MODE_PRIVATE);
+                    long usuarioId = prefs.getLong("usuarioId", -1);
+                    if (usuarioId == -1) {
+                        prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+                        usuarioId = prefs.getLong("user_id", -1);
+                    }
 
                     viewModel.añadirComida(request, usuarioId);
                     Toast.makeText(requireContext(), "Añadiendo " + comida.getNombreAlimento() + " a tu plan...", Toast.LENGTH_SHORT).show();
@@ -181,6 +217,33 @@ public class DetalleComidaFragment extends DialogFragment {
                     Toast.makeText(requireContext(), "No tienes un plan activo donde añadir la comida", Toast.LENGTH_LONG).show();
                 }
             });
+        }
+    }
+
+    private static class NoFilterAdapter extends ArrayAdapter<String> implements Filterable {
+        private final String[] items;
+
+        public NoFilterAdapter(Context context, String[] items) {
+            super(context, android.R.layout.simple_dropdown_item_1line, items);
+            this.items = items;
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();
+                    results.values = items;
+                    results.count = items.length;
+                    return results;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    notifyDataSetChanged();
+                }
+            };
         }
     }
 }

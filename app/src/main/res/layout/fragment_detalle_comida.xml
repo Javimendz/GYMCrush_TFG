@@ -206,11 +206,40 @@
                 app:cornerRadius="12dp"
                 android:backgroundTint="#CD0277"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="AÑADIR A MI PLAN"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Seleccionar momento"
+                android:textColorHint="#94A3B8"
+                app:boxStrokeColor="#CD0277"
+                app:hintTextColor="@color/white"
+                app:startIconDrawable="@drawable/ic_workout"
+                app:startIconTint="#CD0277">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerMomentoDetalle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:textColor="@color/white" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAnadirMiDieta"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
                 android:text="Añadir a mi dieta"
                 app:cornerRadius="12dp"
                 android:backgroundTint="#4CAF50"

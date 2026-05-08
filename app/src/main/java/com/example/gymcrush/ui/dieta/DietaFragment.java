@@ -591,7 +591,14 @@ public class DietaFragment extends Fragment {
         TextInputEditText etGrasas = dialogView.findViewById(R.id.dialog_et_grasas);
 
         String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
-        spinnerMomento.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, momentos));
+        spinnerMomento.setAdapter(new NoFilterAdapter(requireContext(), momentos));
+        spinnerMomento.setText(momentos[0], false);
+        spinnerMomento.setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                spinnerMomento.showDropDown();
+            }
+            return false;
+        });
 
         Dialog dialog = new Dialog(getContext());
         dialog.setContentView(dialogView);
@@ -642,15 +649,51 @@ public class DietaFragment extends Fragment {
         TextView tvNoResults = dialogView.findViewById(R.id.tvNoSearchResults);
 
         String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
-        spinnerMomento.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, momentos));
+        spinnerMomento.setAdapter(new NoFilterAdapter(requireContext(), momentos));
         spinnerMomento.setText(momentos[0], false);
-        spinnerMomento.setOnClickListener(v -> spinnerMomento.showDropDown());
+        spinnerMomento.setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                spinnerMomento.showDropDown();
+            }
+            return false;
+        });
 
         MaterialButton btnCerrar = dialogView.findViewById(R.id.btnCerrarBusqueda);
 
         FoodSearchAdapter searchAdapter = new FoodSearchAdapter();
         rvResults.setAdapter(searchAdapter);
         rvResults.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // --- SOLUCIÓN: Conectar SearchView con ViewModel y observar resultados ---
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                viewModel.onSearchQueryChanged(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                viewModel.onSearchQueryChanged(newText);
+                return true;
+            }
+        });
+
+        viewModel.getResultadosBusqueda().observe(getViewLifecycleOwner(), items -> {
+            searchAdapter.setItems(items);
+            if (items == null || items.isEmpty()) {
+                tvNoResults.setVisibility(View.VISIBLE);
+                rvResults.setVisibility(View.GONE);
+            } else {
+                tvNoResults.setVisibility(View.GONE);
+                rvResults.setVisibility(View.VISIBLE);
+            }
+        });
+
+        viewModel.getLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        });
+        // -------------------------------------------------------------------------
         
         androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
                 .setView(dialogView)
