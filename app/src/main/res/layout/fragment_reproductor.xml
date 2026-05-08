@@ -91,9 +91,13 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_chip_personal"
             android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
+            android:paddingVertical="6dp"
             android:textColor="#00E676"
             android:textStyle="bold"
+            android:gravity="center"
+            app:drawableStartCompat="@drawable/ic_eye"
+            android:drawablePadding="6dp"
+            app:drawableTint="#00E676"
             android:visibility="gone" />
 
     </LinearLayout>

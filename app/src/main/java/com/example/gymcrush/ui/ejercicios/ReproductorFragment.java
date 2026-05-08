@@ -300,8 +300,7 @@ public class ReproductorFragment extends Fragment {
         if (getView() != null && datos != null && datos.getContadorReproducciones() != null) {
             TextView tvReproducciones = getView().findViewById(R.id.tvReproducciones);
             if (tvReproducciones != null) {
-                tvReproducciones.setText(datos.getContadorReproducciones() + " reproducciones");
-                tvReproducciones.setTextColor(android.graphics.Color.parseColor("#00E676"));
+                tvReproducciones.setText(String.valueOf(datos.getContadorReproducciones()));
                 tvReproducciones.setVisibility(View.VISIBLE);
             }
         }
