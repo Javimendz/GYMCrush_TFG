@@ -107,6 +107,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
     // Widget Nutrición
     private View cardNutricionWidget;
     private TextView tvNombrePlanWidget, tvCaloriasWidget;
+    private TextView tvProtLabel, tvCarbLabel, tvGrasLabel;
     private TextView tvIANewsTitle, tvIANewsContent;
     private TextView tvActividadPorcentaje, tvReservasValor;
     private com.google.android.material.progressindicator.CircularProgressIndicator progressCircularStat;
@@ -164,6 +165,10 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         progressProt = findViewById(R.id.progressProt);
         progressCarb = findViewById(R.id.progressCarb);
         progressGras = findViewById(R.id.progressGras);
+
+        tvProtLabel = findViewById(R.id.tvProtLabel);
+        tvCarbLabel = findViewById(R.id.tvCarbLabel);
+        tvGrasLabel = findViewById(R.id.tvGrasLabel);
         
         cardNutricionWidget.setOnClickListener(v -> {
             DietaFragment fragment = new DietaFragment();
@@ -573,7 +578,6 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                                 tvNombrePlanWidget.setText("Mi Plan Nutricional");
                             }
                             tvNombrePlanWidget.setTextColor(Color.WHITE);
-                            tvCaloriasWidget.setText(plan.getCaloriasObjetivo() + " kcal");
                             tvCaloriasWidget.setTextColor(getResources().getColor(R.color.brand_pink));
                             actualizarProgresoMacros(plan);
                         });
@@ -605,29 +609,58 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
 
     private void actualizarProgresoMacros(NutricionResponseDto plan) {
         double p = 0, c = 0, g = 0, cal = 0;
-        if (plan.getComidas() != null) {
-            for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : plan.getComidas()) {
-                p += (item.getProteina() != null) ? item.getProteina() : 0;
-                c += (item.getCarbohidratos() != null) ? item.getCarbohidratos() : 0;
-                g += (item.getGrasas() != null) ? item.getGrasas() : 0;
-                cal += (item.getCalorias() != null) ? item.getCalorias() : 0;
+        
+        // 1. Sumar recetas sugeridas por la IA (almacenadas en macronutrientes)
+        if (plan.getMacronutrientes() != null && plan.getMacronutrientes().getRecipes() != null && plan.getMacronutrientes().getRecipes().getRecipe() != null) {
+            for (com.example.gymcrush.data.remote.dto.FatSecretRecipeDto recipe : plan.getMacronutrientes().getRecipes().getRecipe()) {
+                if (recipe.getRecipeNutrition() != null) {
+                    try {
+                        String prot = recipe.getRecipeNutrition().getProtein();
+                        String carb = recipe.getRecipeNutrition().getCarbohydrate();
+                        String fat = recipe.getRecipeNutrition().getFat();
+                        String cals = recipe.getRecipeNutrition().getCalories();
+                        
+                        if (prot != null) p += Double.parseDouble(prot);
+                        if (carb != null) c += Double.parseDouble(carb);
+                        if (fat != null) g += Double.parseDouble(fat);
+                        if (cals != null) cal += Double.parseDouble(cals);
+                    } catch (Exception ignored) {}
+                }
             }
         }
 
-        // Obtener objetivos del plan o usar valores por defecto
+        // 2. Sumar dietas confirmadas y comidas manuales
+        List<com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto> todasLasComidas = new ArrayList<>();
+        if (plan.getDietas() != null) todasLasComidas.addAll(plan.getDietas());
+        if (plan.getComidas() != null) todasLasComidas.addAll(plan.getComidas());
+
+        for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto item : todasLasComidas) {
+            p += (item.getProteina() != null) ? item.getProteina() : 0;
+            c += (item.getCarbohidratos() != null) ? item.getCarbohidratos() : 0;
+            g += (item.getGrasas() != null) ? item.getGrasas() : 0;
+            cal += (item.getCalorias() != null) ? item.getCalorias() : 0;
+        }
+
+        // Obtener objetivos del plan o usar valores por defecto (ej. 2000 kcal)
         int objetivoCal = (plan.getCaloriasObjetivo() != null) ? plan.getCaloriasObjetivo() : 2000;
-        // Distribución estándar: 30% P, 40% C, 30% G
+        
+        // Distribución ideal basada en el objetivo total: 30% P, 40% C, 30% G
         int objetivoP = (int) ((objetivoCal * 0.30) / 4);
         int objetivoC = (int) ((objetivoCal * 0.40) / 4);
         int objetivoG = (int) ((objetivoCal * 0.30) / 9);
 
-        // Actualizar barras con animación y colores dinámicos
-        progressProt.setProgress((int) ((p * 100) / Math.max(objetivoP, 1)), true);
-        progressCarb.setProgress((int) ((c * 100) / Math.max(objetivoC, 1)), true);
-        progressGras.setProgress((int) ((g * 100) / Math.max(objetivoG, 1)), true);
+        // Actualizar barras de progreso (calculando porcentaje de 0 a 100)
+        progressProt.setProgress(objetivoP > 0 ? (int) ((p * 100) / objetivoP) : 0, true);
+        progressCarb.setProgress(objetivoC > 0 ? (int) ((c * 100) / objetivoC) : 0, true);
+        progressGras.setProgress(objetivoG > 0 ? (int) ((g * 100) / objetivoG) : 0, true);
+
+        // Actualizar etiquetas de texto: Consumido / Objetivo
+        if (tvProtLabel != null) tvProtLabel.setText(String.format(Locale.getDefault(), "P: %.0f/%dg", p, objetivoP));
+        if (tvCarbLabel != null) tvCarbLabel.setText(String.format(Locale.getDefault(), "C: %.0f/%dg", c, objetivoC));
+        if (tvGrasLabel != null) tvGrasLabel.setText(String.format(Locale.getDefault(), "G: %.0f/%dg", g, objetivoG));
         
         if (tvCaloriasWidget != null) {
-            tvCaloriasWidget.setText(String.format(Locale.getDefault(), "%.0f", cal));
+            tvCaloriasWidget.setText(String.format(Locale.getDefault(), "%.0f / %d kcal", cal, objetivoCal));
         }
     }
 

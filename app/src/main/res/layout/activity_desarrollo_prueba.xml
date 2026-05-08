@@ -354,7 +354,14 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:orientation="vertical">
-                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="P" android:textColor="#CD0277" android:textSize="10sp" android:textStyle="bold"/>
+                                    <TextView
+                                        android:id="@+id/tvProtLabel"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="P: 0/0g"
+                                        android:textColor="#CD0277"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold"/>
                                     <com.google.android.material.progressindicator.LinearProgressIndicator
                                         android:id="@+id/progressProt"
                                         android:layout_width="match_parent"
@@ -372,7 +379,14 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:orientation="vertical">
-                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="C" android:textColor="#4CAF50" android:textSize="10sp" android:textStyle="bold"/>
+                                    <TextView
+                                        android:id="@+id/tvCarbLabel"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="C: 0/0g"
+                                        android:textColor="#4CAF50"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold"/>
                                     <com.google.android.material.progressindicator.LinearProgressIndicator
                                         android:id="@+id/progressCarb"
                                         android:layout_width="match_parent"
@@ -390,7 +404,14 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:orientation="vertical">
-                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="G" android:textColor="#FFC107" android:textSize="10sp" android:textStyle="bold"/>
+                                    <TextView
+                                        android:id="@+id/tvGrasLabel"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="G: 0/0g"
+                                        android:textColor="#FFC107"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold"/>
                                     <com.google.android.material.progressindicator.LinearProgressIndicator
                                         android:id="@+id/progressGras"
                                         android:layout_width="match_parent"
