@@ -224,20 +224,31 @@ public class PerfilFragment extends Fragment {
 
         if (currentPerfil != null && perfilId != null) {
             PerfilRequestDto request = new PerfilRequestDto();
+            request.setCodigoPostal(currentPerfil.getCodigoPostal());
             request.setNombre(currentPerfil.getNombre());
-
             request.setApellidos(currentPerfil.getApellidos());
             request.setTelefono(currentPerfil.getTelefono());
             request.setDni(currentPerfil.getDni());
+            request.setPais(currentPerfil.getPais());
             request.setFechaNacimiento(currentPerfil.getFechaNacimiento());
             request.setDireccion(currentPerfil.getDireccion());
             request.setCiudad(currentPerfil.getCiudad());
-            request.setPais(currentPerfil.getPais());
-            request.setCodigoPostal(currentPerfil.getCodigoPostal());
             request.setGenero(currentPerfil.getGenero());
-            request.setBio(currentPerfil.getBio());
 
             request.setFoto(encodedImage); // Enviamos la imagen en Base64
+
+
+            if (currentPerfil.getFechaNacimiento() != null) {
+                request.setFechaNacimiento(currentPerfil.getFechaNacimiento());
+            } else {
+                request.setFechaNacimiento("1990-01-01"); // Un valor por defecto para pasar el @NotNull
+            }
+
+            if (currentPerfil.getGenero() != null) {
+                request.setGenero(currentPerfil.getGenero());
+            } else {
+                request.setGenero("NO_ESPECIFICADO"); // Asumiendo que tienes este valor en tu Enum
+            }
 
             viewModel.actualizarPerfil(perfilId, request);
             Toast.makeText(getContext(), "Actualizando foto de perfil...", Toast.LENGTH_SHORT).show();
