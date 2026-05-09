@@ -13,7 +13,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
+    import androidx.appcompat.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -295,7 +300,51 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
                     Toast.makeText(getContext(), "Error de conexión en el chat", Toast.LENGTH_SHORT).show();
                 }));
 
+        // Suscribirse a borrados de tickets
+        compositeDisposable.add(mStompClient.topic("/topic/tickets." + ticketId + ".borrados")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    PeticionBorrado peticion = gson.fromJson(topicMessage.getPayload(), PeticionBorrado.class);
+                    eliminarMensajeDeLista(peticion.id);
+                }, throwable -> Log.e(TAG, "Error en suscripción a borrados ticket", throwable)));
+
+        // Suscribirse a ediciones de tickets
+        compositeDisposable.add(mStompClient.topic("/topic/tickets." + ticketId + ".editados")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    ChatMessageDto dto = gson.fromJson(topicMessage.getPayload(), ChatMessageDto.class);
+                    actualizarMensajeEnLista(dto.id, dto.contenido);
+                }, throwable -> Log.e(TAG, "Error en suscripción a ediciones ticket", throwable)));
+
         mStompClient.connect(connectHeaders);
+    }
+
+    private void actualizarMensajeEnLista(String id, String nuevoContenido) {
+        if (id == null) return;
+        getActivity().runOnUiThread(() -> {
+            for (int i = 0; i < listaMensajes.size(); i++) {
+                if (id.equals(listaMensajes.get(i).getId())) {
+                    listaMensajes.get(i).setTexto(nuevoContenido);
+                    adapter.notifyItemChanged(i);
+                    break;
+                }
+            }
+        });
+    }
+
+    private void eliminarMensajeDeLista(String id) {
+        if (id == null) return;
+        getActivity().runOnUiThread(() -> {
+            for (int i = 0; i < listaMensajes.size(); i++) {
+                if (id.equals(listaMensajes.get(i).getId())) {
+                    listaMensajes.remove(i);
+                    adapter.notifyItemRemoved(i);
+                    break;
+                }
+            }
+        });
     }
 
     private void enviarMensaje() {
@@ -304,7 +353,10 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
             // El nuevo backend usa ChatRequestDto que espera contenido y tipo
             Map<String, Object> payload = new HashMap<>();
             payload.put("contenido", texto);
-            payload.put("tipo", "CHAT"); // Cambiado de TEXTO a CHAT para consistencia con el TFG
+            payload.put("ticketId", ticketId); // Enviamos el ID del ticket como Long (coincidiendo con backend)
+            payload.put("tipo", "TICKET"); 
+
+            Log.d(TAG, "Enviando mensaje de ticket: " + gson.toJson(payload));
 
             // Ajustado para usar el MessageMapping "/chat.ticket.{ticketId}"
             compositeDisposable.add(mStompClient.send("/app/chat.ticket." + ticketId, gson.toJson(payload))
@@ -317,18 +369,103 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
     }
 
     @Override
-    public void onEliminar(int position) { }
+    public void onEliminar(int position) {
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.dialog_custom_exit);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        TextView titulo = dialog.findViewById(R.id.tv_titulo_exit);
+        TextView mensajeText = dialog.findViewById(R.id.tv_mensaje_exit);
+
+        titulo.setText("ELIMINAR MENSAJE");
+        mensajeText.setText("¿Estás seguro de que deseas eliminar este mensaje?");
+
+        View cancel = dialog.findViewById(R.id.btn_cancelar_exit);
+        View confirm = dialog.findViewById(R.id.btn_confirmar_exit);
+
+        cancel.setOnClickListener(v -> dialog.dismiss());
+        confirm.setOnClickListener(v -> {
+            MensajeChat mensaje = listaMensajes.get(position);
+            if (mensaje.getId() != null) {
+                PeticionBorrado peticion = new PeticionBorrado();
+                peticion.id = mensaje.getId();
+                peticion.usuarioId = usuarioId;
+                peticion.ticketId = ticketId;
+
+                compositeDisposable.add(mStompClient.send("/app/chat.ticket." + ticketId + ".borrar", gson.toJson(peticion)).subscribe(() -> {
+                    Log.d(TAG, "Borrado enviado para mensaje ticket: " + mensaje.getId());
+                }, throwable -> Log.e(TAG, "Error enviando borrado ticket", throwable)));
+            }
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
 
     @Override
-    public void onEditar(int position) { }
+    public void onEditar(int position) {
+        MensajeChat mensaje = listaMensajes.get(position);
+
+        Dialog dialog = new Dialog(getContext());
+        dialog.setContentView(R.layout.dialog_editar_mensaje);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        EditText input = dialog.findViewById(R.id.et_editar_mensaje_input);
+        input.setText(mensaje.getTexto());
+
+        View cancel = dialog.findViewById(R.id.btn_cancelar_edicion_mensaje);
+        View save = dialog.findViewById(R.id.btn_guardar_edicion_mensaje);
+
+        cancel.setOnClickListener(v -> dialog.dismiss());
+        save.setOnClickListener(v -> {
+            String nuevoTexto = input.getText().toString().trim();
+            if (!nuevoTexto.isEmpty() && !nuevoTexto.equals(mensaje.getTexto())) {
+                PeticionEdicion peticion = new PeticionEdicion();
+                peticion.id = mensaje.getId();
+                peticion.contenido = nuevoTexto;
+                peticion.usuarioId = usuarioId;
+                peticion.ticketId = ticketId;
+
+                compositeDisposable.add(mStompClient.send("/app/chat.ticket." + ticketId + ".editar", gson.toJson(peticion)).subscribe(() -> {
+                    Log.d(TAG, "Edición enviada para mensaje ticket: " + mensaje.getId());
+                }, throwable -> Log.e(TAG, "Error enviando edición ticket", throwable)));
+            }
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
 
     @Override
-    public void onCopiar(int position) { }
+    public void onCopiar(int position) {
+        MensajeChat mensaje = listaMensajes.get(position);
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Mensaje", mensaje.getTexto());
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(getContext(), "Copiado al portapapeles", Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (mStompClient != null) mStompClient.disconnect();
         if (compositeDisposable != null) compositeDisposable.dispose();
+    }
+
+    private static class PeticionBorrado {
+        String id;
+        Long usuarioId;
+        Long ticketId;
+    }
+
+    private static class PeticionEdicion {
+        String id;
+        String contenido;
+        Long usuarioId;
+        Long ticketId;
     }
 }

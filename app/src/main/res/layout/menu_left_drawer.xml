@@ -69,20 +69,6 @@
                     android:text="Mi QR" />
             </LinearLayout>
 
-            <!-- Item: Rutinas -->
-            <LinearLayout
-                android:id="@+id/menu_rutinas"
-                style="@style/ModernMenuItem">
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_workout"
-                    app:tint="#CD0277" />
-                <TextView
-                    style="@style/ModernMenuText"
-                    android:text="Mis Rutinas" />
-            </LinearLayout>
-
             <!-- Item: Dieta -->
             <LinearLayout
                 android:id="@+id/menu_dieta"

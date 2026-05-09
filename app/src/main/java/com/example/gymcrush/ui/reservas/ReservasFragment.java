@@ -43,7 +43,6 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
     private ReservasAdapter adapter;
     private LinearLayout layoutWeeklyDays;
     private String diaSeleccionadoCodigo = "LUNES"; // Por defecto hoy o Lunes
-    private FloatingActionButton fabAddReserva;
 
     @Nullable
     @Override
@@ -53,12 +52,9 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
         rvReservas = view.findViewById(R.id.rvReservas);
         rvReservas.setLayoutManager(new LinearLayoutManager(getContext()));
         layoutWeeklyDays = view.findViewById(R.id.layoutWeeklyDays);
-        fabAddReserva = view.findViewById(R.id.fabAddReserva);
 
         // En lugar de cargar hoy directamente, buscamos el primer día con actividad
         determinarDiaInicialYRefrescar(inflater);
-
-        fabAddReserva.setOnClickListener(v -> abrirDialogoNuevaReserva());
 
         checkRoleAndSetupUI(view);
 

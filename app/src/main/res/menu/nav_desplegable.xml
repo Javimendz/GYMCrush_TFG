@@ -8,10 +8,6 @@
     </group>
 
     <group android:checkableBehavior="none">
-        <item android:id="@+id/nav_rutinas_drawer"
-            android:icon="@drawable/ic_workout"
-            android:title="Mis Rutinas" />
-
         <item android:id="@+id/nav_reservas"
             android:icon="@drawable/ic_reservaclases"
             android:title="Mis reservas de clases" />
