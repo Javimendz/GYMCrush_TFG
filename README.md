@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # GYMCrush_TFG
 Repositorio para mi proyecto del TFG, donde realizo el backend del mismo.
 =======
@@ -62,15 +62,14 @@ dentro del proyecto (test-ws.html). Introduces el token del usuario, creas un ho
 
  ```0.``` Exportar extensiones VS Code ``` code --list-extensions > extensiones.txt```, reinstalar las extensiones ```Get-Content plugins.txt | ForEach-Object { code --install-extension $_ }```
 
- ```1.``` Iniciar todo el proyecto primera vez ```docker compose up --build ```. Descarga imagenes, etc.  
+ ```1.``` Iniciar todo el proyecto primera vez ```docker compose up --build ```. Descarga imagenes, etc.    
 
- ```2.``` Iniciar todo rapido ```docker compose up -d ```
- ```3.``` Detener todo el proyecto ```docker compose down ```
->>>>>>> origin/el_camino
-=======
  ```2.``` Iniciar todo rapido ```docker compose up -d ```  
  ```3.``` Detener todo el proyecto ```docker compose down ```  
- ```4.``` Detener todo el proyecto y eliminar volúmenes ```docker compose down -v```
+=======
+ ```2.``` Iniciar todo rapido ```docker compose up -d ```    
+ ```3.``` Detener todo el proyecto ```docker compose down ```  
+ ```4.``` Detener todo el proyecto y eliminar volúmenes ```docker compose down -v```  
 
 ## **Seguridad y Roles**
 
@@ -137,11 +136,11 @@ JWT_EXPIRATION: Tiempo de vida del token
 ```
 
 
-# Despliegue
+# Levantar proyecto
 El proyecto se puede desplegar fácilmente utilizando Docker. Asegúrate de tener Docker instalado y ejecuta el siguiente comando en la raíz del proyecto:
 
 ```bash
-# Levantar base de datos y proyecto
+# Levantar base de datos y proyecto con docker
 docker compose up --build 
 ```
 
@@ -829,4 +828,3 @@ Gestión de entradas y salidas mediante tokens temporales para control de aforo 
 
 
 **API optimizada para integración con app móvil Android**
->>>>>>> 462481f93e177b94b20f4b29311d8b147a3d1941
