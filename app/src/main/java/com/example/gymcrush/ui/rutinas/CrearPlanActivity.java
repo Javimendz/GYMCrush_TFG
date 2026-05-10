@@ -24,6 +24,7 @@ public class CrearPlanActivity extends AppCompatActivity {
     private TextInputEditText etNombre, etDescripcion;
     private Spinner spinnerObjetivo, spinnerNivel;
     private Button btnGuardar;
+    private Long planId = -1L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,38 @@ public class CrearPlanActivity extends AppCompatActivity {
 
         setupSpinners();
 
+        planId = getIntent().getLongExtra("PLAN_ID", -1L);
+        if (planId != -1L) {
+            String nombre = getIntent().getStringExtra("PLAN_NOMBRE");
+            String descripcion = getIntent().getStringExtra("PLAN_DESCRIPCION");
+            String objetivo = getIntent().getStringExtra("PLAN_OBJETIVO");
+            String nivel = getIntent().getStringExtra("PLAN_NIVEL");
+
+            etNombre.setText(nombre);
+            etDescripcion.setText(descripcion != null && !descripcion.equals("null") ? descripcion : "");
+            
+            if (objetivo != null) {
+                int pos = getIndex(spinnerObjetivo, objetivo);
+                spinnerObjetivo.setSelection(pos);
+            }
+            if (nivel != null) {
+                int pos = getIndex(spinnerNivel, nivel);
+                spinnerNivel.setSelection(pos);
+            }
+            
+            btnGuardar.setText("Actualizar Plan");
+        }
+
         btnGuardar.setOnClickListener(v -> guardarPlan());
+    }
+
+    private int getIndex(Spinner spinner, String myString) {
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     private void setupSpinners() {
@@ -67,33 +99,47 @@ public class CrearPlanActivity extends AppCompatActivity {
 
         PlanRequestDto dto = new PlanRequestDto(nombre, descripcion, objetivo, nivel);
 
-        // Por defecto para usuarios normales, no es global
         android.content.SharedPreferences prefs = getSharedPreferences("DatosUsuario", android.content.Context.MODE_PRIVATE);
         java.util.Set<String> roles = prefs.getStringSet("roles", new java.util.HashSet<>());
         boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
         dto.setEsGlobal(isAdmin);
 
-        RetrofitClient.getApiService().crearPlan(dto).enqueue(new Callback<ApiResponseDto<PlanResponseDto>>() {
-            @Override
-            public void onResponse(Call<ApiResponseDto<PlanResponseDto>> call, Response<ApiResponseDto<PlanResponseDto>> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(CrearPlanActivity.this, "Plan creado correctamente", Toast.LENGTH_SHORT).show();
-                    
-                    // Notificación en el Centro de Mensajes
-                    // Nota: Como estamos en una Activity, no podemos acceder directamente al DesarrolloActivity fácilmente
-                    // pero podemos usar un Broadcast o simplemente confiar en que el usuario verá el Toast.
-                    // Sin embargo, para consistencia con los Fragmentos:
-                    setResult(RESULT_OK);
-                    finish();
-                } else {
-                    Toast.makeText(CrearPlanActivity.this, "Error al crear el plan", Toast.LENGTH_SHORT).show();
+        if (planId != -1L) {
+            RetrofitClient.getApiService().actualizarPlan(planId, dto).enqueue(new Callback<ApiResponseDto<PlanResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<PlanResponseDto>> call, Response<ApiResponseDto<PlanResponseDto>> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(CrearPlanActivity.this, "Plan actualizado correctamente", Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_OK);
+                        finish();
+                    } else {
+                        Toast.makeText(CrearPlanActivity.this, "Error al actualizar el plan", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ApiResponseDto<PlanResponseDto>> call, Throwable t) {
-                Toast.makeText(CrearPlanActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<ApiResponseDto<PlanResponseDto>> call, Throwable t) {
+                    Toast.makeText(CrearPlanActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            RetrofitClient.getApiService().crearPlan(dto).enqueue(new Callback<ApiResponseDto<PlanResponseDto>>() {
+                @Override
+                public void onResponse(Call<ApiResponseDto<PlanResponseDto>> call, Response<ApiResponseDto<PlanResponseDto>> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(CrearPlanActivity.this, "Plan creado correctamente", Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_OK);
+                        finish();
+                    } else {
+                        Toast.makeText(CrearPlanActivity.this, "Error al crear el plan", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponseDto<PlanResponseDto>> call, Throwable t) {
+                    Toast.makeText(CrearPlanActivity.this, "Error de red", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 }

@@ -291,6 +291,9 @@ public interface ApiService {
     @POST("api/v1/planes")
     Call<ApiResponseDto<PlanResponseDto>> crearPlan(@Body PlanRequestDto dto);
 
+    @PUT("api/v1/planes/{id}")
+    Call<ApiResponseDto<PlanResponseDto>> actualizarPlan(@Path("id") Long id, @Body PlanRequestDto dto);
+
     @DELETE("api/v1/planes/{id}")
     Call<ApiResponseDto<Void>> eliminarPlanMaestro(@Path("id") Long id);
 

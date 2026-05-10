@@ -389,15 +389,19 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         viewPagerExerciseCarousel.setAdapter(exerciseCarouselAdapter);
 
         // ... resto de la configuración del ViewPager ...
+        // Configuración para mostrar múltiples tarjetas (que se asomen las de los lados)
         viewPagerExerciseCarousel.setOffscreenPageLimit(3);
         viewPagerExerciseCarousel.setClipToPadding(false);
         viewPagerExerciseCarousel.setClipChildren(false);
+        // Añadimos padding horizontal para que se vean las tarjetas laterales
+        int padding = (int) (40 * getResources().getDisplayMetrics().density);
+        viewPagerExerciseCarousel.setPadding(padding, 0, padding, 0);
 
         androidx.viewpager2.widget.CompositePageTransformer compositePageTransformer = new androidx.viewpager2.widget.CompositePageTransformer();
-        compositePageTransformer.addTransformer(new androidx.viewpager2.widget.MarginPageTransformer(10));
+        compositePageTransformer.addTransformer(new androidx.viewpager2.widget.MarginPageTransformer((int) (10 * getResources().getDisplayMetrics().density)));
         compositePageTransformer.addTransformer((page, position) -> {
             float r = 1 - Math.abs(position);
-            page.setScaleY(0.95f + r * 0.05f);
+            page.setScaleY(0.85f + r * 0.15f); // Reducimos un poco más las laterales
         });
         viewPagerExerciseCarousel.setPageTransformer(compositePageTransformer);
 
@@ -412,8 +416,8 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
 
     private void observarPendientes() {
         tutorialViewModel.getPendientes().observe(this, visualizaciones -> {
+            exerciseCarouselItemsList.clear();
             if (visualizaciones != null && !visualizaciones.isEmpty()) {
-                exerciseCarouselItemsList.clear();
                 for (VisualizacionResponseDto v : visualizaciones) {
                     exerciseCarouselItemsList.add(new CarouselAdapter.CarouselItem(
                             "CONTINUAR VIENDO",
@@ -428,10 +432,9 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                             v.getDescripcionTutorial()
                     ));
                 }
-                exerciseCarouselAdapter.updateItems(new ArrayList<>(exerciseCarouselItemsList));
-            } else {
-                cargarEjerciciosRecomendados();
             }
+            // Siempre cargamos recomendados para rellenar el carrusel si hay pocos pendientes
+            cargarEjerciciosRecomendados();
         });
     }
 
@@ -442,8 +445,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
             public void onResponse(Call<ApiResponseDto<List<ExerciseApiRequestDto>>> call, Response<ApiResponseDto<List<ExerciseApiRequestDto>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null && !response.body().getDatos().isEmpty()) {
                     List<ExerciseApiRequestDto> exercises = response.body().getDatos();
-                    exerciseCarouselItemsList.clear();
-                    
+                    // No limpiamos, añadimos a lo que ya hay (pendientes)
                     for (int i = 0; i < Math.min(exercises.size(), 8); i++) {
                         ExerciseApiRequestDto ex = exercises.get(i);
                         long id = 0;

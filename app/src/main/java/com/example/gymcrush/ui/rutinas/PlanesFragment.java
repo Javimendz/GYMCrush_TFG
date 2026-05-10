@@ -94,14 +94,32 @@ public class PlanesFragment extends Fragment {
 
             @Override
             public void onEditar(PlanResponseDto plan) {
-                // Aquí SÍ tiene sentido gestionar los ejercicios porque es un PLAN
-                Intent intent = new Intent(requireContext(), GestionarEjerciciosPlanActivity.class);
-                intent.putExtra("PLAN_ID", plan.getId());
-                intent.putExtra("PLAN_NOMBRE", plan.getNombre());
-                intent.putExtra("PLAN_NIVEL", plan.getNivel());
-                intent.putExtra("PLAN_OBJETIVO", plan.getObjetivo());
-                intent.putExtra("PLAN_DESCRIPCION", plan.getDescripcion());
-                startActivity(intent);
+                // Diálogo para elegir entre editar detalles o gestionar ejercicios
+                String[] opciones = {"Editar Información", "Gestionar Ejercicios"};
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("¿Qué deseas hacer?")
+                        .setItems(opciones, (dialog, which) -> {
+                            if (which == 0) {
+                                // Abrir CrearPlanActivity para editar
+                                Intent intent = new Intent(requireContext(), CrearPlanActivity.class);
+                                intent.putExtra("PLAN_ID", plan.getId());
+                                intent.putExtra("PLAN_NOMBRE", plan.getNombre());
+                                intent.putExtra("PLAN_NIVEL", plan.getNivel());
+                                intent.putExtra("PLAN_OBJETIVO", plan.getObjetivo());
+                                intent.putExtra("PLAN_DESCRIPCION", plan.getDescripcion());
+                                startCrearPlan.launch(intent);
+                            } else {
+                                // Abrir GestionarEjerciciosPlanActivity
+                                Intent intent = new Intent(requireContext(), GestionarEjerciciosPlanActivity.class);
+                                intent.putExtra("PLAN_ID", plan.getId());
+                                intent.putExtra("PLAN_NOMBRE", plan.getNombre());
+                                intent.putExtra("PLAN_NIVEL", plan.getNivel());
+                                intent.putExtra("PLAN_OBJETIVO", plan.getObjetivo());
+                                intent.putExtra("PLAN_DESCRIPCION", plan.getDescripcion());
+                                startActivity(intent);
+                            }
+                        })
+                        .show();
             }
 
             @Override
