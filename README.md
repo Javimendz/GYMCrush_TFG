@@ -26,10 +26,10 @@ Pasos que hemos realizado para el proyecto.
 ```2.``` Añadir dependencia de ```postgresql``` en el ```pom.xml```  
 ```3.``` Añadir dependencia de ```spring-boot-starter-web``` en el ```pom.xml```   
 ```4.``` Añadir dependencia de ```spring-boot-starter-validation``` en el ```pom.xml``` Validaciones  
-```5.``` Añadir dependencia de ```spring-boot-starter-data-jpa``` en el ```pom.xml``` Para seguridad 
-```6.``` Añadir dependencia de ```spring-boot-starter-websockets``` en el ```pom.xml``` Para websockets 
-```7.``` Añadir dependencia de ```springdoc-openapi-starter-webmvc-ui``` en el ```pom.xml``` Para swagger
-```8.``` Configurar la conexión a la base de datos en el ```application.properties``` con variables de entorno.  
+```5.``` Añadir dependencia de ```spring-boot-starter-data-jpa``` en el ```pom.xml``` Para seguridad   
+```6.``` Añadir dependencia de ```spring-boot-starter-websockets``` en el ```pom.xml``` Para websockets   
+```7.``` Añadir dependencia de ```springdoc-openapi-starter-webmvc-ui``` en el ```pom.xml``` Para swagger  
+```8.``` Configurar la conexión a la base de datos en el ```application.properties``` con variables de entorno.    
 ```9.``` Añadir dependencia de ``` MapStruct ``` en el ```pom.xml```  
 ```10.``` Generación del Esquema desde el Código". Usar entidades para crear la BBDD, la sincronizacion y el mapeo de codigo.    
 ```11.``` Crear arquitectura de carpetas con un patrón de diseño ```MVC```.  
@@ -56,14 +56,14 @@ Probar notificaciones: Como postman no soporta Websockets con STOMP, uso un html
 dentro del proyecto (test-ws.html). Introduces el token del usuario, creas un horario y haces una reserva y se creara la notificaión en el navegador, de prueba.
 
 
- ## DOCUMENTACION API RESTFUL SWAGGER `: http://localhost:8080/swagger-ui/index.html `
+ ## DOCUMENTACION API RESTFUL SWAGGER `: http://localhost:8080/swagger-ui/index.html, https://gymcrush-tfg.onrender.com/swagger-ui/index.html `
 
 # /Comandos
 
  ```0.``` Exportar extensiones VS Code ``` code --list-extensions > extensiones.txt```, reinstalar las extensiones ```Get-Content plugins.txt | ForEach-Object { code --install-extension $_ }```
 
  ```1.``` Iniciar todo el proyecto primera vez ```docker compose up --build ```. Descarga imagenes, etc.  
-<<<<<<< HEAD
+
  ```2.``` Iniciar todo rapido ```docker compose up -d ```
  ```3.``` Detener todo el proyecto ```docker compose down ```
 >>>>>>> origin/el_camino
