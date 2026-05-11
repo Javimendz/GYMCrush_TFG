@@ -25,6 +25,8 @@ public class TutorialResponseDto {
     private boolean esGlobal;
     @SerializedName("usuarioId")
     private Long usuarioId;
+    @SerializedName("contadorReproducciones")
+    private Integer contadorReproducciones;
 
     public TutorialResponseDto() {}
 
@@ -43,4 +45,7 @@ public class TutorialResponseDto {
 
     public Long getUsuarioId() { return usuarioId; }
     public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
+
+    public Integer getContadorReproducciones() { return contadorReproducciones; }
+    public void setContadorReproducciones(Integer contadorReproducciones) { this.contadorReproducciones = contadorReproducciones; }
 }

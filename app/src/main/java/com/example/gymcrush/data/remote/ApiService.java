@@ -322,7 +322,6 @@ public interface ApiService {
     // --- NUEVOS ENDPOINTS PARA NUTRICIÓN (PLANES PERSONALIZADOS) ---
     @POST("api/v1/nutricion/generar-plan")
     Call<ApiResponseDto<NutricionResponseDto>> generarPlanNutricional(@Body PerfilFisicoRequest request);
-
     @GET("api/v1/nutricion/ultimo-plan/{usuarioId}")
     Call<ApiResponseDto<NutricionResponseDto>> obtenerUltimoPlan(@Path("usuarioId") Long usuarioId);
 

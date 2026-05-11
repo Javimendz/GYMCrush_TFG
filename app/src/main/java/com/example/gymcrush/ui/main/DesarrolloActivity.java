@@ -38,6 +38,7 @@ import com.example.gymcrush.data.remote.dto.NutricionResponseDto;
 import com.example.gymcrush.data.remote.dto.PerfilResponseDto;
 import com.example.gymcrush.data.remote.dto.ReservaResponseDto;
 import com.example.gymcrush.data.remote.dto.RutinaResponseDto;
+import com.example.gymcrush.data.remote.dto.TutorialResponseDto;
 import com.example.gymcrush.ui.ejercicios.ReproductorFragment;
 import com.google.gson.Gson;
 import com.example.gymcrush.ui.auth.LoginActivity;
@@ -406,12 +407,57 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         viewPagerExerciseCarousel.setPageTransformer(compositePageTransformer);
 
         observarPendientes();
+        observarPopulares();
         
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", MODE_PRIVATE);
         long usuarioId = prefs.getLong("user_id", -1);
         if (usuarioId != -1) {
             tutorialViewModel.cargarPendientes(usuarioId);
         }
+        tutorialViewModel.cargarPopulares();
+    }
+
+    private void observarPopulares() {
+        tutorialViewModel.getPopulares().observe(this, populares -> {
+            if (populares != null && !populares.isEmpty()) {
+                // Si no hay pendientes, o para complementar, añadimos los populares al inicio
+                // Para no duplicar, podríamos filtrar o simplemente limpiar y re-añadir
+                // Por ahora, vamos a insertarlos si el carrusel está mayormente vacío de contenido "nuestro"
+                for (TutorialResponseDto t : populares) {
+                    boolean existe = false;
+                    for (CarouselAdapter.CarouselItem item : exerciseCarouselItemsList) {
+                        if (item.getId() != null && item.getId().equals(t.getId())) {
+                            existe = true;
+                            break;
+                        }
+                    }
+                    if (!existe) {
+                        String repros = t.getContadorReproducciones() != null ? t.getContadorReproducciones() + " visualizaciones" : "Nueva";
+                        exerciseCarouselItemsList.add(0, new CarouselAdapter.CarouselItem(
+                                "MÁS VISTO",
+                                t.getTitulo(),
+                                repros,
+                                t.getUrlVideo(),
+                                null,
+                                R.drawable.ic_workout,
+                                R.drawable.bg_login_modern,
+                                100,
+                                t.getId(),
+                                t.getDescripcion()
+                        ));
+                    }
+                }
+                actualizarAdaptadorEjercicios();
+            }
+        });
+    }
+
+    private void actualizarAdaptadorEjercicios() {
+        runOnUiThread(() -> {
+            if (exerciseCarouselAdapter != null) {
+                exerciseCarouselAdapter.updateItems(new ArrayList<>(exerciseCarouselItemsList));
+            }
+        });
     }
 
     private void observarPendientes() {
@@ -433,7 +479,9 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                     ));
                 }
             }
-            // Siempre cargamos recomendados para rellenar el carrusel si hay pocos pendientes
+            // Cargamos populares después de pendientes
+            tutorialViewModel.cargarPopulares();
+            // Y finalmente recomendados externos
             cargarEjerciciosRecomendados();
         });
     }
@@ -477,11 +525,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
                                 detail
                         ));
                     }
-                    runOnUiThread(() -> {
-                        if (exerciseCarouselAdapter != null) {
-                            exerciseCarouselAdapter.updateItems(new ArrayList<>(exerciseCarouselItemsList));
-                        }
-                    });
+                    runOnUiThread(() -> actualizarAdaptadorEjercicios());
                 }
             }
 
