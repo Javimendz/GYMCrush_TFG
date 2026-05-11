@@ -244,14 +244,43 @@ public class NutricionServiceImpl implements INutricionService {
     }
 
     private String obtenerMenu(double k, double p, double c, double g, String f) {
-        try {
-            String res = fatSecretService.buscarRecetasPorMacros((int) k, (int) p, (int) c, (int) g);
-            return (res == null || res.contains("\"error\"")) ? f : res;
-        } catch (Exception e) {
-            return f;
+    try {
+        log.info("### Intento de conexión a FatSecret (Kcal: {}) ###", (int)k);
+        String res = fatSecretService.buscarRecetasPorMacros((int) k, (int) p, (int) c, (int) g);
+        
+        // Si FatSecret responde pero con un error en el JSON
+        if (res == null || res.contains("\"error\"")) {
+            String ipDetectada = obtenerIpDeSalida();
+            log.warn("### FATSECRET RECHAZÓ LA PETICIÓN ###");
+            log.warn("IP de salida del servidor: {}", ipDetectada);
+            log.warn("Respuesta de la API: {}", res);
+            return f; // Devuelve el plan de respaldo
         }
-    }
 
+        log.info("### CONEXIÓN EXITOSA CON FATSECRET ###");
+        return res;
+
+    } catch (Exception e) {
+        // Si hay un error de red, timeout o 403 Forbidden
+        String ipDetectada = obtenerIpDeSalida();
+        log.error("### ERROR CRÍTICO DE CONEXIÓN ###");
+        log.error("IP que está siendo bloqueada: {}", ipDetectada);
+        log.error("Mensaje de error: {}", e.getMessage());
+        return f; // Devuelve el plan de respaldo
+    }
+}
+
+/**
+ * Método auxiliar para detectar la IP real en el momento del fallo
+ */
+private String obtenerIpDeSalida() {
+    try {
+        org.springframework.web.client.RestTemplate rt = new org.springframework.web.client.RestTemplate();
+        return rt.getForObject("https://api.ipify.org", String.class);
+    } catch (Exception e) {
+        return "No se pudo detectar la IP: " + e.getMessage();
+    }
+}
     private FatSecretRecipeDto getRecetaAleatoria(List<FatSecretRecipeDto> r, Set<String> u) {
         if (r == null || r.isEmpty())
             return null;
