@@ -49,17 +49,6 @@ public class NutricionController {
                                                 .build());
         }
 
-        @GetMapping("/debug/test-fatsecret")
-        public ResponseEntity<?> testFatSecret() {
-        try {
-                // Intenta buscar un alimento genérico como "Manzana"
-                String resultado = fatSecretService.buscarAlimento("Manzana");
-                return ResponseEntity.ok("Conexión exitosa: " + resultado);
-        } catch (Exception e) {
-                return ResponseEntity.status(500).body("Error de conexión: " + e.getMessage());
-        }
-        }
-
         // -----------------------------------------------------------------------
         // GET /api/v1/nutricion/ultimo-plan/{usuarioId}
         // Recupera el último plan generado para un usuario
