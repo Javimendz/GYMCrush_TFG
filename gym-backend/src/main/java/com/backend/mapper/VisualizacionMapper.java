@@ -16,10 +16,8 @@ public interface VisualizacionMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "usuario", ignore = true)
     @Mapping(target = "tutorial", ignore = true)
-    @Mapping(target = "fechaCreacion", ignore = true)
+    @Mapping(target = "fechaCreacion", ignore = true) 
     @Mapping(target = "ultimaActualizacion", ignore = true)
-    @Mapping(target = "completado", ignore = true)
-    @Mapping(target = "contadorReproducciones", ignore = true)
     Visualizacion toEntity(VisualizacionRequestDto requestDto);
 
     /**

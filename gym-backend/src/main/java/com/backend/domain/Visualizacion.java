@@ -25,7 +25,7 @@ public class Visualizacion {
     private Long id;
 
     // Fecha de la primera vez que empezó a ver el tutorial
-    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    @Column(name = "fecha_visualizacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 
     // Fecha de la última vez que interactuó con el vídeo
@@ -64,8 +64,9 @@ public class Visualizacion {
     protected void onCreate() {
         this.fechaCreacion = LocalDateTime.now();
         this.ultimaActualizacion = LocalDateTime.now();
+        if (this.contadorReproducciones == null) this.contadorReproducciones = 1;
+        if (this.completado == null) this.completado = false;
     }
-
     @PreUpdate
     protected void onUpdate() {
         this.ultimaActualizacion = LocalDateTime.now();
