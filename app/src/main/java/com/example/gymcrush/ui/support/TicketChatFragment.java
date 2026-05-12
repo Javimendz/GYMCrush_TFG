@@ -63,6 +63,7 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
 
     private Long ticketId;
     private String ticketAsunto;
+    private String ticketEstado;
     private String nombreUsuario;
     private Long usuarioId;
     private boolean isAdmin;
@@ -72,11 +73,12 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
     private Gson gson;
     private ApiService apiService;
 
-    public static TicketChatFragment newInstance(Long ticketId, String asunto) {
+    public static TicketChatFragment newInstance(Long ticketId, String asunto, String estado) {
         TicketChatFragment fragment = new TicketChatFragment();
         Bundle args = new Bundle();
         args.putLong("ticket_id", ticketId);
         args.putString("asunto", asunto);
+        args.putString("estado", estado);
         fragment.setArguments(args);
         return fragment;
     }
@@ -87,6 +89,7 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
         if (getArguments() != null) {
             ticketId = getArguments().getLong("ticket_id");
             ticketAsunto = getArguments().getString("asunto");
+            ticketEstado = getArguments().getString("estado");
         }
         gson = new Gson();
         compositeDisposable = new CompositeDisposable();
@@ -125,6 +128,10 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
         });
 
         view.findViewById(R.id.btnSendChat).setOnClickListener(v -> enviarMensaje());
+
+        if ("CERRADO".equalsIgnoreCase(ticketEstado)) {
+            desactivarChat();
+        }
 
         cargarHistorial();
         setupOptionsButton();
@@ -210,8 +217,13 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
             @Override
             public void onResponse(retrofit2.Call<ApiResponseDto<TicketResponseDto>> call, retrofit2.Response<ApiResponseDto<TicketResponseDto>> response) {
                 if (response.isSuccessful()) {
+                    ticketEstado = nuevoEstado;
                     Toast.makeText(getContext(), "Estado actualizado a " + nuevoEstado, Toast.LENGTH_SHORT).show();
                     tvSubtitle.setText("Estado: " + nuevoEstado + " - " + ticketAsunto);
+                    
+                    if ("CERRADO".equalsIgnoreCase(nuevoEstado)) {
+                        desactivarChat();
+                    }
                 } else {
                     Log.e(TAG, "Error 400/500 al actualizar estado: " + response.code());
                     Toast.makeText(getContext(), "Error al actualizar (Enum mismatch?)", Toast.LENGTH_SHORT).show();
@@ -225,6 +237,18 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
                 tvSubtitle.setText("Error de red");
             }
         });
+    }
+
+    private void desactivarChat() {
+        if (etMensaje != null) {
+            etMensaje.setEnabled(false);
+            etMensaje.setHint("Ticket cerrado - Solo lectura");
+        }
+        View btnSend = getView() != null ? getView().findViewById(R.id.btnSendChat) : null;
+        if (btnSend != null) {
+            btnSend.setEnabled(false);
+            btnSend.setAlpha(0.5f);
+        }
     }
 
     private void initStomp(String token) {

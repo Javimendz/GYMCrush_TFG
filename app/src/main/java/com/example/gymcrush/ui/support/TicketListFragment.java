@@ -171,10 +171,19 @@ public class TicketListFragment extends Fragment implements TicketAdapter.OnTick
     }
 
     private void abrirChatTicket(TicketResponseDto ticket) {
+        if ("CERRADO".equalsIgnoreCase(ticket.getEstado())) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Ticket Cerrado")
+                    .setMessage("Este ticket ha sido cerrado y no admite más mensajes.")
+                    .setPositiveButton("Entendido", null)
+                    .show();
+            return;
+        }
+
         if (getActivity() != null) {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.fragment_container, TicketChatFragment.newInstance(ticket.getId(), ticket.getAsunto()))
+                    .replace(R.id.fragment_container, TicketChatFragment.newInstance(ticket.getId(), ticket.getAsunto(), ticket.getEstado()))
                     .addToBackStack(null)
                     .commit();
         }
