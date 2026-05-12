@@ -177,6 +177,10 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     private void setupRecyclerView(RecyclerView rv, TextView label) {
         listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
         if (listaEjercicios != null && !listaEjercicios.isEmpty()) {
+            // Forzar que los ejercicios salgan deseleccionados al entrar
+            for (com.example.gymcrush.ui.ejercicios.Ejercicio e : listaEjercicios) {
+                e.setSeleccionado(false);
+            }
             if (rv != null) {
                 rv.setLayoutManager(new LinearLayoutManager(this));
                 adapter = new EjercicioAdapter(listaEjercicios, true, nombreRutina);

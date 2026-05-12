@@ -62,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Añadir a Catálogo"
+                android:text="Añadir"
                 android:textSize="12sp"
                 app:icon="@android:drawable/ic_input_add" />
 
