@@ -87,6 +87,7 @@ public class DietaViewModel extends ViewModel {
     private int currentPage = 0;
     private final int PAGE_SIZE = 5;
     private boolean isLastPage = false;
+    private boolean isHistoryLoading = false;
     private List<NutricionResponseDto> currentHistorialList = new ArrayList<>();
 
     public void cargarDatosIniciales(Long usuarioId) {
@@ -111,6 +112,7 @@ public class DietaViewModel extends ViewModel {
     }
 
     public void reiniciarPaginacionHistorial(Long usuarioId) {
+        if (isHistoryLoading) return;
         currentPage = 0;
         isLastPage = false;
         currentHistorialList.clear();
@@ -118,11 +120,13 @@ public class DietaViewModel extends ViewModel {
     }
 
     public void cargarHistorial(Long usuarioId) {
-        if (isLastPage) return;
+        if (isLastPage || isHistoryLoading) return;
 
+        isHistoryLoading = true;
         nutricionRepository.obtenerHistorial(usuarioId, currentPage, PAGE_SIZE, new Callback<ApiResponseDto<PageResponseDto<NutricionResponseDto>>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<PageResponseDto<NutricionResponseDto>>> call, Response<ApiResponseDto<PageResponseDto<NutricionResponseDto>>> response) {
+                isHistoryLoading = false;
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     PageResponseDto<NutricionResponseDto> pageData = response.body().getDatos();
                     if (pageData != null) {
@@ -142,6 +146,7 @@ public class DietaViewModel extends ViewModel {
 
             @Override
             public void onFailure(Call<ApiResponseDto<PageResponseDto<NutricionResponseDto>>> call, Throwable t) {
+                isHistoryLoading = false;
                 checkLoadingComplete();
             }
         });
@@ -396,10 +401,10 @@ public class DietaViewModel extends ViewModel {
                     // CLAVE: Seteamos el plan guardado (que ya tiene ID de la DB) como el plan actual
                     planActual.setValue(response.body().getDatos());
 
-                    // Refrescamos el historial para que el nuevo plan aparezca en la lista horizontal
+                    // Forzamos desbloqueo para asegurar que el historial se actualice tras un guardado
+                    isHistoryLoading = false;
                     reiniciarPaginacionHistorial(usuarioId);
 
-                    // Opcional: un mensaje de éxito
                     error.setValue("Plan guardado correctamente");
                 } else {
                     error.setValue("No se pudo guardar el plan");

@@ -160,8 +160,18 @@ public class ResultadoDietaFragment extends Fragment {
     private void setupObservers() {
         viewModel.getPlanActual().observe(getViewLifecycleOwner(), plan -> {
             if (plan != null) {
-                // SOLUCIÓN: Solo actualizamos si es exactamente el mismo plan que estamos
-                // viendo (comparando IDs) o si abrimos el fragmento sin plan previo.
+                // Caso 1: El plan se acaba de guardar (tenía ID null y ahora tiene uno de la DB)
+                if (this.planNutricional != null && this.planNutricional.getId() == null && plan.getId() != null) {
+                    this.planNutricional = plan;
+                    mostrarDatos(getView());
+                    Toast.makeText(getContext(), "¡Plan guardado con éxito!", Toast.LENGTH_SHORT).show();
+                    
+                    // Solo volvemos atrás si el guardado fue exitoso y el historial ya empezó a refrescarse
+                    getParentFragmentManager().popBackStack();
+                    return;
+                }
+
+                // Caso 2: Actualización normal de un plan existente
                 if (this.planNutricional != null && this.planNutricional.getId() != null) {
                     if (this.planNutricional.getId().equals(plan.getId())) {
                         this.planNutricional = plan;
@@ -175,7 +185,11 @@ public class ResultadoDietaFragment extends Fragment {
         });
 
         viewModel.getError().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+            if (error != null) {
+                if (!error.contains("correctamente")) { // No mostrar error si es el mensaje de éxito del VM
+                     Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                }
+            }
         });
     }
 
@@ -194,10 +208,7 @@ public class ResultadoDietaFragment extends Fragment {
                     if (esPlanNuevo) {
                         // LLAMADA AL BACKEND PARA PERSISTIR
                         viewModel.guardarPlan(usuarioId, planNutricional);
-                        Toast.makeText(getContext(), "Plan guardado con éxito", Toast.LENGTH_SHORT).show();
-
-                        // Opcional: Volver a la pantalla principal tras guardar
-                        getParentFragmentManager().popBackStack();
+                        // El popBackStack() ahora se maneja en el setupObservers al recibir el ID
                     } else {
                         // Lógica para planes que ya existen (añadir comidas al diario)
                         ejecutarGuardadoBatchComidas();
@@ -211,9 +222,20 @@ public class ResultadoDietaFragment extends Fragment {
         List<ComidaDiariaRequestDto> batch = new ArrayList<>();
         if (planNutricional.getDietas() != null) {
             for (ComidaDiariaResponseDto sugerencia : planNutricional.getDietas()) {
-                if (!isComidaYaRegistrada(sugerencia)) {
+                // SOLO guardar si tiene nombre y NO está ya registrado
+                if (sugerencia.getNombreAlimento() != null && !sugerencia.getNombreAlimento().isEmpty() 
+                    && !isComidaYaRegistrada(sugerencia)) {
+
                     ComidaDiariaRequestDto req = new ComidaDiariaRequestDto();
-                    // ... (seteo de datos del request) ...
+                    req.setNombreAlimento(sugerencia.getNombreAlimento());
+                    req.setMomento(sugerencia.getMomento());
+                    req.setCalorias(sugerencia.getCalorias());
+                    req.setProteina(sugerencia.getProteina());
+                    req.setCarbohidratos(sugerencia.getCarbohidratos());
+                    req.setGrasas(sugerencia.getGrasas());
+                    req.setImagenUrl(sugerencia.getImagenUrl());
+                    req.setDescripcion(sugerencia.getDescripcion());
+                    req.setRecipeUrl(sugerencia.getRecipeUrl());
                     req.setPlanNutricionalId(planNutricional.getId());
                     batch.add(req);
                 }
@@ -221,6 +243,10 @@ public class ResultadoDietaFragment extends Fragment {
         }
         if (!batch.isEmpty()) {
             viewModel.guardarMuchasComidas(planNutricional.getId(), batch, usuarioId);
+            Toast.makeText(getContext(), "Añadiendo comidas al diario...", Toast.LENGTH_SHORT).show();
+            getParentFragmentManager().popBackStack();
+        } else {
+            Toast.makeText(getContext(), "No hay comidas nuevas para añadir", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -248,66 +274,61 @@ public class ResultadoDietaFragment extends Fragment {
         View btnRenombrar = view.findViewById(R.id.btnRenombrarPlan);
         View btnGuardar = view.findViewById(R.id.btnGuardarPlan);
 
-        // El botón de guardar estará siempre visible ahora
         btnGuardar.setVisibility(View.VISIBLE);
-
-        // Siempre permitimos renombrar, incluso si el plan es transitorio (ID null)
         btnRenombrar.setVisibility(View.VISIBLE);
 
         String titulo = planNutricional.getNombreDieta() != null && !planNutricional.getNombreDieta().isEmpty()
                 ? planNutricional.getNombreDieta()
                 : (planNutricional.getTipoDieta() != null ? planNutricional.getTipoDieta() : "PLAN PERSONALIZADO");
 
-        // tvCal es el texto grande debajo de OBJETIVO en la card
-        if (tvCal != null) {
-            tvCal.setText(titulo);
-        }
-
-        // tvTituloHeader es el texto en la barra superior (Toolbar personalizada)
-        if (tvTituloHeader != null) {
-            tvTituloHeader.setText(titulo);
-        }
+        if (tvCal != null) tvCal.setText(titulo);
+        if (tvTituloHeader != null) tvTituloHeader.setText(titulo);
         tvObj.setText("TU PLAN IDEAL");
 
         List<ComidaDiariaResponseDto> listaAMostrar = new ArrayList<>();
+        
+        // 1. Procesar Sugerencias (Dietas) y ver si ya están registradas
         if (planNutricional.getDietas() != null) {
             for (ComidaDiariaResponseDto sugerencia : planNutricional.getDietas()) {
-                ComidaDiariaResponseDto itemMostrar = sugerencia;
+                if (sugerencia.getNombreAlimento() == null || sugerencia.getNombreAlimento().isEmpty()) continue;
+                
+                ComidaDiariaResponseDto itemFinal = sugerencia;
+                // Buscar si esta sugerencia ya fue guardada como comida real
                 if (planNutricional.getComidas() != null) {
                     for (ComidaDiariaResponseDto real : planNutricional.getComidas()) {
-                        if (real.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
-                                real.getMomento().equalsIgnoreCase(sugerencia.getMomento()) &&
-                                (real.getPlanNutricionalId() == null || real.getPlanNutricionalId().equals(planNutricional.getId()))) {
-                            itemMostrar = real;
-                            itemMostrar.setSelected(true); // Marcamos como consumida
+                        if (real.getNombreAlimento() != null && 
+                            real.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                            real.getMomento().equalsIgnoreCase(sugerencia.getMomento())) {
+                            itemFinal = real;
+                            itemFinal.setSelected(true); 
                             break;
                         }
                     }
                 }
-                listaAMostrar.add(itemMostrar);
+                listaAMostrar.add(itemFinal);
             }
         }
 
+        // 2. Añadir Comidas "Extra" (las añadidas manualmente que no eran sugerencias)
         if (planNutricional.getComidas() != null) {
             for (ComidaDiariaResponseDto real : planNutricional.getComidas()) {
-                if (real.getPlanNutricionalId() != null && !real.getPlanNutricionalId().equals(planNutricional.getId())) {
-                    continue;
-                }
-                boolean yaEsta = false;
-                for (ComidaDiariaResponseDto m : listaAMostrar) {
-                    if (real.getId() != null && real.getId().equals(m.getId())) {
-                        yaEsta = true;
+                if (real.getNombreAlimento() == null || real.getNombreAlimento().isEmpty()) continue;
+                
+                boolean yaIncluida = false;
+                for (ComidaDiariaResponseDto item : listaAMostrar) {
+                    if (real.getId() != null && real.getId().equals(item.getId())) {
+                        yaIncluida = true;
                         break;
                     }
                 }
-                if (!yaEsta) {
-                    real.setSelected(true); // Es comida extra, está consumida
+                if (!yaIncluida) {
+                    real.setSelected(true);
                     listaAMostrar.add(real);
                 }
             }
         }
-        adapter.setComidas(listaAMostrar);
 
+        adapter.setComidas(listaAMostrar);
         actualizarResumenMacros(view);
 
         if (planNutricional.getMacronutrientes() != null &&
