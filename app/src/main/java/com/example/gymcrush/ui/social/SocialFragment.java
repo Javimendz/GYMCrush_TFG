@@ -242,21 +242,27 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
                 }, throwable -> Log.e(TAG, "Error en suscripción a mensajes", throwable)));
 
         // Suscribirse a borrados
-        compositeDisposable.add(mStompClient.topic("/topic/chat.borrados")
+        compositeDisposable.add(mStompClient.topic("/topic/canal1.borrados")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
+                    Log.d(TAG, "Notificación de borrado recibida: " + topicMessage.getPayload());
                     PeticionBorrado peticion = gson.fromJson(topicMessage.getPayload(), PeticionBorrado.class);
-                    eliminarMensajeDeLista(peticion.id);
+                    if (peticion != null) {
+                        eliminarMensajeDeLista(peticion.id);
+                    }
                 }, throwable -> Log.e(TAG, "Error en suscripción a borrados", throwable)));
 
         // Suscribirse a ediciones
-        compositeDisposable.add(mStompClient.topic("/topic/chat.editados")
+        compositeDisposable.add(mStompClient.topic("/topic/canal1.editados")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
+                    Log.d(TAG, "Notificación de edición recibida: " + topicMessage.getPayload());
                     ChatMessageDto dto = gson.fromJson(topicMessage.getPayload(), ChatMessageDto.class);
-                    actualizarMensajeEnLista(dto.id, dto.contenido);
+                    if (dto != null) {
+                        actualizarMensajeEnLista(dto.id, dto.contenido);
+                    }
                 }, throwable -> Log.e(TAG, "Error en suscripción a ediciones", throwable)));
 
         mStompClient.connect(connectHeaders);
@@ -275,11 +281,12 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
         });
     }
 
-    private void eliminarMensajeDeLista(String id) {
+    private void eliminarMensajeDeLista(Long id) {
         if (id == null) return;
+        String idStr = String.valueOf(id);
         getActivity().runOnUiThread(() -> {
             for (int i = 0; i < listaMensajes.size(); i++) {
-                if (id.equals(listaMensajes.get(i).getId())) {
+                if (idStr.equals(listaMensajes.get(i).getId())) {
                     listaMensajes.remove(i);
                     adapter.notifyItemRemoved(i);
                     break;
@@ -328,10 +335,15 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
             MensajeChat mensaje = listaMensajes.get(position);
             if (mensaje.getId() != null) {
                 PeticionBorrado peticion = new PeticionBorrado();
-                peticion.id = mensaje.getId();
-                peticion.usuarioId = usuarioId; // Añadido ID de usuario para el backend
-                compositeDisposable.add(mStompClient.send("/app/chat.borrar", gson.toJson(peticion)).subscribe(() -> {
-                    Log.d(TAG, "Borrado enviado para mensaje: " + mensaje.getId());
+                try {
+                    peticion.id = Long.parseLong(mensaje.getId());
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Error al convertir ID de mensaje a Long: " + mensaje.getId());
+                }
+                peticion.usuario = nombreUsuario; // Coincide con 'String usuario' del backend
+                
+                compositeDisposable.add(mStompClient.send("/app/chat1.borrar", gson.toJson(peticion)).subscribe(() -> {
+                    Log.d(TAG, "Borrado enviado a /app/chat1.borrar para mensaje ID: " + peticion.id);
                 }, throwable -> Log.e(TAG, "Error enviando borrado", throwable)));
             }
             dialog.dismiss();
@@ -361,12 +373,16 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
             String nuevoTexto = input.getText().toString().trim();
             if (!nuevoTexto.isEmpty() && !nuevoTexto.equals(mensaje.getTexto())) {
                 PeticionEdicion peticion = new PeticionEdicion();
-                peticion.id = mensaje.getId();
+                try {
+                    peticion.id = Long.parseLong(mensaje.getId());
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Error al convertir ID de mensaje a Long: " + mensaje.getId());
+                }
                 peticion.contenido = nuevoTexto;
-                peticion.usuarioId = usuarioId;
+                peticion.usuario = nombreUsuario; // Añadido para validación si el DTO lo requiere
                 
-                compositeDisposable.add(mStompClient.send("/app/chat.editar", gson.toJson(peticion)).subscribe(() -> {
-                    Log.d(TAG, "Edición enviada para mensaje: " + mensaje.getId());
+                compositeDisposable.add(mStompClient.send("/app/chat1.editar", gson.toJson(peticion)).subscribe(() -> {
+                    Log.d(TAG, "Edición enviada a /app/chat1.editar para mensaje ID: " + peticion.id);
                 }, throwable -> Log.e(TAG, "Error enviando edición", throwable)));
             }
             dialog.dismiss();
@@ -430,13 +446,13 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
     }
 
     private static class PeticionBorrado {
-        String id;
-        Long usuarioId;
+        Long id;         // ID del mensaje (Long para coincidir con el backend)
+        String usuario;  // Nombre de usuario para validación
     }
 
     private static class PeticionEdicion {
-        String id;
+        Long id;         // ID del mensaje (Long para coincidir con el backend)
         String contenido;
-        Long usuarioId;
+        String usuario;  // Quién edita (opcional, por simetría con borrado)
     }
 }
