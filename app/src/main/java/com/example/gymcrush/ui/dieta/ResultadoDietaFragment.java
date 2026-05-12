@@ -434,14 +434,14 @@ public class ResultadoDietaFragment extends Fragment {
         com.google.android.material.textfield.TextInputLayout textInputLayout = new com.google.android.material.textfield.TextInputLayout(requireContext(), null, com.google.android.material.R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox);
         textInputLayout.setHint("Nombre del plan");
         textInputLayout.setBoxStrokeColor(android.graphics.Color.parseColor("#CD0277"));
-        textInputLayout.setHintTextColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
+        textInputLayout.setHintTextColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#CCCCCC")));
         textInputLayout.setDefaultHintTextColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#CD0277")));
         textInputLayout.setPlaceholderText("Ej. Mi Dieta de Definición");
         textInputLayout.setPlaceholderTextColor(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
 
         com.google.android.material.textfield.TextInputEditText et = new com.google.android.material.textfield.TextInputEditText(textInputLayout.getContext());
         et.setText(planNutricional.getNombreDieta());
-        et.setTextColor(android.graphics.Color.WHITE);
+        et.setTextColor(android.graphics.Color.parseColor("#CCCCCC"));
         if (et.getText() != null) {
             et.setSelection(et.getText().length());
         }

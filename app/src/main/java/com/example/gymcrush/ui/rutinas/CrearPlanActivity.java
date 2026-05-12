@@ -77,11 +77,51 @@ public class CrearPlanActivity extends AppCompatActivity {
         String[] objetivos = {"GANAR_MUSCULO", "PERDER_PESO", "MANTENER_FORMA"};
         String[] niveles = {"PRINCIPIANTE", "INTERMEDIO", "AVANZADO"};
 
-        ArrayAdapter<String> adapterObj = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, objetivos);
+        // Adaptador para Objetivo
+        ArrayAdapter<String> adapterObj = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, objetivos) {
+            @Override
+            public android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent) {
+                android.view.View v = super.getView(position, convertView, parent);
+                if (v instanceof android.widget.TextView) {
+                    ((android.widget.TextView) v).setTextColor(android.graphics.Color.WHITE);
+                }
+                return v;
+            }
+
+            @Override
+            public android.view.View getDropDownView(int position, android.view.View convertView, android.view.ViewGroup parent) {
+                android.view.View v = super.getDropDownView(position, convertView, parent);
+                v.setBackgroundColor(android.graphics.Color.parseColor("#1A2238")); // card_surface
+                if (v instanceof android.widget.TextView) {
+                    ((android.widget.TextView) v).setTextColor(android.graphics.Color.WHITE);
+                }
+                return v;
+            }
+        };
         adapterObj.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerObjetivo.setAdapter(adapterObj);
 
-        ArrayAdapter<String> adapterNiv = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, niveles);
+        // Adaptador para Nivel
+        ArrayAdapter<String> adapterNiv = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, niveles) {
+            @Override
+            public android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent) {
+                android.view.View v = super.getView(position, convertView, parent);
+                if (v instanceof android.widget.TextView) {
+                    ((android.widget.TextView) v).setTextColor(android.graphics.Color.WHITE);
+                }
+                return v;
+            }
+
+            @Override
+            public android.view.View getDropDownView(int position, android.view.View convertView, android.view.ViewGroup parent) {
+                android.view.View v = super.getDropDownView(position, convertView, parent);
+                v.setBackgroundColor(android.graphics.Color.parseColor("#1A2238")); // card_surface
+                if (v instanceof android.widget.TextView) {
+                    ((android.widget.TextView) v).setTextColor(android.graphics.Color.WHITE);
+                }
+                return v;
+            }
+        };
         adapterNiv.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerNivel.setAdapter(adapterNiv);
     }

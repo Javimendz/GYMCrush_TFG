@@ -76,8 +76,8 @@ public class PlanesFragment extends Fragment {
         Set<String> roles = prefs.getStringSet("roles", new HashSet<>());
         isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
 
-        // Todos pueden ver el botón de añadir ahora
-        fabAddPlan.setVisibility(View.VISIBLE);
+        // El botón FAB se oculta en esta vista según requerimiento UI
+        fabAddPlan.setVisibility(View.GONE);
         fabAddPlan.setOnClickListener(v -> startCrearPlan.launch(new Intent(requireContext(), CrearPlanActivity.class)));
 
         View btnNuevoPlanToolbar = view.findViewById(R.id.btnNuevoPlanToolbar);

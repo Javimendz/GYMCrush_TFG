@@ -891,12 +891,9 @@ public class RutinasFragment extends Fragment {
                 });
             }
         } else if (tabPosition == 1) {
-            // Explorar: Mostrar FAB para todos ahora
+            // Explorar: Ocultar FAB de ejercicio, el botón de Nuevo Plan se gestiona en PlanesFragment
             if (btnIrACrear != null) btnIrACrear.hide();
-            if (fabAddEjercicio != null) {
-                fabAddEjercicio.show();
-                fabAddEjercicio.setOnClickListener(v -> mostrarDialogoNuevoEjercicio());
-            }
+            if (fabAddEjercicio != null) fabAddEjercicio.hide();
         } else if (tabPosition == 2) {
             // Mis Rutinas: Botón para crear nueva plantilla (Entrenamiento)
             if (fabAddEjercicio != null) fabAddEjercicio.hide();
