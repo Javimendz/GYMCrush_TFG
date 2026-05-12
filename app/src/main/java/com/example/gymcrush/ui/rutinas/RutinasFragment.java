@@ -314,7 +314,13 @@ public class RutinasFragment extends Fragment {
                         actualizarRutinasGuardadas();
                         Toast.makeText(getContext(), "Rutina eliminada", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getContext(), "Error al eliminar en el servidor", Toast.LENGTH_SHORT).show();
+                        if (response.code() == 400 || response.code() == 409) {
+                            Toast.makeText(getContext(), "No se puede eliminar: Esta rutina está asignada a tu agenda o a un plan de entrenamiento.", Toast.LENGTH_LONG).show();
+                        } else if (response.code() == 403) {
+                            Toast.makeText(getContext(), "No tienes permisos para eliminar esta rutina.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "Error al eliminar en el servidor (" + response.code() + ")", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
 
@@ -338,6 +344,8 @@ public class RutinasFragment extends Fragment {
                     Toast.makeText(getContext(), "Ejercicio eliminado de la agenda", Toast.LENGTH_SHORT).show();
                     cargarRutinaPorFecha();
                     cargarEstadisticas();
+                } else {
+                    Toast.makeText(getContext(), "Error al eliminar de la agenda (" + response.code() + ")", Toast.LENGTH_SHORT).show();
                 }
             }
 

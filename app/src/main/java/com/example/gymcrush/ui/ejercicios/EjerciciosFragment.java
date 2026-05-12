@@ -272,10 +272,12 @@ public class EjerciciosFragment extends Fragment {
                             } else {
                                 if (response.code() == 403) {
                                     Toast.makeText(getContext(), "Error 403: No tienes permisos para eliminar este ejercicio. Solo el creador o un administrador pueden hacerlo.", Toast.LENGTH_LONG).show();
+                                } else if (response.code() == 400) {
+                                    Toast.makeText(getContext(), "No se puede eliminar: Este ejercicio está siendo utilizado en una rutina o plan activo.", Toast.LENGTH_LONG).show();
                                 } else {
                                     Toast.makeText(getContext(), "Error al eliminar (" + response.code() + ")", Toast.LENGTH_SHORT).show();
                                 }
-                                android.util.Log.e("EjerciciosFragment", "Error 403 al eliminar tutorial ID " + t.getId() + ". Usuario actual: " + 
+                                android.util.Log.e("EjerciciosFragment", "Error " + response.code() + " al eliminar tutorial ID " + t.getId() + ". Usuario actual: " +
                                     requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE).getLong("user_id", -1));
                             }
                         }
