@@ -95,7 +95,7 @@ public class SaludFragment extends Fragment {
 
         viewModel.getError().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
-                if (!error.contains("404") && !error.contains("no tiene registros")) {
+                if (!error.contains("404") && !error.contains("no tiene registros") && !error.contains("No se encontraron datos de salud")) {
                     Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                 }
             }

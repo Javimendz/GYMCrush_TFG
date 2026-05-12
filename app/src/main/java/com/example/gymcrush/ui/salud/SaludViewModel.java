@@ -40,22 +40,29 @@ public class SaludViewModel extends ViewModel {
 
     public void cargarDatos(Long userId) {
         isLoading.setValue(true);
+        
+        // 1. Cargamos el historial de forma independiente
+        cargarHistorial(userId);
+        
+        // 2. Cargamos el peso actual
         repository.getSaludActual(userId, new PerfilRepository.PerfilCallback<SaludResponseDto>() {
             @Override
             public void onSuccess(SaludResponseDto result) {
                 saludActual.setValue(result);
-                cargarHistorial(userId);
             }
 
             @Override
             public void onError(String errorMessage) {
-                error.setValue(errorMessage);
+                // Silenciamos el 404 de "no encontrado" para datos actuales
+                if (!errorMessage.contains("404") && !errorMessage.contains("No se encontraron")) {
+                    error.setValue(errorMessage);
+                }
                 isLoading.setValue(false);
             }
         });
     }
 
-    private void cargarHistorial(Long userId) {
+    public void cargarHistorial(Long userId) {
         repository.getHistorialSalud(userId, new PerfilRepository.PerfilCallback<List<SaludResponseDto>>() {
             @Override
             public void onSuccess(List<SaludResponseDto> result) {
@@ -65,7 +72,10 @@ public class SaludViewModel extends ViewModel {
 
             @Override
             public void onError(String errorMessage) {
-                error.setValue(errorMessage);
+                // Silenciamos el 404 en el historial para evitar Toasts molestos al entrar
+                if (!errorMessage.contains("404") && !errorMessage.contains("No se encontraron")) {
+                    error.setValue(errorMessage);
+                }
                 isLoading.setValue(false);
             }
         });

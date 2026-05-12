@@ -49,6 +49,18 @@ public class HistorialSaludFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        
+        SharedPreferences prefs = requireContext().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
+        long userId = prefs.getLong("user_id", -1L);
+        
+        if (userId != -1L) {
+            viewModel.cargarHistorial(userId);
+        }
+    }
+
     private void setupRecyclerView() {
         adapter = new HistorialAdapter(new ArrayList<>());
         rvHistorial.setLayoutManager(new LinearLayoutManager(getContext()));
