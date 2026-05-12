@@ -8,13 +8,13 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-
+import com.backend.dto.PeticionEditarDto;
 import com.backend.domain.MensajeChat;
 import com.backend.dto.ChatRequestDto;
 import com.backend.dto.ChatResponseDto;
 import com.backend.mapper.ChatMapper;
 import com.backend.repository.MensajeChatRepository;
-
+import com.backend.dto.PeticionBorradoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +45,54 @@ public class WSChatController {
                 .build();
         
         return chatMapper.toDto(mensajeRepository.save(entidad));
+    }
+
+    @MessageMapping("/chat1.borrar")
+    public void borrarMensajeGlobal(PeticionBorradoDto request) {
+        log.info("Solicitud para borrar mensaje ID: {}", request.getId());
+        
+        try {
+            // 1. Borrar de la base de datos
+            if (mensajeRepository.existsById(request.getId())) {
+                mensajeRepository.deleteById(request.getId());
+                
+                // 2. Notificar a TODOS los usuarios conectados
+                // Enviamos el objeto de petición para que Android sepa qué ID eliminar
+                messagingTemplate.convertAndSend("/topic/canal1.borrados", request);
+                
+                log.info("Mensaje borrado y notificación enviada");
+            }
+        } catch (Exception e) {
+            log.error("Error al borrar mensaje: {}", e.getMessage());
+        }
+    }
+
+
+
+    @MessageMapping("/chat1.editar") 
+    public void editarMensajeGlobal(PeticionEditarDto request) {
+        log.info("Solicitud para editar mensaje ID: {}", request.getId());
+        
+        try {
+            //  Buscar el mensaje en la base de datos
+            mensajeRepository.findById(request.getId()).ifPresent(mensaje -> {
+                
+                //  Actualizar el contenido
+                mensaje.setContenido(request.getContenido());
+                // mensaje.setFechaEnvio(LocalDateTime.now()); 
+
+                MensajeChat actualizado = mensajeRepository.save(mensaje);
+                ChatResponseDto response = chatMapper.toDto(actualizado);
+                
+                // Notificar la edición a TODOS los suscritos
+                // Enviamos el mensaje completo actualizado para que Android reemplace el anterior
+                messagingTemplate.convertAndSend("/topic/canal1.editados", response);
+                
+                log.info("Mensaje editado con éxito");
+            });
+        } catch (Exception e) {
+            log.error("Error al editar mensaje: {}", e.getMessage());
+        }
     }
 
     /**
