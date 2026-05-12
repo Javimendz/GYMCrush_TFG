@@ -881,15 +881,9 @@ public class RutinasFragment extends Fragment {
 
     private void actualizarVisibilidadFab(int tabPosition) {
         if (tabPosition == 0) {
-            // Agenda: Botón para añadir entrenamiento hoy
+            // Agenda: Ocultar botones flotantes
             if (fabAddEjercicio != null) fabAddEjercicio.hide();
-            if (btnIrACrear != null) {
-                btnIrACrear.show();
-                btnIrACrear.setOnClickListener(v -> {
-                    Intent intent = new Intent(getActivity(), CrearRutinaActivity.class);
-                    startActivity(intent);
-                });
-            }
+            if (btnIrACrear != null) btnIrACrear.hide();
         } else if (tabPosition == 1) {
             // Explorar: Ocultar FAB de ejercicio, el botón de Nuevo Plan se gestiona en PlanesFragment
             if (btnIrACrear != null) btnIrACrear.hide();
