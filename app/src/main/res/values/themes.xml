@@ -107,4 +107,11 @@
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="WhiteTextSearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColorPrimary">#CCCCCC</item>
+        <item name="android:editTextColor">#CCCCCC</item>
+        <item name="android:textColorHint">#999999</item>
+        <item name="colorControlNormal">#CCCCCC</item>
+    </style>
 </resources>

@@ -78,6 +78,13 @@ public class StaffFragment extends Fragment {
             searchView.setSuggestionsAdapter(null);
             searchView.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
+            // Cambiar color de texto a gris claro
+            EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+            if (searchEditText != null) {
+                searchEditText.setTextColor(Color.parseColor("#CCCCCC"));
+                searchEditText.setHintTextColor(Color.parseColor("#999999"));
+            }
+
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
