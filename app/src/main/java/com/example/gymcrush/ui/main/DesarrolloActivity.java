@@ -842,6 +842,15 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
         boolean isStaff = roles.contains("ROLE_STAFF") || roles.contains("STAFF") || isAdmin;
 
+        View menuAdminDashboard = menuView.findViewById(R.id.menu_admin_dashboard);
+        if (menuAdminDashboard != null) {
+            menuAdminDashboard.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
+            menuAdminDashboard.setOnClickListener(v -> {
+                slidingRootNav.closeMenu();
+                cargarFragmento(new AdminDashboardFragment());
+            });
+        }
+
         View menuStaffAdmin = menuView.findViewById(R.id.menu_staff_admin);
         if (menuStaffAdmin != null) {
             menuStaffAdmin.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
