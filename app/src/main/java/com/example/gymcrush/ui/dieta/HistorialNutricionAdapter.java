@@ -103,15 +103,22 @@ public class HistorialNutricionAdapter extends RecyclerView.Adapter<HistorialNut
             // Calorías
             tvCalorias.setText(plan.getCaloriasObjetivo() + " kcal / día");
 
-            // Resumen de comidas (Lógica intacta, está muy bien hecha)
+            // Resumen de comidas (Mejorado para revisar ambas listas)
             StringBuilder sb = new StringBuilder();
-            List<com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto> comidas = plan.getComidas();
-            if (comidas != null && !comidas.isEmpty()) {
-                for (int i = 0; i < Math.min(comidas.size(), 4); i++) {
+            List<com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto> todasLasComidas = new ArrayList<>();
+
+            if (plan.getComidas() != null && !plan.getComidas().isEmpty()) {
+                todasLasComidas.addAll(plan.getComidas());
+            } else if (plan.getDietas() != null && !plan.getDietas().isEmpty()) {
+                todasLasComidas.addAll(plan.getDietas());
+            }
+
+            if (!todasLasComidas.isEmpty()) {
+                for (int i = 0; i < Math.min(todasLasComidas.size(), 4); i++) {
                     if (i > 0) sb.append(", ");
-                    sb.append(comidas.get(i).getNombreAlimento());
+                    sb.append(todasLasComidas.get(i).getNombreAlimento());
                 }
-                if (comidas.size() > 4) sb.append("...");
+                if (todasLasComidas.size() > 4) sb.append("...");
             } else {
                 sb.append("Sin registros de alimentos");
             }
