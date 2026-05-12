@@ -192,9 +192,10 @@
                 android:orientation="vertical"
                 android:padding="16dp">
                 <TextView
+                    android:id="@+id/tvUsuariosActivos"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Usuarios Activos Hoy: 142"
+                    android:text="Usuarios Totales: ..."
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />
                 <View
@@ -203,9 +204,10 @@
                     android:background="#1AFFFFFF"
                     android:layout_marginVertical="8dp"/>
                 <TextView
+                    android:id="@+id/tvAforoActual"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reservas para mañana: 48"
+                    android:text="Aforo Actual: ..."
                     android:textColor="#B3FFFFFF"
                     android:textSize="14sp" />
             </LinearLayout>
