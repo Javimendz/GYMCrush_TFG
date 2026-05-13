@@ -329,12 +329,13 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
         TextView titulo = dialog.findViewById(R.id.tv_titulo_exit);
         TextView mensajeText = dialog.findViewById(R.id.tv_mensaje_exit);
+        com.google.android.material.button.MaterialButton confirm = dialog.findViewById(R.id.btn_confirmar_exit);
         
         titulo.setText("ELIMINAR MENSAJE");
         mensajeText.setText("¿Estás seguro de que deseas eliminar este mensaje?");
+        confirm.setText("SÍ");
 
         View cancel = dialog.findViewById(R.id.btn_cancelar_exit);
-        View confirm = dialog.findViewById(R.id.btn_confirmar_exit);
 
         cancel.setOnClickListener(v -> dialog.dismiss());
         confirm.setOnClickListener(v -> {

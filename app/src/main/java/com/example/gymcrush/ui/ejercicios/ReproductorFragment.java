@@ -152,6 +152,10 @@ public class ReproductorFragment extends Fragment {
             public void onResponse(Call<ApiResponseDto<VisualizacionResponseDto>> call, Response<ApiResponseDto<VisualizacionResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getDatos() != null) {
                     VisualizacionResponseDto datos = response.body().getDatos();
+                    
+                    // Actualizamos el ojo con las visualizaciones al cargar el video
+                    actualizarContadorUI(datos);
+
                     Integer segundosApi = (datos.getProgresoSegundos() != null) ? datos.getProgresoSegundos() : 0;
                     Boolean completado = datos.getCompletado();
 

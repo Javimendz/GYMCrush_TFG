@@ -4,6 +4,7 @@ import android.util.Log;
 import com.example.gymcrush.data.remote.dto.NotificacionResponseDto;
 import com.google.gson.Gson;
 import io.reactivex.disposables.Disposable;
+import okhttp3.OkHttpClient;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class StompManager {
     private static final String TAG = "STOMP_MANAGER";
@@ -24,10 +26,23 @@ public class StompManager {
     }
 
     public void connect(String url, Long usuarioId, String token, OnNotificationReceivedListener listener) {
-        // La URL suele ser ws://10.0.2.2:8080/ws/websocket para el emulador
-        // Se eliminan los handshakeHeaders para evitar el error HTTP 500 durante el handshake.
-        // La autenticación se maneja a nivel de protocolo STOMP en connectHeaders.
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, url);
+        // Configuración de OkHttpClient para mejorar la estabilidad de la conexión
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(0, TimeUnit.MILLISECONDS) // Para WebSockets el timeout de lectura debe ser 0
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .build();
+
+        // Se pueden añadir headers al handshake si el servidor lo requiere (ej: Authorization)
+        Map<String, String> handshakeHeaders = new HashMap<>();
+        if (token != null && !token.isEmpty()) {
+            handshakeHeaders.put("Authorization", "Bearer " + token);
+        }
+
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, url, handshakeHeaders, httpClient);
+        
+        // Configurar Heartbeats para mantener la conexión viva (cada 10 segundos)
+        mStompClient.withServerHeartbeat(10000).withClientHeartbeat(10000);
 
         List<StompHeader> headers = new ArrayList<>();
         if (token != null && !token.isEmpty()) {
