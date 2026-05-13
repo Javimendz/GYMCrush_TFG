@@ -37,6 +37,7 @@ public class ResultadoDietaFragment extends Fragment {
     private CustomDonutChart donutChart;
     private DietaViewModel viewModel;
     private Long usuarioId;
+    private boolean isSaving = false;
 
     public static ResultadoDietaFragment newInstance(NutricionResponseDto plan) {
         ResultadoDietaFragment fragment = new ResultadoDietaFragment();
@@ -166,33 +167,39 @@ public class ResultadoDietaFragment extends Fragment {
     private void setupObservers() {
         viewModel.getPlanActual().observe(getViewLifecycleOwner(), plan -> {
             if (plan != null) {
-                // Caso 1: El plan se acaba de guardar (tenía ID null y ahora tiene uno de la DB)
-                if (this.planNutricional != null && this.planNutricional.getId() == null && plan.getId() != null) {
+                // Caso 1: El plan se acaba de guardar exitosamente
+                if (isSaving && this.planNutricional != null && this.planNutricional.getId() == null && plan.getId() != null) {
                     this.planNutricional = plan;
+                    isSaving = false;
                     mostrarDatos(getView());
                     Toast.makeText(getContext(), "¡Plan guardado con éxito!", Toast.LENGTH_SHORT).show();
-                    
-                    // Solo volvemos atrás si el guardado fue exitoso y el historial ya empezó a refrescarse
                     getParentFragmentManager().popBackStack();
                     return;
                 }
 
-                // Caso 2: Actualización normal de un plan existente
+                // Caso 2: Actualización normal de un plan existente (siempre que coincida el ID)
                 if (this.planNutricional != null && this.planNutricional.getId() != null) {
                     if (this.planNutricional.getId().equals(plan.getId())) {
                         this.planNutricional = plan;
                         mostrarDatos(getView());
                     }
-                } else {
+                } else if (this.planNutricional == null) {
+                    // Inicialización por si acaso
                     this.planNutricional = plan;
                     mostrarDatos(getView());
                 }
+                // Si es un plan simulado (ID null) y no estamos guardando, IGNOREMOS el planActual del VM
+                // para evitar que se sobrescriba con el plan activo actual del usuario.
             }
         });
 
         viewModel.getError().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
-                if (!error.contains("correctamente")) { // No mostrar error si es el mensaje de éxito del VM
+                if (error.contains("guardado correctamente")) {
+                    // El feedback ya se maneja o se puede manejar aquí si se prefiere
+                    return;
+                }
+                if (!error.contains("404") && !error.contains("no tiene registros")) {
                      Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -213,8 +220,8 @@ public class ResultadoDietaFragment extends Fragment {
                 .setPositiveButton("Confirmar", (dialog, which) -> {
                     if (esPlanNuevo) {
                         // LLAMADA AL BACKEND PARA PERSISTIR
+                        isSaving = true;
                         viewModel.guardarPlan(usuarioId, planNutricional);
-                        // El popBackStack() ahora se maneja en el setupObservers al recibir el ID
                     } else {
                         // Lógica para planes que ya existen (añadir comidas al diario)
                         ejecutarGuardadoBatchComidas();
@@ -393,6 +400,11 @@ public class ResultadoDietaFragment extends Fragment {
             return;
         }
 
+        if (planNutricional.getId() == null) {
+            Toast.makeText(getContext(), "Guarda el plan primero para añadir platos personalizados", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_comida, null);
         android.widget.AutoCompleteTextView spinnerMomento = dialogView.findViewById(R.id.dialog_spinner_momento);
         com.google.android.material.textfield.TextInputEditText etNombre = dialogView.findViewById(R.id.dialog_et_nombre);
@@ -402,14 +414,15 @@ public class ResultadoDietaFragment extends Fragment {
         com.google.android.material.textfield.TextInputEditText etGrasas = dialogView.findViewById(R.id.dialog_et_grasas);
 
         String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
-        spinnerMomento.setAdapter(new android.widget.ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, momentos));
+        spinnerMomento.setAdapter(new NoFilterAdapter(requireContext(), momentos));
+        spinnerMomento.setText(momentos[0], false);
+        spinnerMomento.setOnClickListener(v -> {
+            spinnerMomento.showDropDown();
+        });
 
-        Dialog dialog = new Dialog(getContext());
-        dialog.setContentView(dialogView);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
+        androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+                .setView(dialogView)
+                .create();
 
         dialogView.findViewById(R.id.btn_cancelar_comida).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btn_guardar_comida).setOnClickListener(v -> {
@@ -487,6 +500,11 @@ public class ResultadoDietaFragment extends Fragment {
             return;
         }
 
+        if (planNutricional.getId() == null) {
+            Toast.makeText(getContext(), "Guarda el plan primero para buscar alimentos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         viewModel.limpiarBusqueda();
 
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_search_food, null);
@@ -499,24 +517,33 @@ public class ResultadoDietaFragment extends Fragment {
         TextView tvNoResults = dialogView.findViewById(R.id.tvNoSearchResults);
 
         String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
-        spinnerMomento.setAdapter(new android.widget.ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, momentos));
+        spinnerMomento.setAdapter(new NoFilterAdapter(requireContext(), momentos));
         spinnerMomento.setText(momentos[0], false);
-        spinnerMomento.setOnClickListener(v -> spinnerMomento.showDropDown());
-
-        Dialog dialog = new Dialog(getContext());
-        dialog.setContentView(dialogView);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-        dialogView.findViewById(R.id.btnCerrarBusqueda).setOnClickListener(v -> dialog.dismiss());
+        spinnerMomento.setOnClickListener(v -> {
+            spinnerMomento.showDropDown();
+        });
 
         FoodSearchAdapter searchAdapter = new FoodSearchAdapter();
         rvResults.setAdapter(searchAdapter);
         rvResults.setLayoutManager(new LinearLayoutManager(getContext()));
-        
-        dialog.show();
+
+        androidx.appcompat.app.AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+                .setView(dialogView)
+                .setPositiveButton("Añadir", (dialogInterface, which) -> {
+                    List<ComidaDiariaRequestDto> seleccionados = searchAdapter.getSelectedItems();
+                    if (!seleccionados.isEmpty()) {
+                        String momento = spinnerMomento.getText().toString();
+                        for (ComidaDiariaRequestDto c : seleccionados) {
+                            c.setPlanNutricionalId(planNutricional.getId());
+                            c.setMomento(momento);
+                        }
+                        viewModel.guardarMuchasComidas(planNutricional.getId(), seleccionados, usuarioId);
+                    }
+                })
+                .setNegativeButton("Cerrar", null)
+                .create();
+
+        dialogView.findViewById(R.id.btnCerrarBusqueda).setOnClickListener(v -> dialog.dismiss());
 
         viewModel.getResultadosBusqueda().observe(getViewLifecycleOwner(), items -> {
             if (items != null) {
@@ -538,7 +565,7 @@ public class ResultadoDietaFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (!query.isEmpty()) {
-                    viewModel.buscarAlimentos(query);
+                    viewModel.onSearchQueryChanged(query);
                     searchView.clearFocus();
                 }
                 return true;
@@ -551,20 +578,33 @@ public class ResultadoDietaFragment extends Fragment {
             }
         });
 
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
-                .setView(dialogView)
-                .setPositiveButton("Añadir", (dialogInterface, which) -> {
-                    List<ComidaDiariaRequestDto> seleccionados = searchAdapter.getSelectedItems();
-                    if (!seleccionados.isEmpty()) {
-                        String momento = spinnerMomento.getText().toString();
-                        for (ComidaDiariaRequestDto c : seleccionados) {
-                            c.setPlanNutricionalId(planNutricional.getId());
-                            c.setMomento(momento);
-                        }
-                        viewModel.guardarMuchasComidas(planNutricional.getId(), seleccionados, usuarioId);
-                    }
-                })
-                .setNegativeButton("Cerrar", null)
-                .show();
+        dialog.show();
+    }
+
+    private static class NoFilterAdapter extends android.widget.ArrayAdapter<String> implements android.widget.Filterable {
+        private final String[] items;
+
+        public NoFilterAdapter(Context context, String[] items) {
+            super(context, android.R.layout.simple_dropdown_item_1line, items);
+            this.items = items;
+        }
+
+        @Override
+        public android.widget.Filter getFilter() {
+            return new android.widget.Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();
+                    results.values = items;
+                    results.count = items.length;
+                    return results;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    notifyDataSetChanged();
+                }
+            };
+        }
     }
 }

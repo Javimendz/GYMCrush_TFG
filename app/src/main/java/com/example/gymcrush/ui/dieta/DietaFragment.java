@@ -168,47 +168,77 @@ public class DietaFragment extends Fragment {
             NutricionResponseDto planSimulado = new NutricionResponseDto();
             planSimulado.setNombreDieta(dieta.getNombre());
             planSimulado.setTipoDieta(dieta.getTipo());
-            planSimulado.setCaloriasObjetivo(dieta.getObjetivoCalorico().intValue());
+            
+            double totalCal = (dieta.getObjetivoCalorico() != null) ? dieta.getObjetivoCalorico() : 2000.0;
+            planSimulado.setCaloriasObjetivo((int) totalCal);
+            
+            // Inicializar listas para evitar NullPointerException en el fragmento de destino
+            planSimulado.setComidas(new java.util.ArrayList<>());
 
             // Simulamos las comidas diarias recomendadas basándonos en los macros de la dieta
             java.util.List<ComidaDiariaResponseDto> dietasSimuladas = new java.util.ArrayList<>();
 
             String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
-            String[] platosEjemplo = {"Bol de Avena y Frutas", "Sándwich Integral de Pavo", "Pollo con Arroz y Verduras", "Batido de Proteínas y Nueces", "Salmón a la Plancha con Ensalada"};
-            String[] urlsEjemplo = {
-                    "https://www.fatsecret.es/recetas/bol-de-avena-con-frutas/Default.aspx",
-                    "https://www.fatsecret.es/recetas/sandwich-de-pavo/Default.aspx",
-                    "https://www.fatsecret.es/recetas/pollo-con-arroz-y-verduras/Default.aspx",
-                    "https://www.fatsecret.es/recetas/batido-de-proteinas/Default.aspx",
-                    "https://www.fatsecret.es/recetas/salmon-a-la-plancha/Default.aspx"
-            };
+            
+            String[] platosEjemplo;
+            String tipoNorm = dieta.getTipo() != null ? dieta.getTipo().toUpperCase() : "";
+            
+            if (tipoNorm.contains("HIPERCAL") || tipoNorm.contains("VOLUMEN") || tipoNorm.contains("GANAR")) {
+                platosEjemplo = new String[]{
+                    "Gachas de Avena con Plátano y Crema de Cacahuete",
+                    "Sándwich de Pollo, Aguacate y Queso",
+                    "Pasta Integral con Ternera y Salsa de Tomate",
+                    "Batido de Proteínas con Leche Entera y Frutos Secos",
+                    "Salmón al Horno con Patata Cocida y Verduras"
+                };
+            } else if (tipoNorm.contains("HIPOCAL") || tipoNorm.contains("DEFICIT") || tipoNorm.contains("PERDER")) {
+                platosEjemplo = new String[]{
+                    "Tortilla de Claras con Espinacas",
+                    "Yogur Griego 0% con Arándanos",
+                    "Pechuga de Pollo a la Plancha con Brócoli",
+                    "Manzana con un puñado de Almendras",
+                    "Pescado Blanco al Papillote con Calabacín"
+                };
+            } else {
+                platosEjemplo = new String[]{
+                    "Bol de Avena y Frutas", 
+                    "Sándwich Integral de Pavo", 
+                    "Pollo con Arroz y Verduras", 
+                    "Batido de Proteínas y Nueces", 
+                    "Salmón a la Plancha con Ensalada"
+                };
+            }
+
             String[] imagenesEjemplo = {
                     "https://images.unsplash.com/photo-1517673400267-0251440c45dc?q=80&w=500&auto=format&fit=crop", // Avena
                     "https://images.unsplash.com/photo-1528733918455-5a59687cedf0?q=80&w=500&auto=format&fit=crop", // Sandwich
-                    "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=500&auto=format&fit=crop", // Pollo
+                    "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?q=80&w=500&auto=format&fit=crop", // Pollo/Pasta
                     "https://images.unsplash.com/photo-1574783756247-29f6c244a51d?q=80&w=500&auto=format&fit=crop", // Batido
-                    "https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=500&auto=format&fit=crop"  // Salmon
+                    "https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=500&auto=format&fit=crop"  // Salmon/Pescado
             };
+
+            double protTotal = (dieta.getCantidadProteinas() != null) ? dieta.getCantidadProteinas() : 0.0;
+            double carbTotal = (dieta.getCantidadCarbohidratos() != null) ? dieta.getCantidadCarbohidratos() : 0.0;
+            double grasTotal = (dieta.getCantidadGrasas() != null) ? dieta.getCantidadGrasas().doubleValue() : 0.0;
 
             for (int i = 0; i < momentos.length; i++) {
                 String momento = momentos[i];
                 ComidaDiariaResponseDto item = new ComidaDiariaResponseDto();
                 item.setMomento(momento);
                 item.setNombreAlimento(platosEjemplo[i]);
-                item.setRecipeUrl(urlsEjemplo[i]);
                 item.setImagenUrl(imagenesEjemplo[i]);
-                item.setDescripcion("Una opción saludable y equilibrada diseñada para tu dieta " + dieta.getTipo().toLowerCase() + ".");
+                item.setDescripcion("Sugerencia de dieta " + (dieta.getTipo() != null ? dieta.getTipo().toLowerCase() : "") + " para alcanzar tus " + (int)totalCal + " kcal diarias.");
 
-                // Repartimos macros aproximados
-                item.setProteina(dieta.getCantidadProteinas() / 5);
-                item.setCarbohidratos(dieta.getCantidadCarbohidratos() / 5);
-                item.setGrasas(dieta.getCantidadGrasas().doubleValue() / 5);
-                item.setCalorias(dieta.getObjetivoCalorico() / 5);
+                // Repartimos macros exactos del catálogo entre las 5 comidas
+                item.setProteina(protTotal / 5.0);
+                item.setCarbohidratos(carbTotal / 5.0);
+                item.setGrasas(grasTotal / 5.0);
+                item.setCalorias(totalCal / 5.0);
                 dietasSimuladas.add(item);
             }
             planSimulado.setDietas(dietasSimuladas);
 
-            // Pasamos a la pantalla de detalles
+            // Pasamos a la pantalla de detalles para que se pueda editar y guardar
             ResultadoDietaFragment fragment = ResultadoDietaFragment.newInstance(planSimulado);
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment)
@@ -532,11 +562,24 @@ public class DietaFragment extends Fragment {
     }
 
     private void generarSugerencia() {
+        if (usuarioId == -1L) {
+            Toast.makeText(getContext(), "Error: Usuario no identificado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String pesoStr = etPeso.getText().toString().trim();
+        String alturaStr = etAltura.getText().toString().trim();
+
+        if (pesoStr.isEmpty() || alturaStr.isEmpty()) {
+            Toast.makeText(getContext(), "Por favor, completa peso y altura", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         try {
             PerfilFisicoRequest request = new PerfilFisicoRequest();
             request.setUsuarioId(usuarioId);
-            request.setPeso(Double.parseDouble(etPeso.getText().toString()));
-            request.setAltura(Double.parseDouble(etAltura.getText().toString()));
+            request.setPeso(Double.parseDouble(pesoStr));
+            request.setAltura(Double.parseDouble(alturaStr));
             // etEdad puede estar vacío si no se cargó del perfil
             String edadStr = etEdad.getText().toString().trim();
             request.setEdad(edadStr.isEmpty() ? 25 : Integer.parseInt(edadStr));
@@ -606,11 +649,8 @@ public class DietaFragment extends Fragment {
         String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
         spinnerMomento.setAdapter(new NoFilterAdapter(requireContext(), momentos));
         spinnerMomento.setText(momentos[0], false);
-        spinnerMomento.setOnTouchListener((v, event) -> {
-            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
-                spinnerMomento.showDropDown();
-            }
-            return false;
+        spinnerMomento.setOnClickListener(v -> {
+            spinnerMomento.showDropDown();
         });
 
         Dialog dialog = new Dialog(getContext());
@@ -664,11 +704,8 @@ public class DietaFragment extends Fragment {
         String[] momentos = {"DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"};
         spinnerMomento.setAdapter(new NoFilterAdapter(requireContext(), momentos));
         spinnerMomento.setText(momentos[0], false);
-        spinnerMomento.setOnTouchListener((v, event) -> {
-            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
-                spinnerMomento.showDropDown();
-            }
-            return false;
+        spinnerMomento.setOnClickListener(v -> {
+            spinnerMomento.showDropDown();
         });
 
         MaterialButton btnCerrar = dialogView.findViewById(R.id.btnCerrarBusqueda);
@@ -752,18 +789,12 @@ public class DietaFragment extends Fragment {
         spinnerObjetivo.setInputType(android.text.InputType.TYPE_NULL);
 
         // Aseguramos apertura inmediata al tocar
-        spinnerActividad.setOnTouchListener((v, event) -> {
-            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
-                spinnerActividad.showDropDown();
-            }
-            return false;
+        spinnerActividad.setOnClickListener(v -> {
+            spinnerActividad.showDropDown();
         });
 
-        spinnerObjetivo.setOnTouchListener((v, event) -> {
-            if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
-                spinnerObjetivo.showDropDown();
-            }
-            return false;
+        spinnerObjetivo.setOnClickListener(v -> {
+            spinnerObjetivo.showDropDown();
         });
     }
 

@@ -24,10 +24,10 @@ public class NutricionResponseDto implements Serializable {
     private FatSecretResponseDto macronutrientes;
 
     @SerializedName("dietas")
-    private List<ComidaDiariaResponseDto> dietas;
+    private List<ComidaDiariaResponseDto> dietas = new java.util.ArrayList<>();
 
     @SerializedName("comidas")
-    private List<ComidaDiariaResponseDto> comidas;
+    private List<ComidaDiariaResponseDto> comidas = new java.util.ArrayList<>();
 
     // Getters
     public Long getId() { return id; }
@@ -36,8 +36,14 @@ public class NutricionResponseDto implements Serializable {
     public String getNombreDieta() { return nombreDieta; }
     public Integer getCaloriasObjetivo() { return caloriasObjetivo; }
     public FatSecretResponseDto getMacronutrientes() { return macronutrientes; }
-    public List<ComidaDiariaResponseDto> getDietas() { return dietas; }
-    public List<ComidaDiariaResponseDto> getComidas() { return comidas; }
+    public List<ComidaDiariaResponseDto> getDietas() { 
+        if (dietas == null) dietas = new java.util.ArrayList<>();
+        return dietas; 
+    }
+    public List<ComidaDiariaResponseDto> getComidas() { 
+        if (comidas == null) comidas = new java.util.ArrayList<>();
+        return comidas; 
+    }
 
     // Setters
     public void setId(Long id) { this.id = id; }
