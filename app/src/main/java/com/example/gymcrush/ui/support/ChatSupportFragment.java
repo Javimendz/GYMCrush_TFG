@@ -71,7 +71,11 @@ public class ChatSupportFragment extends Fragment {
         });
 
         view.findViewById(R.id.btnBackChat).setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
         });
 
         return view;

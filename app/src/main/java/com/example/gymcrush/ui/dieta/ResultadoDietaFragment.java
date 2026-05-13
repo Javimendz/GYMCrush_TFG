@@ -76,7 +76,13 @@ public class ResultadoDietaFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        view.findViewById(R.id.btnBackResultadoDieta).setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        view.findViewById(R.id.btnBackResultadoDieta).setOnClickListener(v -> {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else {
+                getParentFragmentManager().popBackStack();
+            }
+        });
         view.findViewById(R.id.btnRenombrarPlan).setOnClickListener(v -> mostrarDialogoRenombrar());
         view.findViewById(R.id.btnGuardarPlan).setOnClickListener(v -> {
             if (planNutricional != null) {

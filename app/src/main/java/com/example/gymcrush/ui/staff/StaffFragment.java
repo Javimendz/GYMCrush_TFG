@@ -61,7 +61,11 @@ public class StaffFragment extends Fragment {
         rvStaff.setLayoutManager(new LinearLayoutManager(getContext()));
 
         view.findViewById(R.id.btnBackStaff).setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
         });
 
         fabAdd.setOnClickListener(v -> mostrarOpcionesStaff());

@@ -53,6 +53,15 @@ public class ReservasFragment extends Fragment implements ReservasAdapter.OnRese
         rvReservas.setLayoutManager(new LinearLayoutManager(getContext()));
         layoutWeeklyDays = view.findViewById(R.id.layoutWeeklyDays);
 
+        View btnVolver = view.findViewById(R.id.btnVolverReservas);
+        btnVolver.setOnClickListener(v -> {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else if (getParentFragmentManager() != null) {
+                getParentFragmentManager().popBackStack();
+            }
+        });
+
         // En lugar de cargar hoy directamente, buscamos el primer día con actividad
         determinarDiaInicialYRefrescar(inflater);
 

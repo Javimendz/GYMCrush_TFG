@@ -124,6 +124,12 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         tabLayout = view.findViewById(R.id.tabLayoutClases);
         searchViewActividades = view.findViewById(R.id.searchViewActividades);
 
+        view.findViewById(R.id.btnVolverClases).setOnClickListener(v -> {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            }
+        });
+
         configurarTabs();
         configurarBotonesDias(view);
         setupObservers();

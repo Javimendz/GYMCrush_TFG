@@ -89,6 +89,12 @@ public class SocialFragment extends Fragment implements ChatAdapter.OnMessageOpt
 
         btnEnviar.setOnClickListener(v -> enviarMensaje());
 
+        view.findViewById(R.id.btnVolverSocial).setOnClickListener(v -> {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            }
+        });
+
         apiService = RetrofitClient.getApiService();
         cargarHistorial();
         initStomp(token);

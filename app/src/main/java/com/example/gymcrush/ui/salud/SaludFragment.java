@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.gymcrush.R;
 import com.example.gymcrush.data.remote.dto.SaludRequestDto;
 import com.example.gymcrush.data.remote.dto.SaludResponseDto;
+import com.example.gymcrush.ui.main.DesarrolloActivity;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
@@ -52,6 +53,12 @@ public class SaludFragment extends Fragment {
         graphView = view.findViewById(R.id.graphView);
         Button btnEditar = view.findViewById(R.id.btnEditarSalud);
         MaterialCardView cardHistorial = view.findViewById(R.id.cardHistorial);
+
+        view.findViewById(R.id.btnBackSalud).setOnClickListener(v -> {
+            if (getActivity() instanceof DesarrolloActivity) {
+                ((DesarrolloActivity) getActivity()).mostrarHome();
+            }
+        });
 
         userPrefs = requireActivity().getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
         userId = userPrefs.getLong("user_id", -1L);

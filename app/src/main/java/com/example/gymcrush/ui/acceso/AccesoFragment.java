@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gymcrush.R;
+import com.example.gymcrush.ui.main.DesarrolloActivity;
 import com.example.gymcrush.data.remote.RetrofitClient;
 import com.example.gymcrush.data.remote.dto.ApiResponseDto;
 import com.example.gymcrush.data.remote.dto.AccesoResponseDto;
@@ -70,6 +71,12 @@ public class AccesoFragment extends Fragment {
         adapter = new AccesoAdapter();
         rvHistorial.setLayoutManager(new LinearLayoutManager(getContext()));
         rvHistorial.setAdapter(adapter);
+
+        view.findViewById(R.id.btnBackAcceso).setOnClickListener(v -> {
+            if (getActivity() instanceof DesarrolloActivity) {
+                ((DesarrolloActivity) getActivity()).mostrarHome();
+            }
+        });
 
         view.findViewById(R.id.btnRefrescarQr).setOnClickListener(v -> obtenerNuevoToken());
         view.findViewById(R.id.tvTestManual).setOnClickListener(v -> {

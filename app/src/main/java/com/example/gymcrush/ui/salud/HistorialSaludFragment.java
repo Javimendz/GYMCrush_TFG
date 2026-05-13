@@ -38,8 +38,10 @@ public class HistorialSaludFragment extends Fragment {
         rvHistorial = view.findViewById(R.id.rvHistorial);
 
         btnBack.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                getActivity().onBackPressed();
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else {
+                getParentFragmentManager().popBackStack();
             }
         });
 

@@ -96,7 +96,13 @@ public class DetalleComidaFragment extends DialogFragment {
             return false;
         });
 
-        view.findViewById(R.id.btnBackDetalleComida).setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        view.findViewById(R.id.btnBackDetalleComida).setOnClickListener(v -> {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else {
+                getParentFragmentManager().popBackStack();
+            }
+        });
 
         if (comida != null) {
             tvNombre.setText(comida.getNombreAlimento());

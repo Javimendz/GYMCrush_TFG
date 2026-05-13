@@ -89,6 +89,14 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
         rvActividades.setAdapter(adapter);
 
         setupSearch();
+
+        view.findViewById(R.id.btnVolverActividades).setOnClickListener(v -> {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else if (getParentFragmentManager() != null) {
+                getParentFragmentManager().popBackStack();
+            }
+        });
         
         if (modoGestion) {
             checkAdminRole();

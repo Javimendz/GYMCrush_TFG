@@ -7,16 +7,28 @@
     android:background="#0A1128"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/btnVolverClases"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_back"
+        app:layout_constraintBottom_toBottomOf="@id/tvTituloClases"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvTituloClases"
+        app:tint="@color/white" />
+
     <TextView
         android:id="@+id/tvTituloClases"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:text="HORARIO Y ACTIVIDADES"
         android:textColor="@color/white"
         android:textSize="24sp"
         android:textStyle="bold"
         android:letterSpacing="0.1"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnVolverClases"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.tabs.TabLayout

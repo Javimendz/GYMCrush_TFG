@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gymcrush.R;
+import com.example.gymcrush.ui.main.DesarrolloActivity;
 import com.example.gymcrush.ui.custom.CustomDonutChart;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto;
@@ -102,7 +103,11 @@ public class DietaFragment extends Fragment {
         btnBuscarComida.setOnClickListener(v -> mostrarDialogoBusqueda());
 
         view.findViewById(R.id.btnBackDieta).setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().onBackPressed();
+            if (getActivity() instanceof DesarrolloActivity) {
+                ((DesarrolloActivity) getActivity()).mostrarHome();
+            } else if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
         });
 
         return view;

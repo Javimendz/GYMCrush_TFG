@@ -57,7 +57,9 @@ public class NotificacionesFragment extends Fragment {
     private void initViews(View view) {
         View btnVolver = view.findViewById(R.id.btnVolverNotificaciones);
         btnVolver.setOnClickListener(v -> {
-            if (getParentFragmentManager() != null) {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else if (getParentFragmentManager() != null) {
                 getParentFragmentManager().popBackStack();
             }
         });

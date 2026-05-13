@@ -12,17 +12,30 @@
         android:layout_height="wrap_content"
         android:padding="20dp">
 
+        <ImageView
+            android:id="@+id/btnVolverPerfil"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/white" />
+
         <!-- Header de Perfil Mejorado -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardPerfil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             app:cardBackgroundColor="#1A2238"
             app:cardCornerRadius="28dp"
             app:cardElevation="8dp"
             app:strokeColor="#2AFFFFFF"
             app:strokeWidth="1dp"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/btnVolverPerfil">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

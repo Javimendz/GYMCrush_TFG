@@ -14,7 +14,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_back_arrow"
         android:contentDescription="Atrás"
-        app:tint="#FFFFFF"
+        app:tint="@color/brand_pink"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

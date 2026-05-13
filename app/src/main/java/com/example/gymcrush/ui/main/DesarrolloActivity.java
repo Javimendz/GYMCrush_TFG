@@ -999,7 +999,7 @@ public class DesarrolloActivity extends AppCompatActivity implements OnMapReadyC
         ft.commit();
     }
 
-    private void mostrarHome() {
+    public void mostrarHome() {
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         homeContent.setVisibility(View.VISIBLE);
         cargarDatosYFotoPerfil();

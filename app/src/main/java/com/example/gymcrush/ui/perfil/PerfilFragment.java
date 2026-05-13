@@ -101,6 +101,14 @@ public class PerfilFragment extends Fragment {
         view.findViewById(R.id.btnEditarPerfil).setOnClickListener(v -> mostrarDialogoEditar());
         view.findViewById(R.id.fabEditarFoto).setOnClickListener(v -> abrirGaleria());
 
+        view.findViewById(R.id.btnVolverPerfil).setOnClickListener(v -> {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else if (getParentFragmentManager() != null) {
+                getParentFragmentManager().popBackStack();
+            }
+        });
+
         return view;
     }
 

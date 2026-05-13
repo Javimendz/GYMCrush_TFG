@@ -98,7 +98,16 @@ public class EjerciciosFragment extends Fragment {
         fabAdd.setVisibility(View.VISIBLE);
         fabAdd.setOnClickListener(v -> mostrarOpcionesCrear());
 
-        // 4. Cargar datos desde el Backend
+        // 4. Back button
+        root.findViewById(R.id.btnBackEjercicios).setOnClickListener(v -> {
+            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
+                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
+            } else {
+                getParentFragmentManager().popBackStack();
+            }
+        });
+
+        // 5. Cargar datos desde el Backend
         cargarTutoriales();
         cargarCategorias();
 
