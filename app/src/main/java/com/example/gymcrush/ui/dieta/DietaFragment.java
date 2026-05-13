@@ -439,7 +439,9 @@ public class DietaFragment extends Fragment {
                 com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto itemMostrar = sugerencia;
                 if (plan.getComidas() != null) {
                     for (com.example.gymcrush.data.remote.dto.ComidaDiariaResponseDto real : plan.getComidas()) {
-                        if (real.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                        if (real.getNombreAlimento() != null && sugerencia.getNombreAlimento() != null &&
+                                real.getNombreAlimento().equalsIgnoreCase(sugerencia.getNombreAlimento()) &&
+                                real.getMomento() != null && sugerencia.getMomento() != null &&
                                 real.getMomento().equalsIgnoreCase(sugerencia.getMomento()) &&
                                 (real.getPlanNutricionalId() == null || real.getPlanNutricionalId().equals(plan.getId()))) {
                             itemMostrar = real;
@@ -473,7 +475,7 @@ public class DietaFragment extends Fragment {
         }
 
         comidaAdapter.setComidas(todasLasComidas);
-        actualizarResumenMacros(getView());
+        actualizarResumenMacros(plan);
     }
 
 
@@ -488,9 +490,8 @@ public class DietaFragment extends Fragment {
             viewModel.reiniciarPaginacionHistorial(usuarioId);
         }
     }
-    private void actualizarResumenMacros(View view) {
-        if (view == null || viewModel.getPlanActual().getValue() == null) return;
-        NutricionResponseDto plan = viewModel.getPlanActual().getValue();
+    private void actualizarResumenMacros(NutricionResponseDto plan) {
+        if (plan == null) return;
 
         double p = 0, c = 0, g = 0, calConsumidas = 0;
         int calObjetivo = plan.getCaloriasObjetivo() != null ? plan.getCaloriasObjetivo() : 2000;
@@ -505,21 +506,21 @@ public class DietaFragment extends Fragment {
             }
         }
 
-        tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg Prot", p));
-        tvCarbs.setText(String.format(java.util.Locale.getDefault(), "%.0fg Carbs", c));
-        tvGrasas.setText(String.format(java.util.Locale.getDefault(), "%.0fg Grasas", g));
-        donutChart.setData((float) p, (float) c, (float) g);
+        if (tvProt != null) tvProt.setText(String.format(java.util.Locale.getDefault(), "%.0fg Prot", p));
+        if (tvCarbs != null) tvCarbs.setText(String.format(java.util.Locale.getDefault(), "%.0fg Carbs", c));
+        if (tvGrasas != null) tvGrasas.setText(String.format(java.util.Locale.getDefault(), "%.0fg Grasas", g));
+        if (donutChart != null) donutChart.setData((float) p, (float) c, (float) g);
 
         // Reactividad: Restar del objetivo para mostrar lo que falta o el total consumido
         double calRestantes = calObjetivo - calConsumidas;
         if (calRestantes < 0) calRestantes = 0;
 
-        tvCaloriasSugeridas.setText(String.format(java.util.Locale.getDefault(), "%.0f kcal consumidas", calConsumidas));
+        if (tvCaloriasSugeridas != null) tvCaloriasSugeridas.setText(String.format(java.util.Locale.getDefault(), "%.0f kcal consumidas", calConsumidas));
         // El texto grande central o secundario puede mostrar lo que falta
-        ((TextView)view.findViewById(R.id.tvCaloriasRestantes)).setText(String.format(java.util.Locale.getDefault(), "%.0f", calRestantes));
+        if (tvCaloriasRestantes != null) tvCaloriasRestantes.setText(String.format(java.util.Locale.getDefault(), "%.0f", calRestantes));
 
         int progress = calObjetivo > 0 ? (int) ((calConsumidas / calObjetivo) * 100) : 0;
-        progressCalorias.setProgress(Math.min(progress, 100));
+        if (progressCalorias != null) progressCalorias.setProgress(Math.min(progress, 100));
     }
 
     private void generarSugerencia() {
