@@ -89,7 +89,10 @@ public class DietaFragment extends Fragment {
         });
 
         if (usuarioId != -1L) {
+            android.util.Log.d("DietaFragment", "Cargando datos para usuario: " + usuarioId);
             viewModel.cargarDatosIniciales(usuarioId);
+        } else {
+            android.util.Log.e("DietaFragment", "No se encontró ID de usuario en SharedPreferences");
         }
 
         btnActualizar.setOnClickListener(v -> {

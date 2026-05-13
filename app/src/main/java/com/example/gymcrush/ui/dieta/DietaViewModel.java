@@ -95,6 +95,23 @@ public class DietaViewModel extends ViewModel {
         cargarSalud(usuarioId);
         cargarUltimoPlan(usuarioId);
         reiniciarPaginacionHistorial(usuarioId);
+        cargarCatalogoDietas();
+    }
+
+    private void cargarCatalogoDietas() {
+        dietaRepository.listarDietas(new Callback<ApiResponseDto<List<DietaResponseDto>>>() {
+            @Override
+            public void onResponse(Call<ApiResponseDto<List<DietaResponseDto>>> call, Response<ApiResponseDto<List<DietaResponseDto>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    dietasCatalogo.setValue(response.body().getDatos());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseDto<List<DietaResponseDto>>> call, Throwable t) {
+                // Silencioso o log
+            }
+        });
     }
 
     private void cargarSalud(Long usuarioId) {

@@ -172,6 +172,17 @@ public class RepositorioRutinas {
                 if ((anterior.id != null && anterior.id.equals(e.getId())) || 
                     (anterior.nombre != null && anterior.nombre.equalsIgnoreCase(e.getNombre()))) {
                     model.completada = anterior.completada;
+                    // También preservamos el estado de los ejercicios individuales
+                    if (anterior.ejercicios != null && model.ejercicios != null) {
+                        for (Ejercicio nuevoEj : model.ejercicios) {
+                            for (Ejercicio viejoEj : anterior.ejercicios) {
+                                if (nuevoEj.getNombre() != null && nuevoEj.getNombre().equalsIgnoreCase(viejoEj.getNombre())) {
+                                    nuevoEj.setSeleccionado(viejoEj.isSeleccionado());
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     break;
                 }
             }
@@ -243,7 +254,7 @@ public class RepositorioRutinas {
             for (Ejercicio e : ejs) {
                 if (e.getNombre() != null) {
                     String currentExName = e.getNombre().trim().toLowerCase();
-                    if (currentExName.equals(exSearch) || currentExName.contains(exSearch) || exSearch.contains(currentExName)) {
+                    if (currentExName.equals(exSearch)) {
                         e.setSeleccionado(completado);
                         exerciseFound = true;
                         Log.d("RepositorioRutinas", "¡Ejercicio marcado!: " + e.getNombre());
@@ -261,9 +272,16 @@ public class RepositorioRutinas {
                     }
                 }
 
-                // Actualizar estado de la rutina en la lista global
+                // Actualizar estado de la rutina en la lista global y asegurar sincronización de objetos
                 for (RutinaModel r : listaRutinas) {
-                    if (r.nombre != null && (r.nombre.trim().equalsIgnoreCase(routineName.trim()) || r.nombre.trim().toLowerCase().contains(rSearch))) {
+                    if (r.nombre != null && r.nombre.trim().equalsIgnoreCase(routineName.trim())) {
+                        if (r.ejercicios != null) {
+                            for (Ejercicio e : r.ejercicios) {
+                                if (e.getNombre() != null && e.getNombre().trim().toLowerCase().equals(exSearch)) {
+                                    e.setSeleccionado(completado);
+                                }
+                            }
+                        }
                         r.completada = allDone;
                         break;
                     }

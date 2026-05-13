@@ -674,13 +674,11 @@ public class EjerciciosFragment extends Fragment {
                     listaCompleta.clear();
                     if (deLaApi != null) {
                         for (TutorialResponseDto t : deLaApi) {
-                            // Filtramos para mostrar solo ejercicios reales (tutoriales)
-                            // 1. Debe tener categoría
-                            // 2. La categoría no debe decir "rutina"
-                            // 3. Debe tener duración (los entrenamientos/rutinas suelen venir con duracionMin null en esta API)
-                            if (t.getNombreCategoria() != null && 
-                                !t.getNombreCategoria().toLowerCase().contains("rutina") &&
-                                t.getDuracionMin() != null) {
+                            // Relaxed filters for debugging
+                            android.util.Log.d("EjerciciosFragment", "Tutorial: " + t.getTitulo() + " | Cat: " + t.getNombreCategoria() + " | Dur: " + t.getDuracionMin());
+                            
+                            // Let's at least show everything that has a title for now to see what's coming
+                            if (t.getTitulo() != null) {
                                 listaCompleta.add(t);
                             }
                         }

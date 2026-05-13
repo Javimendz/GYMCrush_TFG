@@ -56,6 +56,11 @@ public class DetalleRutinaActivity extends AppCompatActivity {
         TextView tvLabelEjercicios = findViewById(R.id.tvLabelEjercicios);
         Button btnVolver = findViewById(R.id.btnVolver);
         Button btnCompletar = findViewById(R.id.btnCompletarRutina);
+        View btnBack = findViewById(R.id.btnBackDetalle);
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
 
         // Obtener ID de usuario
         SharedPreferences prefs = getSharedPreferences("DatosUsuario", Context.MODE_PRIVATE);
@@ -177,10 +182,6 @@ public class DetalleRutinaActivity extends AppCompatActivity {
     private void setupRecyclerView(RecyclerView rv, TextView label) {
         listaEjercicios = RepositorioRutinas.getEjerciciosDeRutina(nombreRutina);
         if (listaEjercicios != null && !listaEjercicios.isEmpty()) {
-            // Forzar que los ejercicios salgan deseleccionados al entrar
-            for (com.example.gymcrush.ui.ejercicios.Ejercicio e : listaEjercicios) {
-                e.setSeleccionado(false);
-            }
             if (rv != null) {
                 rv.setLayoutManager(new LinearLayoutManager(this));
                 adapter = new EjercicioAdapter(listaEjercicios, true, nombreRutina);

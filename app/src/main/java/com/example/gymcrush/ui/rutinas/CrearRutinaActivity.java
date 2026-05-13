@@ -226,9 +226,22 @@ public class CrearRutinaActivity extends AppCompatActivity {
         // --- VARIABLES FINAL/EFFECTIVELY FINAL PARA EL CALLBACK ---
         final int duracionFinal = acumuladorDuracion;
         final String descripcionFinal = sbDescripcion.toString();
-        final String urlPortada = seleccionados.get(0).getUrlVideo();
+        final String urlPortada = seleccionados.isEmpty() ? null : seleccionados.get(0).getUrlVideo();
 
-        // 5. Crear el Request DTO (Constructor de 10 parámetros)
+        // 5. Crear una copia de los ejercicios para la rutina con el estado 'seleccionado' en false
+        // ya que en el detalle de la rutina este campo se usa para marcar como COMPLETADO.
+        List<Ejercicio> ejerciciosParaPersistir = new ArrayList<>();
+        for (Ejercicio e : seleccionados) {
+            Ejercicio copia = new Ejercicio(e.getId(), e.getNombre(), e.getCategoria(), e.getDescripcion(),
+                    e.getDuracion(), e.getUrlVideo(), e.getImagenResId(), e.getDificultad());
+            copia.setEsGlobal(e.isEsGlobal());
+            copia.setSeries(e.getSeries());
+            copia.setRepeticiones(e.getRepeticiones());
+            copia.setSeleccionado(false); // Resetear para que no aparezcan como completados al inicio
+            ejerciciosParaPersistir.add(copia);
+        }
+
+        // 6. Crear el Request DTO (Constructor de 10 parámetros)
         EntrenamientoRequestDto entrenamientoReq = new EntrenamientoRequestDto(
                 nombre,               // nombre
                 descripcionFinal,     // descripcion
@@ -247,7 +260,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
         boolean isAdmin = roles.contains("ROLE_ADMIN") || roles.contains("ADMIN");
         entrenamientoReq.setEsGlobal(isAdmin);
 
-        // 6. Llamada al API para crear el Entrenamiento
+        // 7. Llamada al API para crear el Entrenamiento
         RetrofitClient.getApiService().crearEntrenamiento(entrenamientoReq).enqueue(new Callback<ApiResponseDto<EntrenamientoResponseDto>>() {
             @Override
             public void onResponse(Call<ApiResponseDto<EntrenamientoResponseDto>> call, Response<ApiResponseDto<EntrenamientoResponseDto>> response) {
@@ -259,7 +272,7 @@ public class CrearRutinaActivity extends AppCompatActivity {
                             CrearRutinaActivity.this,
                             entrenamientoId,
                             nombre,
-                            seleccionados,
+                            ejerciciosParaPersistir,
                             urlPortada,
                             duracionFinal + " min",
                             descripcionFinal
