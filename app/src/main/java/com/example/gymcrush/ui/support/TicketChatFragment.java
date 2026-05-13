@@ -124,7 +124,11 @@ public class TicketChatFragment extends Fragment implements ChatAdapter.OnMessag
         rvChat.setAdapter(adapter);
 
         view.findViewById(R.id.btnBackChat).setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
+            if (getActivity() != null) {
+                // Simplemente damos un paso atrás en el historial.
+                // Como ContactoFragment nos guardó aquí, volverá a Contacto mágicamente.
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
         });
 
         view.findViewById(R.id.btnSendChat).setOnClickListener(v -> enviarMensaje());

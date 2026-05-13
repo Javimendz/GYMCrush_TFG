@@ -71,9 +71,9 @@ public class ChatSupportFragment extends Fragment {
         });
 
         view.findViewById(R.id.btnBackChat).setOnClickListener(v -> {
-            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
-                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
-            } else if (getActivity() != null) {
+            if (getActivity() != null) {
+                // Simplemente damos un paso atrás en el historial.
+                // Como ContactoFragment nos guardó aquí, volverá a Contacto mágicamente.
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });

@@ -97,11 +97,9 @@ public class DetalleComidaFragment extends DialogFragment {
         });
 
         view.findViewById(R.id.btnBackDetalleComida).setOnClickListener(v -> {
-            if (getActivity() instanceof com.example.gymcrush.ui.main.DesarrolloActivity) {
-                ((com.example.gymcrush.ui.main.DesarrolloActivity) getActivity()).mostrarHome();
-            } else {
-                getParentFragmentManager().popBackStack();
-            }
+            // Como este es un fragmento secundario (detalle),
+            // siempre debe volver a la pantalla de la que vino (la lista de comidas)
+            getParentFragmentManager().popBackStack();
         });
 
         if (comida != null) {

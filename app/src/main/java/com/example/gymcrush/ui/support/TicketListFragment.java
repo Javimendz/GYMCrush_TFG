@@ -56,7 +56,9 @@ public class TicketListFragment extends Fragment implements TicketAdapter.OnTick
         rvTickets.setAdapter(adapter);
 
         view.findViewById(R.id.btnBackTickets).setOnClickListener(v -> {
-            if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
         });
 
         FloatingActionButton fabAdd = view.findViewById(R.id.fabAddTicket);
