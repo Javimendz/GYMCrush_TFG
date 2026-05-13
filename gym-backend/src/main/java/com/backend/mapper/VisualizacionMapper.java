@@ -16,7 +16,7 @@ public interface VisualizacionMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "usuario", ignore = true)
     @Mapping(target = "tutorial", ignore = true)
-    @Mapping(target = "fechaCreacion", ignore = true) 
+    @Mapping(target = "fechaVisualizacion", ignore = true) 
     @Mapping(target = "ultimaActualizacion", ignore = true)
     Visualizacion toEntity(VisualizacionRequestDto requestDto);
 
@@ -29,6 +29,6 @@ public interface VisualizacionMapper {
     @Mapping(target = "urlVideo", source = "tutorial.urlVideo")
     @Mapping(target = "duracionTotalVideo", source = "tutorial.duracionMin")
     @Mapping(target = "nombreCategoria", source = "tutorial.categoria.nombre")
-    @Mapping(source = "fechaCreacion", target = "fechaVisualizacion")
+    @Mapping(source = "fechaVisualizacion", target = "fechaVisualizacion")
     VisualizacionResponseDto toResponseDto(Visualizacion visualizacion);
 }

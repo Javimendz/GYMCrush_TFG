@@ -24,9 +24,8 @@ public class Visualizacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Fecha de la primera vez que empezó a ver el tutorial
     @Column(name = "fecha_visualizacion", nullable = false, updatable = false)
-    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaVisualizacion;
 
     // Fecha de la última vez que interactuó con el vídeo
     @Column(name = "ultima_actualizacion")
@@ -62,11 +61,16 @@ public class Visualizacion {
      */
     @PrePersist
     protected void onCreate() {
-        this.fechaCreacion = LocalDateTime.now();
-        this.ultimaActualizacion = LocalDateTime.now();
+        if (this.fechaVisualizacion == null) {
+            this.fechaVisualizacion = LocalDateTime.now();
+        }
+        if (this.ultimaActualizacion == null) {
+            this.ultimaActualizacion = LocalDateTime.now();
+        }
         if (this.contadorReproducciones == null) this.contadorReproducciones = 1;
         if (this.completado == null) this.completado = false;
     }
+    
     @PreUpdate
     protected void onUpdate() {
         this.ultimaActualizacion = LocalDateTime.now();

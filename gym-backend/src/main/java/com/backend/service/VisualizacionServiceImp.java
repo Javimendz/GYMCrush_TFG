@@ -27,48 +27,58 @@ public class VisualizacionServiceImp implements IVisualizacionService {
     private final TutorialRepository tutorialRepository;
     private final VisualizacionMapper visualizacionMapper;
 
-   @Override
+    @Override
     @Transactional
     public VisualizacionResponseDto guardarProgreso(VisualizacionRequestDto dto) {
-        //  Buscar si ya existe la visualización o crear una nueva
+        //  Intentar buscar el registro existente
         Visualizacion visualizacion = visualizacionRepository
                 .findByUsuarioIdAndTutorialId(dto.getUsuarioId(), dto.getTutorialId())
                 .orElseGet(() -> {
+                    // Si no existe, creamos uno nuevo
                     Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
                     Tutorial tutorial = tutorialRepository.findById(dto.getTutorialId())
                             .orElseThrow(() -> new ResourceNotFoundException("Tutorial no encontrado"));
                     
-                   return Visualizacion.builder()
-                    .usuario(usuario)
-                    .tutorial(tutorial)
-                    .contadorReproducciones(1) 
-                    .progresoSegundos(0)
-                    .completado(false)
-                    .build();
-                            });
+                    return Visualizacion.builder()
+                            .usuario(usuario)
+                            .tutorial(tutorial)
+                            .contadorReproducciones(1) 
+                            .progresoSegundos(0)
+                            .completado(false)
+                            .fechaVisualizacion(LocalDateTime.now()) // ¡AQUÍ ESTÁ EL CAMBIO CLAVE!
+                            .ultimaActualizacion(LocalDateTime.now())
+                            .build();
+                });
 
-        //  Actualizar datos de progreso
+        //  Actualizar datos
         visualizacion.setProgresoSegundos(dto.getProgresoSegundos());
         
-        if (Boolean.FALSE.equals(visualizacion.getCompletado())) {
+        // Solo marcamos como completado si no lo estaba ya
+        if (Boolean.TRUE.equals(dto.getCompletado())) {
+            visualizacion.setCompletado(true);
+        } else if (Boolean.FALSE.equals(visualizacion.getCompletado())) {
+            // Lógica de porcentaje (90%)
             Integer duracionMin = visualizacion.getTutorial().getDuracionMin();
-            
-            // Verificamos que el tutorial realmente tenga una duración asignada en la BD
             if (duracionMin != null && duracionMin > 0) {
                 double duracionTotalSegundos = duracionMin * 60.0;
                 if (dto.getProgresoSegundos() >= (duracionTotalSegundos * 0.9)) {
                     visualizacion.setCompletado(true);
-                    log.info("Tutorial ID {} marcado como COMPLETADO para usuario {}", dto.getTutorialId(), dto.getUsuarioId());
                 }
             }
         }
 
-        //  GUARDAR y MAPEAR
-        Visualizacion guardada = visualizacionRepository.save(visualizacion);
-        VisualizacionResponseDto response = visualizacionMapper.toResponseDto(guardada);
+        // 3. Guardar con flush para detectar conflictos de inmediato
+        Visualizacion guardada;
+        try {
+            guardada = visualizacionRepository.saveAndFlush(visualizacion);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Si hay conflicto de "ya existe" por concurrencia, re-intentamos buscarlo
+            guardada = visualizacionRepository.findByUsuarioIdAndTutorialId(dto.getUsuarioId(), dto.getTutorialId())
+                    .orElseThrow(() -> e); // Si sigue fallando, lanzamos el error original
+        }
 
-        // Contar vistas totales
+        VisualizacionResponseDto response = visualizacionMapper.toResponseDto(guardada);
         long totalVistas = visualizacionRepository.countByTutorialId(dto.getTutorialId());
         response.setContadorReproducciones((int) totalVistas);
 
@@ -84,33 +94,34 @@ public class VisualizacionServiceImp implements IVisualizacionService {
                 .collect(Collectors.toList());
     }
 
-@Override
-@Transactional 
-public VisualizacionResponseDto obtenerProgreso(Long usuarioId, Long tutorialId) {
-    Visualizacion v = visualizacionRepository.findByUsuarioIdAndTutorialId(usuarioId, tutorialId)
-            .orElse(null);
+    @Override
+    @Transactional 
+    public VisualizacionResponseDto obtenerProgreso(Long usuarioId, Long tutorialId) {
+        Visualizacion v = visualizacionRepository.findByUsuarioIdAndTutorialId(usuarioId, tutorialId)
+                .orElse(null);
 
-    if (v == null) {
-        return VisualizacionResponseDto.builder()
-                .progresoSegundos(0)
-                .contadorReproducciones(0)
-                .build();
+        if (v == null) {
+            return VisualizacionResponseDto.builder()
+                    .progresoSegundos(0)
+                    .contadorReproducciones(0)
+                    .build();
+        }
+
+        // Lógica de incremento
+        int actual = (v.getContadorReproducciones() == null) ? 0 : v.getContadorReproducciones();
+        v.setContadorReproducciones(actual + 1);
+        
+        // Forzamos el guardado
+        v = visualizacionRepository.saveAndFlush(v); 
+
+        VisualizacionResponseDto responseDto = visualizacionMapper.toResponseDto(v);
+        
+        long totalVistasGlobales = visualizacionRepository.countByTutorialId(tutorialId);
+        responseDto.setContadorReproducciones((int) totalVistasGlobales); 
+        
+        return responseDto;
     }
 
-    // Lógica de incremento
-    int actual = (v.getContadorReproducciones() == null) ? 0 : v.getContadorReproducciones();
-    v.setContadorReproducciones(actual + 1);
-    
-    // Forzamos el guardado
-    v = visualizacionRepository.saveAndFlush(v); 
-
-    VisualizacionResponseDto responseDto = visualizacionMapper.toResponseDto(v);
-    
-    long totalVistasGlobales = visualizacionRepository.countByTutorialId(tutorialId);
-    responseDto.setContadorReproducciones((int) totalVistasGlobales); 
-    
-    return responseDto;
-}
     @Override
     @Transactional(readOnly = true)
     public List<TutorialResponseDto> obtenerPopulares() {
@@ -130,6 +141,7 @@ public VisualizacionResponseDto obtenerProgreso(Long usuarioId, Long tutorialId)
                 .toList();
     }
 
+    // He protegido este método también por si acaso lo llamas en el futuro
     private Visualizacion crearNuevaVisualizacion(VisualizacionRequestDto dto) {
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
@@ -140,6 +152,10 @@ public VisualizacionResponseDto obtenerProgreso(Long usuarioId, Long tutorialId)
                 .usuario(usuario)
                 .tutorial(tutorial)
                 .completado(false)
+                .progresoSegundos(0)
+                .contadorReproducciones(1)
+                .fechaVisualizacion(LocalDateTime.now())
+                .ultimaActualizacion(LocalDateTime.now())
                 .build();
     }
 
@@ -149,8 +165,6 @@ public VisualizacionResponseDto obtenerProgreso(Long usuarioId, Long tutorialId)
         return visualizacionRepository.findByUsuarioIdAndCompletadoTrue(usuarioId)
                 .stream().map(visualizacionMapper::toResponseDto).toList();
     }
-
-  
 
     @Override
     @Transactional
