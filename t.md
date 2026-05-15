@@ -1,39 +1,3 @@
-añadido a usuario.java 29/04/2026
-
- @ManyToOne(fetch = FetchType.LAZY)
-@JoinColumn(name = "plan_activo_id")
-private PlanEntrenamiento planActivo;
-
-en Entrenamiento añadido relacion 1-N
-
-@OneToMany(mappedBy = "entrenamiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Tutorial> tutoriales;
-
- @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id")
-    private CategoriaTutorial categoria;
-
-añadido a detalleplan
-
-private Integer series;
-    private Integer repeticiones;
-
-
-añadido a rutina.java
-
-@Column(nullable = false)
-    @Builder.Default
-    private Integer series = 0;
-    
-    @Column(nullable = false)
-    @Builder.Default
-    private Integer repeticiones = 0;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Double peso = 0.0;
-
-
 
 Modelo Entidad-Relación
 ------------------------
@@ -152,30 +116,30 @@ v1: PlanEntrenamiento (1) --- (N) Usuario (como plan activo)
 
 Modelo Relacional
 Tablas
-TRoles(id PK, name)
-TUsuarios(id PK, username, email, password, qrToken, tokenExpiraEn, fechaRegistro, createdAt, updatedAt, planActivoId FK)
-TUsuarios_Roles(usuarioId FK, roleId FK)
-TPerfiles(id PK, nombre, apellidos, telefono UNIQUE, dni UNIQUE, fechaNacimiento, direccion, ciudad, pais, codigoPostal, bio, genero, foto, usuarioId FK UNIQUE)
-TCategorias(id PK, nombre UNIQUE, descripcion)
-TActividades(id PK, nombre, descripcion, duracion, sala, precio, categoriaId FK)
-TSalas(id PK, nombre UNIQUE, capacidadMax, descripcion, ubicacion, equipamiento, activa)
-THorarios(id PK, diaSemana, horaInicio, horaFin, aforoMax, actividadId FK, entrenadorId FK, salaId FK)
-TReservas(id PK, fecha, estado, confirmado, usuarioId FK, horarioId FK)
-TAccesos(id PK, fechaHoraEntrada, fechaHoraSalida, tipo, usuarioId FK)
-TTickets(id PK, asunto, mensaje, estado, fechaResolucion, fechaCreacion, usuarioId FK)
-TNotificaciones(id PK, titulo, mensaje, fechaCreacion, leido, tipo, usuarioId FK, ticketId FK)
-TChat(id PK, mensaje, fechaHora, leido, emisorId FK, receptorId FK)
-TMensajes_Chat(id PK, ticketId, contenido, emisor, fechaEnvio, tipo, usuarioId FK)
-TSalud(id PK, peso, estatura, nivelActividad, comentario, fechaMedicion, imc, usuarioId FK)
-TCategorias_Dieta(id PK, nombre UNIQUE, descripcion)
-TDietas(id PK, nombre, tipo, objetivoCalorico, cantidadProteinas, cantidadCarbohidratos, cantidadGrasas, descripcion, categoriaDietaId FK)
-TPlanes_Nutricionales(id PK, tipoDieta, fechaGeneracion, nombreDieta, caloriasObjetivo, macronutrientesJson, usuarioId FK, dietaId FK)
-TComidas_Diarias(id PK, momento, nombreAlimento, calorias, proteina, carbohidratos, grasas, imagenUrl, fechaRegistro, planId FK)
-TCategorias_Tutorial(id PK, nombre UNIQUE, descripcion)
-TEntrenamientos(id PK, nombre, urlImagen, descripcion, cantidadEjercicios, duracion, intensidad, esGlobal, categoriaId FK, usuarioId FK)
-TTutoriales(id PK, titulo, descripcion, musculoObjetivo, equipamiento, urlVideo, duracionMin, esGlobal, categoriaId FK, entrenamientoId FK, usuarioId FK)
-TVisualizaciones(id PK, fechaCreacion, ultimaActualizacion, completado, progresoSegundos, contadorReproducciones, usuarioId FK, tutorialId FK, UNIQUE(usuarioId, tutorialId))
-TPlanes_Entrenamiento(id PK, nombre, descripcion, objetivo, nivel, esGlobal, usuarioId FK)
-TDetalles_Plan(id PK, diaSemana, orden, series, repeticiones, planId FK, entrenamientoId FK)
-TRutinas(id PK, fechaAsignacion, orden, completado, series, repeticiones, peso, usuarioId FK, entrenamientoId FK)
+TRoles(id PK, name)  
+TUsuarios(id PK, username, email, password, qrToken, tokenExpiraEn, fechaRegistro, createdAt, updatedAt, planActivoId FK)  
+TUsuarios_Roles(usuarioId FK, roleId FK)  
+TPerfiles(id PK, nombre, apellidos, telefono UNIQUE, dni UNIQUE, fechaNacimiento, direccion, ciudad, pais, codigoPostal, bio, genero, foto, usuarioId FK UNIQUE)  
+TCategorias(id PK, nombre UNIQUE, descripcion)  
+TActividades(id PK, nombre, descripcion, duracion, sala, precio, categoriaId FK)  
+TSalas(id PK, nombre UNIQUE, capacidadMax, descripcion, ubicacion, equipamiento, activa)  
+THorarios(id PK, diaSemana, horaInicio, horaFin, aforoMax, actividadId FK, entrenadorId FK, salaId FK)  
+TReservas(id PK, fecha, estado, confirmado, usuarioId FK, horarioId FK)  
+TAccesos(id PK, fechaHoraEntrada, fechaHoraSalida, tipo, usuarioId FK)  
+TTickets(id PK, asunto, mensaje, estado, fechaResolucion, fechaCreacion, usuarioId FK)  
+TNotificaciones(id PK, titulo, mensaje, fechaCreacion, leido, tipo, usuarioId FK, ticketId FK)  
+TChat(id PK, mensaje, fechaHora, leido, emisorId FK, receptorId FK)  
+TMensajes_Chat(id PK, ticketId, contenido, emisor, fechaEnvio, tipo, usuarioId FK)  
+TSalud(id PK, peso, estatura, nivelActividad, comentario, fechaMedicion, imc, usuarioId FK)  
+TCategorias_Dieta(id PK, nombre UNIQUE, descripcion)  
+TDietas(id PK, nombre, tipo, objetivoCalorico, cantidadProteinas, cantidadCarbohidratos, cantidadGrasas, descripcion, categoriaDietaId FK)  
+TPlanes_Nutricionales(id PK, tipoDieta, fechaGeneracion, nombreDieta, caloriasObjetivo, macronutrientesJson, usuarioId FK, dietaId FK)  
+TComidas_Diarias(id PK, momento, nombreAlimento, calorias, proteina, carbohidratos, grasas, imagenUrl, fechaRegistro, planId FK)  
+TCategorias_Tutorial(id PK, nombre UNIQUE, descripcion)  
+TEntrenamientos(id PK, nombre, urlImagen, descripcion, cantidadEjercicios, duracion, intensidad, esGlobal, categoriaId FK, usuarioId FK)  
+TTutoriales(id PK, titulo, descripcion, musculoObjetivo, equipamiento, urlVideo, duracionMin, esGlobal, categoriaId FK, entrenamientoId FK, usuarioId FK)  
+TVisualizaciones(id PK, fechaCreacion, ultimaActualizacion, completado, progresoSegundos, contadorReproducciones, usuarioId FK, tutorialId FK, UNIQUE(usuarioId, tutorialId))  
+TPlanes_Entrenamiento(id PK, nombre, descripcion, objetivo, nivel, esGlobal, usuarioId FK)  
+TDetalles_Plan(id PK, diaSemana, orden, series, repeticiones, planId FK, entrenamientoId FK)  
+TRutinas(id PK, fechaAsignacion, orden, completado, series, repeticiones, peso, usuarioId FK, entrenamientoId FK)  
 

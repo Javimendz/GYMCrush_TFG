@@ -67,6 +67,7 @@ dentro del proyecto (test-ws.html). Introduces el token del usuario, creas un ho
  ```2.``` Iniciar todo rapido ```docker compose up -d ```  
  ```3.``` Detener todo el proyecto ```docker compose down ```  
 =======
+ ```1.``` Iniciar todo el proyecto primera vez ```docker compose up --build ```. Descarga imagenes, etc.   
  ```2.``` Iniciar todo rapido ```docker compose up -d ```    
  ```3.``` Detener todo el proyecto ```docker compose down ```  
  ```4.``` Detener todo el proyecto y eliminar volúmenes ```docker compose down -v```  
