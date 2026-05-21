@@ -459,7 +459,7 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             @Override public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
         });
 
-        new MaterialAlertDialogBuilder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle("Nueva Actividad")
                 .setView(dialogView)
                 .setPositiveButton("Crear", (dialog, which) -> {
@@ -1024,6 +1024,12 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
         layout.addView(crearLabel("Seleccionar Sala:"));
         layout.addView(spinnerSala);
 
+        // Ocultar botones internos del layout ya que usaremos los del AlertDialog
+        View btnGuardarXml = dialogView.findViewById(R.id.btnGuardarSala);
+        View btnCancelarXml = dialogView.findViewById(R.id.btnCancelarSala);
+        if (btnGuardarXml != null) btnGuardarXml.setVisibility(View.GONE);
+        if (btnCancelarXml != null) btnCancelarXml.setVisibility(View.GONE);
+
         // Cargar Salas
         RetrofitClient.getApiService().getTodasLasSalas().enqueue(new Callback<ApiResponseDto<List<SalaResponseDto>>>() {
             @Override
@@ -1086,9 +1092,9 @@ public class ClasesFragment extends Fragment implements ClasesAdapter.OnClaseCli
             @Override public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
         });
 
-        new MaterialAlertDialogBuilder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle("Editar Actividad")
-                .setView(layout)
+                .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
                     String nombre = etNombre.getText().toString();
                     String precioStr = etPrecio.getText().toString();

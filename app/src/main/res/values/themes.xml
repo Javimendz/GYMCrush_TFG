@@ -49,6 +49,10 @@
         <item name="shapeAppearanceOverlay">@style/DialogRoundedCorner</item>
     </style>
 
+    <style name="CustomAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/DialogRoundedCorner</item>
+    </style>
+
     <!-- Splash Screen Theme -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#0A1128</item>

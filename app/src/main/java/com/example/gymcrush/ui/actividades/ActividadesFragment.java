@@ -265,22 +265,34 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
     }
 
     private void mostrarDialogoNuevaActividad() {
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nueva_sala, null); 
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_admin_nueva_sala, null);
         android.widget.EditText etNombre = dialogView.findViewById(R.id.etNombreSala);
         android.widget.EditText etPrecio = dialogView.findViewById(R.id.etCapacidadSala);
         android.widget.Spinner spinnerCategoria = new android.widget.Spinner(getContext());
         android.widget.Spinner spinnerSala = new android.widget.Spinner(getContext());
-        
+
+        // Ocultar botones internos para usar los del Dialog
+        View btnGuardarXml = dialogView.findViewById(R.id.btnGuardarSala);
+        View btnCancelarXml = dialogView.findViewById(R.id.btnCancelarSala);
+        if (btnGuardarXml != null) btnGuardarXml.setVisibility(View.GONE);
+        if (btnCancelarXml != null) btnCancelarXml.setVisibility(View.GONE);
+
+        // Ocultar título interno si existe para no duplicar con el setTitle del Builder
+        View tvTitulo = dialogView.findViewById(R.id.tvTituloDialogo);
+        if (tvTitulo != null) tvTitulo.setVisibility(View.GONE);
+
         // Configurar hints en los contenedores para evitar solapamiento
         com.google.android.material.textfield.TextInputLayout tilNombre = (com.google.android.material.textfield.TextInputLayout) etNombre.getParent().getParent();
         com.google.android.material.textfield.TextInputLayout tilCapacidad = (com.google.android.material.textfield.TextInputLayout) etPrecio.getParent().getParent();
         tilNombre.setHint("Nombre de la actividad");
-        tilCapacidad.setHint("Capacidad maxima");
+        tilCapacidad.setHint("Precio (€)");
 
-        android.widget.LinearLayout layout = (android.widget.LinearLayout) dialogView;
+        android.widget.LinearLayout layout = dialogView.findViewById(R.id.layoutContainer);
+        if (layout == null) layout = (android.widget.LinearLayout) dialogView;
 
         android.widget.TextView tvCategoria = new android.widget.TextView(getContext());
         tvCategoria.setText("Seleccionar Categoría:");
+        tvCategoria.setTextColor(android.graphics.Color.WHITE);
         android.widget.LinearLayout.LayoutParams lp = new android.widget.LinearLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.setMargins(0, 30, 0, 0);
@@ -290,6 +302,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
 
         android.widget.TextView tvSala = new android.widget.TextView(getContext());
         tvSala.setText("Seleccionar Sala:");
+        tvSala.setTextColor(android.graphics.Color.WHITE);
         android.widget.LinearLayout.LayoutParams lpSala = new android.widget.LinearLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
         lpSala.setMargins(0, 30, 0, 0);
@@ -330,6 +343,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
                         Object item = getItem(pos);
                         if (item instanceof CategoriaResponseDto) ((android.widget.TextView)v).setText(((CategoriaResponseDto)item).getNombre());
                         else if (item != null) ((android.widget.TextView)v).setText(item.toString());
+                        ((android.widget.TextView)v).setTextColor(android.graphics.Color.WHITE);
                         return v;
                     }
                     @Override
@@ -347,10 +361,10 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
             @Override
             public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
         });
-        
-        new MaterialAlertDialogBuilder(requireContext())
+
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle("Nueva Actividad")
-                .setView(layout)
+                .setView(dialogView)
                 .setPositiveButton("Crear", (dialog, which) -> {
                     String nombre = etNombre.getText().toString();
                     String precioStr = etPrecio.getText().toString();
@@ -389,7 +403,9 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
     private void mostrarDialogoCrearCategoria(OnNombreRecibidoListener listener) {
         android.widget.EditText et = new android.widget.EditText(getContext());
         et.setHint("Nombre de la nueva categoría");
-        new MaterialAlertDialogBuilder(requireContext())
+        et.setTextColor(Color.WHITE);
+        et.setHintTextColor(Color.GRAY);
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle("Crear Categoría")
                 .setView(et)
                 .setPositiveButton("Crear", (d, w) -> {
@@ -411,7 +427,9 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
     private void mostrarDialogoCrearSala(OnNombreRecibidoListener listener) {
         android.widget.EditText et = new android.widget.EditText(getContext());
         et.setHint("Nombre de la nueva sala");
-        new MaterialAlertDialogBuilder(requireContext())
+        et.setTextColor(Color.WHITE);
+        et.setHintTextColor(Color.GRAY);
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle("Crear Sala")
                 .setView(et)
                 .setPositiveButton("Crear", (d, w) -> {
@@ -440,17 +458,36 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
         etNombre.setText(actividad.getNombre());
         etPrecio.setText(String.valueOf(actividad.getPrecio()));
 
-        android.widget.LinearLayout layout = (android.widget.LinearLayout) dialogView;
+        // Ocultar botones del layout XML que no usaremos aquí ya que usaremos los del AlertDialog
+        View btnGuardarXml = dialogView.findViewById(R.id.btnGuardarSala);
+        View btnCancelarXml = dialogView.findViewById(R.id.btnCancelarSala);
+        if (btnGuardarXml != null) btnGuardarXml.setVisibility(View.GONE);
+        if (btnCancelarXml != null) btnCancelarXml.setVisibility(View.GONE);
+
+        // Ocultar título interno
+        View tvTitulo = dialogView.findViewById(R.id.tvTituloDialogo);
+        if (tvTitulo != null) tvTitulo.setVisibility(View.GONE);
+
+        android.widget.LinearLayout layout = dialogView.findViewById(R.id.layoutContainer);
+        if (layout == null) return;
         layout.setPadding(40, 20, 40, 20);
+
+        // Configurar hints
+        com.google.android.material.textfield.TextInputLayout tilNombre = (com.google.android.material.textfield.TextInputLayout) etNombre.getParent().getParent();
+        com.google.android.material.textfield.TextInputLayout tilPrecio = (com.google.android.material.textfield.TextInputLayout) etPrecio.getParent().getParent();
+        tilNombre.setHint("Nombre de la actividad");
+        tilPrecio.setHint("Precio (€)");
 
         android.widget.TextView tvCategoria = new android.widget.TextView(getContext());
         tvCategoria.setText("Seleccionar Categoría:");
+        tvCategoria.setTextColor(android.graphics.Color.WHITE);
         tvCategoria.setPadding(0, 20, 0, 0);
         layout.addView(tvCategoria);
         layout.addView(spinnerCategoria);
 
         android.widget.TextView tvSala = new android.widget.TextView(getContext());
         tvSala.setText("Seleccionar Sala:");
+        tvSala.setTextColor(android.graphics.Color.WHITE);
         tvSala.setPadding(0, 20, 0, 0);
         layout.addView(tvSala);
         layout.addView(spinnerSala);
@@ -499,9 +536,9 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
             public void onFailure(Call<ApiResponseDto<List<CategoriaResponseDto>>> call, Throwable t) {}
         });
 
-        new MaterialAlertDialogBuilder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle("Editar Actividad")
-                .setView(layout)
+                .setView(dialogView)
                 .setPositiveButton("Guardar", (dialog, which) -> {
                     String nombre = etNombre.getText().toString();
                     String precioStr = etPrecio.getText().toString();
@@ -582,9 +619,22 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
         Button btnHoraFin = view.findViewById(R.id.btnHoraFin);
         EditText etAforo = view.findViewById(R.id.etAforoMax);
 
+        // Ocultar botones internos
+        View btnCrearXml = view.findViewById(R.id.btnCrearHorario);
+        View btnCancelarXml = view.findViewById(R.id.btnCancelarHorario);
+        if (btnCrearXml != null) btnCrearXml.setVisibility(View.GONE);
+        if (btnCancelarXml != null) btnCancelarXml.setVisibility(View.GONE);
+
         // 1. Configurar Spinner Días
         String[] dias = {"LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"};
-        ArrayAdapter<String> adapterDias = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, dias);
+        ArrayAdapter<String> adapterDias = new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, dias) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v = super.getView(position, convertView, parent);
+                ((android.widget.TextView) v).setTextColor(Color.WHITE);
+                return v;
+            }
+        };
         adapterDias.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerDia.setAdapter(adapterDias);
 
@@ -599,6 +649,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
                         public View getView(int position, View convertView, ViewGroup parent) {
                             View v = super.getView(position, convertView, parent);
                             ((android.widget.TextView) v).setText(getItem(position).getNombre());
+                            ((android.widget.TextView) v).setTextColor(Color.WHITE);
                             return v;
                         }
                         @Override
@@ -625,6 +676,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
                         public View getView(int pos, View v, ViewGroup p) {
                             View view = super.getView(pos, v, p);
                             ((android.widget.TextView)view).setText(getItem(pos).getNombreCompleto());
+                            ((android.widget.TextView)view).setTextColor(Color.WHITE);
                             return view;
                         }
                         @Override
@@ -658,10 +710,11 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
             }, 9, 0, true).show();
         });
 
-        new MaterialAlertDialogBuilder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle("Programar " + actividad.getNombre())
                 .setView(view)
                 .setPositiveButton("Guardar", (dialog, which) -> {
+
                     String dia = spinnerDia.getSelectedItem().toString();
                     SalaResponseDto sala = (SalaResponseDto) spinnerSala.getSelectedItem();
                     PerfilResponseDto entrenador = (PerfilResponseDto) spinnerEntrenador.getSelectedItem();
@@ -723,7 +776,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
             mensaje += "\n\n" + actividad.getDescripcion();
         }
 
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle(actividad.getNombre())
                 .setMessage(mensaje)
                 .setPositiveButton("Cerrar", null);
@@ -731,7 +784,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
         if (modoGestion) {
             // Vista Gestión: Editar, Eliminar y Añadir Horario
             builder.setNeutralButton("Eliminar", (dialog, which) -> {
-                new MaterialAlertDialogBuilder(requireContext())
+                new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                         .setTitle("¿Eliminar actividad?")
                         .setMessage("Esta acción no se puede deshacer.")
                         .setPositiveButton("Eliminar", (d, w) -> {
@@ -799,7 +852,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
                                    " (Plazas: " + h.getPlazasLibres() + " / " + h.getAforoMax() + ")";
                     }
 
-                    new MaterialAlertDialogBuilder(requireContext())
+                    new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                             .setTitle("Horarios disponibles: " + actividad.getNombre())
                             .setItems(items, (dialog, which) -> {
                                 HorarioResponseDto seleccionado = horariosFiltrados.get(which);
@@ -891,7 +944,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
                         items[i] = info;
                     }
 
-                    new MaterialAlertDialogBuilder(requireContext())
+                    new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                             .setTitle("Mis Reservas")
                             .setItems(items, (dialog, which) -> {
                                 ReservaResponseDto seleccionada = reservas.get(which);
@@ -924,7 +977,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
             return;
         }
 
-        new MaterialAlertDialogBuilder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle(reserva.getNombreActividad())
                 .setItems(opciones.toArray(new String[0]), (dialog, which) -> {
                     String opcion = opciones.get(which);
@@ -966,7 +1019,7 @@ public class ActividadesFragment extends Fragment implements ActividadesAdapter.
     }
 
     private void confirmarCancelacion(ReservaResponseDto reserva) {
-        new MaterialAlertDialogBuilder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.CustomAlertDialog)
                 .setTitle("Cancelar Reserva")
                 .setMessage("¿Estás seguro de que deseas cancelar tu reserva para " + reserva.getNombreActividad() + "?\n\nRecuerda: Solo puedes cancelar hasta 2 horas antes.")
                 .setPositiveButton("Sí, cancelar", (dialog, which) -> {
